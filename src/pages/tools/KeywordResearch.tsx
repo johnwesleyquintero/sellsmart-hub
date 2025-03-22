@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { FileUploader } from '@/components/FileUploader';
 
 interface Keyword {
   keyword: string;
@@ -81,6 +82,24 @@ const KeywordResearch = () => {
     }, 1500);
   };
   
+  const handleImportData = (data: any[]) => {
+    // Process imported data from CSV or Google Sheets
+    // For this example, assume it contains a "Keyword" column
+    const importedKeywords: Keyword[] = data.map(item => ({
+      keyword: item.Keyword || item.keyword || '',
+      volume: parseInt(item.Volume || item.volume || Math.floor(Math.random() * 10000) + 1000),
+      competition: parseFloat(item.Competition || item.competition || (Math.random() * 0.9 + 0.1).toFixed(2)),
+      relevance: parseFloat(item.Relevance || item.relevance || (Math.random() * 0.9 + 0.1).toFixed(2))
+    }));
+    
+    setResults(importedKeywords);
+    
+    toast({
+      title: "Import Complete",
+      description: `Imported ${importedKeywords.length} keywords from your file`,
+    });
+  };
+  
   const getCompetitionLabel = (value: number) => {
     if (value < 0.3) return "Low";
     if (value < 0.7) return "Medium";
@@ -100,6 +119,12 @@ const KeywordResearch = () => {
       description="Identify high-volume, relevant keywords to optimize your product listings."
     >
       <div className="max-w-3xl mx-auto">
+        <FileUploader 
+          onDataReady={handleImportData}
+          title="Import Keyword Data"
+          description="Upload a CSV file with your keyword data or connect to a Google Sheet"
+        />
+        
         <form onSubmit={handleSearch} className="flex gap-2 mb-8">
           <Input
             value={searchTerm}
@@ -124,7 +149,9 @@ const KeywordResearch = () => {
         
         {results.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold mb-4">Keywords for "{searchTerm}"</h2>
+            <h2 className="text-lg font-semibold mb-4">
+              {searchTerm ? `Keywords for "${searchTerm}"` : "Imported Keywords"}
+            </h2>
             
             <div className="grid grid-cols-12 gap-4 mb-2 px-4 text-sm font-medium text-muted-foreground">
               <div className="col-span-5">Keyword</div>

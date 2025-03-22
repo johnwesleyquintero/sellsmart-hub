@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { FileUploader } from '@/components/FileUploader';
 
 interface InventoryItem {
   id: string;
@@ -98,6 +99,27 @@ const InventoryTracker = () => {
     });
   };
   
+  const handleImportData = (data: any[]) => {
+    // Process imported data from CSV or Google Sheets
+    // Map the imported data to our InventoryItem structure
+    const importedItems: InventoryItem[] = data.map((item, index) => ({
+      id: `imported-${Date.now()}-${index}`,
+      name: item['Product Name'] || item.name || '',
+      sku: item.SKU || item.sku || '',
+      currentStock: parseInt(item['Current Stock'] || item.currentStock || 0),
+      minThreshold: parseInt(item['Min Stock'] || item.minThreshold || 0),
+      maxStock: parseInt(item['Max Stock'] || item.maxStock || 100),
+    }));
+    
+    // Add the imported items to the existing items
+    setItems(prev => [...prev, ...importedItems]);
+    
+    toast({
+      title: "Import Complete",
+      description: `Imported ${importedItems.length} items to your inventory`,
+    });
+  };
+  
   const getStockLevel = (item: InventoryItem) => {
     const percentage = (item.currentStock / item.maxStock) * 100;
     
@@ -117,6 +139,12 @@ const InventoryTracker = () => {
       description="Track inventory levels and receive alerts for low stock and restocking needs."
     >
       <div className="space-y-6">
+        <FileUploader 
+          onDataReady={handleImportData}
+          title="Import Inventory Data"
+          description="Upload a CSV file with your inventory data or connect to a Google Sheet"
+        />
+        
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Your Inventory</h2>
           <Button 

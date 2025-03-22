@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileUploader } from '@/components/FileUploader';
+import { useToast } from '@/hooks/use-toast';
 
 interface SalesData {
   date: string;
@@ -23,9 +25,10 @@ interface ProductData {
 
 const SalesAnalytics = () => {
   const [timeRange, setTimeRange] = useState('30d');
+  const { toast } = useToast();
   
   // Mock data for the sales chart
-  const salesData: SalesData[] = [
+  const [salesData, setSalesData] = useState<SalesData[]>([
     { date: 'May 1', revenue: 1250, orders: 42, units: 78 },
     { date: 'May 8', revenue: 1400, orders: 48, units: 85 },
     { date: 'May 15', revenue: 1800, orders: 52, units: 92 },
@@ -38,17 +41,62 @@ const SalesAnalytics = () => {
     { date: 'Jul 3', revenue: 3000, orders: 85, units: 140 },
     { date: 'Jul 10', revenue: 3200, orders: 90, units: 150 },
     { date: 'Jul 17', revenue: 3400, orders: 95, units: 160 },
-  ];
+  ]);
   
   // Mock data for top products
-  const productData: ProductData[] = [
+  const [productData, setProductData] = useState<ProductData[]>([
     { name: 'Wireless Headphones', sales: 9800, percentage: 28 },
     { name: 'Smart Watch', sales: 8200, percentage: 24 },
     { name: 'Phone Charger', sales: 5400, percentage: 16 },
     { name: 'Bluetooth Speaker', sales: 4100, percentage: 12 },
     { name: 'Power Bank', sales: 3500, percentage: 10 },
     { name: 'Other Products', sales: 3400, percentage: 10 },
-  ];
+  ]);
+  
+  const handleImportData = (data: any[]) => {
+    // Check if this looks like sales data or product data by examining properties
+    if (data[0] && (data[0].date || data[0].Date || data[0].DATE)) {
+      // This appears to be sales data
+      const importedSalesData: SalesData[] = data.map(item => ({
+        date: item.date || item.Date || item.DATE || '',
+        revenue: parseFloat(item.revenue || item.Revenue || item.REVENUE || 0),
+        orders: parseInt(item.orders || item.Orders || item.ORDERS || 0),
+        units: parseInt(item.units || item.Units || item.UNITS || 0)
+      }));
+      
+      setSalesData(importedSalesData);
+      
+      toast({
+        title: "Import Complete",
+        description: `Imported ${importedSalesData.length} sales data records`,
+      });
+    } else if (data[0] && (data[0].product || data[0].Product || data[0].name || data[0].Name)) {
+      // This appears to be product data
+      const importedProductData: ProductData[] = data.map(item => ({
+        name: item.product || item.Product || item.name || item.Name || '',
+        sales: parseFloat(item.sales || item.Sales || item.SALES || 0),
+        percentage: parseFloat(item.percentage || item.Percentage || calculatePercentage(item.sales || item.Sales || 0, data))
+      }));
+      
+      setProductData(importedProductData);
+      
+      toast({
+        title: "Import Complete",
+        description: `Imported ${importedProductData.length} product data records`,
+      });
+    } else {
+      toast({
+        title: "Import Error",
+        description: "Could not determine data format. Please use a compatible format.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const calculatePercentage = (sales: number, data: any[]) => {
+    const totalSales = data.reduce((sum, item) => sum + parseFloat(item.sales || item.Sales || 0), 0);
+    return totalSales ? (sales / totalSales) * 100 : 0;
+  };
   
   // Colors for the pie chart
   const COLORS = ['#3245ff', '#bc52ee', '#4FD1C5', '#2d3748', '#718096', '#a0aec0'];
@@ -123,6 +171,12 @@ const SalesAnalytics = () => {
       description="Access basic sales analytics and trends to inform your business decisions."
     >
       <div className="space-y-6">
+        <FileUploader 
+          onDataReady={handleImportData}
+          title="Import Sales Data"
+          description="Upload a CSV file with your sales data or connect to a Google Sheet"
+        />
+        
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Sales Overview</h2>
           
