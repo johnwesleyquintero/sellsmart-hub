@@ -43,6 +43,10 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    --sellsmart-blue: 227 100% 62%;
+    --sellsmart-purple: 280 83% 63%;
+    --sellsmart-teal: 176 61% 56%;
   }
 }
 
@@ -92,6 +96,30 @@
   .animate-on-scroll.animate-visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  .text-sellsmart-blue {
+    @apply text-[#3245ff];
+  }
+  
+  .bg-sellsmart-blue {
+    @apply bg-[#3245ff];
+  }
+  
+  .text-sellsmart-purple {
+    @apply text-[#bc52ee];
+  }
+  
+  .bg-sellsmart-purple {
+    @apply bg-[#bc52ee];
+  }
+  
+  .text-sellsmart-teal {
+    @apply text-[#4FD1C5];
+  }
+  
+  .bg-sellsmart-teal {
+    @apply bg-[#4FD1C5];
   }
 }
 

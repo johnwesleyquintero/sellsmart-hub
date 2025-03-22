@@ -2,43 +2,44 @@
 import React, { useEffect, useRef } from 'react';
 import { Search, Package, FileText, Target, MessageCircle, BarChart3, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const tools = [
   {
     icon: <Search className="h-8 w-8" />,
     title: 'Keyword Research Tool',
     description: 'Identify high-volume, relevant keywords to optimize your product listings.',
-    page: 'listings'
+    page: '/tools/keyword-research'
   },
   {
     icon: <Package className="h-8 w-8" />,
     title: 'Inventory Tracker',
     description: 'Track inventory levels and receive alerts for low stock and restocking needs.',
-    page: 'inventory'
+    page: '/tools/inventory-tracker'
   },
   {
     icon: <FileText className="h-8 w-8" />,
     title: 'Listing Optimization Checker',
     description: 'Analyze your product listings and receive optimization suggestions.',
-    page: 'listings'
+    page: '/tools/listing-optimizer'
   },
   {
     icon: <Target className="h-8 w-8" />,
     title: 'PPC Campaign Audit',
     description: 'Get insights into your PPC campaign performance and recommendations for improvement.',
-    page: 'ppc'
+    page: '/tools/ppc-audit'
   },
   {
     icon: <MessageCircle className="h-8 w-8" />,
     title: 'Review Management Tool',
     description: 'Monitor and respond to customer reviews to build social proof and improve visibility.',
-    page: 'reviews'
+    page: '/tools/review-management'
   },
   {
     icon: <BarChart3 className="h-8 w-8" />,
     title: 'Sales Analytics Dashboard',
     description: 'Access basic sales analytics and trends to inform your business decisions.',
-    page: 'analytics'
+    page: '/tools/sales-analytics'
   }
 ];
 
@@ -112,9 +113,12 @@ const FreeTools = () => {
               <Button 
                 variant="ghost" 
                 className="text-sellsmart-teal hover:text-sellsmart-teal/90 hover:bg-sellsmart-teal/10 p-0 h-auto font-medium flex items-center"
+                asChild
               >
-                <span>Try for free</span>
-                <ArrowRight className="ml-1 h-4 w-4" />
+                <Link to={tool.page}>
+                  <span>Try for free</span>
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           ))}
