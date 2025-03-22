@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { UploadCloud, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,7 @@ interface FileUploaderProps {
   maxFileSizeMB?: number;
   title?: string;
   description?: string;
+  data?: any[];
 }
 
 export function FileUploader({
@@ -22,7 +23,8 @@ export function FileUploader({
   allowedFileTypes = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel",
   maxFileSizeMB = 5,
   title = "Upload Your Data",
-  description = "Upload a CSV file or connect to a Google Sheet"
+  description = "Upload a CSV file or connect to a Google Sheet",
+  data = []
 }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
@@ -190,13 +192,78 @@ export function FileUploader({
     setFile(null);
     setUploadStatus('idle');
   };
+
+  const exportToCSV = () => {
+    if (!data || data.length === 0) {
+      toast({
+        title: "No data to export",
+        description: "Please upload or connect to data first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Get headers from the first data object
+      const headers = Object.keys(data[0]);
+      
+      // Create CSV content with headers
+      let csvContent = headers.join(',') + '\n';
+      
+      // Add data rows
+      data.forEach(row => {
+        const rowValues = headers.map(header => {
+          // Handle values that might contain commas
+          const value = row[header]?.toString() || '';
+          return value.includes(',') ? `"${value}"` : value;
+        });
+        csvContent += rowValues.join(',') + '\n';
+      });
+      
+      // Create a Blob and download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `exported-data-${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export successful",
+        description: `Exported ${data.length} rows of data to CSV`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive"
+      });
+    }
+  };
   
   return (
     <Card className="bg-white shadow-sm border-border mb-6">
       <CardContent className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-medium mb-1">{title}</h3>
-          <p className="text-muted-foreground text-sm">{description}</p>
+        <div className="mb-4 flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-medium mb-1">{title}</h3>
+            <p className="text-muted-foreground text-sm">{description}</p>
+          </div>
+          {data && data.length > 0 && (
+            <Button 
+              onClick={exportToCSV}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          )}
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">

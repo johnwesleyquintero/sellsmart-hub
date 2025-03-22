@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileUploader } from '@/components/FileUploader';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 
 interface SalesData {
@@ -26,6 +27,7 @@ interface ProductData {
 const SalesAnalytics = () => {
   const [timeRange, setTimeRange] = useState('30d');
   const { toast } = useToast();
+  const [showDataTable, setShowDataTable] = useState(false);
   
   // Mock data for the sales chart
   const [salesData, setSalesData] = useState<SalesData[]>([
@@ -65,6 +67,7 @@ const SalesAnalytics = () => {
       }));
       
       setSalesData(importedSalesData);
+      setShowDataTable(true);
       
       toast({
         title: "Import Complete",
@@ -79,6 +82,7 @@ const SalesAnalytics = () => {
       }));
       
       setProductData(importedProductData);
+      setShowDataTable(true);
       
       toast({
         title: "Import Complete",
@@ -113,15 +117,21 @@ const SalesAnalytics = () => {
   
   // Calculate summary metrics
   const calculateSummary = () => {
-    // For this demo, we'll just use hardcoded values with realistic trends
+    // Calculate real metrics from the current salesData
+    const totalRevenue = salesData.reduce((sum, item) => sum + item.revenue, 0);
+    const totalOrders = salesData.reduce((sum, item) => sum + item.orders, 0);
+    const totalUnits = salesData.reduce((sum, item) => sum + item.units, 0);
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    
+    // For this demo, we'll use hardcoded trends
     return {
-      totalRevenue: 28500,
+      totalRevenue,
       revenueTrend: 14.5,
-      totalOrders: 842,
+      totalOrders,
       ordersTrend: 8.2,
-      totalUnits: 1410,
+      totalUnits,
       unitsTrend: 12.7,
-      averageOrderValue: 33.85,
+      averageOrderValue,
       aovTrend: 5.3
     };
   };
@@ -150,16 +160,12 @@ const SalesAnalytics = () => {
         <p className="text-sm">
           <span className="font-medium">Revenue:</span> ${payload[0].value?.toLocaleString() || '0'}
         </p>
-        {payload[0].payload && (
-          <>
-            <p className="text-sm">
-              <span className="font-medium">Orders:</span> {payload[0].payload.orders || 0}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Units Sold:</span> {payload[0].payload.units || 0}
-            </p>
-          </>
-        )}
+        <p className="text-sm">
+          <span className="font-medium">Orders:</span> {payload[0].payload?.orders?.toLocaleString() || '0'}
+        </p>
+        <p className="text-sm">
+          <span className="font-medium">Units Sold:</span> {payload[0].payload?.units?.toLocaleString() || '0'}
+        </p>
       </div>
     );
   };
@@ -175,25 +181,36 @@ const SalesAnalytics = () => {
           onDataReady={handleImportData}
           title="Import Sales Data"
           description="Upload a CSV file with your sales data or connect to a Google Sheet"
+          data={[...salesData, ...productData]}
         />
         
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Sales Overview</h2>
           
-          <Select
-            value={timeRange}
-            onValueChange={setTimeRange}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-              <SelectItem value="90d">Last 90 Days</SelectItem>
-              <SelectItem value="1y">Last 12 Months</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDataTable(!showDataTable)}
+            >
+              {showDataTable ? "Hide Data Table" : "Show Data Table"}
+            </Button>
+            
+            <Select
+              value={timeRange}
+              onValueChange={setTimeRange}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="90d">Last 90 Days</SelectItem>
+                <SelectItem value="1y">Last 12 Months</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -302,6 +319,73 @@ const SalesAnalytics = () => {
           </Card>
         </div>
         
+        {showDataTable && (
+          <Card>
+            <CardContent className="p-4 pt-5 overflow-auto">
+              <h3 className="font-medium mb-4">Imported Data</h3>
+              {salesData.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium mb-2">Sales Data</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Revenue</TableHead>
+                        <TableHead>Orders</TableHead>
+                        <TableHead>Units</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {salesData.slice(0, 5).map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{formatCurrency(row.revenue)}</TableCell>
+                          <TableCell>{row.orders}</TableCell>
+                          <TableCell>{row.units}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {salesData.length > 5 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-right">
+                      Showing 5 of {salesData.length} rows
+                    </p>
+                  )}
+                </div>
+              )}
+              
+              {productData.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Product Data</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Sales</TableHead>
+                        <TableHead>Percentage</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {productData.slice(0, 5).map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{formatCurrency(row.sales)}</TableCell>
+                          <TableCell>{row.percentage.toFixed(1)}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {productData.length > 5 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-right">
+                      Showing 5 of {productData.length} rows
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="col-span-1 lg:col-span-2">
             <CardContent className="p-4 pt-5">
@@ -386,15 +470,15 @@ const SalesAnalytics = () => {
           <ul className="space-y-1 text-sm text-muted-foreground">
             <li className="flex items-start">
               <span className="mr-2">•</span>
-              <span>Your best selling product is Wireless Headphones at $9,800 in revenue</span>
+              <span>Your best selling product is {productData[0]?.name || 'Wireless Headphones'} at {formatCurrency(productData[0]?.sales || 9800)} in revenue</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>
-              <span>Revenue has increased by 14.5% compared to the previous period</span>
+              <span>Revenue has increased by {summary.revenueTrend}% compared to the previous period</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>
-              <span>Your average order value has grown by 5.3%, suggesting successful upselling</span>
+              <span>Your average order value has grown by {summary.aovTrend}%, suggesting successful upselling</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>
