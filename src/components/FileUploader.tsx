@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { UploadCloud, FileSpreadsheet, X, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
