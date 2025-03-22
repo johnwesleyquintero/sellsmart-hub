@@ -1,69 +1,151 @@
-# Welcome to your Lovable project
+---
 
-## Project info
+# SellerSmart: All-in-One Amazon Agency
 
-**URL**: https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3
+## Overview
 
-## How can I edit this code?
+SellerSmart is an all-in-one Amazon agency designed to help sellers succeed on the world's largest e-commerce platform. Whether you're just starting out or scaling your existing business, our comprehensive services and innovative web app provide everything you need to thrive on Amazon.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3) and start prompting.
+### Services
+- **Supplier and Brand Relationship Building**: Identify reliable suppliers, negotiate terms, and manage relationships.
+- **Product Sourcing and Catalog Building**: Select profitable products, manage catalogs, and track inventory.
+- **SEO and Listing Optimization**: Optimize product listings with keyword research and enhanced content.
+- **PPC Advertising and Bidding Strategies**: Set up and manage PPC campaigns with bid optimization and performance tracking.
+- **Brand Building and Marketing**: Develop brand strategies, leverage digital marketing, and engage customers.
+- **Operational Support**: Manage logistics, financials, and compliance.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Web App Features
+#### For Non-API Sellers
+- Manual data entry, inventory updates, order tracking, and product listing optimization.
+- Manual PPC campaign setup, review management, and sales analytics.
+- Limited integration with third-party tools and dedicated customer support.
 
-**Use your preferred IDE**
+#### For API Sellers
+- Automated data entry, real-time inventory tracking, and order processing.
+- Automated PPC campaign management, review monitoring, and sales analytics.
+- Seamless integration with third-party tools and automated support.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Free Tools
+- **Keyword Research Tool**: Optimize product listings with high-volume keywords.
+- **Inventory Tracker**: Monitor inventory levels and receive alerts.
+- **Listing Optimization Checker**: Analyze and optimize product listings.
+- **PPC Campaign Audit**: Get insights and recommendations for PPC campaigns.
+- **Review Management Tool**: Monitor and respond to customer reviews.
+- **Sales Analytics Dashboard**: Access basic sales analytics and trends.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Setup and Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/yourusername/sellersmart-webapp.git
+   cd sellersmart-webapp
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. **Start the Development Server**:
+   ```bash
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+4. **Build for Production**:
+   ```bash
+   npm run build
+   ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Development Guidelines
 
-**Use GitHub Codespaces**
+- Follow consistent coding standards and use linters to enforce code quality.
+- Keep components modular and reusable.
+- Document your code and components for easy maintenance.
+- Write unit tests for critical components and functions.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Deployment
 
-This project is built with .
+- Choose a deployment platform such as Vercel, Netlify, or AWS.
+- Set up CI/CD pipelines to automate testing and deployment.
+- Use environment variables to manage configuration settings.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## Contact Us
 
-Simply open [Lovable](https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3) and click on Share -> Publish.
+Ready to take your Amazon business to the next level? Contact SellerSmart today to learn more about our services and how we can help you succeed on Amazon.
 
-## I want to use a custom domain - is that possible?
+- **Email**: smartsmartecommerce@gmail.com  
+- **Phone**: +63 09504469156  
+- **Website**: [www.sellersmart.netlify.app](http://www.sellersmart.netlify.app)  
+- **Address**: 123 Main Street, Suite 456, Anytown, Country 12345  
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+---
+
+## Project Information
+
+**URL**: [Lovable Project](https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3)  
+
+---
+
+## Editing the Code
+
+### Using Lovable
+- Visit the [Lovable Project](https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3) and start prompting. Changes made via Lovable will be automatically committed to this repository.
+
+### Using Your Preferred IDE
+1. Clone the repository:
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd <YOUR_PROJECT_NAME>
+   ```
+2. Install dependencies:
+   ```bash
+   npm i
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Editing Directly in GitHub
+- Navigate to the desired file(s), click the "Edit" button (pencil icon), make your changes, and commit.
+
+### Using GitHub Codespaces
+- Navigate to the repository, click the "Code" button, select the "Codespaces" tab, and create a new Codespace to edit files directly.
+
+---
+
+## Technologies Used
+
+- **Vite**  
+- **TypeScript**  
+- **React**  
+- **shadcn-ui**  
+- **Tailwind CSS**  
+
+---
+
+## Deployment Options
+
+### Via Lovable
+- Open [Lovable](https://lovable.dev/projects/c2c6fd21-a47a-4bb4-976a-c9d029be30d3), click on **Share -> Publish**.
+
+### Custom Domain (Not Supported Yet)
+- For custom domains, use Netlify. Refer to our [Custom Domains Guide](https://docs.lovable.dev/tips-tricks/custom-domain/) for details.
+
+---
+
+*SellerSmart is committed to helping Amazon sellers thrive. Our comprehensive services and innovative web app provide everything you need to succeed on the world's largest e-commerce platform. Join us today and take the first step towards growing your Amazon business.*
+
+---
