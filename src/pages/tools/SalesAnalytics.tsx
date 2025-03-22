@@ -90,24 +90,30 @@ const SalesAnalytics = () => {
     }
   };
   
+  // Fixed CustomTooltip component with proper null checks
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border rounded shadow-sm">
-          <p className="font-medium">{label}</p>
-          <p className="text-sm">
-            <span className="font-medium">Revenue:</span> ${payload[0].value.toLocaleString()}
-          </p>
-          <p className="text-sm">
-            <span className="font-medium">Orders:</span> {payload[1].payload.orders}
-          </p>
-          <p className="text-sm">
-            <span className="font-medium">Units Sold:</span> {payload[1].payload.units}
-          </p>
-        </div>
-      );
+    if (!active || !payload || !payload.length || !payload[0]) {
+      return null;
     }
-    return null;
+    
+    return (
+      <div className="bg-white p-3 border rounded shadow-sm">
+        <p className="font-medium">{label}</p>
+        <p className="text-sm">
+          <span className="font-medium">Revenue:</span> ${payload[0].value?.toLocaleString() || '0'}
+        </p>
+        {payload[0].payload && (
+          <>
+            <p className="text-sm">
+              <span className="font-medium">Orders:</span> {payload[0].payload.orders || 0}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Units Sold:</span> {payload[0].payload.units || 0}
+            </p>
+          </>
+        )}
+      </div>
+    );
   };
   
   return (
