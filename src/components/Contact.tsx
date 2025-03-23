@@ -168,12 +168,12 @@ const Contact = () => {
                 Explore our full range of services and resources on our website.
               </p>
               <a 
-                href="http://www.SellSmart.netlify.app" 
+                href="http://https://sellsmart-hub.netlify.app" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-sellsmart-blue hover:underline flex items-center"
               >
-                www.SellSmart.netlify.app
+                https://sellsmart-hub.netlify.app
                 <ArrowRight className="ml-1 h-4 w-4" />
               </a>
             </div>
