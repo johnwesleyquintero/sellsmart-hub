@@ -163,19 +163,30 @@ const Contact = () => {
             </div>
             
             <div className="glass-card p-6">
-              <h4 className="font-semibold mb-2">Visit Our Website</h4>
+              <h4 className="font-semibold mb-2">Our Websites</h4>
               <p className="text-sm text-muted-foreground mb-4">
-                Explore our full range of services and resources on our website.
+                Explore our services through these resources:
               </p>
-              <a 
-                href="http://https://sellsmart-hub.netlify.app" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sellsmart-blue hover:underline flex items-center"
-              >
-                https://sellsmart-hub.netlify.app
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </a>
+              <div className="space-y-3">
+                <a
+                  href="https://wesleyquintero.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sellsmart-blue hover:underline flex items-center"
+                >
+                  wesleyquintero.vercel.app
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </a>
+                <a
+                  href="https://sellsmart-hub.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sellsmart-blue hover:underline flex items-center"
+                >
+                  sellsmart-hub.vercel.app
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
