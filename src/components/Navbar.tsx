@@ -27,6 +27,7 @@ const Navbar = () => {
     { name: 'Case Studies', href: '#case-studies' },
     { name: 'Free Tools', href: '#free-tools' },
     { name: 'Contact', href: '#contact' },
+    { name: 'Docs', href: 'https://sellsmart-docs.vercel.app/', external: true }, // New external link
   ];
 
   return (
@@ -49,6 +50,8 @@ const Navbar = () => {
               key={link.name}
               href={link.href}
               className="text-sm font-medium transition-colors hover:text-sellsmart-blue"
+              target={link.external ? "_blank" : "_self"} // Open in new tab if external
+              rel={link.external ? "noopener noreferrer" : undefined} // Security for external links
             >
               {link.name}
             </a>
@@ -84,6 +87,8 @@ const Navbar = () => {
                 href={link.href}
                 className="text-sm font-medium transition-colors hover:text-sellsmart-blue p-2"
                 onClick={() => setMobileMenuOpen(false)}
+                target={link.external ? "_blank" : "_self"} // Open in new tab if external
+                rel={link.external ? "noopener noreferrer" : undefined} // Security for external links
               >
                 {link.name}
               </a>
