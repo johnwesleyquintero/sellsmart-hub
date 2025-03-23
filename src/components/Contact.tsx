@@ -186,6 +186,15 @@ const Contact = () => {
                   sellsmart-hub.vercel.app
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
+                <a
+                  href="https://sellsmart-docs.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sellsmart-blue hover:underline flex items-center"
+                >
+                  sellsmart-docs.vercel.app
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </a>
               </div>
             </div>
           </div>
