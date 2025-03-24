@@ -103,7 +103,7 @@ export default function FeaturedToolsSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <Badge variant="secondary" className="mb-4">
-            Powered by <Link href="https://sellsmart-hub.vercel.app" target="_blank" rel="noopener noreferrer">SellSmart</Link>
+            Powered by<Link href="https://sellsmart-hub.vercel.app" target="_blank" rel="noopener noreferrer">SellSmart</Link>
           </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Amazon Seller Tools Suite</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
