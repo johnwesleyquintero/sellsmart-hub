@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean-install": "taskkill /F /IM node.exe /T && rimraf --no-glob node_modules package-lock.json && timeout 5 && npm install --force"
+    "clean-install": "wmic process where \"name='node.exe' AND ProcessId<>%PPID%\" delete && rimraf --no-glob node_modules package-lock.json && timeout 5 && npm install --force"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",
