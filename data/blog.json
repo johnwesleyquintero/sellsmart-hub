@@ -1,0 +1,44 @@
+{
+  "posts": [
+    {
+      "id": "getting-started-with-amazon-fba",
+      "title": "Getting Started with Amazon FBA: A Comprehensive Guide",
+      "description": "Learn everything you need to know about starting your Amazon FBA business, from product research to your first sale.",
+      "date": "2024-01-15",
+      "author": "Wesley Quintero",
+      "tags": ["amazon-fba", "e-commerce", "business"],
+      "image": "/images/blog/getting-started-fba.svg",
+      "readingTime": "8 min read"
+    },
+    {
+      "id": "mastering-amazon-ppc",
+      "title": "Mastering Amazon PPC: Advanced Campaign Structures for 2025",
+      "description": "Explore cutting-edge PPC campaign structures that maximize ROAS and minimize ACoS. Includes real case studies with before/after results.",
+      "date": "2024-12-12",
+      "author": "Wesley Quintero",
+      "tags": ["amazon-ppc", "advertising", "roas-optimization"],
+      "image": "/images/blog/Mastering Amazon PPC.svg",
+      "readingTime": "15 min read"
+    },
+    {
+      "id": "data-visualization-for-amazon-sellers",
+      "title": "Data Visualization for Amazon Sellers: Turning Numbers into Actionable Insights",
+      "description": "Learn how to create powerful dashboards that transform your Amazon seller data into clear, actionable insights. Includes step-by-step tutorials and tool recommendations.",
+      "date": "2025-01-20",
+      "author": "Wesley Quintero",
+      "tags": ["data-visualization", "analytics", "dashboard-design"],
+      "image": "/images/blog/Data Visualization for Amazon Sellers.svg",
+      "readingTime": "12 min read"
+    },
+    {
+      "id": "10-advanced-amazon-seo-techniques",
+      "title": "10 Advanced Amazon SEO Techniques That Actually Work in 2025",
+      "description": "Discover proven strategies to optimize your Amazon listings for maximum visibility and conversion. Learn how to leverage A9 algorithm updates and keyword research tools.",
+      "date": "2025-02-28",
+      "author": "Wesley Quintero",
+      "tags": ["amazon-seo", "a9-algorithm", "keyword-optimization"],
+      "image": "/images/blog/10 Advanced Amazon SEO Techniques That Actually Work in 2025.svg",
+      "readingTime": "10 min read"
+    }
+  ]
+}

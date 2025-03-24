@@ -1,0 +1,30 @@
+{
+  "skills": [
+    {
+      "name": "Data Analytics",
+      "level": 95,
+      "icon": "LineChart"
+    },
+    {
+      "name": "Python/R Programming",
+      "level": 90,
+      "icon": "Code"
+    },
+    {
+      "name": "Machine Learning",
+      "level": 85,
+      "icon": "Brain"
+    },
+    {
+      "name": "SQL/Database Management",
+      "level": 90,
+      "icon": "Database"
+    },
+    {
+      "name": "Process Automation",
+      "level": 95,
+      "icon": "Workflow"
+    }
+  ]
+}
+

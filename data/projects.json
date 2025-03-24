@@ -1,0 +1,66 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "SellSmart",
+      "image": "/images/projects/sellsmart-hub.svg",
+      "description": "AI-powered analytics and automation tools delivered as a modern web application for Amazon sellers.",
+      "diagramType": "ai",
+      "tags": ["React", "Node.js", "AI", "Analytics"],
+      "liveUrl": "https://sellsmart-hub.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/sellsmart",
+      "category": "data"
+    },
+    {
+      "id": 2,
+      "title": "DevFlowDB",
+      "image": "/images/projects/DevFlowDB.svg",
+      "description": "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
+      "diagramType": "analytics",
+      "tags": ["WASM", "SQL", "Performance", "Database"],
+      "liveUrl": "https://devflowdb.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/devflowdb",
+      "category": "data"
+    },
+    {
+      "id": 3,
+      "title": "Inventory Management",
+      "image": "/images/projects/InventoryManagementSystem.svg",
+      "description": "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
+      "tags": ["Inventory", "Process Optimization", "SOP"],
+      "liveUrl": "https://sellsmart-docs.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/sellsmart-docs",
+      "category": "backend"
+    },
+    {
+      "id": 4,
+      "title": "FBA Department Operations",
+      "image": "/images/projects/FBADepartmentOperations.svg",
+      "description": "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
+      "tags": ["Training", "Workflow", "Documentation"],
+      "liveUrl": "https://sellsmart-docs.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/sellsmart-docs",
+      "category": "backend"
+    },
+    {
+      "id": 5,
+      "title": "SellSmart Design x Docs",
+      "description": "Comprehensive design system documentation with component guidelines, design tokens, and framework implementation details.",
+      "image": "/images/projects/sellsmart-docs.svg",
+      "tags": ["Documentation", "Design System", "Components"],
+      "liveUrl": "https://sellsmart-docs.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/sellsmart-docs",
+      "category": "data"
+    },
+    {
+      "id": 6,
+      "title": "Wholesale Buyer's Guide",
+      "description": "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
+      "image": "/images/projects/WholesaleBuyer'sGuide.svg",
+      "tags": ["Client Engagement", "Best Practices", "Documentation"],
+      "liveUrl": "https://sellsmart-docs.vercel.app/",
+      "githubUrl": "https://github.com/johnwesleyquintero/sellsmart-docs",
+      "category": "frontend"
+    }
+  ]
+}

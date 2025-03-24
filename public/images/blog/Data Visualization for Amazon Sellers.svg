@@ -1,0 +1,8 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#232F3E"/>
+  <!-- Data Visualization-themed icon: Pie chart -->
+  <path d="M600 330C600 292.386 627.386 265 665 265C702.614 265 730 292.386 730 330C730 367.614 702.614 395 665 395C627.386 395 600 367.614 600 330Z" fill="#FF9900"/>
+  <path d="M665 265L665 330L600 330C600 292.386 627.386 265 665 265Z" fill="#FF9900" opacity="0.5"/>
+  <rect x="450" y="300" width="300" height="180" rx="8" fill="#FF9900" opacity="0.1"/>
+  <text x="600" y="550" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle">Data Visualization for Amazon Sellers</text>
+</svg>
