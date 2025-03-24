@@ -21,8 +21,8 @@ export async function getGitHubProjects() {
     {
       "title": "DevFlowDB",
       "image": "/public/database.svg",
-      "description": "Lightweight WASM-powered SQL database with HTTPvfs integration for efficient data fetching. Handles 500+ queries/sec with <200ms latency in demo (1MB database size). Features schema versioning and browser IndexedDB caching.",
-      "tags": ["sql.js (WASM)", "TypeScript", "HTTPvfs", "IndexedDB"],
+      "description": "The Developer-Centric Database Solution",
+      "tags": ["Node.js 18+", "React 18 + Vite", "Tailwind CSS 3", "Supabase"],
       "liveUrl": "DevFlowDB.vercel.app",
       "githubUrl": "https://github.com/johnwesleyquintero/DevFlowDB"
     }

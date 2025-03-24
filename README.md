@@ -21,6 +21,7 @@
   <img src="public\portfolio-preview.svg" alt="Portfolio Preview" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
   <img src="public\images\projects\sellsmart-hub.svg" alt="SellSmart-Hub" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
   <img src="public\images\projects\sellsmart-docs.svg" alt="SellSmart-Docs" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
+  <img src="public\images\projects\DevFlowDB.svg" alt="DevFlowDB" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
 </div>
   <div style="height: 4px; background: linear-gradient(90deg, #059669 0%, #06b6d4 100%); margin: 2rem auto; width: 80%; border-radius: 2px;"></div>
 </div>
@@ -32,6 +33,10 @@ This portfolio website is a showcase of my skills, projects, and experience as a
 
 The website is hosted on Vercel Edge Network, providing fast and reliable performance. It also integrates Vercel Speed Insights for analytics and SEO optimization with Free Amazon Tools.
 The portfolio is designed to be easily customizable and maintainable, making it a great starting point for anyone looking to create their own portfolio website.
+
+## Featured Integration
+
+**DevFlowDB** - A powerful web-based interface for managing Supabase databases with visual query building, real-time collaboration, and data visualization capabilities.
 
 </div>
 
@@ -94,3 +99,4 @@ Please follow [GitHub Flow](https://guides.github.com/introduction/flow/) for co
 | Portfolio         | [View Portfolio](https://wesleyquintero.vercel.app/)                   |
 | Documentation     | [View Documentation](https://sellsmart-docs.vercel.app/)              |
 | Main Web App      | [View Main Web App](https://sellsmart-hub.vercel.app/)                |
+| DevFlowDB         | [View DevFlowDB](https://devflowdb.vercel.app/)                   |

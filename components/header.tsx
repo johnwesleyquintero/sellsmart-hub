@@ -5,11 +5,13 @@ import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Menu, X } from "lucide-react"
+import { ActionSearchBar } from '@/components/action-search-bar'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     setMounted(true)
@@ -85,7 +87,12 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="absolute left-0 right-0 top-16 z-50 border-b bg-background p-4 md:hidden">
-            <nav className="flex flex-col space-y-4">
+            <nav className="flex items-center space-x-6">
+              <ActionSearchBar 
+                className="w-[200px] lg:w-[300px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
               {navItems.map((item) => (
                 <Link
                   key={item.name}
