@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { ActionSearchBar } from '@/components/action-search-bar'
 import { motion, AnimatePresence } from "framer-motion"
+import { externalLinks } from "@/lib/config/external-links"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -21,8 +22,6 @@ export default function Header() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
-
-import { externalLinks } from "@/lib/config/external-links"
 
   const navItems = [
     { name: "Home", href: "#hero" },
