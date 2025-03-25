@@ -21,7 +21,7 @@
   <img src="public\portfolio-preview.svg" alt="Portfolio Preview" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
   <img src="public\images\projects\sellsmart-hub.svg" alt="SellSmart-Hub" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
   <img src="public\images\projects\sellsmart-docs.svg" alt="SellSmart-Docs" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
-  <img src="public\images\projects\DevFlowDB.svg" alt="DevFlowDB" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
+  <img src="public\images\projects\devflowdb-preview.svg" alt="DevFlowDB" style="width: 100%; height: auto; border-radius: 12px; padding: 1rem; background: rgba(6, 182, 212, 0.05);">
 </div>
   <div style="height: 4px; background: linear-gradient(90deg, #059669 0%, #06b6d4 100%); margin: 2rem auto; width: 80%; border-radius: 2px;"></div>
 </div>

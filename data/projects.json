@@ -14,7 +14,7 @@
     {
       "id": 2,
       "title": "DevFlowDB",
-      "image": "/images/projects/DevFlowDB.svg",
+      "image": "/images/projects/devflowdb-preview.svg",
       "description": "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
       "diagramType": "analytics",
       "tags": ["WASM", "SQL", "Performance", "Database"],

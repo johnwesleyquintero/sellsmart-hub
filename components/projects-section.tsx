@@ -34,7 +34,7 @@ const projects = [
     id: 2,
     title: "DevFlowDB",
     description: "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
-    image: "/images/projects/DevFlowDB.svg",
+    image: "/images/projects/devflowdb-preview.svg",
     tags: ["WASM", "SQL", "Performance", "Database"],
     liveUrl: "https://devflowdb.vercel.app/",
     githubUrl: "https://github.com/johnwesleyquintero/devflowdb",
