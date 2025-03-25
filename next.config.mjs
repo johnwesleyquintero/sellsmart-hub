@@ -19,23 +19,22 @@ const nextConfig = withMDX({
     parallelServerCompiles: true
   },
   eslint: {
-    ...(userConfig?.eslint || {})
-  }
-})
-
-  eslint: {
-    ignoreDuringBuilds: true,
+    ...(userConfig?.eslint || {}),
+    ignoreDuringBuilds: true
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true
   },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'wesleyquintero.vercel.app',
-        pathname: '/**',
-      },
+        pathname: '/**'
+      }
+    ]
+  }
+})
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
