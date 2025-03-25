@@ -69,16 +69,16 @@ export default async function BlogPost({ params }: Props) {
   }
 
   return (
-    <article className="container mx-auto max-w-3xl px-4 py-12">
-      <div className="mb-8">
-        <Button asChild variant="ghost" className="mb-4 -ml-4 h-8">
+    <article className="container mx-auto max-w-3xl px-4 py-16 md:py-24">
+      <div className="mb-12">
+        <Button asChild variant="ghost" className="mb-6 -ml-4 h-8 text-muted-foreground hover:text-foreground">
           <Link href="/blog" className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4" />
             Back to Blog
           </Link>
         </Button>
-        <h1 className="mb-4 text-4xl font-bold">{post.title}</h1>
-        <div className="mb-4 flex items-center gap-4 text-muted-foreground">
+        <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl">{post.title}</h1>
+        <div className="mb-6 flex items-center gap-4 text-muted-foreground">
           <span>{post.date}</span>
           <span>•</span>
           <span>{post.readingTime}</span>
@@ -94,7 +94,7 @@ export default async function BlogPost({ params }: Props) {
         </div>
       </div>
       {post.image && (
-        <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg">
+        <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-xl shadow-lg">
           <Image
             src={post.image}
             alt={post.title}
