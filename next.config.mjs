@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 import { withMDX } from '@next/mdx'
+import createMDX from '@next/mdx'
+
+const withMDXConfig = createMDX({
+  extension: /\.mdx?$/
+})
 
 const userConfig = {}
-const nextConfig = withMDX({
+const nextConfig = withMDXConfig({
   ...(userConfig || {}),
   experimental: {
     webpackBuildWorker: true,
