@@ -2,6 +2,10 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import dynamic from 'next/dynamic'
+const Header = dynamic(() => import('@/components/header'), { loading: () => <div className="h-16" /> })
+const Footer = dynamic(() => import('@/components/footer'), { loading: () => <div className="h-24" /> })
+const ThemeProvider = dynamic(() => import('@/components/theme-provider'), { ssr: false })
 import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
 import { cn } from "@/lib/utils"
 
