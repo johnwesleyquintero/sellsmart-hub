@@ -6,6 +6,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import MDXContent from './mdx-content'
 
 interface Post {
   id: string
@@ -103,8 +104,6 @@ export default async function BlogPost({ params }: Props) {
           />
         </div>
       )}
-import MDXContent from './mdx-content'
-
       <div className="prose prose-lg dark:prose-invert">
         <MDXContent slug={params.slug} />
       </div>

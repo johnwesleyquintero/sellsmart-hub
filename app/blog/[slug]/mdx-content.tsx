@@ -1,17 +1,18 @@
-import { MDXRemote } from "next-mdx-remote/rsc"
-import { serialize } from "next-mdx-remote/serialize"
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 interface Props {
   slug: string
 }
 
 export default async function MDXContent({ slug }: Props) {
-  const content = await import(`../${slug}/content.mdx`).then((m) => m.default)
-  const mdxSource = await serialize(content)
+  const filePath = join(process.cwd(), 'app', 'blog', slug, 'content.mdx')
+  const source = readFileSync(filePath, 'utf8')
 
   return (
     <div className="prose prose-lg dark:prose-invert">
-      <MDXRemote {...mdxSource} />
+      <MDXRemote source={source} />
     </div>
   )
 }
