@@ -63,6 +63,8 @@ function mergeConfig(nextConfig, userConfig) {
   }
 }
 
+import { defineNextConfig } from 'next';
+
 export default defineNextConfig({
   reactStrictMode: true,
   headers: async () => [
