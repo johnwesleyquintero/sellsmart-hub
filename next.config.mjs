@@ -6,7 +6,23 @@ try {
 }
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+import nextMDX from '@next/mdx'
+
+const withMDX = nextMDX()
+
+const nextConfig = withMDX({
+  ...(userConfig || {}),
+  experimental: {
+    mdxRs: true,
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true
+  },
+  eslint: {
+    ...(userConfig?.eslint || {})
+  }
+})
+
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -27,7 +43,7 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
+  // ...existing experimental config
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
