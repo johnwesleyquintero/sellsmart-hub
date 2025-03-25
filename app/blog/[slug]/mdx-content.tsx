@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default async function MDXContent({ slug }: Props) {
-  const content = await import(`../../${slug}/content.mdx`).then((m) => m.default)
+  const content = await import(`../${slug}/content.mdx`).then((m) => m.default)
   const mdxSource = await serialize(content)
 
   return (
