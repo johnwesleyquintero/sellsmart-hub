@@ -8,12 +8,17 @@ try {
 /** @type {import('next').NextConfig} */
 import nextMDX from '@next/mdx'
 
-const withMDX = nextMDX()
+const withMDX = nextMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: []
+  }
+})
 
 const nextConfig = withMDX({
   ...(userConfig || {}),
   experimental: {
-    mdxRs: true,
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true
@@ -63,9 +68,8 @@ function mergeConfig(nextConfig, userConfig) {
   }
 }
 
-import { defineNextConfig } from 'next';
-
-export default defineNextConfig({
+export default {
+  ...nextConfig,
   reactStrictMode: true,
   headers: async () => [
     {
@@ -87,5 +91,4 @@ export default defineNextConfig({
     },
   ],
   compress: true,
-  ...nextConfig,
-})
+};
