@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+import { withMDX } from '@next/mdx'
 
+const userConfig = {}
 const nextConfig = withMDX({
   ...(userConfig || {}),
   experimental: {
