@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { ActionSearchBar } from '@/components/action-search-bar'
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -29,11 +30,8 @@ export default function Header() {
     { name: "Certifications", href: "#certifications" },
     { name: "Blog", href: "#blog" },
     { name: "Contact", href: "#contact" },
-  ]
+import { externalLinks } from "@/lib/config/external-links"
 
-  const externalLinks = [
-    { name: "Documentation", href: "https://sellsmart-docs.vercel.app/" },
-    { name: "Main Web App", href: "https://sellsmart-hub.vercel.app/" },
   ]
 
   return (
@@ -85,41 +83,77 @@ export default function Header() {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="absolute left-0 right-0 top-16 z-50 border-b bg-background p-4 md:hidden">
-            <nav className="flex items-center space-x-6">
-              <ActionSearchBar 
-                className="w-[200px] lg:w-[300px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              {/* External Links for Mobile */}
-              {externalLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.name}
-                </a>
-              ))}
-            </nav>
-          </div>
-        )}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute left-0 right-0 top-16 z-50 border-b bg-background p-4 md:hidden"
+            >
+              <nav className="flex items-center space-x-6">
+                <ActionSearchBar 
+                  className="w-[200px] lg:w-[300px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {navItems.map((item) => (
+                  <motion.div
+                    key={item.name}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link
+                      href={item.href}
+                      className="text-sm font-medium transition-colors hover:text-primary"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.div>
+                ))}
+                {externalLinks.map((link) => (
+                  <motion.div
+                    key={link.name}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium transition-colors hover:text-primary"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </a>
+                  </motion.div>
+                ))}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   )
 }
+
+{/* External Links for Mobile */}
+{externalLinks.map((link) => (
+  <motion.div
+    key={link.name}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <a
+      href={link.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm font-medium transition-colors hover:text-primary"
+      onClick={() => setIsMenuOpen(false)}
+    >
+      {link.name}
+    </a>
+  </motion.div>
+))}
