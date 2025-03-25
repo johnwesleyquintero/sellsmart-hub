@@ -45,10 +45,14 @@ yarn-error.log*
 .env
 .env.production.local
 
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local md files
+.error.md
 
