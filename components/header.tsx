@@ -22,6 +22,8 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen)
   }
 
+import { externalLinks } from "@/lib/config/external-links"
+
   const navItems = [
     { name: "Home", href: "#hero" },
     { name: "Projects", href: "#projects" },
@@ -29,9 +31,7 @@ export default function Header() {
     { name: "About", href: "#about" },
     { name: "Certifications", href: "#certifications" },
     { name: "Blog", href: "#blog" },
-    { name: "Contact", href: "#contact" },
-import { externalLinks } from "@/lib/config/external-links"
-
+    { name: "Contact", href: "#contact" }
   ]
 
   return (
