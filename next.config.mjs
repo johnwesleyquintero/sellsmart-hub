@@ -31,23 +31,15 @@ const nextConfig = withMDX({
         protocol: 'https',
         hostname: 'wesleyquintero.vercel.app',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '/**'
       }
     ]
   }
 })
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        pathname: '/**',
-      },
-    ],
-  },
-  // ...existing experimental config
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-  },
-}
 
 mergeConfig(nextConfig, userConfig)
 
