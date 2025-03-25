@@ -1,4 +1,5 @@
 export const externalLinks = [
-  { name: "Documentation", href: "https://sellsmart-docs.vercel.app/" },
-  { name: "Main Web App", href: "https://sellsmart-hub.vercel.app/" },
+  { name: "SS Docs", href: "https://sellsmart-docs.vercel.app/" },
+  { name: "SS Hub", href: "https://sellsmart-hub.vercel.app/" },
+  { name: "SS Pro", href: "https://sellsmart-pro.vercel.app/" },
 ];
