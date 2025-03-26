@@ -617,4 +617,4 @@ export default AmazonSalesEstimator;
 - **Documentation**: Include setup instructions, CSV format requirements, and usage examples for each tool.
 
 This setup allows users to upload their CSV files and get immediate insights and recommendations, making it easier for Amazon sellers to optimize their listings and campaigns.
-
+</details>

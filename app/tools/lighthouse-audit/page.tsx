@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import LighthouseAudit from '@/components/tools/lighthouse-audit/lighthouse-audit';
+import LighthouseAudit from '@/components/tools/lighthouse-audit';
+import { useState } from 'react';
 
 export default function LighthouseAuditPage() {
   const [metrics, setMetrics] = useState({

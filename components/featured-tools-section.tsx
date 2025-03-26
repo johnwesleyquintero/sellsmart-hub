@@ -1,19 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calculator, Search, CheckSquare, BarChart, FileText, Filter, DollarSign, TrendingUp } from "lucide-react"
+import { BarChart, Calculator, CheckSquare, DollarSign, FileText, Filter, Search, TrendingUp } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
+import AcosCalculator from "./tools/acos-calculator"
+import BuildReportApp from "./tools/build-report"
+import DescriptionEditor from "./tools/description-editor"
 import FbaCalculator from "./tools/fba-calculator"
 import KeywordAnalyzer from "./tools/keyword-analyzer"
+import KeywordDeduplicator from "./tools/keyword-deduplicator"
+import LighthouseAudit from "./tools/lighthouse-audit"
 import ListingQualityChecker from "./tools/listing-quality-checker"
 import PpcCampaignAuditor from "./tools/ppc-campaign-auditor"
-import DescriptionEditor from "./tools/description-editor"
-import KeywordDeduplicator from "./tools/keyword-deduplicator"
-import AcosCalculator from "./tools/acos-calculator"
 import SalesEstimator from "./tools/sales-estimator"
-import Link from "next/link";
 
 const tools = [
   {
@@ -87,6 +89,24 @@ const tools = [
     status: "Beta",
     version: "0.8.0",
     component: SalesEstimator,
+  },
+  {
+    id: "lighthouse-audit",
+    title: "Lighthouse Audit",
+    description: "Audit web pages for performance, accessibility, and SEO using Lighthouse.",
+    icon: <TrendingUp className="h-5 w-5 text-primary" />,
+    status: "Active",
+    version: "1.0.0",
+    component: LighthouseAudit,
+  },
+  {
+    id: "build-report",
+    title: "Build Report",
+    description: "Parse and format build reports into markdown.",
+    icon: <FileText className="h-5 w-5 text-primary" />, // Assuming FileText is a suitable icon
+    status: "Active",
+    version: "1.0.0",
+    component: BuildReportApp,
   },
 ]
 
