@@ -7,7 +7,7 @@ import CertificationsSection from "@/components/certifications-section"
 import FeaturedToolsSection from "@/components/featured-tools-section"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import ErrorBoundary from "@/components/error-boundary"
+import ErrorBoundary from "@/components/enhanced-error-boundary"
 
 export default function Home() {
   return (

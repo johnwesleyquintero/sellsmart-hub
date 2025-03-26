@@ -13,8 +13,28 @@ const fontSans = Inter({
   display: 'swap',
   variable: '--font-sans',
 })
-const Header = dynamic(() => import('@/components/header').then(mod => ({ default: mod.default })), { loading: () => <div className="h-16" /> })
-const Footer = dynamic(() => import('@/components/footer').then(mod => ({ default: mod.default })), { loading: () => <div className="h-24" /> })
+const Header = dynamic(
+  () => import('@/components/header'),
+  {
+    loading: () => (
+      <div className="flex h-16 items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    ),
+    ssr: true
+  }
+)
+const Footer = dynamic(
+  () => import('@/components/footer'),
+  {
+    loading: () => (
+      <div className="flex h-24 items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    ),
+    ssr: true
+  }
+)
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
