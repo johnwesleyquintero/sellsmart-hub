@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
-import { Moon, Sun, Menu, X } from "lucide-react"
 import { ActionSearchBar } from '@/components/action-search-bar'
-import { motion, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button"
 import { externalLinks } from "@/lib/config/external-links"
+import { AnimatePresence, motion } from "framer-motion"
+import { Menu, Moon, Sun, X } from "lucide-react"
+import { useTheme } from "next-themes"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -27,6 +27,7 @@ export default function Header() {
     { name: "Home", href: "#hero" },
     { name: "Projects", href: "#projects" },
     { name: "Tools", href: "#tools" },
+    { name: "Lighthouse Audit", href: "/tools/lighthouse-audit" },
     { name: "About", href: "#about" },
     { name: "Certifications", href: "#certifications" },
     { name: "Blog", href: "#blog" },

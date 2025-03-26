@@ -1,23 +1,21 @@
 import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 import dynamic from 'next/dynamic'
-import { Inter } from "next/font/google"
+import { inter } from '@/lib/fonts'
+
+
 import type React from "react"
 import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
 import "./globals.css"
 const Header = dynamic(() => import('@/components/header'), { loading: () => <div className="h-16" /> })
 const Footer = dynamic(() => import('@/components/footer'), { loading: () => <div className="h-24" /> })
-const ThemeProvider = dynamic(() => import('@/components/theme-provider'), { ssr: false })
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  variable: '--font-inter'
-})
+
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
   description:
-    "Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights for Amazon sellers and e-commerce businesses.",
+    "Data Analytics Innovator and Founder of Nebula Singularity, building tools that streamline workflows and provide valuable insights for Amazon sellers and e-commerce businesses.",
   keywords: [
     "Wesley Quintero",
     "Amazon Specialist",
@@ -85,8 +83,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable)} suppressHydrationWarning={true}>
+    <html lang="en" className={inter.className} suppressHydrationWarning>
+      <body className={cn("font-sans antialiased", inter.className)}
+        suppressHydrationWarning={true}>
         <ThemeProviderWrapper>
           {children}
         </ThemeProviderWrapper>

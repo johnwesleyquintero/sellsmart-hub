@@ -1,6 +1,6 @@
 <div align="center">
   <img src="public\logo.svg" alt="Logo" width="200" />
-  <h1 style="background: linear-gradient(135deg, #059669 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 20px 0; font-family: 'Inter', sans-serif; font-weight: 800;">Amazon Specialist/Developer Portfolio</h1>
+  <h1 style="background: linear-gradient(135deg, #059669 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 20px 0; font-family: 'Inter', sans-serif; font-weight: 800;"> ▲mazon Specialist/Developer Portfolio</h1>
   
   ***A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Data-Driven Amazon & E-commerce Specialist.***
 
@@ -27,7 +27,7 @@
 </div>
 
 <div style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%); padding: 2rem; border-radius: 16px; margin: 3rem 0; border: 1px solid rgba(5, 150, 105, 0.1); box-shadow: 0 1px 3px rgba(5, 150, 105, 0.04);">
-<h2 style="color: #059669; margin-bottom: 1rem;">Project Overview</h2>
+<h2 style="color: #059669; margin-bottom: 1rem;">▲ Project Overview</h2>
 
 This portfolio website is a showcase of my skills, projects, and experience as a Data-Driven Amazon & E-commerce Specialist. It's built using modern web technologies, including Next.js 14, TypeScript, Tailwind CSS, and Lucide React.
 
@@ -37,11 +37,6 @@ The portfolio is designed to be easily customizable and maintainable, making it 
 ## Featured Integration
 
 **DevFlowDB** - A powerful web-based interface for managing Supabase databases with visual query building, real-time collaboration, and data visualization capabilities.
-
-</div>
-
-<div style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%); padding: 2rem; border-radius: 16px; margin: 3rem 0; border: 1px solid rgba(5, 150, 105, 0.1); box-shadow: 0 1px 3px rgba(5, 150, 105, 0.04);">
-<h2 style="color: #06b6d4; margin-bottom: 1rem;">Key Features</h2>
 
 ## 🚀 Features
 
@@ -100,3 +95,4 @@ Please follow [GitHub Flow](https://guides.github.com/introduction/flow/) for co
 | Documentation     | [View Documentation](https://sellsmart-docs.vercel.app/)              |
 | Main Web App      | [View Main Web App](https://sellsmart-hub.vercel.app/)                |
 | DevFlowDB         | [View DevFlowDB](https://devflowdb.vercel.app/)                   |
+
