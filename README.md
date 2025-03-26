@@ -67,11 +67,10 @@ The portfolio is designed to be easily customizable and maintainable, making it 
 
 2. Install dependencies
    ```bash
-   pnpm install
-   pnpm dev
-
-3. Start development server
-   ```bash
+   pnpm install        # Install dependencies
+   pnpm dev           # Start development server (localhost:3000)
+   pnpm build         # Build for production
+   pnpm lint          # Run linting
    npm run dev
 
 👩💻 Open http://localhost:3000 in your browser to view!

@@ -19,3 +19,15 @@
 3. Open a Pull Request against the main branch
 
 Please adhere to the [GitHub Flow](https://guides.github.com/introduction/flow/) and maintain a respectful, collaborative environment.
+
+## Package Manager
+- Please use pnpm for managing dependencies.
+- Install pnpm if you haven't already:
+  ```bash
+  npm install -g pnpm
+  ```
+- Use pnpm commands for installing and managing packages:
+  ```bash
+  pnpm install
+  pnpm add <package>
+  ```
