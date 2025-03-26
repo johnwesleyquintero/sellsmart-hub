@@ -1,7 +1,12 @@
-import { inter } from '@/lib/fonts'
 import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 import dynamic from 'next/dynamic'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 
 import type React from "react"
@@ -83,8 +88,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className={cn("antialiased")}
+    <html lang="en" className={inter.className} suppressHydrationWarning>
+      <body className={cn("min-h-screen bg-background font-sans antialiased")}
         suppressHydrationWarning={true}>
         <ThemeProviderWrapper>
           {children}
