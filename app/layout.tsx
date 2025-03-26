@@ -9,7 +9,10 @@ const ThemeProvider = dynamic(() => import('@/components/theme-provider'), { ssr
 import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
 import { cn } from "@/lib/utils"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: '--font-inter'
+})
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
