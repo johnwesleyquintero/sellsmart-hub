@@ -126,7 +126,10 @@ function ProjectCard({ project }) {
           alt={`${project.title} image`}
           width={600}
           height={400}
+          loading="lazy"
+          decoding="async"
           className="h-full w-full object-contain"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 600px"
         />
       </div>
       <CardHeader>

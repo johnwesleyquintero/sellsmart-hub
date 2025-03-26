@@ -30,7 +30,10 @@ export default function BlogSection() {
                   alt={post.title}
                   width={600}
                   height={400}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 600px"
                 />
               </div>
               <CardHeader className="p-4">
