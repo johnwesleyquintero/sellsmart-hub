@@ -7,7 +7,6 @@ import { BarChart, Calculator, CheckSquare, DollarSign, FileText, Filter, Search
 import Link from "next/link"
 import { useState } from "react"
 import AcosCalculator from "./tools/acos-calculator"
-import BuildReportApp from "./tools/build-report"
 import DescriptionEditor from "./tools/description-editor"
 import FbaCalculator from "./tools/fba-calculator"
 import KeywordAnalyzer from "./tools/keyword-analyzer"

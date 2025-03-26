@@ -1,21 +1,18 @@
-import { cn } from "@/lib/utils"
-import type { Metadata } from "next"
+import { type ReactNode } from "react"
+import { type Metadata } from "next"
 import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
+import { cn } from "@/lib/utils"
 
-const inter = Inter({
+const fontSans = Inter({
   subsets: ['latin'],
   display: 'swap',
+  variable: '--font-sans',
 })
-
-
-import type React from "react"
-import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
+import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper"
 import "./globals.css"
 const Header = dynamic(() => import('@/components/header'), { loading: () => <div className="h-16" /> })
 const Footer = dynamic(() => import('@/components/footer'), { loading: () => <div className="h-24" /> })
-
-
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
@@ -84,12 +81,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
+}: {
+  readonly children: ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}
+      <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}
         suppressHydrationWarning={true}>
         <ThemeProviderWrapper>
           {children}

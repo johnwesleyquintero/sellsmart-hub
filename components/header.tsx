@@ -1,13 +1,14 @@
 "use client"
 
-import { ActionSearchBar } from '@/components/action-search-bar'
-import { Button } from "@/components/ui/button"
-import { externalLinks } from "@/lib/config/external-links"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useTheme } from "next-themes"
 import { AnimatePresence, motion } from "framer-motion"
 import { Menu, Moon, Sun, X } from "lucide-react"
-import { useTheme } from "next-themes"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+
+import { Button } from "@/components/ui/button"
+import { ActionSearchBar } from '@/components/action-search-bar'
+import { externalLinks } from "@/lib/config/external-links"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -138,21 +139,3 @@ export default function Header() {
   )
 }
 
-{/* External Links for Mobile */}
-{externalLinks.map((link) => (
-  <motion.div
-    key={link.name}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-  >
-    <a
-      href={link.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-sm font-medium transition-colors hover:text-primary"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      {link.name}
-    </a>
-  </motion.div>
-))}
