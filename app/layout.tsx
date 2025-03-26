@@ -13,8 +13,8 @@ const fontSans = Inter({
   display: 'swap',
   variable: '--font-sans',
 })
-const Header = dynamic(() => import('@/components/header'), { loading: () => <div className="h-16" /> })
-const Footer = dynamic(() => import('@/components/footer'), { loading: () => <div className="h-24" /> })
+const Header = dynamic(() => import('@/components/header').then(mod => ({ default: mod.default })), { loading: () => <div className="h-16" /> })
+const Footer = dynamic(() => import('@/components/footer').then(mod => ({ default: mod.default })), { loading: () => <div className="h-24" /> })
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
