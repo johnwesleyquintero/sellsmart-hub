@@ -9,28 +9,28 @@ export default function LighthouseAuditPage() {
       id: 'first-contentful-paint',
       title: 'First Contentful Paint',
       description: 'First Contentful Paint marks the time at which the first text or image is painted.',
-      score: 1,
-      numericValue: 462.226,
+      score: 0.93,
+      numericValue: 853.329,
       numericUnit: 'millisecond',
-      displayValue: '0.5 s'
+      displayValue: '0.9 s'
     },
     'largest-contentful-paint': {
       id: 'largest-contentful-paint',
       title: 'Largest Contentful Paint',
       description: 'Largest Contentful Paint marks the time at which the largest text or image is painted.',
-      score: 1,
-      numericValue: 557.226,
+      score: 0.93,
+      numericValue: 1068.329,
       numericUnit: 'millisecond',
-      displayValue: '0.6 s'
+      displayValue: '1.1 s'
     },
     'speed-index': {
       id: 'speed-index',
       title: 'Speed Index',
       description: 'Speed Index shows how quickly the contents of a page are visibly populated.',
-      score: 1,
-      numericValue: 735.15,
+      score: 0.26,
+      numericValue: 3029.764,
       numericUnit: 'millisecond',
-      displayValue: '0.7 s'
+      displayValue: '3.0 s'
     },
     'is-on-https': {
       id: 'is-on-https',
