@@ -1,7 +1,7 @@
+import { inter } from '@/lib/fonts'
 import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 import dynamic from 'next/dynamic'
-import { inter } from '@/lib/fonts'
 
 
 import type React from "react"
@@ -83,8 +83,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.className)}
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className={cn("antialiased")}
         suppressHydrationWarning={true}>
         <ThemeProviderWrapper>
           {children}
@@ -93,7 +93,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
