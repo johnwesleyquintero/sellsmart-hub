@@ -8,11 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@shadcn/ui/table"
-import { Copy } from "lucide-react"
+import { Copy, Upload } from "lucide-react"
 import toast from "react-hot-toast"
+import { Progress } from "@shadcn/ui/progress"
+import { cn } from "@/lib/utils"
 
 export default function LighthouseAuditTool() {
-  const [auditData, setAuditData] = useState<any[]>([])
+  interface AuditItem {
+    category: string
+    score: string
+    numericScore: number
+    details?: Record<string, any>
+  }
+
+  const [auditData, setAuditData] = useState<AuditItem[]>([])
   const [markdown, setMarkdown] = useState<string>('')
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +41,8 @@ export default function LighthouseAuditTool() {
         const parsedData = Object.keys(categories).map((key) => ({
           category: categories[key].title,
           score: (categories[key].score * 100).toFixed(2) + '%',
+          numericScore: categories[key].score * 100,
+          details: categories[key].auditRefs,
         }))
         setAuditData(parsedData)
         generateMarkdown(parsedData)
@@ -67,7 +78,15 @@ ${data.map((item) => `| ${item.category} | ${item.score} |`).join('\n')}
           type="file"
           accept=".json"
           onChange={handleFileUpload}
-          className="file-input file-input-bordered file-input-primary w-full max-w-xs"
+          className="hidden"
+          id="lighthouse-json"
+        />
+        <label
+          htmlFor="lighthouse-json"
+          className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 cursor-pointer"
+        >
+          <Upload className="w-4 h-4" />
+          <span>Upload Lighthouse JSON
         />
       </div>
       {auditData.length > 0 && (
@@ -82,8 +101,25 @@ ${data.map((item) => `| ${item.category} | ${item.score} |`).join('\n')}
             <TableBody>
               {auditData.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.score}</TableCell>
+                  <TableCell className="font-medium">{item.category}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Progress
+                        value={item.numericScore}
+                        className={cn(
+                          "w-[60px]",
+                          item.numericScore >= 90 ? "bg-green-200" :
+                          item.numericScore >= 50 ? "bg-yellow-200" : "bg-red-200"
+                        )}
+                      />
+                      <span className={cn(
+                        item.numericScore >= 90 ? "text-green-600" :
+                        item.numericScore >= 50 ? "text-yellow-600" : "text-red-600"
+                      )}>
+                        {item.score}
+                      </span>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
