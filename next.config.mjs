@@ -1,20 +1,12 @@
 /** @type {import('next').NextConfig} */
-import mdx from '@next/mdx';
-
-const withMDXConfig = mdx({
-  extension: /\.mdx?$/
-})
-
-const userConfig = {}
-const nextConfig = withMDXConfig({
-  ...(userConfig || {}),
+const config = {
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
-    parallelServerCompiles: true
+    parallelServerCompiles: true,
+    optimizePackageImports: ['lucide-react', '@shadcn/ui']
   },
   eslint: {
-    ...(userConfig?.eslint || {}),
     ignoreDuringBuilds: true
   },
   typescript: {
@@ -42,36 +34,6 @@ const nextConfig = withMDXConfig({
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
   },
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', '@shadcn/ui']
-  }
-})
-
-mergeConfig(nextConfig, userConfig)
-
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      }
-    } else {
-      nextConfig[key] = userConfig[key]
-    }
-  }
-}
-
-export default {
-  ...nextConfig,
   reactStrictMode: true,
   headers: async () => [
     {
@@ -92,5 +54,7 @@ export default {
       ],
     },
   ],
-  compress: true,
+  compress: true
 };
+
+export default config;
