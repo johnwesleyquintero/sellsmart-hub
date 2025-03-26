@@ -1,10 +1,12 @@
-import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper"
-import { cn } from "@/lib/utils"
-import { type Metadata } from "next"
-import dynamic from 'next/dynamic'
-import { Inter } from 'next/font/google'
-import { type ReactNode } from "react"
-import "./globals.css"
+import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
+import { cn } from "@/lib/utils";
+import { type Metadata } from "next";
+import dynamic from 'next/dynamic';
+import { Inter } from 'next/font/google';
+
+import { type ReactNode } from "react";
+import "./globals.css";
+
 
 const fontSans = Inter({
   subsets: ['latin'],
