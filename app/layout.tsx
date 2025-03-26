@@ -1,13 +1,13 @@
-import type React from "react"
+import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
 import dynamic from 'next/dynamic'
+import { Inter } from "next/font/google"
+import type React from "react"
+import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
+import "./globals.css"
 const Header = dynamic(() => import('@/components/header'), { loading: () => <div className="h-16" /> })
 const Footer = dynamic(() => import('@/components/footer'), { loading: () => <div className="h-24" /> })
 const ThemeProvider = dynamic(() => import('@/components/theme-provider'), { ssr: false })
-import { ThemeProviderWrapper } from "./ThemeProviderWrapper"
-import { cn } from "@/lib/utils"
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -86,7 +86,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className, "antialiased")} suppressHydrationWarning={true}>
+      <body className={cn("font-sans antialiased", inter.variable)} suppressHydrationWarning={true}>
         <ThemeProviderWrapper>
           {children}
         </ThemeProviderWrapper>
