@@ -1,4 +1,9 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useState } from 'react';
 
 interface BuildReport {
@@ -21,6 +26,8 @@ const severityLevels = ['Low', 'Medium', 'High'];
 const statuses = ['Passed', 'Failed', 'Pending'];
 const descriptions = ['Build failed due to errors.', 'Build succeeded without errors.'];
 const environments = ['Development', 'Staging', 'Production'];
+
+"use client";
 
 export const BuildReportApp = () => {
   const [buildReport, setBuildReport] = useState(defaultBuildReport);
@@ -87,7 +94,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-white shadow-md rounded-lg">
+    <div className="w-full max-w-4xl mx-auto p-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-xl font-bold">Paste and Parse Build Report</CardTitle>
@@ -107,7 +114,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
               </SelectTrigger>
               <SelectContent>
                 {severityLevels.map((level) => (
-                  <SelectItem key={level} value={level} onClick={() => setSelectedSeverity(level)}>
+                  <SelectItem key={level} value={level}>
                     {level}
                   </SelectItem>
                 ))}
@@ -122,7 +129,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
               </SelectTrigger>
               <SelectContent>
                 {statuses.map((status) => (
-                  <SelectItem key={status} value={status} onClick={() => setSelectedStatus(status)}>
+                  <SelectItem key={status} value={status}>
                     {status}
                   </SelectItem>
                 ))}
@@ -137,7 +144,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
               </SelectTrigger>
               <SelectContent>
                 {descriptions.map((description) => (
-                  <SelectItem key={description} value={description} onClick={() => setSelectedDescription(description)}>
+                  <SelectItem key={description} value={description}>
                     {description}
                   </SelectItem>
                 ))}
@@ -152,7 +159,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
               </SelectTrigger>
               <SelectContent>
                 {environments.map((environment) => (
-                  <SelectItem key={environment} value={environment} onClick={() => setSelectedEnvironment(environment)}>
+                  <SelectItem key={environment} value={environment}>
                     {environment}
                   </SelectItem>
                 ))}
@@ -186,7 +193,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
             <CardTitle className="text-xl font-bold">Markdown Report</CardTitle>
           </CardHeader>
           <CardContent>
-            <pre className="whitespace-pre-wrap text-sm text-gray-800">{markdownReport}</pre>
+            <pre className="whitespace-pre-wrap text-sm bg-secondary/10 p-4 rounded-md">{markdownReport}</pre>
           </CardContent>
         </Card>
       )}

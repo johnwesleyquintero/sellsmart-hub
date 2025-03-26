@@ -1,11 +1,13 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, Calculator, CheckSquare, DollarSign, FileText, Filter, Search, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { BuildReportApp } from "./tools/build-report"
 import AcosCalculator from "./tools/acos-calculator"
 import DescriptionEditor from "./tools/description-editor"
 import FbaCalculator from "./tools/fba-calculator"
@@ -16,7 +18,7 @@ import ListingQualityChecker from "./tools/listing-quality-checker"
 import PpcCampaignAuditor from "./tools/ppc-campaign-auditor"
 import SalesEstimator from "./tools/sales-estimator"
 
-const tools = [
+const amazonTools = [
   {
     id: "fba-calculator",
     title: "FBA Calculator",
@@ -89,6 +91,19 @@ const tools = [
     version: "0.8.0",
     component: SalesEstimator,
   },
+  
+]
+
+const devTools = [
+  {
+    id: "build-report",
+    title: "Build Report",
+    description: "Parse and format build reports into markdown.",
+    icon: <FileText className="h-5 w-5 text-primary" />,
+    status: "Active",
+    version: "1.0.0",
+    component: BuildReportApp,
+  },
   {
     id: "lighthouse-audit",
     title: "Lighthouse Audit",
@@ -98,20 +113,13 @@ const tools = [
     version: "1.0.0",
     component: LighthouseAudit,
   },
-  {
-    id: "build-report",
-    title: "Build Report",
-    description: "Parse and format build reports into markdown.",
-    icon: <FileText className="h-5 w-5 text-primary" />, // Assuming FileText is a suitable icon
-    status: "Active",
-    version: "1.0.0",
-    component: BuildReportApp,
-  },
-]
+];
 
 export default function FeaturedToolsSection() {
-  const [activeTab, setActiveTab] = useState("fba-calculator")
-  const activeTool = tools.find((tool) => tool.id === activeTab)
+  const [activeTab, setActiveTab] = useState("fba-calculator");
+  const [activeToolCategory, setActiveToolCategory] = useState("amazon");
+  const tools = activeToolCategory === "amazon" ? amazonTools : devTools;
+  const activeTool = tools.find((tool) => tool.id === activeTab);
 
   return (
     <section id="tools" className="container relative mx-auto px-4 py-32">
@@ -131,9 +139,24 @@ export default function FeaturedToolsSection() {
           </p>
         </div>
 
+        <div className="mb-8 flex justify-center gap-4">
+          <Button
+            variant={activeToolCategory === "amazon" ? "default" : "outline"}
+            onClick={() => setActiveToolCategory("amazon")}
+          >
+            Amazon Tools
+          </Button>
+          <Button
+            variant={activeToolCategory === "dev" ? "default" : "outline"}
+            onClick={() => setActiveToolCategory("dev")}
+          >
+            Dev Tools
+          </Button>
+        </div>
+
         <Tabs defaultValue="fba-calculator" className="mb-12" onValueChange={setActiveTab}>
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-4 md:grid-cols-8">
+            <TabsList className={`grid ${activeToolCategory === 'amazon' ? 'grid-cols-4 md:grid-cols-8' : 'grid-cols-2'}`}>
               {tools.map((tool) => (
                 <TabsTrigger key={tool.id} value={tool.id} className="flex flex-col items-center gap-1 p-3">
                   {tool.icon}
