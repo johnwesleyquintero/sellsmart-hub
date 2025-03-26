@@ -10,9 +10,14 @@ interface ErrorBoundaryProps {
   children: React.ReactNode
 }
 
+interface CSVParseError extends Error {
+  type: 'csv_parse_error';
+  details?: string;
+}
+
 export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
   const [hasError, setHasError] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<Error | CSVParseError | null>(null)
 
   useEffect(() => {
     const errorHandler = (error: ErrorEvent) => {
@@ -21,10 +26,18 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
       console.error("Error caught by error boundary:", error)
     }
 
+    const handleCSVError = (error: CSVParseError) => {
+      setHasError(true)
+      setError(error)
+      console.error("CSV parsing error:", error)
+    }
+
     window.addEventListener("error", errorHandler)
+    window.addEventListener("csvparsingerror", (e: CustomEvent<CSVParseError>) => handleCSVError(e.detail))
 
     return () => {
       window.removeEventListener("error", errorHandler)
+      window.removeEventListener("csvparsingerror", (e: CustomEvent<CSVParseError>) => handleCSVError(e.detail))
     }
   }, [])
 
@@ -34,7 +47,9 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
         <AlertTriangle className="mb-4 h-12 w-12 text-red-500 dark:text-red-400" />
         <h2 className="mb-2 text-xl font-bold text-red-800 dark:text-red-400">Something went wrong</h2>
         <p className="mb-6 max-w-md text-red-700 dark:text-red-300">
-          We apologize for the inconvenience. An unexpected error has occurred.
+          {error?.type === 'csv_parse_error' 
+            ? `CSV Parsing Error: ${error.details || 'Invalid CSV format'}` 
+            : 'We apologize for the inconvenience. An unexpected error has occurred.'}
         </p>
         <Button
           onClick={() => {
