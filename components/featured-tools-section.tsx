@@ -125,10 +125,10 @@ export default function FeaturedToolsSection() {
           <Badge variant="secondary" className="mb-4">
             Powered by<Link href="https://sellsmart-hub.vercel.app" target="_blank" rel="noopener noreferrer">SellSmart</Link>
           </Badge>
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Amazon Seller Tools Suite</h2>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">My Tools Suite</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            A collection of free tools to help Amazon sellers optimize their listings, analyze performance, and increase
-            sales.
+            My collection of tools I've developed to help Amazon sellers optimize their listings, analyze performance, and increase
+            sales and additional utility tools for development and general use for free.
           </p>
         </div>
 

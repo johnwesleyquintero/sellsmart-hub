@@ -50,6 +50,7 @@ The portfolio is designed to be easily customizable and maintainable, making it 
 
 ## 🛠 Tech Stack
 
+- **Package Manager**: pnpm
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS + shadcn/ui
@@ -66,7 +67,8 @@ The portfolio is designed to be easily customizable and maintainable, making it 
 
 2. Install dependencies
    ```bash
-   npm install
+   pnpm install
+   pnpm dev
 
 3. Start development server
    ```bash
