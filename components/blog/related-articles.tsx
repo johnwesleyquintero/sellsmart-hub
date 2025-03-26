@@ -31,11 +31,11 @@ export function RelatedArticles({ currentPostId, currentTags, allPosts }: Relate
   if (relatedPosts.length === 0) return null
 
   return (
-    <div className="mt-16 border-t pt-8">
-      <h2 className="mb-8 text-2xl font-bold">Related Articles</h2>
+    <div className="mt-16 border-t pt-8 bg-muted/30 rounded-xl p-8">
+      <h2 className="mb-8 text-2xl font-bold flex items-center gap-2"><span>Related Articles</span><Badge variant="outline" className="text-xs">{relatedPosts.length}</Badge></h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {relatedPosts.map((post) => (
-          <Card key={post.id} className="overflow-hidden">
+          <Card key={post.id} className="overflow-hidden group hover:shadow-lg transition-all duration-300">
             <Link href={`/blog/${post.id}`}>
               <div className="relative aspect-video overflow-hidden">
                 <Image

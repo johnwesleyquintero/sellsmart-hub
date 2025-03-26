@@ -40,12 +40,12 @@ export function TableOfContents() {
   if (toc.length === 0) return null
 
   return (
-    <nav className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto py-6 pr-4">
+    <nav className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto py-6 pr-4 scrollbar-thin scrollbar-thumb-primary/20 hover:scrollbar-thumb-primary/40 scrollbar-track-transparent">
       <div className="mb-4 flex items-center space-x-2 text-sm font-medium">
         <Link2 className="h-4 w-4" />
         <span>Table of Contents</span>
       </div>
-      <ul className="space-y-2.5 text-sm">
+      <ul className="space-y-3 text-sm">
         {toc.map((item) => (
           <li
             key={item.id}
