@@ -3,7 +3,7 @@
 ## Paste and Parse Build Report
 
 A text area is provided for users to paste the build report.
-The `parseBuildReport` function extracts relevant information from the build report, such as Severity, Status, Description, Environment details, and Build Logs.
+The `parseBuildReportApp` function extracts relevant information from the build report, such as Severity, Status, Description, Environment details, and Build Logs.
 
 ## Display Organized Report
 
@@ -30,7 +30,7 @@ The "Additional Message" section allows users to provide custom messages.
 ## Technical Details
 
 *   The implementation uses React as the front-end framework and Shadcn UI components for styling.
-*   The `parseBuildReport` function uses regular expressions to extract relevant information from the build report.
+*   The `parseBuildReportApp` function uses regular expressions to extract relevant information from the build report.
 *   The `formatAsMarkdown` function uses template literals to format the parsed report as a Markdown string.
 *   The Clipboard API is used to copy the Markdown string to the clipboard.
 
@@ -78,7 +78,7 @@ Here's an example implementation of the Build Report App using React and Shadcn 
 import { useState, useMemo } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from "/components/ui";
 
-interface BuildReport {
+interface BuildReportApp {
   severity: string;
   status: string;
   description: string;
@@ -86,7 +86,7 @@ interface BuildReport {
   buildLogs: string[];
 }
 
-const defaultBuildReport: BuildReport = {
+const defaultBuildReportApp: BuildReportApp = {
   severity: '',
   status: '',
   description: '',
@@ -99,8 +99,8 @@ const statuses = ['Passed', 'Failed', 'Pending'];
 const descriptions = ['Build failed due to errors.', 'Build succeeded without errors.'];
 const environments = ['Development', 'Staging', 'Production'];
 
-const BuildReportApp = () => {
-  const [buildReport, setBuildReport] = useState(defaultBuildReport);
+const BuildReportAppApp = () => {
+  const [BuildReportApp, setBuildReportApp] = useState(defaultBuildReportApp);
   const [markdownReport, setMarkdownReport] = useState('');
   const [additionalMessage, setAdditionalMessage] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState('');
@@ -128,7 +128,7 @@ const BuildReportApp = () => {
     return '';
   };
 
-  const parseBuildReport = (report: string) => {
+  const parseBuildReportApp = (report: string) => {
     const lines = report.split('\n');
     const buildLogs: string[] = [];
     let severity = '';
@@ -145,10 +145,10 @@ const BuildReportApp = () => {
     severity = determineSeverity(report);
     description = determineDescription(report);
 
-    setBuildReport({
-      severity: severity || buildReport.severity, // Use existing value if not found
-      status: status || buildReport.status, // Use existing value if not found
-      description: description || buildReport.description, // Use existing value if not found
+    setBuildReportApp({
+      severity: severity || BuildReportApp.severity, // Use existing value if not found
+      status: status || BuildReportApp.status, // Use existing value if not found
+      description: description || BuildReportApp.description, // Use existing value if not found
       environment: [selectedEnvironment],
       buildLogs,
     });
@@ -156,12 +156,12 @@ const BuildReportApp = () => {
 
   const formatAsMarkdown = () => {
     const markdown = `# Build Report
-## Severity: ${selectedSeverity || buildReport.severity || 'N/A'}
-## Status: ${selectedStatus || buildReport.status || 'N/A'}
-## Description: ${selectedDescription || buildReport.description || 'N/A'}
+## Severity: ${selectedSeverity || BuildReportApp.severity || 'N/A'}
+## Status: ${selectedStatus || BuildReportApp.status || 'N/A'}
+## Description: ${selectedDescription || BuildReportApp.description || 'N/A'}
 ## Environment: ${selectedEnvironment || 'N/A'}
 ## Build Logs:
-${buildReport.buildLogs.map((log, index) => `${index + 1}. ${log}`).join('\n')}
+${BuildReportApp.buildLogs.map((log, index) => `${index + 1}. ${log}`).join('\n')}
 ## Additional Message:
 ${additionalMessage || 'Please address and resolve any issues that are causing functionalities to break.'}
 `;
@@ -175,7 +175,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
   const handlePaste = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const pastedText = e.target.value;
     setRawBuildLog(pastedText);
-    parseBuildReport(pastedText);
+    parseBuildReportApp(pastedText);
   };
 
   return (
@@ -194,7 +194,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
             <Label>Severity:</Label>
             <Select>
               <SelectTrigger>
-                <SelectValue placeholder={selectedSeverity || buildReport.severity || 'Select Severity'} />
+                <SelectValue placeholder={selectedSeverity || BuildReportApp.severity || 'Select Severity'} />
               </SelectTrigger>
               <SelectContent>
                 {severityLevels.map((level) => (
@@ -209,7 +209,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
             <Label>Status:</Label>
             <Select>
               <SelectTrigger>
-                <SelectValue placeholder={selectedStatus || buildReport.status || 'Select Status'} />
+                <SelectValue placeholder={selectedStatus || BuildReportApp.status || 'Select Status'} />
               </SelectTrigger>
               <SelectContent>
                 {statuses.map((status) => (
@@ -224,7 +224,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
             <Label>Description:</Label>
             <Select>
               <SelectTrigger>
-                <SelectValue placeholder={selectedDescription || buildReport.description || 'Select Description'} />
+                <SelectValue placeholder={selectedDescription || BuildReportApp.description || 'Select Description'} />
               </SelectTrigger>
               <SelectContent>
                 {descriptions.map((description) => (
@@ -253,7 +253,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
           <div className="mt-4">
             <Label>Build Logs:</Label>
             <ol>
-              {buildReport.buildLogs.map((log, index) => (
+              {BuildReportApp.buildLogs.map((log, index) => (
                 <li key={index}>{log}</li>
               ))}
             </ol>
@@ -284,7 +284,7 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
   );
 };
 
-export default BuildReport;
+export default BuildReportApp;
 ```
 
 This example implementation demonstrates how the Build Report App can be built using React and Shadcn UI components. It includes features such as parsing build reports, displaying organized reports, and copying as Markdown. 
