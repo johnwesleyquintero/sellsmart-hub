@@ -47,9 +47,10 @@ export default function SalesEstimator() {
     }>(file, {
       header: true,
       dynamicTyping: true,
+      skipEmptyLines: true,
       complete: (result) => {
         if (result.errors.length > 0) {
-          setError("Error parsing CSV file. Please check the format.")
+          setError("Error parsing CSV file. Please check if the CSV contains 'product', 'category', 'price', and 'competition' columns.")
           setIsLoading(false)
           return
         }
@@ -171,8 +172,29 @@ export default function SalesEstimator() {
   }
 
   const handleExport = () => {
-    // In a real app, this would generate and download a CSV file
-    alert("In a real implementation, this would download a CSV with all sales estimates.")
+    if (products.length === 0) return
+
+    const csvData = products.map(product => ({
+      product: product.product,
+      category: product.category,
+      price: product.price,
+      competition: product.competition,
+      estimated_sales: product.estimatedSales,
+      estimated_revenue: product.estimatedRevenue,
+      confidence: product.confidence
+    }))
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute("href", url)
+    link.setAttribute("download", "sales_estimates.csv")
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (

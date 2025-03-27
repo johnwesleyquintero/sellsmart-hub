@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { AlertCircle, Download, FileText, TrendingDown, TrendingUp, Upload } from "lucide-react"
+import Papa from "papaparse"
 import { useState } from "react"
 
 type CampaignData = {
@@ -57,17 +58,28 @@ export default function PpcCampaignAuditor() {
 
         try {
           const validData = result.data
-            .filter(item => 
-              item.name && 
-              item.type && 
-              item.spend !== undefined && 
-              item.sales !== undefined && 
-              item.acos !== undefined && 
-              item.impressions !== undefined && 
-              item.clicks !== undefined && 
-              item.ctr !== undefined && 
-              item.conversionRate !== undefined
-            )
+            .filter(item => {
+              if (!item.name || !item.type || 
+                  item.spend === undefined || item.sales === undefined || 
+                  item.acos === undefined || item.impressions === undefined || 
+                  item.clicks === undefined || item.ctr === undefined || 
+                  item.conversionRate === undefined) {
+                return false
+              }
+              if (typeof item.name !== 'string' || typeof item.type !== 'string' || 
+                  typeof item.spend !== 'number' || typeof item.sales !== 'number' || 
+                  typeof item.acos !== 'number' || typeof item.impressions !== 'number' || 
+                  typeof item.clicks !== 'number' || typeof item.ctr !== 'number' || 
+                  typeof item.conversionRate !== 'number') {
+                return false
+              }
+              if (item.spend < 0 || item.sales < 0 || item.acos < 0 || 
+                  item.impressions < 0 || item.clicks < 0 || item.ctr < 0 || 
+                  item.conversionRate < 0) {
+                return false
+              }
+              return true
+            })
             .map(item => ({
               name: item.name,
               type: item.type,
@@ -80,7 +92,7 @@ export default function PpcCampaignAuditor() {
               conversionRate: item.conversionRate
             }))
 
-        const analyzedData = sampleData.map((campaign) => {
+        const analyzedData = validData.map((campaign) => {
           // Analyze campaign performance
           const issues: string[] = []
           const recommendations: string[] = []
@@ -122,8 +134,33 @@ export default function PpcCampaignAuditor() {
   }
 
   const handleExport = () => {
-    // In a real app, this would generate and download a CSV file
-    alert("In a real implementation, this would download a CSV with all audit data.")
+    if (campaigns.length === 0) return
+
+    const csvData = campaigns.map(campaign => ({
+      name: campaign.name,
+      type: campaign.type,
+      spend: campaign.spend,
+      sales: campaign.sales,
+      acos: campaign.acos,
+      impressions: campaign.impressions,
+      clicks: campaign.clicks,
+      ctr: campaign.ctr,
+      conversion_rate: campaign.conversionRate,
+      issues: campaign.issues?.join("; "),
+      recommendations: campaign.recommendations?.join("; ")
+    }))
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute("href", url)
+    link.setAttribute("download", "ppc_campaign_audit.csv")
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (

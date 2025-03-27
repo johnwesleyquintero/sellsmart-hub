@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Download, Filter } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { AlertCircle, Download, FileText, Filter, Upload } from "lucide-react"
+import { useState } from "react"
 
 type KeywordData = {
   product: string
@@ -32,26 +32,42 @@ export default function KeywordDeduplicator() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData = [
-          {
-            product: "Wireless Earbuds",
-            keywords:
-              "bluetooth earbuds, wireless earbuds, earbuds bluetooth, wireless headphones, bluetooth earbuds, earphones, wireless earphones, earbuds",
-          },
-          {
-            product: "Phone Case",
-            keywords:
-              "phone case, protective case, phone cover, slim case, phone case, iphone case, protective cover, phone case",
-          },
-        ]
+    Papa.parse<{
+      product: string
+      keywords: string
+    }>(file, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        if (result.errors.length > 0) {
+          setError("Error parsing CSV file. Please check if the CSV contains 'product' and 'keywords' columns.")
+          setIsLoading(false)
+          return
+        }
 
-        const processedData = sampleData.map((item) => {
-          const originalKeywords = item.keywords.split(",").map((k) => k.trim())
-          const cleanedKeywords = [...new Set(originalKeywords)]
+        try {
+          const validData = result.data
+            .filter(item => {
+              if (!item.product || !item.keywords) return false
+              if (typeof item.product !== 'string' || typeof item.keywords !== 'string') return false
+              if (item.product.trim() === '' || item.keywords.trim() === '') return false
+              return true
+            })
+            .map(item => ({
+              product: item.product.trim(),
+              keywords: item.keywords.trim()
+            }))
+
+          if (validData.length === 0) {
+            setError("No valid data found in the CSV file. Please check if the file contains valid product names and keywords.")
+            setIsLoading(false)
+            return
+          }
+
+          const processedData = validData.map((item) => {
+            const originalKeywords = item.keywords.split(",").map((k) => k.trim())
+            const cleanedKeywords = [...new Set(originalKeywords)]
 
           return {
             product: item.product,
@@ -92,8 +108,26 @@ export default function KeywordDeduplicator() {
   }
 
   const handleExport = () => {
-    // In a real app, this would generate and download a CSV file
-    alert("In a real implementation, this would download a CSV with all deduplicated keywords.")
+    if (products.length === 0) return
+
+    const csvData = products.map(product => ({
+      product: product.product,
+      original_keywords: product.originalKeywords.join(", "),
+      cleaned_keywords: product.cleanedKeywords.join(", "),
+      duplicates_removed: product.duplicatesRemoved
+    }))
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute("href", url)
+    link.setAttribute("download", "deduplicated_keywords.csv")
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
