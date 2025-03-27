@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-    apple: "/apple-touch-icon.png",
+    apple: "/favicon.svg",
   },
   manifest: "/site.webmanifest",
   metadataBase: new URL("https://wesleyquintero.vercel.app"),
