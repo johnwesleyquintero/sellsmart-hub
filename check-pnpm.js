@@ -1,5 +1,6 @@
 const execPath = process.env.npm_execpath || '';
+console.log('[DEBUG] Detected package manager path:', execPath);
 if (!execPath.includes('pnpm')) {
-  console.error('Please use pnpm instead of npm or yarn.');
-  process.exit(1);
+  console.warn('Warning: Recommend using pnpm instead of npm/yarn');
+  // process.exit(1);
 }

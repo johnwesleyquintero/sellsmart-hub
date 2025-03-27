@@ -1,40 +1,11 @@
 import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
 import { cn } from "@/lib/utils";
 import { type Metadata } from "next";
-import dynamic from 'next/dynamic';
-import { Inter } from 'next/font/google';
-
 import { type ReactNode } from "react";
 import "./globals.css";
 
-
-const fontSans = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  // variable: '--font-sans', // Removed variable option
-})
-const Header = dynamic(
-  () => import('@/components/header'),
-  {
-    loading: () => (
-      <div className="flex h-16 items-center justify-center bg-background/80 backdrop-blur-sm">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    ),
-    ssr: true
-  }
-)
-const Footer = dynamic(
-  () => import('@/components/footer'),
-  {
-    loading: () => (
-      <div className="flex h-24 items-center justify-center bg-background/80 backdrop-blur-sm">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    ),
-    ssr: true
-  }
-)
+import { Inter } from 'next/font/google';
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
@@ -108,7 +79,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.className)}> {/* Use className directly */}
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
         <ThemeProviderWrapper>
           {children}
         </ThemeProviderWrapper>
