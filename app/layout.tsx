@@ -1,11 +1,16 @@
 import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
 import { cn } from "@/lib/utils";
 import { type Metadata } from "next";
+import { Inter } from "next/font/google";
 import { type ReactNode } from "react";
 import "./globals.css";
 
-import { Inter } from 'next/font/google';
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
+});
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
@@ -69,21 +74,19 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   metadataBase: new URL("https://wesleyquintero.vercel.app"),
-    generator: 'v0.dev'
-}
+  generator: "v0.dev"
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: ReactNode
+  children: ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
-        <ThemeProviderWrapper>
-          {children}
-        </ThemeProviderWrapper>
+        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
       </body>
     </html>
-  )
+  );
 }
