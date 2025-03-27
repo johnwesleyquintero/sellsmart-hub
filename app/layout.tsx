@@ -1,4 +1,5 @@
 import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
+import { AccessibleHeader } from "@/components/ui/accessible-header";
 import { cn } from "@/lib/utils";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -85,7 +86,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
-        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
+        <ThemeProviderWrapper>
+          <div className="relative flex min-h-screen flex-col">
+            <AccessibleHeader />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+          </div>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );
