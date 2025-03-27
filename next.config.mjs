@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const config = {
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-    optimizePackageImports: ['lucide-react', '@shadcn/ui']
+    // webpackBuildWorker: true, // Disabled for debugging font error
+    // parallelServerBuildTraces: true, // Disabled for debugging font error
+    // parallelServerCompiles: true, // Disabled for debugging font error
+    // optimizePackageImports: ['lucide-react', '@shadcn/ui'] // Disabled for debugging font error
   },
   eslint: {
     ignoreDuringBuilds: true

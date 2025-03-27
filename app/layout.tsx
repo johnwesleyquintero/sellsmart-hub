@@ -11,7 +11,7 @@ import "./globals.css";
 const fontSans = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-sans',
+  // variable: '--font-sans', // Removed variable option
 })
 const Header = dynamic(
   () => import('@/components/header'),
@@ -108,7 +108,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.className)}> {/* Use className directly */}
         <ThemeProviderWrapper>
           {children}
         </ThemeProviderWrapper>

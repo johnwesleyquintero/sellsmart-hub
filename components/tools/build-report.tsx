@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,8 +28,6 @@ const severityLevels = ['Low', 'Medium', 'High'];
 const statuses = ['Passed', 'Failed', 'Pending'];
 const descriptions = ['Build failed due to errors.', 'Build succeeded without errors.'];
 const environments = ['Development', 'Staging', 'Production'];
-
-"use client";
 
 export const BuildReportApp = () => {
   const [buildReport, setBuildReport] = useState(defaultBuildReport);
