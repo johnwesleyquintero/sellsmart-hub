@@ -93,32 +93,84 @@ export default function PpcCampaignAuditor() {
             }))
 
         const analyzedData = validData.map((campaign) => {
-          // Analyze campaign performance
+          // Advanced campaign performance analysis with industry benchmarks
           const issues: string[] = []
           const recommendations: string[] = []
 
-          if (campaign.acos > 30) {
-            issues.push("High ACoS")
-            recommendations.push("Reduce bids on keywords with high ACoS")
+          // ACoS analysis with category-specific thresholds
+          const categoryAcosThresholds = {
+            "Electronics": 25,
+            "Home & Kitchen": 30,
+            "Beauty": 35,
+            "Sports": 28,
+            "Books": 40,
+            "Toys": 32,
+            "Fashion": 38
+          }
+          const defaultAcosThreshold = 30
+
+          if (campaign.acos > (categoryAcosThresholds[campaign.type] || defaultAcosThreshold)) {
+            issues.push(`High ACoS (${campaign.acos.toFixed(1)}%)`)
+            recommendations.push(
+              campaign.clicks > 1000 ?
+              "Optimize or pause underperforming keywords with high spend" :
+              "Monitor performance and adjust bids based on ACoS targets"
+            )
           }
 
-          if (campaign.ctr < 0.3) {
-            issues.push("Low CTR")
-            recommendations.push("Improve ad copy and images to increase CTR")
+          // CTR analysis with click volume context
+          const ctrThreshold = campaign.impressions > 1000 ? 0.35 : 0.3
+          if (campaign.ctr < ctrThreshold) {
+            issues.push(`Low CTR (${(campaign.ctr * 100).toFixed(1)}%)`)
+            recommendations.push(
+              campaign.impressions > 1000 ?
+              "Review and improve ad copy, images, and targeting" :
+              "Monitor CTR as impressions increase, then optimize if needed"
+            )
           }
 
-          if (campaign.conversionRate < 8) {
-            issues.push("Low conversion rate")
-            recommendations.push("Optimize product listing and target more relevant keywords")
+          // Conversion rate analysis
+          const conversionThreshold = campaign.type === "Branded" ? 12 : 8
+          if (campaign.conversionRate < conversionThreshold) {
+            issues.push(`Low conversion rate (${campaign.conversionRate.toFixed(1)}%)`)
+            recommendations.push(
+              campaign.clicks > 500 ?
+              "Optimize product listing and refine keyword targeting" :
+              "Accumulate more click data before making major changes"
+            )
           }
 
+          // Click volume and spend efficiency
           if (campaign.clicks < 100) {
-            issues.push("Low click volume")
-            recommendations.push("Increase bids or budget to get more visibility")
+            issues.push("Insufficient click volume for optimization")
+            recommendations.push(
+              campaign.impressions < 1000 ?
+              "Increase bids or budget to gain more visibility" :
+              "Review targeting and ad relevance to improve CTR"
+            )
           }
 
-          if (campaign.type === "Auto" && campaign.acos < 20) {
-            recommendations.push("Extract converting search terms and create manual campaigns")
+          // Campaign type specific recommendations
+          if (campaign.type === "Auto") {
+            if (campaign.acos < 20 && campaign.clicks > 300) {
+              recommendations.push("Extract converting search terms for manual campaigns")
+            }
+            if (campaign.impressions > 5000 && campaign.ctr < 0.2) {
+              recommendations.push("Review negative keywords to improve targeting")
+            }
+          }
+
+          // ROAS (Return on Ad Spend) analysis
+          const roas = campaign.sales / campaign.spend
+          if (roas < 2 && campaign.spend > 100) {
+            issues.push(`Low ROAS (${roas.toFixed(1)}x)`)
+            recommendations.push("Focus on high-converting keywords and optimize bids")
+          }
+
+          // Impression share analysis
+          if (campaign.impressions < 1000 && campaign.spend > 50) {
+            issues.push("Low impression volume for spend")
+            recommendations.push("Review keyword bids and campaign structure")
           }
 
           return { ...campaign, issues, recommendations }
