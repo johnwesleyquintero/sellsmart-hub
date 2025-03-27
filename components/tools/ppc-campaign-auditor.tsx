@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Download, TrendingUp, TrendingDown } from "lucide-react"
+import { AlertCircle, Download, FileText, TrendingDown, TrendingUp, Upload } from "lucide-react"
+import { useState } from "react"
 
 type CampaignData = {
   name: string
@@ -35,45 +35,50 @@ export default function PpcCampaignAuditor() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData: CampaignData[] = [
-          {
-            name: "Auto Campaign - Wireless Earbuds",
-            type: "Auto",
-            spend: 245.67,
-            sales: 1245.89,
-            acos: 19.72,
-            impressions: 12450,
-            clicks: 320,
-            ctr: 2.57,
-            conversionRate: 12.5,
-          },
-          {
-            name: "Sponsored Products - Phone Cases",
-            type: "Sponsored Products",
-            spend: 178.34,
-            sales: 567.21,
-            acos: 31.44,
-            impressions: 8750,
-            clicks: 245,
-            ctr: 2.8,
-            conversionRate: 7.3,
-          },
-          {
-            name: "Sponsored Brands - Charging Cables",
-            type: "Sponsored Brands",
-            spend: 89.45,
-            sales: 156.78,
-            acos: 57.05,
-            impressions: 4320,
-            clicks: 98,
-            ctr: 2.27,
-            conversionRate: 5.1,
-          },
-        ]
+    Papa.parse<{
+      name: string
+      type: string
+      spend: number
+      sales: number
+      acos: number
+      impressions: number
+      clicks: number
+      ctr: number
+      conversionRate: number
+    }>(file, {
+      header: true,
+      dynamicTyping: true,
+      complete: (result) => {
+        if (result.errors.length > 0) {
+          setError("Error parsing CSV file. Please check the format.")
+          setIsLoading(false)
+          return
+        }
+
+        try {
+          const validData = result.data
+            .filter(item => 
+              item.name && 
+              item.type && 
+              item.spend !== undefined && 
+              item.sales !== undefined && 
+              item.acos !== undefined && 
+              item.impressions !== undefined && 
+              item.clicks !== undefined && 
+              item.ctr !== undefined && 
+              item.conversionRate !== undefined
+            )
+            .map(item => ({
+              name: item.name,
+              type: item.type,
+              spend: item.spend,
+              sales: item.sales,
+              acos: item.acos,
+              impressions: item.impressions,
+              clicks: item.clicks,
+              ctr: item.ctr,
+              conversionRate: item.conversionRate
+            }))
 
         const analyzedData = sampleData.map((campaign) => {
           // Analyze campaign performance

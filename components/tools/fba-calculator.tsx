@@ -1,21 +1,23 @@
 "use client"
 
-import type React from "react"
-import { calculateProfit, type ProductData } from "@/lib/fba-calculator-utils"
-import { useState } from "react"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileUp, AlertCircle } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { type ProductData } from "@/lib/fba-calculator-utils"
+import { useFBACalculator } from "@/lib/hooks/use-fba-calculator"
+import { AlertCircle, FileUp, Loader2, Upload } from "lucide-react"
 import Papa from "papaparse"
+import type React from "react"
+import { useState } from "react"
 
 export default function FbaCalculator() {
-  const [csvData, setCsvData] = useState<ProductData[]>([])
-  const [results, setResults] = useState<ProductData[]>([])
   const [error, setError] = useState<string | null>(null)
+  const { products, isLoading, addProducts, clearProducts } = useFBACalculator({
+    onError: (error) => setError(error)
+  })
   const [manualProduct, setManualProduct] = useState<ProductData>({
     product: "",
     cost: 0,
@@ -42,8 +44,7 @@ export default function FbaCalculator() {
           (item: ProductData) => item.product && item.cost !== undefined && item.price !== undefined && item.fees !== undefined,
         )
 
-        setCsvData(validData)
-        calculateProfit(validData)
+        addProducts(validData)
       },
       error: () => {
         setError("Error parsing CSV file. Please check the format.")
@@ -51,16 +52,14 @@ export default function FbaCalculator() {
     })
   }
 
-  const handleManualCalculation = () => {
+  const handleManualCalculation = async () => {
     if (!manualProduct.product || manualProduct.cost <= 0 || manualProduct.price <= 0) {
       setError("Please fill in all fields with valid values")
       return
     }
 
     setError(null)
-    const newData = [...csvData, manualProduct]
-    setCsvData(newData)
-    calculateProfit(newData)
+    await addProducts([manualProduct])
 
     // Reset form
     setManualProduct({
@@ -159,8 +158,19 @@ export default function FbaCalculator() {
                   placeholder="0.00"
                 />
               </div>
-              <Button onClick={handleManualCalculation} className="w-full">
-                Calculate
+              <Button 
+                onClick={handleManualCalculation} 
+                className="w-full" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Calculating...
+                  </>
+                ) : (
+                  'Calculate'
+                )}
               </Button>
             </div>
           </CardContent>

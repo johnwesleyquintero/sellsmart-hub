@@ -2,14 +2,14 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Save, Eye } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { AlertCircle, Eye, FileText, Save, Upload } from "lucide-react"
+import { useState } from "react"
 
 type ProductDescription = {
   product: string
@@ -39,24 +39,33 @@ export default function DescriptionEditor() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData = [
-          {
-            product: "Wireless Earbuds",
-            asin: "B08N5KWB9H",
-            description:
-              "Experience crystal clear sound with our premium wireless earbuds. Featuring advanced noise cancellation technology, these earbuds deliver immersive audio quality for music, calls, and more. With a comfortable ergonomic design and long-lasting battery life, you can enjoy your favorite content all day long.",
-          },
-          {
-            product: "Phone Case",
-            asin: "B07XS3DMQC",
-            description:
-              "Protect your device with our durable phone case. Made from high-quality materials, this case offers superior protection against drops, scratches, and everyday wear and tear.",
-          },
-        ]
+    Papa.parse<{
+      product: string
+      asin: string
+      description: string
+    }>(file, {
+      header: true,
+      dynamicTyping: true,
+      complete: (result) => {
+        if (result.errors.length > 0) {
+          setError("Error parsing CSV file. Please check the format.")
+          setIsLoading(false)
+          return
+        }
+
+        try {
+          const validData = result.data
+            .filter(item => 
+              item.product && 
+              item.description && 
+              typeof item.product === 'string' && 
+              typeof item.description === 'string'
+            )
+            .map(item => ({
+              product: item.product,
+              asin: item.asin || undefined,
+              description: item.description
+            }))
 
         const processedData = sampleData.map((item) => ({
           ...item,

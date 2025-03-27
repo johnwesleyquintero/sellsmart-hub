@@ -2,13 +2,14 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Download, TrendingUp } from "lucide-react"
+import { AlertCircle, Download, FileText, TrendingUp, Upload } from "lucide-react"
+import Papa from "papaparse"
+import { useState } from "react"
 
 type ProductData = {
   product: string
@@ -38,32 +39,38 @@ export default function SalesEstimator() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData = [
-          {
-            product: "Wireless Earbuds",
-            category: "Electronics",
-            price: 39.99,
-            competition: "High" as "Low" | "Medium" | "High",
-          },
-          {
-            product: "Phone Case",
-            category: "Phone Accessories",
-            price: 19.99,
-            competition: "Medium" as "Low" | "Medium" | "High",
-          },
-          {
-            product: "Charging Cable",
-            category: "Electronics",
-            price: 12.99,
-            competition: "Low" as "Low" | "Medium" | "High",
-          },
-        ]
+    Papa.parse<{
+      product: string
+      category: string
+      price: number
+      competition: string
+    }>(file, {
+      header: true,
+      dynamicTyping: true,
+      complete: (result) => {
+        if (result.errors.length > 0) {
+          setError("Error parsing CSV file. Please check the format.")
+          setIsLoading(false)
+          return
+        }
 
-        const processedData = sampleData.map((item) => {
+        try {
+          const validData = result.data
+            .filter(item => 
+              item.product && 
+              item.category && 
+              item.price && 
+              item.competition && 
+              ["Low", "Medium", "High"].includes(item.competition)
+            )
+            .map(item => ({
+              product: item.product,
+              category: item.category,
+              price: item.price,
+              competition: item.competition as "Low" | "Medium" | "High"
+            }))
+
+        const processedData = validData.map((item) => {
           // This is a simplified sales estimation algorithm
           // In a real app, you'd have a more sophisticated algorithm
           let baseSales = 0
