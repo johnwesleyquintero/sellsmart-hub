@@ -38,35 +38,54 @@ export const BuildReportApp = () => {
   const [selectedDescription, setSelectedDescription] = useState('');
   const [selectedEnvironment, setSelectedEnvironment] = useState('');
   const [rawBuildLog, setRawBuildLog] = useState('');
+  const [error, setError] = useState('');
 
   const parseBuildReport = (report: string) => {
-    const lines = report.split('\n');
-    const buildLogs: string[] = [];
-    let severity = '';
-    let status = '';
-    let description = '';
+    try {
+      const lines = report.split('\n');
+      const buildLogs: string[] = [];
+      let severity = '';
+      let status = '';
+      let description = '';
 
-    lines.forEach((line) => {
-      if (line.includes('Error:') || line.includes('Warning:')) {
-        buildLogs.push(line.trim());
-      } else if (line.includes('Build failed')) {
-        status = 'Failed';
-        severity = 'High';
-        description = 'Build failed due to errors.';
-      } else if (line.includes('Build succeeded')) {
-        status = 'Passed';
-        severity = 'Low';
-        description = 'Build succeeded without errors.';
-      }
-    });
+      lines.forEach((line) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return;
 
-    setBuildReport({
-      severity,
-      status,
-      description,
-      environment: [selectedEnvironment],
-      buildLogs,
-    });
+        if (trimmedLine.match(/error|exception|failure/i)) {
+          buildLogs.push(trimmedLine);
+          severity = severity || 'High';
+          status = status || 'Failed';
+          description = description || 'Build failed due to errors.';
+        } else if (trimmedLine.match(/warning/i)) {
+          buildLogs.push(trimmedLine);
+          severity = severity || 'Medium';
+        } else if (trimmedLine.match(/build\s+failed/i)) {
+          status = 'Failed';
+          severity = severity || 'High';
+          description = description || 'Build failed due to errors.';
+        } else if (trimmedLine.match(/build\s+succeeded|build\s+completed/i)) {
+          status = 'Passed';
+          severity = severity || 'Low';
+          description = description || 'Build succeeded without errors.';
+        } else if (trimmedLine.match(/\[info\]|\[debug\]|step\s+\d+/i)) {
+          buildLogs.push(trimmedLine);
+        }
+      });
+
+      setError('');
+
+      setBuildReport({
+        severity,
+        status,
+        description,
+        environment: [selectedEnvironment],
+        buildLogs,
+      });
+    } catch (err) {
+      setError('Failed to parse build report. Please check the format and try again.');
+      console.error('Parse error:', err);
+    }
   };
 
   const formatAsMarkdown = () => {
@@ -108,9 +127,12 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
           />
           <div className="mt-4">
             <Label className="block text-sm font-medium text-gray-700">Severity:</Label>
-            <Select className="w-full">
+            <Select
+              value={selectedSeverity || buildReport.severity}
+              onValueChange={setSelectedSeverity}
+            >
               <SelectTrigger>
-                <SelectValue placeholder={buildReport.severity} />
+                <SelectValue placeholder="Select severity" />
               </SelectTrigger>
               <SelectContent>
                 {severityLevels.map((level) => (
@@ -123,9 +145,12 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
           </div>
           <div className="mt-4">
             <Label className="block text-sm font-medium text-gray-700">Status:</Label>
-            <Select className="w-full">
+            <Select
+              value={selectedStatus || buildReport.status}
+              onValueChange={setSelectedStatus}
+            >
               <SelectTrigger>
-                <SelectValue placeholder={buildReport.status} />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 {statuses.map((status) => (
@@ -138,9 +163,12 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
           </div>
           <div className="mt-4">
             <Label className="block text-sm font-medium text-gray-700">Description:</Label>
-            <Select className="w-full">
+            <Select
+              value={selectedDescription || buildReport.description}
+              onValueChange={setSelectedDescription}
+            >
               <SelectTrigger>
-                <SelectValue placeholder={buildReport.description} />
+                <SelectValue placeholder="Select description" />
               </SelectTrigger>
               <SelectContent>
                 {descriptions.map((description) => (
@@ -153,9 +181,12 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
           </div>
           <div className="mt-4">
             <Label className="block text-sm font-medium text-gray-700">Environment:</Label>
-            <Select className="w-full">
+            <Select
+              value={selectedEnvironment}
+              onValueChange={setSelectedEnvironment}
+            >
               <SelectTrigger>
-                <SelectValue placeholder={selectedEnvironment} />
+                <SelectValue placeholder="Select environment" />
               </SelectTrigger>
               <SelectContent>
                 {environments.map((environment) => (
@@ -183,8 +214,23 @@ ${additionalMessage || 'Please address and resolve any issues that are causing f
               className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
-          <Button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md" onClick={formatAsMarkdown}>Format as Markdown</Button>
-          <Button className="mt-2 bg-green-500 text-white py-2 px-4 rounded-md" onClick={handleCopy}>Copy Markdown Report</Button>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+          <div className="flex gap-2 mt-4">
+            <Button
+              className="bg-blue-500 text-white"
+              onClick={formatAsMarkdown}
+              disabled={!rawBuildLog}
+            >
+              Format as Markdown
+            </Button>
+            <Button
+              className="bg-green-500 text-white"
+              onClick={handleCopy}
+              disabled={!markdownReport}
+            >
+              Copy Markdown Report
+            </Button>
+          </div>
         </CardContent>
       </Card>
       {markdownReport && (
