@@ -2,7 +2,7 @@
 
 A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Data-Driven Amazon & E-commerce Specialist.
 
-![Portfolio Preview](public/images/projects/sellsmart-hub.svg)
+![Portfolio Preview](public/portfolio-preview.svg)
 
 ## Features
 
