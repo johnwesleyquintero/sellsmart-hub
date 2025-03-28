@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Github, Linkedin, Twitter, Mail, ArrowRight, Sparkles } from "lucide-react"
+
 
 export default function HeroSection() {
   return (
@@ -25,9 +25,7 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl">
-              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights{" "}
-              <span className="inline-block">📊</span>, Automation <span className="inline-block">🤖</span> & AI.{" "}
-              <Sparkles className="inline-block h-5 w-5 text-yellow-500" />
+              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights, Automation & AI.
             </p>
           </div>
 
@@ -35,7 +33,7 @@ export default function HeroSection() {
             <Button asChild size="lg" className="group">
               <Link href="#projects">
                 View My Work
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
@@ -50,7 +48,7 @@ export default function HeroSection() {
               rel="noopener noreferrer"
               className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
             >
-              <Github className="h-5 w-5" />
+              GitHub
             </Link>
             <Link
               href="https://linkedin.com/in/wesleyquintero"
@@ -58,7 +56,7 @@ export default function HeroSection() {
               rel="noopener noreferrer"
               className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
             >
-              <Linkedin className="h-5 w-5" />
+              LinkedIn
             </Link>
             <Link
               href="https://twitter.com/wesleyquintero"
@@ -66,13 +64,13 @@ export default function HeroSection() {
               rel="noopener noreferrer"
               className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
             >
-              <Twitter className="h-5 w-5" />
+              Twitter
             </Link>
             <Link
               href="mailto:johnwesleyquintero@gmail.com"
               className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
             >
-              <Mail className="h-5 w-5" />
+              Email
             </Link>
           </div>
         </div>

@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Menu, X } from "lucide-react"
+import { Moon, Sun, Menu, X, FileText } from "lucide-react"
+import jsPDF from 'jspdf';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -18,6 +19,10 @@ export default function Header() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
+
+  const handleExportClick = () => {
+  window.open('/profile/Profile.pdf', '_blank');
+};
 
   const navItems = [
     { name: "Home", href: "#hero" },
@@ -56,15 +61,26 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           {mounted && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Toggle theme"
-              className="mr-2"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Toggle theme"
+                className="mr-2"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Export as PDF"
+                className="mr-2"
+                onClick={handleExportClick}
+              >
+                <FileText className="h-5 w-5" />
+              </Button>
+            </>
           )}
 
           {/* Mobile Menu Button */}
