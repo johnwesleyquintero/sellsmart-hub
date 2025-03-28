@@ -1,21 +1,16 @@
-import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
-import { LoadingScreen } from "@/components/loading-screen";
-import { AccessibleHeader } from "@/components/ui/accessible-header";
-import { cn } from "@/lib/utils";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { type Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Suspense, type ReactNode } from "react";
-import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import type React from "react"
+import "./globals.css"
 
-const inter = Inter({
-    subsets: ["latin"]
-});
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
-  description: "Data Analytics Innovator and Founder of Nebula Singularity, building tools for Amazon sellers and e-commerce workflows.",
+  description:
+    "Data Analytics Innovator and Founder of Nebula Singularity, building tools that streamline workflows and provide valuable insights for Amazon sellers and e-commerce businesses.",
   keywords: [
     "Wesley Quintero",
     "Amazon Specialist",
@@ -29,9 +24,7 @@ export const metadata: Metadata = {
     "SellSmart Hub",
     "DevFlowDB",
   ],
-  authors: [
-    { name: "Wesley Quintero", url: "https://github.com/johnwesleyquintero" },
-  ],
+  authors: [{ name: "Wesley Quintero", url: "https://github.com/johnwesleyquintero" }],
   creator: "Wesley Quintero",
   publisher: "Wesley Quintero",
   openGraph: {
@@ -76,40 +69,21 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   metadataBase: new URL("https://wesleyquintero.vercel.app"),
-  generator: "v0.dev",
-};
+}
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        <meta name="theme-color" content="#ffffff" />
-      </head>
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          inter.className,
-        )}
-      >
-        <ThemeProviderWrapper>
-          <div className="relative flex min-h-screen flex-col">
-            <AccessibleHeader />
-            <main id="main-content" className="flex-1">
-              <Suspense fallback={<LoadingScreen />}>
-                {children}
-                <Analytics />
-                <SpeedInsights />
-              </Suspense>
-            </main>
-          </div>
-        </ThemeProviderWrapper>
+      <body className={cn(inter.className, "antialiased")}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
+
