@@ -1,77 +1,88 @@
 # Dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp/
 .pnp.js
-.yarn/install-state.gz
+.yarn/
 package-lock.json
 
-# Testing
-/coverage
-/test-results/
+# PNPM
+.pnpm-cache/
+.pnpm-store/
+pnpm-debug.log*
+.pnpm-lock.yaml
 
 # Next.js
-/.next/
-/out/
 .next/
+out/
 .swc/
-
-# Production
-/build
-/dist
-/.cache
+build/
+dist/
+.cache/
+.turbo/
 
 # Environment Variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
-# Debug Logs
+# Debug & Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# System Files
-.DS_Store
-*.pem
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-
-# Temporary Files
-*.tmp
-*.temp
 *.log
-*.cache
 
-# Lock Files
-yarn.lock
-bun.lock
-pnpm-lock.yaml
+# Testing
+coverage/
+test-results/
+.nyc_output/
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
+# IDE & Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+.idea/
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumb.db
+*.pem
+
 # Vercel
 .vercel
 
-# Documentation
-.error.md
-*.md.backup
-
-# PNPM
-.pnpm-cache/
-.pnpm-store/
-
-# Development
+# Build & Development
 .development/
-*.development.js
-*.development.ts
-*.development.tsx
+*.development.{js,ts,tsx}
+.local/
+
+# Lock Files
+yarn.lock
+bun.lockb
+pnpm-lock.yaml
+
+# Documentation
+*.md.backup
+.error.md
+docs/.temp/
+
+# Temporary
+*.tmp
+*.temp
+*.cache
+.eslintcache
+.stylelintcache
+
+# Generated
+public/sitemap*.xml
+public/robots.txt
+public/sw.js*
+public/workbox-*

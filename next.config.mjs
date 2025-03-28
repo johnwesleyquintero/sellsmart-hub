@@ -27,27 +27,24 @@ const withMDX = createMDX({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // webpackBuildWorker: true, // Disabled for debugging font error
-    // parallelServerBuildTraces: true, // Disabled for debugging font error
-    // parallelServerCompiles: true, // Disabled for debugging font error
-    // optimizePackageImports: ['lucide-react', '@shadcn/ui'] // Disabled for debugging font error
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-*'],
     serverActions: {
-      bodySizeLimit: "2mb",
+      bodySizeLimit: "2mb"
     },
     serverComponents: true,
-    // Enable strict mode for server/client boundary
     serverComponentsExternalPackages: ["@sentry/node"],
-    // Enable proper module resolution
     esmExternals: true,
-    // Improve module loading
     modularizeImports: {
       "lucide-react": {
-        transform: "lucide-react/dist/esm/icons/{{member}}",
+        transform: "lucide-react/dist/esm/icons/{{member}}"
       },
-    },
-    // Enable better error handling
-    serverActions: {
-      bodySizeLimit: "2mb",
+      "@radix-ui/react-*": {
+        transform: "@radix-ui/react-{{member}}"
+      }
+    }
       allowedOrigins: ["localhost:3000"],
     },
   },

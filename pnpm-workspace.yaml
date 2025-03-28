@@ -1,0 +1,7 @@
+packages:
+  - "app/**"
+  - "components/**"
+  - "lib/**"
+  - "hooks/**"
+  - "types/**"
+  - "scripts/**"
