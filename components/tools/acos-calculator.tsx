@@ -2,19 +2,21 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { calculateAmazonMetrics } from "@/lib/api-utils";
 import {
-  Upload,
-  FileText,
   AlertCircle,
-  Download,
   Calculator,
+  Download,
+  FileText,
+  Upload,
 } from "lucide-react";
+import Papa from "papaparse";
+import { useState } from "react";
 
 type CampaignData = {
   campaign: string;
@@ -29,8 +31,25 @@ type CampaignData = {
   conversionRate?: number;
 };
 
+interface CampaignAnalytics extends CampaignData {
+  metrics: ReturnType<typeof calculateAmazonMetrics>;
+  performance: {
+    trend: 'up' | 'down' | 'stable';
+    weekOverWeek: number;
+    monthOverMonth: number;
+    seasonalImpact: number;
+    competitiveIndex: number;
+  };
+  recommendations: string[];
+  benchmark?: {
+    averageAcos: number;
+    averageCtr: number;
+    averageConversion: number;
+  };
+}
+
 export default function AcosCalculator() {
-  const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignAnalytics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualCampaign, setManualCampaign] = useState({
@@ -39,67 +58,104 @@ export default function AcosCalculator() {
     sales: "",
   });
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const analyzeCampaign = async (campaign: CampaignData): Promise<CampaignAnalytics> => {
+    try {
+      const response = await fetch('/api/analyze-campaign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(campaign)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze campaign');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Campaign analysis failed:', error);
+      
+      // Fallback to local calculations if API fails
+      const metrics = calculateAmazonMetrics({
+        adSpend: campaign.adSpend,
+        sales: campaign.sales,
+        impressions: campaign.impressions || 0,
+        clicks: campaign.clicks || 0,
+        cost: campaign.adSpend * 0.8, // Estimate cost as 80% of ad spend
+        category: campaign.category
+      });
+
+      return {
+        ...campaign,
+        metrics,
+        performance: {
+          trend: metrics.acos < 25 ? 'up' : metrics.acos > 35 ? 'down' : 'stable',
+          weekOverWeek: 0,
+          monthOverMonth: 0,
+          seasonalImpact: metrics.seasonality,
+          competitiveIndex: metrics.competitiveIndex
+        },
+        recommendations: getDefaultRecommendations(metrics)
+      };
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsLoading(true);
     setError(null);
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData = [
-          {
-            campaign: "Auto Campaign - Wireless Earbuds",
-            adSpend: 245.67,
-            sales: 1245.89,
-            impressions: 12450,
-            clicks: 320,
-          },
-          {
-            campaign: "Sponsored Products - Phone Cases",
-            adSpend: 178.34,
-            sales: 567.21,
-            impressions: 8750,
-            clicks: 245,
-          },
-          {
-            campaign: "Sponsored Brands - Charging Cables",
-            adSpend: 89.45,
-            sales: 156.78,
-            impressions: 4320,
-            clicks: 98,
-          },
-        ];
+    try {
+      Papa.parse<Partial<CampaignData>>(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (result) => {
+          if (result.errors.length > 0) {
+            setError(`CSV Parse Error: ${result.errors[0].message}`);
+            setIsLoading(false);
+            return;
+          }
 
-        const processedData = sampleData.map((item) => {
-          const acos = (item.adSpend / item.sales) * 100;
-          const roas = item.sales / item.adSpend;
-          const ctr = (item.clicks / item.impressions) * 100;
-          const cpc = item.adSpend / item.clicks;
-          const conversionRate = (item.sales / item.clicks) * 100;
+          const validData = result.data
+            .filter((item): item is CampaignData => {
+              return Boolean(
+                item.campaign &&
+                typeof item.adSpend === 'number' &&
+                typeof item.sales === 'number'
+              );
+            })
+            .map(async (item) => {
+              const acos = (item.adSpend / item.sales) * 100;
+              const roas = item.sales / item.adSpend;
+              const baseData: CampaignData = {
+                ...item,
+                acos,
+                roas
+              };
+              return await analyzeCampaign(baseData);
+            });
 
-          return {
-            ...item,
-            acos,
-            roas,
-            ctr,
-            cpc,
-            conversionRate,
-          };
-        });
-
-        setCampaigns(processedData);
-        setIsLoading(false);
-      } catch (err) {
-        setError(
-          "Failed to parse CSV file. Please check the format and try again.",
-        );
-        setIsLoading(false);
-      }
-    }, 1500);
+          const analyzedData = await Promise.all(validData);
+          setCampaigns(analyzedData);
+          setIsLoading(false);
+        },
+        error: (error) => {
+          setError(`Failed to parse CSV: ${error.message}`);
+          setIsLoading(false);
+        },
+        transform: (value, field) => {
+          if (['adSpend', 'sales', 'impressions', 'clicks'].includes(field)) {
+            return Number(value);
+          }
+          return value;
+        }
+      });
+    } catch (err) {
+      const error = err as Error;
+      setError(`Processing error: ${error.message}`);
+      setIsLoading(false);
+    }
   };
 
   const handleManualCalculate = () => {
@@ -137,10 +193,28 @@ export default function AcosCalculator() {
   };
 
   const handleExport = () => {
-    // In a real app, this would generate and download a CSV file
-    alert(
-      "In a real implementation, this would download a CSV with all ACoS calculations.",
-    );
+    if (campaigns.length === 0) return;
+
+    const csvData = campaigns.map(campaign => ({
+      campaign: campaign.campaign,
+      ad_spend: campaign.adSpend.toFixed(2),
+      sales: campaign.sales.toFixed(2),
+      acos: campaign.acos.toFixed(2),
+      roas: campaign.roas.toFixed(2),
+      trend: campaign.performance?.trend || 'n/a',
+      week_over_week: campaign.performance?.weekOverWeek.toFixed(2) || 'n/a',
+      recommendations: campaign.recommendations?.join('; ') || 'n/a'
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'acos_analysis.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const getAcosRating = (acos: number): string => {

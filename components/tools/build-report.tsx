@@ -15,16 +15,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
 interface BuildReport {
-  severity: string;
-  status: string;
+  severity: "Low" | "Medium" | "High";
+  status: "Passed" | "Failed" | "Pending";
   description: string;
   environment: string[];
-  buildLogs: string[];
+  buildLogs: Array<{
+    timestamp: string;
+    level: "info" | "warn" | "error";
+    message: string;
+  }>;
+  metrics?: {
+    duration: number;
+    testsRun: number;
+    testsPassed: number;
+    testsFailed: number;
+    coverage: number;
+  };
 }
 
 const defaultBuildReport: BuildReport = {
-  severity: "",
-  status: "",
+  severity: "Low",
+  status: "Pending",
   description: "",
   environment: [],
   buildLogs: [],
@@ -49,66 +60,112 @@ export const BuildReportApp = () => {
   const [rawBuildLog, setRawBuildLog] = useState("");
   const [error, setError] = useState("");
 
-  const parseBuildReport = (report: string) => {
+  const parseBuildReport = async (report: string): Promise<void> => {
     try {
       const lines = report.split("\n");
-      const buildLogs: string[] = [];
-      let severity = "";
-      let status = "";
+      const buildLogs: BuildReport["buildLogs"] = [];
+      let severity: BuildReport["severity"] = "Low";
+      let status: BuildReport["status"] = "Pending";
       let description = "";
+      let metrics = {
+        duration: 0,
+        testsRun: 0,
+        testsPassed: 0,
+        testsFailed: 0,
+        coverage: 0,
+      };
 
-      lines.forEach((line) => {
+      for (const line of lines) {
         const trimmedLine = line.trim();
-        if (!trimmedLine) return;
+        if (!trimmedLine) continue;
 
+        // Parse timestamps and log levels
+        const timestampMatch = trimmedLine.match(/^\[(.*?)\]/);
+        const timestamp = timestampMatch ? timestampMatch[1] : new Date().toISOString();
+        
+        let level: "info" | "warn" | "error" = "info";
         if (trimmedLine.match(/error|exception|failure/i)) {
-          buildLogs.push(trimmedLine);
-          severity = severity || "High";
-          status = status || "Failed";
-          description = description || "Build failed due to errors.";
-        } else if (trimmedLine.match(/warning/i)) {
-          buildLogs.push(trimmedLine);
-          severity = severity || "Medium";
-        } else if (trimmedLine.match(/build\s+failed/i)) {
+          level = "error";
+          severity = "High";
           status = "Failed";
-          severity = severity || "High";
-          description = description || "Build failed due to errors.";
-        } else if (trimmedLine.match(/build\s+succeeded|build\s+completed/i)) {
-          status = "Passed";
-          severity = severity || "Low";
-          description = description || "Build succeeded without errors.";
-        } else if (trimmedLine.match(/\[info\]|\[debug\]|step\s+\d+/i)) {
-          buildLogs.push(trimmedLine);
+        } else if (trimmedLine.match(/warning/i)) {
+          level = "warn";
+          severity = severity === "Low" ? "Medium" : severity;
         }
-      });
+
+        // Extract metrics
+        const durationMatch = trimmedLine.match(/Total time: (\d+(\.\d+)?)/i);
+        if (durationMatch) {
+          metrics.duration = parseFloat(durationMatch[1]);
+        }
+
+        const testsMatch = trimmedLine.match(/Tests run: (\d+), Passed: (\d+), Failed: (\d+)/i);
+        if (testsMatch) {
+          metrics.testsRun = parseInt(testsMatch[1]);
+          metrics.testsPassed = parseInt(testsMatch[2]);
+          metrics.testsFailed = parseInt(testsMatch[3]);
+        }
+
+        const coverageMatch = trimmedLine.match(/Coverage: (\d+(\.\d+)?)%/i);
+        if (coverageMatch) {
+          metrics.coverage = parseFloat(coverageMatch[1]);
+        }
+
+        buildLogs.push({
+          timestamp,
+          level,
+          message: trimmedLine,
+        });
+      }
+
+      // Generate summary description
+      description = generateDescription(status, metrics);
 
       setError("");
-
       setBuildReport({
         severity,
         status,
         description,
         environment: [selectedEnvironment],
         buildLogs,
+        metrics,
       });
     } catch (err) {
-      setError(
-        "Failed to parse build report. Please check the format and try again.",
-      );
-      console.error("Parse error:", err);
+      const error = err as Error;
+      setError(`Failed to parse build report: ${error.message}`);
+      console.error("Parse error:", error);
     }
   };
 
+  const generateDescription = (status: BuildReport["status"], metrics: NonNullable<BuildReport["metrics"]>): string => {
+    if (status === "Failed") {
+      return `Build failed with ${metrics.testsFailed} failed tests. Coverage at ${metrics.coverage}%.`;
+    }
+    return `Build succeeded with ${metrics.testsPassed}/${metrics.testsRun} tests passing. Coverage at ${metrics.coverage}%.`;
+  };
+
   const formatAsMarkdown = () => {
-    const markdown = `# Build Report
-## Severity: ${selectedSeverity || buildReport.severity}
-## Status: ${selectedStatus || buildReport.status}
-## Description: ${selectedDescription || buildReport.description}
-## Environment: ${selectedEnvironment}
-## Build Logs:
-${buildReport.buildLogs.map((log, index) => `${index + 1}. ${log}`).join("\n")}
-## Additional Message:
-${additionalMessage || "Please address and resolve any issues that are causing functionalities to break."}
+    const { buildLogs, metrics } = buildReport;
+    
+    const markdown = `# Build Report ${new Date().toISOString()}
+
+## Summary
+- **Severity:** ${selectedSeverity || buildReport.severity}
+- **Status:** ${selectedStatus || buildReport.status}
+- **Environment:** ${selectedEnvironment}
+- **Duration:** ${metrics?.duration.toFixed(2)}s
+- **Tests:** ${metrics?.testsPassed}/${metrics?.testsRun} passing (${metrics?.coverage}% coverage)
+
+## Description
+${selectedDescription || buildReport.description}
+
+## Build Logs
+${buildLogs.map(log => (
+  `[${log.timestamp}] ${log.level.toUpperCase()}: ${log.message}`
+)).join("\n")}
+
+## Additional Notes
+${additionalMessage || "No additional notes."}
 `;
     setMarkdownReport(markdown);
   };
@@ -225,7 +282,7 @@ ${additionalMessage || "Please address and resolve any issues that are causing f
             <ol className="list-decimal pl-5">
               {buildReport.buildLogs.map((log, index) => (
                 <li key={index} className="text-sm text-gray-600">
-                  {log}
+                  {log.message}
                 </li>
               ))}
             </ol>

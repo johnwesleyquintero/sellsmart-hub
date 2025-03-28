@@ -6,6 +6,12 @@ export interface RateLimiterOptions {
   maxRetries: number;
 }
 
+export interface RateLimiterConfig {
+  maxTokens: number;
+  refillRate: number;
+  refillInterval: number;
+}
+
 export class TokenBucketRateLimiter {
   private tokens: number;
   private lastRefill: number;
@@ -61,5 +67,39 @@ export class TokenBucketRateLimiter {
   public getTokens(): number {
     this.refillTokens();
     return this.tokens;
+  }
+}
+
+export class RateLimiter {
+  private tokens: number;
+  private lastRefill: number;
+  private config: RateLimiterConfig;
+
+  constructor(config: RateLimiterConfig) {
+    this.config = config;
+    this.tokens = config.maxTokens;
+    this.lastRefill = Date.now();
+  }
+
+  private refillTokens(): void {
+    const now = Date.now();
+    const timePassed = now - this.lastRefill;
+    const refillAmount = Math.floor(
+      (timePassed * this.config.refillRate) / this.config.refillInterval
+    );
+    this.tokens = Math.min(this.config.maxTokens, this.tokens + refillAmount);
+    this.lastRefill = now;
+  }
+
+  async acquire(): Promise<void> {
+    this.refillTokens();
+    
+    if (this.tokens <= 0) {
+      const waitTime = this.config.refillInterval / this.config.refillRate;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      this.refillTokens();
+    }
+
+    this.tokens--;
   }
 }

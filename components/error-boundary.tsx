@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { ErrorWithContext } from "@/lib/error-reporting/types";
+import { captureException } from "@sentry/nextjs";
+import { AlertTriangle } from "lucide-react";
 import type React from "react";
 import { Component, ErrorInfo } from "react";
 
@@ -24,6 +26,11 @@ interface CSVParseErrorEvent extends CustomEvent<CSVParseError> {
   type: "csvparsingerror";
 }
 
+interface ExtendedError extends Error {
+  type?: string;
+  details?: string;
+}
+
 declare global {
   interface WindowEventMap {
     csvparsingerror: CSVParseErrorEvent;
@@ -44,8 +51,27 @@ export default class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error("Error caught by error boundary:", error, errorInfo);
-    this.props.onError?.(error, errorInfo);
+    const errorWithContext: ErrorWithContext = Object.assign(error, {
+      context: {
+        toolName: "KeywordDeduplicator",
+        operation: "Processing",
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    // Log to error tracking service
+    captureException(errorWithContext);
+
+    // Notify parent
+    this.props.onError?.(errorWithContext, errorInfo);
+
+    // Log locally
+    console.error("Error caught by boundary:", {
+      error: errorWithContext,
+      info: errorInfo,
+      state: this.state,
+    });
   }
 
   componentDidMount(): void {
@@ -62,46 +88,47 @@ export default class ErrorBoundary extends Component<
     this.setState({ hasError: true, error });
   };
 
-  private handleReset = (): void => {
-    this.setState({ hasError: false, error: null });
-    window.location.reload();
+  private handleReset = async (): Promise<void> => {
+    try {
+      // Attempt to save current state
+      await this.saveCurrentState();
+
+      // Clear error state
+      this.setState({ hasError: false, error: null });
+
+      // Reload only if necessary
+      if (this.shouldReload()) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Reset failed:", error);
+      // Fallback to full reload
+      window.location.reload();
+    }
   };
 
   render(): React.ReactNode {
     const { hasError, error } = this.state;
     const { children } = this.props;
 
-    if (hasError) {
+    if (hasError && error) {
+      const extendedError = error as ExtendedError;
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-800/30 dark:bg-red-900/20">
-          <AlertTriangle className="mb-4 h-12 w-12 text-red-500 dark:text-red-400" />
-          <h2 className="mb-2 text-xl font-bold text-red-800 dark:text-red-400">
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+          <AlertTriangle className="mb-4 h-12 w-12 text-red-500" />
+          <h2 className="mb-2 text-xl font-bold text-red-800">
             Something went wrong
           </h2>
-          <p className="mb-6 max-w-md text-red-700 dark:text-red-300">
-            {error?.type === "csv_parse_error"
-              ? `CSV Parsing Error: ${error.details || "Invalid CSV format"}`
-              : "We apologize for the inconvenience. An unexpected error has occurred."}
+          <p className="mb-6 max-w-md text-red-700">
+            {extendedError.type === "csv_parse_error"
+              ? `CSV Parsing Error: ${extendedError.details || "Invalid CSV format"}`
+              : error.message || "An unexpected error occurred"}
           </p>
-          <Button
-            onClick={this.handleReset}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Reload Page
-          </Button>
-          {error && process.env.NODE_ENV === "development" && (
-            <div className="mt-6 max-w-md overflow-auto rounded border border-red-300 bg-white p-4 text-left text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300">
-              <p className="font-mono font-bold">
-                {error.name}: {error.message}
-              </p>
-              <pre className="mt-2 text-xs">{error.stack}</pre>
-            </div>
-          )}
+          <Button onClick={this.handleReset}>Try again</Button>
         </div>
       );
     }
 
-    return <>{children}</>;
+    return children;
   }
 }

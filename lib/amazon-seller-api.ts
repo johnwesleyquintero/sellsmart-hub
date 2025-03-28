@@ -1,3 +1,4 @@
+import { RateLimiter } from "@/lib/rate-limiter";
 import { z } from "zod";
 
 // Amazon Seller API Configuration Schema
@@ -10,6 +11,16 @@ const SellerApiConfigSchema = z.object({
 });
 
 type SellerApiConfig = z.infer<typeof SellerApiConfigSchema>;
+
+type Region = "NA" | "EU" | "FE";
+
+interface AmazonSellerApiConfig {
+  sandbox: boolean;
+  region: Region;
+  clientId: string;
+  clientSecret: string;
+  refreshToken: string;
+}
 
 // Rate Limiting Configuration
 const DEFAULT_RATE_LIMIT = {
@@ -62,18 +73,14 @@ export class AmazonSellerApi {
   private config: SellerApiConfig;
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
-  private rateLimiter: TokenBucketRateLimiter;
+  private rateLimiter: RateLimiter;
 
   constructor(config: SellerApiConfig) {
     this.config = SellerApiConfigSchema.parse(config);
-    this.initializeRateLimiter();
-  }
-
-  private initializeRateLimiter() {
-    this.rateLimiter = new TokenBucketRateLimiter({
-      requestsPerSecond: DEFAULT_RATE_LIMIT.requestsPerSecond,
-      burstSize: DEFAULT_RATE_LIMIT.burstSize,
-      maxRetries: DEFAULT_RATE_LIMIT.maxRetries,
+    this.rateLimiter = new RateLimiter({
+      maxTokens: DEFAULT_RATE_LIMIT.burstSize,
+      refillRate: DEFAULT_RATE_LIMIT.requestsPerSecond,
+      refillInterval: 1000
     });
   }
 
@@ -110,16 +117,15 @@ export class AmazonSellerApi {
   private async makeRequest<T>(
     endpoint: string,
     method: string = "GET",
-    body?: any,
+    body?: unknown,
   ): Promise<T> {
-    if (!this.accessToken || Date.now() >= this.tokenExpiry) {
-      await this.refreshAccessToken();
-    }
-
-    // Apply rate limiting
-    await this.rateLimiter.acquire();
-
     try {
+      if (!this.accessToken || Date.now() >= this.tokenExpiry) {
+        await this.refreshAccessToken();
+      }
+
+      await this.rateLimiter.acquire();
+
       const response = await fetch(
         `https://sellingpartnerapi-${this.config.region}.amazon.com${endpoint}`,
         {
@@ -133,12 +139,18 @@ export class AmazonSellerApi {
       );
 
       if (!response.ok) {
-        throw new AmazonSellerApiError("API request failed", response.status);
+        throw new AmazonSellerApiError(
+          `API request failed with status ${response.status}`,
+          response.status,
+        );
       }
 
       return await response.json();
     } catch (error) {
-      throw new AmazonSellerApiError(`Request failed: ${error.message}`);
+      if (error instanceof Error) {
+        throw new AmazonSellerApiError(`Request failed: ${error.message}`);
+      }
+      throw new AmazonSellerApiError('An unknown error occurred');
     }
   }
 

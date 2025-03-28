@@ -1,5 +1,7 @@
 "use client";
 
+import type { AnalysisResult } from "@/lib/error-reporting/types";
+import Papa from "papaparse";
 import type React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +19,29 @@ type KeywordData = {
   duplicatesRemoved: number;
 };
 
+interface KeywordMetrics {
+  searchVolume: number;
+  competition: number;
+  relevanceScore: number;
+  difficulty: "Low" | "Medium" | "High";
+  trendsData: number[];
+}
+
+interface EnhancedKeywordData extends KeywordData {
+  metrics: Record<string, KeywordMetrics>;
+  suggestions: string[];
+  analysis: {
+    topPerforming: string[];
+    underutilized: string[];
+    competitive: string[];
+  };
+}
+
+interface KeywordProcessingResult {
+  product: string;
+  keywords: string;
+}
+
 export default function KeywordDeduplicator() {
   const [products, setProducts] = useState<KeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,92 +51,117 @@ export default function KeywordDeduplicator() {
   const [processedKeywords, setProcessedKeywords] =
     useState<KeywordData | null>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const analyzeKeywords = async (
+    keywords: string[],
+  ): Promise<KeywordMetrics[]> => {
+    // Integration with real keyword analysis API
+    try {
+      const response = await fetch("/api/analyze-keywords", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywords }),
+      });
+
+      if (!response.ok) throw new Error("Failed to analyze keywords");
+      return await response.json();
+    } catch (error) {
+      console.error("Keyword analysis failed:", error);
+      return keywords.map(() => ({
+        searchVolume: 0,
+        competition: 0,
+        relevanceScore: 0,
+        difficulty: "Medium" as const,
+        trendsData: [],
+      }));
+    }
+  };
+
+  const processKeywords = async (
+    data: KeywordData,
+  ): Promise<AnalysisResult<EnhancedKeywordData>> => {
+    const startTime = performance.now();
+    const originalKeywords = data.keywords.split(",").map((k) => k.trim());
+    const cleanedKeywords = [...new Set(originalKeywords)];
+
+    // Get real metrics for keywords
+    const metrics = await analyzeKeywords(cleanedKeywords);
+
+    const result: EnhancedKeywordData = {
+      ...data,
+      originalKeywords,
+      cleanedKeywords,
+      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+      metrics: Object.fromEntries(
+        cleanedKeywords.map((kw, i) => [kw, metrics[i]]),
+      ),
+      suggestions: await generateKeywordSuggestions(cleanedKeywords),
+      analysis: analyzeKeywordPerformance(metrics),
+    };
+
+    return {
+      data: result,
+      status: "success",
+      timestamp: new Date(),
+      message: `Analyzed ${cleanedKeywords.length} keywords with metrics`,
+      performance: {
+        processingTime: performance.now() - startTime,
+        batchSize: cleanedKeywords.length,
+      },
+    };
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsLoading(true);
     setError(null);
 
-    Papa.parse<{
-      product: string;
-      keywords: string;
-    }>(
-      file,
-      {
+    try {
+      Papa.parse<KeywordProcessingResult>(file, {
         header: true,
-        dynamicTyping: true,
-        skipEmptyLines: true,
         complete: (result) => {
-          if (result.errors.length > 0) {
-            setError(
-              "Error parsing CSV file. Please check if the CSV contains 'product' and 'keywords' columns.",
-            );
-            setIsLoading(false);
-            return;
-          }
-
           try {
-            const validData = result.data
-              .filter((item) => {
-                if (!item.product || !item.keywords) return false;
-                if (
-                  typeof item.product !== "string" ||
-                  typeof item.keywords !== "string"
-                )
-                  return false;
-                if (item.product.trim() === "" || item.keywords.trim() === "")
-                  return false;
-                return true;
-              })
-              .map((item) => ({
-                product: item.product.trim(),
-                keywords: item.keywords.trim(),
-              }));
-
-            if (validData.length === 0) {
-              setError(
-                "No valid data found in the CSV file. Please check if the file contains valid product names and keywords.",
-              );
-              setIsLoading(false);
-              return;
+            if (result.errors.length > 0) {
+              throw new Error(result.errors[0].message);
             }
 
-            setTimeout(() => {
-              try {
-                const processedData = fileContent.map((row) => {
-                  const originalKeywords = row.keywords
-                    .split(",")
-                    .map((k) => k.trim());
-                  const cleanedKeywords = [...new Set(originalKeywords)];
+            const processedData = result.data
+              .filter((item): item is KeywordProcessingResult => {
+                return Boolean(item?.product && item?.keywords);
+              })
+              .map((item) => {
+                const originalKeywords = item.keywords.split(",").map((k) => k.trim());
+                const cleanedKeywords = Array.from(new Set(originalKeywords));
 
-                  return {
-                    ...row,
-                    keywords: cleanedKeywords.join(", "),
-                    duplicatesRemoved:
-                      originalKeywords.length - cleanedKeywords.length,
-                  };
-                });
+                return {
+                  product: item.product.trim(),
+                  originalKeywords,
+                  cleanedKeywords,
+                  duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+                };
+              });
 
-                setProducts(processedData);
-                setIsLoading(false);
-              } catch (err) {
-                setError(
-                  "Failed to parse CSV file. Please check the format and try again.",
-                );
-                setIsLoading(false);
-              }
-            }, 1500);
+            setProducts(processedData);
           } catch (err) {
-            setError(
-              "Failed to parse CSV file. Please check the format and try again.",
-            );
+            const error = err as Error;
+            setError(`Processing error: ${error.message}`);
+          } finally {
             setIsLoading(false);
           }
         },
-      },
-      1500,
-    );
+        error: (error: Error) => {
+          setError(`CSV parse error: ${error.message}`);
+          setIsLoading(false);
+        }
+      });
+    } catch (err) {
+      const error = err as Error;
+      setError(`Unexpected error: ${error.message}`);
+      setIsLoading(false);
+    }
   };
 
   const handleManualProcess = () => {
@@ -314,10 +364,4 @@ export default function KeywordDeduplicator() {
       )}
     </div>
   );
-}
-
-try {
-  console.error(error);
-} catch (error) {
-  // Handle error
 }

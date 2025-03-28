@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
+import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import MDXContent from "./mdx-content";
 
 interface Post {
@@ -21,18 +21,17 @@ interface Post {
 
 interface Props {
   params: {
-    slug: string;
+    slug?: string;
   };
 }
-
 async function getBlogPost(slug: string): Promise<Post | null> {
   const posts = await import("@/data/blog.json").then((m) => m.default.posts);
-  return posts.find((post: Post) => post.id === slug) || null;
+  return posts.find((post: Post) => post.id === slug!) || null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
-  const post = await getBlogPost(slug);
+  const post = await getBlogPost(slug!);
 
   if (!post) {
     return {
@@ -62,7 +61,7 @@ export async function generateStaticParams() {
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = params;
-  const post = await getBlogPost(slug);
+  const post = await getBlogPost(slug!);
 
   if (!post) {
     notFound();
@@ -111,7 +110,7 @@ export default async function BlogPost({ params }: Props) {
         </div>
       )}
       <div className="prose prose-lg dark:prose-invert">
-        <MDXContent slug={params.slug} />
+        <MDXContent slug={params.slug!} />
       </div>
     </article>
   );
