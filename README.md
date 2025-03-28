@@ -50,4 +50,63 @@ The portfolio includes a fully-featured blog with MDX support:
 ```bash
 git clone https://github.com/johnwesleyquintero/portfolio.git
 cd portfolio
+```
+
+2. Install dependencies
+```bash
+pnpm install
+```
+
+3. Start development server
+```bash
+pnpm dev
+```
+
+4. Open http://localhost:3000 in your browser
+
+## Development
+
+To contribute to this project:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+## Deployment
+
+This project is automatically deployed to Vercel when pushing to the main branch. For manual deployment:
+
+1. Install Vercel CLI
+```bash
+pnpm add -g vercel
+```
+
+2. Run deployment
+```bash
+vercel
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and update with your own values:
+```bash
+cp .env.example .env
+```
+## Available Scripts
+
+- `pnpm dev`: Starts development server
+- `pnpm build`: Creates production build
+- `pnpm start`: Runs production server
+- `pnpm lint`: Runs ESLint
+- `pnpm format`: Formats code with Prettier
+
+## Tech Stack Details
+
+- **Next.js 14**: App Router, Server Components, Streaming
+- **TypeScript**: Strict typing throughout the project
+- **Tailwind CSS**: Utility-first CSS with dark/light mode support
+- **shadcn/ui**: Accessible, customizable components
+- **MDX**: Markdown with React component support
 
