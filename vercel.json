@@ -6,7 +6,7 @@
   },
   "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
-  "installCommand": "npm install -g pnpm@8.15.1 && SKIP_POSTINSTALL=1 pnpm install --no-frozen-lockfile",
+  "installCommand": "npm install -g pnpm@8.15.1 && SKIP_POSTINSTALL=1 SKIP_INSTALL_DEPS=1 pnpm install",
   "framework": "nextjs",
   "regions": ["sfo1"],
   "headers": [

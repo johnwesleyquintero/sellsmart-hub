@@ -4,8 +4,8 @@
   "private": true,
   "packageManager": "pnpm@8.x",
   "engines": {
-    "node": "18.x",
-    "pnpm": ">=8.15.0"
+    "node": ">=18.0.0",
+    "pnpm": "8.15.1"
   },
   "scripts": {
     "dev": "next dev",
@@ -21,7 +21,7 @@
     "clean:all": "node scripts/cleanup.js",
     "verify": "run-s _clean _install format type-check lint",
     "_clean": "node scripts/cleanup.js",
-    "_install": "SKIP_POSTINSTALL=1 pnpm install --no-frozen-lockfile",
+    "_install": "cross-env SKIP_POSTINSTALL=1 pnpm install",
     "prepare": "husky install",
     "postinstall": "node scripts/post-install.js"
   },
