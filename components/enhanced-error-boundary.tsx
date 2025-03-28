@@ -1,6 +1,6 @@
 "use client";
 
-import ErrorBoundary from './error-boundary';
+import ErrorBoundary from "./error-boundary";
 
 interface Props {
   children: React.ReactNode;

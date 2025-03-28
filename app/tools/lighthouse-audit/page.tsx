@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import LighthouseAudit from '@/components/tools/lighthouse-audit';
-import LighthouseInput from '@/components/tools/lighthouse-input';
-import { useState } from 'react';
+import LighthouseAudit from "@/components/tools/lighthouse-audit";
+import LighthouseInput from "@/components/tools/lighthouse-input";
+import { useState } from "react";
 
 export default function LighthouseAuditPage() {
   const [metrics, setMetrics] = useState<Record<string, any> | null>(null);
@@ -10,21 +10,24 @@ export default function LighthouseAuditPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Website Performance Analysis</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          Website Performance Analysis
+        </h1>
         <p className="text-muted-foreground">
           View detailed performance metrics from your latest Lighthouse audit.
         </p>
       </div>
-      
+
       <LighthouseInput onDataSubmit={setMetrics} />
-      
+
       {metrics && <LighthouseAudit metrics={metrics} />}
 
       <div className="mt-8 space-y-4">
         <h2 className="text-2xl font-bold">About Lighthouse Metrics</h2>
         <p className="text-muted-foreground">
-          Lighthouse is an open-source tool that helps you improve the quality of your web pages.
-          It provides audits for performance, accessibility, progressive web apps, SEO, and more.
+          Lighthouse is an open-source tool that helps you improve the quality
+          of your web pages. It provides audits for performance, accessibility,
+          progressive web apps, SEO, and more.
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">

@@ -6,7 +6,9 @@ interface LighthouseInputProps {
   onDataSubmit: (data: any) => void;
 }
 
-export default function LighthouseInput({ onDataSubmit }: LighthouseInputProps) {
+export default function LighthouseInput({
+  onDataSubmit,
+}: LighthouseInputProps) {
   const [jsonInput, setJsonInput] = useState("");
   const [error, setError] = useState("");
 
@@ -28,18 +30,20 @@ export default function LighthouseInput({ onDataSubmit }: LighthouseInputProps) 
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
-        if (file.name.endsWith('.json')) {
+        if (file.name.endsWith(".json")) {
           const parsedData = JSON.parse(content);
           setJsonInput(JSON.stringify(parsedData, null, 2));
           setError("");
-        } else if (file.name.endsWith('.csv')) {
+        } else if (file.name.endsWith(".csv")) {
           // TODO: Add CSV parsing logic
           setError("CSV parsing coming soon!");
         } else {
           setError("Please upload a JSON or CSV file");
         }
       } catch (err) {
-        setError("Error reading file. Please make sure it's valid JSON or CSV.");
+        setError(
+          "Error reading file. Please make sure it's valid JSON or CSV.",
+        );
       }
     };
     reader.readAsText(file);
@@ -61,9 +65,7 @@ export default function LighthouseInput({ onDataSubmit }: LighthouseInputProps) 
         {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
       <div className="flex gap-4">
-        <Button onClick={handleJsonSubmit}>
-          Parse JSON
-        </Button>
+        <Button onClick={handleJsonSubmit}>Parse JSON</Button>
         <div>
           <input
             type="file"
@@ -74,7 +76,7 @@ export default function LighthouseInput({ onDataSubmit }: LighthouseInputProps) 
           />
           <Button
             variant="outline"
-            onClick={() => document.getElementById('file-upload')?.click()}
+            onClick={() => document.getElementById("file-upload")?.click()}
           >
             Upload File
           </Button>

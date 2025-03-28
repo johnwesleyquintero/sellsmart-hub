@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useTheme } from "next-themes"
-import { AnimatePresence, motion } from "framer-motion"
-import { Menu, Moon, Sun, X } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, Moon, Sun, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { ActionSearchBar } from '@/components/action-search-bar'
-import { externalLinks } from "@/lib/config/external-links"
+import { Button } from "@/components/ui/button";
+import { ActionSearchBar } from "@/components/action-search-bar";
+import { externalLinks } from "@/lib/config/external-links";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const navItems = [
     { name: "Home", href: "#hero" },
@@ -31,21 +31,26 @@ export default function Header() {
     { name: "About", href: "#about" },
     { name: "Certifications", href: "#certifications" },
     { name: "Blog", href: "#blog" },
-    { name: "Contact", href: "#contact" }
-  ]
+    { name: "Contact", href: "#contact" },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.svg" alt="Logo" className="h-8 w-8" /> {/* Add your logo here */}
+          <img src="/logo.svg" alt="Logo" className="h-8 w-8" />{" "}
+          {/* Add your logo here */}
           <span className="text-xl font-bold">Wesley Quintero</span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex md:gap-6">
           {navItems.map((item) => (
-            <Link key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary">
+            <Link
+              key={item.name}
+              href={item.href}
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
               {item.name}
             </Link>
           ))}
@@ -72,13 +77,27 @@ export default function Header() {
               className="mr-2"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
             </Button>
           )}
 
           {/* Mobile Menu Button */}
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu} aria-label="Toggle menu">
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
 
@@ -93,7 +112,7 @@ export default function Header() {
               className="absolute left-0 right-0 top-16 z-50 border-b bg-background p-4 md:hidden"
             >
               <nav className="flex items-center space-x-6">
-                <ActionSearchBar 
+                <ActionSearchBar
                   className="w-[200px] lg:w-[300px]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -136,6 +155,5 @@ export default function Header() {
         </AnimatePresence>
       </div>
     </header>
-  )
+  );
 }
-

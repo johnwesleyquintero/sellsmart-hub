@@ -1,13 +1,13 @@
-import HeroSection from "@/components/hero-section"
-import ProjectsSection from "@/components/projects-section"
-import AboutSection from "@/components/about-section"
-import BlogSection from "@/components/blog-section"
-import ContactSection from "@/components/contact-section"
-import CertificationsSection from "@/components/certifications-section"
-import FeaturedToolsSection from "@/components/featured-tools-section"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
-import ErrorBoundary from "@/components/enhanced-error-boundary"
+import HeroSection from "@/components/hero-section";
+import ProjectsSection from "@/components/projects-section";
+import AboutSection from "@/components/about-section";
+import BlogSection from "@/components/blog-section";
+import ContactSection from "@/components/contact-section";
+import CertificationsSection from "@/components/certifications-section";
+import FeaturedToolsSection from "@/components/featured-tools-section";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import ErrorBoundary from "@/components/enhanced-error-boundary";
 
 export default function Home() {
   return (
@@ -27,6 +27,5 @@ export default function Home() {
         <Footer />
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,65 +1,80 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Progress } from "@/components/ui/progress"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { type ProductData } from "@/lib/fba-calculator-utils"
-import { useFBACalculator } from "@/lib/hooks/use-fba-calculator"
-import { AlertCircle, FileUp, Loader2, Upload } from "lucide-react"
-import Papa from "papaparse"
-import type React from "react"
-import { useState } from "react"
+import type React from "react";
+import { type ProductData } from "@/lib/fba-calculator-utils";
+import { useFBACalculator } from "@/lib/hooks/use-fba-calculator";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Upload, FileUp, AlertCircle, Loader2 } from "lucide-react";
+import Papa from "papaparse";
 
 export default function FbaCalculator() {
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
   const { products, isLoading, addProducts, clearProducts } = useFBACalculator({
-    onError: (error) => setError(error)
-  })
+    onError: (error) => setError(error),
+  });
   const [manualProduct, setManualProduct] = useState<ProductData>({
     product: "",
     cost: 0,
     price: 0,
     fees: 0,
-  })
+  });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null)
-    const file = event.target.files?.[0]
-    if (!file) return
+    setError(null);
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     Papa.parse<ProductData>(file, {
       header: true,
       dynamicTyping: true,
-      complete: (result: { data: ProductData[]; errors: any[]; }) => {
+      complete: (result: { data: ProductData[]; errors: any[] }) => {
         if (result.errors.length > 0) {
-          setError("Error parsing CSV file. Please check the format.")
-          return
+          setError("Error parsing CSV file. Please check the format.");
+          return;
         }
 
         // Filter out rows with missing data
         const validData = result.data.filter(
-          (item: ProductData) => item.product && item.cost !== undefined && item.price !== undefined && item.fees !== undefined,
-        )
+          (item: ProductData) =>
+            item.product &&
+            item.cost !== undefined &&
+            item.price !== undefined &&
+            item.fees !== undefined,
+        );
 
-        addProducts(validData)
+        addProducts(validData);
       },
       error: () => {
-        setError("Error parsing CSV file. Please check the format.")
+        setError("Error parsing CSV file. Please check the format.");
       },
-    })
-  }
+    });
+  };
 
   const handleManualCalculation = async () => {
-    if (!manualProduct.product || manualProduct.cost <= 0 || manualProduct.price <= 0) {
-      setError("Please fill in all fields with valid values")
-      return
+    if (
+      !manualProduct.product ||
+      manualProduct.cost <= 0 ||
+      manualProduct.price <= 0
+    ) {
+      setError("Please fill in all fields with valid values");
+      return;
     }
 
-    setError(null)
-    await addProducts([manualProduct])
+    setError(null);
+    await addProducts([manualProduct]);
 
     // Reset form
     setManualProduct({
@@ -67,8 +82,8 @@ export default function FbaCalculator() {
       cost: 0,
       price: 0,
       fees: 0,
-    })
-  }
+    });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -158,9 +173,9 @@ export default function FbaCalculator() {
                   placeholder="0.00"
                 />
               </div>
-              <Button 
-                onClick={handleManualCalculation} 
-                className="w-full" 
+              <Button
+                onClick={handleManualCalculation}
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -169,7 +184,7 @@ export default function FbaCalculator() {
                     Calculating...
                   </>
                 ) : (
-                  'Calculate'
+                  "Calculate"
                 )}
               </Button>
             </div>
@@ -204,16 +219,26 @@ export default function FbaCalculator() {
               <TableBody>
                 {results.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{item.product}</TableCell>
-                    <TableCell className="text-right">{item.cost.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{item.price.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{item.fees.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">
+                      {item.product}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.cost.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.price.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.fees.toFixed(2)}
+                    </TableCell>
                     <TableCell
                       className={`text-right font-semibold ${item.profit && item.profit < 0 ? "text-red-500" : "text-green-500"}`}
                     >
                       {item.profit?.toFixed(2)}
                     </TableCell>
-                    <TableCell className={`text-right ${item.roi && item.roi < 0 ? "text-red-500" : "text-green-500"}`}>
+                    <TableCell
+                      className={`text-right ${item.roi && item.roi < 0 ? "text-red-500" : "text-green-500"}`}
+                    >
                       {item.roi?.toFixed(2)}%
                     </TableCell>
                     <TableCell
@@ -224,7 +249,11 @@ export default function FbaCalculator() {
                     <TableCell>
                       <div className="w-full">
                         <Progress
-                          value={item.margin && item.margin > 0 ? Math.min(item.margin, 100) : 0}
+                          value={
+                            item.margin && item.margin > 0
+                              ? Math.min(item.margin, 100)
+                              : 0
+                          }
                           className={`h-2 ${item.margin && item.margin < 15 ? "bg-red-200" : item.margin && item.margin < 30 ? "bg-yellow-200" : "bg-green-200"}`}
                         />
                       </div>
@@ -243,10 +272,14 @@ export default function FbaCalculator() {
           <li>Upload a CSV file with columns: product, cost, price, fees</li>
           <li>Or manually enter product details in the form</li>
           <li>View calculated profit, ROI, and profit margin</li>
-          <li>Use the results to make informed decisions about your FBA products</li>
-          <li>Use the results to make informed decisions about your FBA products</li>
+          <li>
+            Use the results to make informed decisions about your FBA products
+          </li>
+          <li>
+            Use the results to make informed decisions about your FBA products
+          </li>
         </ol>
       </div>
     </div>
-  )
+  );
 }

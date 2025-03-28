@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Download, Search } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Upload, FileText, AlertCircle, Download, Search } from "lucide-react";
 
 type KeywordData = {
-  product: string
-  keywords: string[]
-  suggestions?: string[]
-  searchVolume?: number
-  competition?: string
-}
+  product: string;
+  keywords: string[];
+  suggestions?: string[];
+  searchVolume?: number;
+  competition?: string;
+};
 
 export default function KeywordAnalyzer() {
-  const [products, setProducts] = useState<KeywordData[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [products, setProducts] = useState<KeywordData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     // Simulate CSV parsing
     setTimeout(() => {
@@ -54,34 +54,41 @@ export default function KeywordAnalyzer() {
             searchVolume: 52000,
             competition: "Low",
           },
-        ]
+        ];
 
         const analyzedData = sampleData.map((item) => {
           // Simulate keyword suggestions based on existing keywords
           const suggestions = item.keywords.map((kw) => {
-            const variations = [`best ${kw}`, `${kw} for amazon`, `premium ${kw}`, `affordable ${kw}`]
-            return variations[Math.floor(Math.random() * variations.length)]
-          })
-          return { ...item, suggestions }
-        })
+            const variations = [
+              `best ${kw}`,
+              `${kw} for amazon`,
+              `premium ${kw}`,
+              `affordable ${kw}`,
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+          });
+          return { ...item, suggestions };
+        });
 
-        setProducts(analyzedData)
-        setIsLoading(false)
+        setProducts(analyzedData);
+        setIsLoading(false);
       } catch (err) {
-        setError("Failed to parse CSV file. Please check the format and try again.")
-        setIsLoading(false)
+        setError(
+          "Failed to parse CSV file. Please check the format and try again.",
+        );
+        setIsLoading(false);
       }
-    }, 1500)
-  }
+    }, 1500);
+  };
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
-      setError("Please enter a search term")
-      return
+      setError("Please enter a search term");
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     // Simulate API call for keyword research
     setTimeout(() => {
@@ -97,18 +104,20 @@ export default function KeywordAnalyzer() {
         ],
         searchVolume: Math.floor(Math.random() * 100000),
         competition: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
-      }
+      };
 
-      setProducts([...products, newProduct])
-      setSearchTerm("")
-      setIsLoading(false)
-    }, 1500)
-  }
+      setProducts([...products, newProduct]);
+      setSearchTerm("");
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const handleExport = () => {
     // In a real app, this would generate and download a CSV file
-    alert("In a real implementation, this would download a CSV with all keyword data.")
-  }
+    alert(
+      "In a real implementation, this would download a CSV with all keyword data.",
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -121,13 +130,19 @@ export default function KeywordAnalyzer() {
               </div>
               <div>
                 <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">Upload a CSV file with your product and keyword data</p>
+                <p className="text-sm text-muted-foreground">
+                  Upload a CSV file with your product and keyword data
+                </p>
               </div>
               <div className="w-full">
                 <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
                   <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">Click to upload CSV</span>
-                  <span className="text-xs text-muted-foreground">(CSV with columns: product, keywords)</span>
+                  <span className="text-sm font-medium">
+                    Click to upload CSV
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    (CSV with columns: product, keywords)
+                  </span>
                   <input
                     type="file"
                     accept=".csv"
@@ -147,7 +162,9 @@ export default function KeywordAnalyzer() {
               <h3 className="text-lg font-medium">Search for Keywords</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium">Product or Keyword</label>
+                  <label className="text-sm font-medium">
+                    Product or Keyword
+                  </label>
                   <div className="flex gap-2">
                     <Input
                       value={searchTerm}
@@ -196,9 +213,15 @@ export default function KeywordAnalyzer() {
                     <h3 className="text-lg font-medium">{product.product}</h3>
                     {product.searchVolume && (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Search Volume:</span>
-                        <Badge variant="outline">{product.searchVolume.toLocaleString()}</Badge>
-                        <span className="text-sm text-muted-foreground">Competition:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Search Volume:
+                        </span>
+                        <Badge variant="outline">
+                          {product.searchVolume.toLocaleString()}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          Competition:
+                        </span>
                         <Badge
                           variant={
                             product.competition === "High"
@@ -215,7 +238,9 @@ export default function KeywordAnalyzer() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="mb-2 text-sm font-medium">Current Keywords</h4>
+                      <h4 className="mb-2 text-sm font-medium">
+                        Current Keywords
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {product.keywords.map((keyword, i) => (
                           <Badge key={i} variant="outline">
@@ -226,7 +251,9 @@ export default function KeywordAnalyzer() {
                     </div>
                     {product.suggestions && (
                       <div>
-                        <h4 className="mb-2 text-sm font-medium">Suggested Keywords</h4>
+                        <h4 className="mb-2 text-sm font-medium">
+                          Suggested Keywords
+                        </h4>
                         <div className="flex flex-wrap gap-2">
                           {product.suggestions.map((keyword, i) => (
                             <Badge key={i} variant="secondary">
@@ -244,6 +271,5 @@ export default function KeywordAnalyzer() {
         </>
       )}
     </div>
-  )
+  );
 }
-

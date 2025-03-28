@@ -1,22 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import { motion, AnimatePresence } from "framer-motion"
-import { Search, Send, BarChart2, Globe, Video, PlaneTakeoff, AudioLines } from "lucide-react"
-import useDebounce from "@/hooks/use-debounce"
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  Send,
+  BarChart2,
+  Globe,
+  Video,
+  PlaneTakeoff,
+  AudioLines,
+} from "lucide-react";
+import useDebounce from "@/hooks/use-debounce";
 
 interface Action {
-  id: string
-  label: string
-  icon: React.ReactNode
-  description?: string
-  short?: string
-  end?: string
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  description?: string;
+  short?: string;
+  end?: string;
 }
 
 interface SearchResult {
-  actions: Action[]
+  actions: Action[];
 }
 
 const allActions = [
@@ -60,40 +68,44 @@ const allActions = [
     short: "",
     end: "Command",
   },
-]
+];
 
-export function ActionSearchBar({ actions = allActions }: { actions?: Action[] }) {
-  const [query, setQuery] = useState("")
-  const [result, setResult] = useState<SearchResult | null>(null)
-  const [isFocused, setIsFocused] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null)
-  const debouncedQuery = useDebounce(query, 200)
+export function ActionSearchBar({
+  actions = allActions,
+}: {
+  actions?: Action[];
+}) {
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState<SearchResult | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const debouncedQuery = useDebounce(query, 200);
 
   useEffect(() => {
     if (!isFocused) {
-      setResult(null)
-      return
+      setResult(null);
+      return;
     }
 
     if (!debouncedQuery) {
-      setResult({ actions: allActions })
-      return
+      setResult({ actions: allActions });
+      return;
     }
 
-    const normalizedQuery = debouncedQuery.toLowerCase().trim()
+    const normalizedQuery = debouncedQuery.toLowerCase().trim();
     const filteredActions = allActions.filter((action) => {
-      const searchableText = action.label.toLowerCase()
-      return searchableText.includes(normalizedQuery)
-    })
+      const searchableText = action.label.toLowerCase();
+      return searchableText.includes(normalizedQuery);
+    });
 
-    setResult({ actions: filteredActions })
-  }, [debouncedQuery, isFocused])
+    setResult({ actions: filteredActions });
+  }, [debouncedQuery, isFocused]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value)
-    setIsTyping(true)
-  }
+    setQuery(e.target.value);
+    setIsTyping(true);
+  };
 
   const container = {
     hidden: { opacity: 0, height: 0 },
@@ -119,7 +131,7 @@ export function ActionSearchBar({ actions = allActions }: { actions?: Action[] }
         },
       },
     },
-  }
+  };
 
   const item = {
     hidden: { opacity: 0, y: 20 },
@@ -137,19 +149,22 @@ export function ActionSearchBar({ actions = allActions }: { actions?: Action[] }
         duration: 0.2,
       },
     },
-  }
+  };
 
   // Reset selectedAction when focusing the input
   const handleFocus = () => {
-    setSelectedAction(null)
-    setIsFocused(true)
-  }
+    setSelectedAction(null);
+    setIsFocused(true);
+  };
 
   return (
     <div className="w-full max-w-xl mx-auto">
       <div className="relative flex flex-col justify-start items-center min-h-[300px]">
         <div className="w-full max-w-sm sticky top-0 bg-background z-10 pt-4 pb-1">
-          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block" htmlFor="search">
+          <label
+            className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block"
+            htmlFor="search"
+          >
             Search Commands
           </label>
           <div className="relative">
@@ -212,13 +227,21 @@ export function ActionSearchBar({ actions = allActions }: { actions?: Action[] }
                       <div className="flex items-center gap-2 justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500">{action.icon}</span>
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{action.label}</span>
-                          <span className="text-xs text-gray-400">{action.description}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {action.label}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {action.description}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">{action.short}</span>
-                        <span className="text-xs text-gray-400 text-right">{action.end}</span>
+                        <span className="text-xs text-gray-400">
+                          {action.short}
+                        </span>
+                        <span className="text-xs text-gray-400 text-right">
+                          {action.end}
+                        </span>
                       </div>
                     </motion.li>
                   ))}
@@ -235,8 +258,7 @@ export function ActionSearchBar({ actions = allActions }: { actions?: Action[] }
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ActionSearchBar
-
+export default ActionSearchBar;

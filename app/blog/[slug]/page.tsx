@@ -1,43 +1,43 @@
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import { Metadata } from "next"
-import { ChevronLeft } from "lucide-react"
-import Link from "next/link"
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import { Metadata } from "next";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import MDXContent from './mdx-content'
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import MDXContent from "./mdx-content";
 
 interface Post {
-  id: string
-  title: string
-  description: string
-  date: string
-  author: string
-  tags: string[]
-  image: string
-  readingTime: string
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  author: string;
+  tags: string[];
+  image: string;
+  readingTime: string;
 }
 
 interface Props {
   params: {
-    slug: string
-  }
+    slug: string;
+  };
 }
 
 async function getBlogPost(slug: string): Promise<Post | null> {
-  const posts = await import("@/data/blog.json").then((m) => m.default.posts)
-  return posts.find((post: Post) => post.id === slug) || null
+  const posts = await import("@/data/blog.json").then((m) => m.default.posts);
+  return posts.find((post: Post) => post.id === slug) || null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params
-  const post = await getBlogPost(slug)
+  const { slug } = params;
+  const post = await getBlogPost(slug);
 
   if (!post) {
     return {
       title: "Blog Post Not Found",
-    }
+    };
   }
 
   return {
@@ -50,34 +50,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [post.author],
       publishedTime: post.date,
     },
-  }
+  };
 }
 
 export async function generateStaticParams() {
-  const posts = await import('@/data/blog.json').then(m => m.default.posts)
+  const posts = await import("@/data/blog.json").then((m) => m.default.posts);
   return posts.map((post: Post) => ({
-    slug: post.id
-  }))
+    slug: post.id,
+  }));
 }
 
 export default async function BlogPost({ params }: Props) {
-  const { slug } = params
-  const post = await getBlogPost(slug)
+  const { slug } = params;
+  const post = await getBlogPost(slug);
 
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-16 md:py-24">
       <div className="mb-12">
-        <Button asChild variant="ghost" className="mb-6 -ml-4 h-8 text-muted-foreground hover:text-foreground">
+        <Button
+          asChild
+          variant="ghost"
+          className="mb-6 -ml-4 h-8 text-muted-foreground hover:text-foreground"
+        >
           <Link href="/blog" className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4" />
             Back to Blog
           </Link>
         </Button>
-        <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl">{post.title}</h1>
+        <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl">
+          {post.title}
+        </h1>
         <div className="mb-6 flex items-center gap-4 text-muted-foreground">
           <span>{post.date}</span>
           <span>•</span>
@@ -108,5 +114,5 @@ export default async function BlogPost({ params }: Props) {
         <MDXContent slug={params.slug} />
       </div>
     </article>
-  )
+  );
 }

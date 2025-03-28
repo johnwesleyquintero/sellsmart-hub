@@ -1,33 +1,39 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Metadata } from "next"
+import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next";
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Blog - Wesley Quintero Dev",
-  description: "Insights and guides about Amazon FBA, e-commerce, and entrepreneurship",
-}
+  description:
+    "Insights and guides about Amazon FBA, e-commerce, and entrepreneurship",
+};
 
 interface Post {
-  id: string
-  title: string
-  description: string
-  date: string
-  author: string
-  tags: string[]
-  image: string
-  readingTime: string
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  author: string;
+  tags: string[];
+  image: string;
+  readingTime: string;
 }
 
 async function getBlogPosts(): Promise<Post[]> {
-  const { posts } = await import("@/data/blog.json").then((m) => m.default)
-  return posts
+  const { posts } = await import("@/data/blog.json").then((m) => m.default);
+  return posts;
 }
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts()
+  const posts = await getBlogPosts();
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -51,10 +57,14 @@ export default async function BlogPage() {
                 />
               </div>
               <CardHeader>
-                <h2 className="line-clamp-2 text-xl font-semibold">{post.title}</h2>
+                <h2 className="line-clamp-2 text-xl font-semibold">
+                  {post.title}
+                </h2>
               </CardHeader>
               <CardContent>
-                <p className="line-clamp-3 text-muted-foreground">{post.description}</p>
+                <p className="line-clamp-3 text-muted-foreground">
+                  {post.description}
+                </p>
               </CardContent>
               <CardFooter className="flex flex-wrap items-center gap-4">
                 <div className="flex flex-wrap gap-2">
@@ -64,12 +74,14 @@ export default async function BlogPage() {
                     </Badge>
                   ))}
                 </div>
-                <span className="ml-auto text-sm text-muted-foreground">{post.readingTime}</span>
+                <span className="ml-auto text-sm text-muted-foreground">
+                  {post.readingTime}
+                </span>
               </CardFooter>
             </Link>
           </Card>
         ))}
       </div>
     </div>
-  )
+  );
 }

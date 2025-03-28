@@ -1,6 +1,20 @@
-type DiagramType = "flow" | "sequence" | "class" | "graph" | "er" | "ai" | "analytics" | "web" | "api" | "docs" | "architecture"
+type DiagramType =
+  | "flow"
+  | "sequence"
+  | "class"
+  | "graph"
+  | "er"
+  | "ai"
+  | "analytics"
+  | "web"
+  | "api"
+  | "docs"
+  | "architecture";
 
-export function generatePlaceholderDiagram(type: DiagramType = "flow", title = ""): string {
+export function generatePlaceholderDiagram(
+  type: DiagramType = "flow",
+  title = "",
+): string {
   switch (type) {
     case "ai":
       return `
@@ -17,7 +31,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
+      `;
     case "analytics":
       return `
         flowchart LR
@@ -34,7 +48,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style E1 fill:#d946ef,color:#fff
           style E2 fill:#d946ef,color:#fff
           style E3 fill:#d946ef,color:#fff
-      `
+      `;
     case "web":
       return `
         flowchart TD
@@ -49,7 +63,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
+      `;
     case "flow":
       return `
         flowchart TD
@@ -63,7 +77,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style C fill:#8b5cf6,color:#fff
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
-      `
+      `;
     case "sequence":
       return `
         sequenceDiagram
@@ -74,7 +88,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           W->>O: Standard Procedures
           O->>T: Feedback Loop
           Note over T,O: 35% Productivity Increase
-      `
+      `;
     case "class":
       return `
         classDiagram
@@ -93,7 +107,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           }
           ClientEngagement --|> BestPractices
           InventoryManagement --|> BestPractices
-      `
+      `;
     case "graph":
       return `
         graph TD
@@ -102,14 +116,14 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           B -->|No| D[Error]
           C --> E((End))
           D --> E
-      `
+      `;
     case "er":
       return `
         erDiagram
           DATA ||--o{ ANALYSIS : contains
           ANALYSIS ||--|{ INSIGHTS : produces
           INSIGHTS }|..|{ ACTIONS : triggers
-      `
+      `;
     case "api":
       return `
         flowchart LR
@@ -124,7 +138,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
+      `;
     case "docs":
       return `
         flowchart TD
@@ -141,7 +155,7 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
+      `;
     case "architecture":
       return `
         flowchart TD
@@ -156,9 +170,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
+      `;
     default:
-      return generatePlaceholderDiagram("flow")
+      return generatePlaceholderDiagram("flow");
   }
 }
-

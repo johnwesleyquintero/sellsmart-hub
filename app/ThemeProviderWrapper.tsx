@@ -1,9 +1,6 @@
-'use client';
+"use client";
 
-
-import { ThemeProvider } from '@/components/theme-provider'
-
-
+import { ThemeProvider } from "@/components/theme-provider";
 
 export function ThemeProviderWrapper({
   children,

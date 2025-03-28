@@ -1,17 +1,27 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Github, Linkedin, Twitter, Mail, ArrowRight, Sparkles } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Mail,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function HeroSection() {
   return (
     <section className="container relative mx-auto px-4 py-32 md:py-48">
       <div className="grid items-center gap-12 md:grid-cols-2">
         <div className="space-y-8">
-          <Badge variant="secondary" className="inline-flex items-center gap-1 rounded-full px-4 py-1.5">
+          <Badge
+            variant="secondary"
+            className="inline-flex items-center gap-1 rounded-full px-4 py-1.5"
+          >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
@@ -27,7 +37,8 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl">
-              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights, Automation & AI.
+              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale
+              with Insights, Automation & AI.
               <Sparkles className="inline-block h-5 w-5 text-yellow-500" />
             </p>
           </div>
@@ -98,6 +109,5 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

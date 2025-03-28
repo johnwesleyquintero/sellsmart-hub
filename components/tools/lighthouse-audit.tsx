@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface LighthouseMetric {
   id: string;
@@ -15,64 +15,66 @@ interface LighthouseMetric {
 
 interface LighthouseAuditProps {
   metrics?: {
-    'first-contentful-paint': LighthouseMetric;
-    'largest-contentful-paint': LighthouseMetric;
-    'speed-index': LighthouseMetric;
-    'is-on-https': LighthouseMetric;
+    "first-contentful-paint": LighthouseMetric;
+    "largest-contentful-paint": LighthouseMetric;
+    "speed-index": LighthouseMetric;
+    "is-on-https": LighthouseMetric;
     viewport: LighthouseMetric;
   };
 }
 
 const defaultMetrics = {
-  'first-contentful-paint': {
-    id: 'first-contentful-paint',
-    title: 'First Contentful Paint',
-    description: 'Time to first byte of content',
+  "first-contentful-paint": {
+    id: "first-contentful-paint",
+    title: "First Contentful Paint",
+    description: "Time to first byte of content",
     score: 0.95,
-    displayValue: '0.8 s',
+    displayValue: "0.8 s",
     numericValue: 800,
-    numericUnit: 'milliseconds'
+    numericUnit: "milliseconds",
   },
-  'largest-contentful-paint': {
-    id: 'largest-contentful-paint',
-    title: 'Largest Contentful Paint',
-    description: 'Time to render largest content element',
+  "largest-contentful-paint": {
+    id: "largest-contentful-paint",
+    title: "Largest Contentful Paint",
+    description: "Time to render largest content element",
     score: 0.82,
-    displayValue: '1.2 s',
+    displayValue: "1.2 s",
     numericValue: 1200,
-    numericUnit: 'milliseconds'
+    numericUnit: "milliseconds",
   },
-  'speed-index': {
-    id: 'speed-index',
-    title: 'Speed Index',
-    description: 'How quickly content is visually displayed',
+  "speed-index": {
+    id: "speed-index",
+    title: "Speed Index",
+    description: "How quickly content is visually displayed",
     score: 0.89,
-    displayValue: '2.1 s',
+    displayValue: "2.1 s",
     numericValue: 2100,
-    numericUnit: 'milliseconds'
+    numericUnit: "milliseconds",
   },
-  'is-on-https': {
-    id: 'is-on-https',
-    title: 'HTTPS Usage',
-    description: 'Site is served over HTTPS',
+  "is-on-https": {
+    id: "is-on-https",
+    title: "HTTPS Usage",
+    description: "Site is served over HTTPS",
     score: 1,
-    displayValue: 'Yes',
+    displayValue: "Yes",
   },
-  'viewport': {
-    id: 'viewport',
-    title: 'Viewport Configuration',
-    description: 'Has a proper viewport configuration',
+  viewport: {
+    id: "viewport",
+    title: "Viewport Configuration",
+    description: "Has a proper viewport configuration",
     score: 1,
-    displayValue: 'Yes',
-  }
+    displayValue: "Yes",
+  },
 };
 
-export default function LighthouseAudit({ metrics = defaultMetrics }: LighthouseAuditProps) {
+export default function LighthouseAudit({
+  metrics = defaultMetrics,
+}: LighthouseAuditProps) {
   const getScoreColor = (score: number | null) => {
-    if (score === null) return 'bg-gray-300';
-    if (score >= 0.9) return 'bg-green-500';
-    if (score >= 0.5) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (score === null) return "bg-gray-300";
+    if (score >= 0.9) return "bg-green-500";
+    if (score >= 0.5) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   const formatMetricValue = (metric: LighthouseMetric) => {
@@ -80,7 +82,7 @@ export default function LighthouseAudit({ metrics = defaultMetrics }: Lighthouse
     if (metric.numericValue && metric.numericUnit) {
       return `${metric.numericValue} ${metric.numericUnit}`;
     }
-    return 'N/A';
+    return "N/A";
   };
 
   return (
@@ -94,7 +96,9 @@ export default function LighthouseAudit({ metrics = defaultMetrics }: Lighthouse
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">{metric.title}</h3>
                   <span className="text-sm">
-                    {metric.score !== null ? `${Math.round(metric.score * 100)}%` : 'N/A'}
+                    {metric.score !== null
+                      ? `${Math.round(metric.score * 100)}%`
+                      : "N/A"}
                   </span>
                 </div>
                 <Progress

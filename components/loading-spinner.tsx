@@ -11,13 +11,16 @@ const sizeMap = {
   lg: "h-12 w-12",
 };
 
-export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  size = "md",
+  className,
+}: LoadingSpinnerProps) {
   return (
     <div
       className={cn(
         "animate-spin rounded-full border-4 border-primary border-t-transparent",
         sizeMap[size],
-        className
+        className,
       )}
     />
   );

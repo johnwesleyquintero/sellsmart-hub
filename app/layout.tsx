@@ -2,7 +2,6 @@ import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
 import { AccessibleHeader } from "@/components/ui/accessible-header";
 import { cn } from "@/lib/utils";
 import { type Metadata } from "next";
-import { Inter } from "next/font/google";
 import { type ReactNode } from "react";
 import "./globals.css";
 
@@ -30,7 +29,9 @@ export const metadata: Metadata = {
     "SellSmart Hub",
     "DevFlowDB",
   ],
-  authors: [{ name: "Wesley Quintero", url: "https://github.com/johnwesleyquintero" }],
+  authors: [
+    { name: "Wesley Quintero", url: "https://github.com/johnwesleyquintero" },
+  ],
   creator: "Wesley Quintero",
   publisher: "Wesley Quintero",
   openGraph: {
@@ -75,17 +76,18 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   metadataBase: new URL("https://wesleyquintero.vercel.app"),
-  generator: "v0.dev"
+  generator: "v0.dev",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          inter.className,
+        )}
+      >
         <ThemeProviderWrapper>
           <div className="relative flex min-h-screen flex-col">
             <AccessibleHeader />

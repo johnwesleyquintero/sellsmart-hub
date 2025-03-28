@@ -1,19 +1,19 @@
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { readFileSync } from 'fs'
-import { join } from 'path'
-import { TableOfContents } from '@/components/blog/table-of-contents'
-import { ReadingProgress } from '@/components/blog/reading-progress'
-import { RelatedArticles } from '@/components/blog/related-articles'
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { TableOfContents } from "@/components/blog/table-of-contents";
+import { ReadingProgress } from "@/components/blog/reading-progress";
+import { RelatedArticles } from "@/components/blog/related-articles";
 
 interface Props {
-  slug: string
+  slug: string;
 }
 
 export default async function MDXContent({ slug }: Props) {
-  const filePath = join(process.cwd(), 'app', 'blog', slug, 'content.mdx')
-  const source = readFileSync(filePath, 'utf8')
-  const posts = await import('@/data/blog.json').then((m) => m.default.posts)
-  const currentPost = posts.find((post: any) => post.id === slug)
+  const filePath = join(process.cwd(), "app", "blog", slug, "content.mdx");
+  const source = readFileSync(filePath, "utf8");
+  const posts = await import("@/data/blog.json").then((m) => m.default.posts);
+  const currentPost = posts.find((post: any) => post.id === slug);
 
   return (
     <>
@@ -38,5 +38,5 @@ export default async function MDXContent({ slug }: Props) {
         </div>
       </div>
     </>
-  )
+  );
 }

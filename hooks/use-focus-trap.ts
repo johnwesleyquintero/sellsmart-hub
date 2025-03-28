@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export const useFocusTrap = (ref: React.RefObject<HTMLElement>) => {
   useEffect(() => {
@@ -8,13 +8,15 @@ export const useFocusTrap = (ref: React.RefObject<HTMLElement>) => {
     if (!element) return;
 
     const focusableElements = element.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const firstFocusableElement = focusableElements[0] as HTMLElement;
-    const lastFocusableElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+    const lastFocusableElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
+      if (e.key !== "Tab") return;
 
       if (e.shiftKey) {
         if (document.activeElement === firstFocusableElement) {
@@ -29,11 +31,11 @@ export const useFocusTrap = (ref: React.RefObject<HTMLElement>) => {
       }
     };
 
-    element.addEventListener('keydown', handleKeyDown);
+    element.addEventListener("keydown", handleKeyDown);
     firstFocusableElement?.focus();
 
     return () => {
-      element.removeEventListener('keydown', handleKeyDown);
+      element.removeEventListener("keydown", handleKeyDown);
     };
   }, [ref]);
 };

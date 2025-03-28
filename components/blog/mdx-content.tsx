@@ -1,18 +1,23 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { TableOfContents } from './table-of-contents'
-import { ReadingProgress } from './reading-progress'
-import { RelatedArticles } from './related-articles'
+import { cn } from "@/lib/utils";
+import { TableOfContents } from "./table-of-contents";
+import { ReadingProgress } from "./reading-progress";
+import { RelatedArticles } from "./related-articles";
 
 interface MDXContentProps {
-  content: React.ReactNode
-  currentPostId: string
-  currentTags: string[]
-  allPosts: any[]
+  content: React.ReactNode;
+  currentPostId: string;
+  currentTags: string[];
+  allPosts: any[];
 }
 
-export function MDXContent({ content, currentPostId, currentTags, allPosts }: MDXContentProps) {
+export function MDXContent({
+  content,
+  currentPostId,
+  currentTags,
+  allPosts,
+}: MDXContentProps) {
   return (
     <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
       <ReadingProgress />
@@ -30,5 +35,5 @@ export function MDXContent({ content, currentPostId, currentTags, allPosts }: MD
         allPosts={allPosts}
       />
     </div>
-  )
+  );
 }

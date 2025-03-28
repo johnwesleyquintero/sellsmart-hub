@@ -9,21 +9,31 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:debug": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
+    "build:debug": "DEBUG=* next build",
+    "prebuild": "run-s format type-check lint:strict",
     "start": "next start",
-    "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
-    "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{js,ts,tsx}\" --fix",
-    "type-check": "tsc --noEmit",
+    "start:debug": "NODE_OPTIONS='--inspect' next start",
+    "clean": "rimraf .next out",
+    "clean:all": "rimraf .next out node_modules",
+    "format": "prettier --check --write \"{app,components,hooks,lib}/**/*.{js,ts,tsx}\" --log-level warn || exit 1",
+    "lint": "eslint \"{app,components,hooks,lib}/**/*.{ts,tsx}\"",
+    "lint:strict": "eslint \"{app,components,hooks,lib}/**/*.{ts,tsx}\" --max-warnings 0 --format codeframe --report-unused-disable-directives || exit 1",
+    "lint:fix": "eslint \"{app,components,hooks,lib}/**/*.{ts,tsx}\" --fix",
+    "build:ci": "pnpm format && pnpm type-check && pnpm lint:strict && pnpm build",
+    "type-check": "tsc --noEmit --pretty --noErrorTruncation --skipLibCheck false || (echo 'Type Check Failed' && node scripts/error-handler.js && exit 1)",
+    "check:all": "run-s format type-check lint:strict",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "cypress run",
     "test:coverage": "jest --coverage",
+    "test:load": "k6 run load-tests/main.js",
     "audit": "pnpm audit",
     "deploy:staging": "vercel --token $VERCEL_TOKEN",
     "deploy:production": "vercel --prod --token $VERCEL_TOKEN",
-    "docs": "typedoc",
-    "preinstall": "node check-pnpm.js"
+    "docs": "typedoc"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.0",
@@ -52,7 +62,8 @@
     "remark-gfm": "^4.0.1",
     "sharp": "^0.33.5",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20.17.27",
@@ -62,7 +73,10 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.0.0",
+    "husky": "^9.1.7",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.35",
+    "prettier": "^3.0.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2"
   }

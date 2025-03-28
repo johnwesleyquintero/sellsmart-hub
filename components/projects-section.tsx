@@ -4,7 +4,14 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExternalLink, Github } from "lucide-react";
@@ -13,7 +20,8 @@ const projects = [
   {
     id: 1,
     title: "SellSmart",
-    description: "AI-powered analytics and automation tools delivered as a modern web application for Amazon sellers.",
+    description:
+      "AI-powered analytics and automation tools delivered as a modern web application for Amazon sellers.",
     image: "/images/projects/sellsmart-hub.svg",
     tags: ["AI", "Analytics", "Automation", "Amazon"],
     liveUrl: "https://sellsmart-hub.vercel.app/",
@@ -23,7 +31,8 @@ const projects = [
   {
     id: 6,
     title: "SellSmart Design x Docs",
-    description: "Comprehensive design system documentation with component guidelines, design tokens, and framework implementation details.",
+    description:
+      "Comprehensive design system documentation with component guidelines, design tokens, and framework implementation details.",
     image: "/images/projects/sellsmart-docs.svg",
     tags: ["Documentation", "Design System", "Components"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
@@ -33,7 +42,8 @@ const projects = [
   {
     id: 2,
     title: "DevFlowDB",
-    description: "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
+    description:
+      "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
     image: "/images/projects/devflowdb-preview.svg",
     tags: ["WASM", "SQL", "Performance", "Database"],
     liveUrl: "https://devflowdb.vercel.app/",
@@ -43,7 +53,8 @@ const projects = [
   {
     id: 3,
     title: "Inventory Management",
-    description: "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
+    description:
+      "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
     image: "/images/projects/InventoryManagementSystem.svg",
     tags: ["Inventory", "Process Optimization", "SOP"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
@@ -53,7 +64,8 @@ const projects = [
   {
     id: 4,
     title: "FBA Department Operations",
-    description: "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
+    description:
+      "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
     image: "/images/projects/FBADepartmentOperations.svg",
     tags: ["Training", "Workflow", "Documentation"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
@@ -63,7 +75,8 @@ const projects = [
   {
     id: 5,
     title: "Wholesale Buyer's Guide",
-    description: "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
+    description:
+      "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
     image: "/images/projects/WholesaleBuyer'sGuide.svg",
     tags: ["Client Engagement", "Best Practices", "Documentation"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
@@ -75,7 +88,10 @@ const projects = [
 export default function ProjectsSection() {
   const [activeTab, setActiveTab] = useState("all");
 
-  const filteredProjects = activeTab === "all" ? projects : projects.filter((project) => project.category === activeTab);
+  const filteredProjects =
+    activeTab === "all"
+      ? projects
+      : projects.filter((project) => project.category === activeTab);
 
   return (
     <section id="projects" className="container relative mx-auto px-4 py-32">
@@ -90,7 +106,8 @@ export default function ProjectsSection() {
           </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Featured Work</h2>
           <p className="text-xl text-muted-foreground">
-            A collection of my recent projects in Amazon marketplace optimization and e-commerce development.
+            A collection of my recent projects in Amazon marketplace
+            optimization and e-commerce development.
           </p>
         </div>
 
@@ -148,12 +165,20 @@ function ProjectCard({ project }) {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button asChild variant="outline" size="sm">
-          <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+          <Link
+            href={project.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Github className="mr-2 h-4 w-4" /> Code
           </Link>
         </Button>
         <Button asChild size="sm">
-          <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+          <Link
+            href={project.liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
           </Link>
         </Button>

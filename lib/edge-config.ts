@@ -14,7 +14,7 @@ type EdgeConfigData = {
 // Removed the edgeConfig client creation
 
 export async function getEdgeConfig<K extends keyof EdgeConfigData>(
-  key: K
+  key: K,
 ): Promise<EdgeConfigData[K] | null> {
   try {
     // Removed the edgeConfig client usage
@@ -27,7 +27,7 @@ export async function getEdgeConfig<K extends keyof EdgeConfigData>(
 
 export async function setEdgeConfig<K extends keyof EdgeConfigData>(
   key: K,
-  value: EdgeConfigData[K]
+  value: EdgeConfigData[K],
 ): Promise<void> {
   try {
     // Removed the edgeConfig client usage

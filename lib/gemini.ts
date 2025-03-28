@@ -14,23 +14,23 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 // Get the appropriate model based on request type
 const getModel = () => {
   return genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-}
+};
 
 // Generate content using Gemini API
 export async function generateContent(
   prompt: string,
-  type: GeminiRequestType = "default"
+  type: GeminiRequestType = "default",
 ): Promise<GeminiResponse> {
   try {
     const model = getModel();
-    
+
     let result: string;
     switch (type) {
       case "blog":
         const blogResponse = await model.generateContent(prompt);
         result = await blogResponse.response.text();
         break;
-      
+
       case "image":
         // Note: For image generation, we'll need to use a different model
         result = "Image generation coming soon";
@@ -46,7 +46,7 @@ export async function generateContent(
     console.error("Gemini API Error:", error);
     return {
       result: "",
-      error: error.message || "Failed to generate content"
+      error: error.message || "Failed to generate content",
     };
   }
 }

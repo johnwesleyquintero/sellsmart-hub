@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const configSchema = z.object({
-  env: z.enum(['development', 'staging', 'production', 'test']),
+  env: z.enum(["development", "staging", "production", "test"]),
   edgeConfig: z.object({
     url: z.string().url(),
   }),
@@ -13,7 +13,7 @@ export const configSchema = z.object({
 export type Config = z.infer<typeof configSchema>;
 
 export const config: Config = {
-  env: (process.env.NODE_ENV as Config['env']) || 'development',
+  env: (process.env.NODE_ENV as Config["env"]) || "development",
   edgeConfig: {
     url: process.env.EDGE_CONFIG as string,
   },
@@ -26,7 +26,7 @@ export const config: Config = {
 try {
   configSchema.parse(config);
 } catch (error) {
-  console.error('Invalid configuration:', error);
+  console.error("Invalid configuration:", error);
   throw error;
 }
 

@@ -1,28 +1,44 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Calculator, CheckSquare, DollarSign, FileText, Filter, Search, TrendingUp } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { BuildReportApp } from "./tools/build-report"
-import AcosCalculator from "./tools/acos-calculator"
-import DescriptionEditor from "./tools/description-editor"
-import FbaCalculator from "./tools/fba-calculator"
-import KeywordAnalyzer from "./tools/keyword-analyzer"
-import KeywordDeduplicator from "./tools/keyword-deduplicator"
-import LighthouseAudit from "./tools/lighthouse-audit"
-import ListingQualityChecker from "./tools/listing-quality-checker"
-import PpcCampaignAuditor from "./tools/ppc-campaign-auditor"
-import SalesEstimator from "./tools/sales-estimator"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart,
+  Calculator,
+  CheckSquare,
+  DollarSign,
+  FileText,
+  Filter,
+  Search,
+  TrendingUp,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { BuildReportApp } from "./tools/build-report";
+import AcosCalculator from "./tools/acos-calculator";
+import DescriptionEditor from "./tools/description-editor";
+import FbaCalculator from "./tools/fba-calculator";
+import KeywordAnalyzer from "./tools/keyword-analyzer";
+import KeywordDeduplicator from "./tools/keyword-deduplicator";
+import LighthouseAudit from "./tools/lighthouse-audit";
+import ListingQualityChecker from "./tools/listing-quality-checker";
+import PpcCampaignAuditor from "./tools/ppc-campaign-auditor";
+import SalesEstimator from "./tools/sales-estimator";
 
 const amazonTools = [
   {
     id: "fba-calculator",
     title: "FBA Calculator",
-    description: "Calculate the profitability of selling products on Amazon using Fulfillment by Amazon (FBA).",
+    description:
+      "Calculate the profitability of selling products on Amazon using Fulfillment by Amazon (FBA).",
     icon: <Calculator className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.0.0",
@@ -31,7 +47,8 @@ const amazonTools = [
   {
     id: "keyword-analyzer",
     title: "Keyword Analyzer",
-    description: "Identify high-volume, relevant keywords for Amazon product listings.",
+    description:
+      "Identify high-volume, relevant keywords for Amazon product listings.",
     icon: <Search className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.1.0",
@@ -40,7 +57,8 @@ const amazonTools = [
   {
     id: "listing-quality-checker",
     title: "Listing Quality Checker",
-    description: "Analyze Amazon product listings for completeness and SEO best practices.",
+    description:
+      "Analyze Amazon product listings for completeness and SEO best practices.",
     icon: <CheckSquare className="h-5 w-5 text-primary" />,
     status: "Beta",
     version: "0.9.0",
@@ -49,7 +67,8 @@ const amazonTools = [
   {
     id: "ppc-campaign-auditor",
     title: "PPC Campaign Auditor",
-    description: "Audit Amazon PPC campaigns to identify areas for improvement.",
+    description:
+      "Audit Amazon PPC campaigns to identify areas for improvement.",
     icon: <BarChart className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.2.0",
@@ -58,7 +77,8 @@ const amazonTools = [
   {
     id: "description-editor",
     title: "Description Editor",
-    description: "Create and optimize Amazon product descriptions with a rich text editor.",
+    description:
+      "Create and optimize Amazon product descriptions with a rich text editor.",
     icon: <FileText className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.0.1",
@@ -67,7 +87,8 @@ const amazonTools = [
   {
     id: "keyword-deduplicator",
     title: "Keyword Deduplicator",
-    description: "Identify and remove duplicate keywords from Amazon product listings.",
+    description:
+      "Identify and remove duplicate keywords from Amazon product listings.",
     icon: <Filter className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.0.0",
@@ -76,7 +97,8 @@ const amazonTools = [
   {
     id: "acos-calculator",
     title: "ACoS Calculator",
-    description: "Calculate the Advertising Cost of Sales (ACoS) for Amazon PPC campaigns.",
+    description:
+      "Calculate the Advertising Cost of Sales (ACoS) for Amazon PPC campaigns.",
     icon: <DollarSign className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.0.0",
@@ -85,14 +107,14 @@ const amazonTools = [
   {
     id: "sales-estimator",
     title: "Sales Estimator",
-    description: "Estimate potential sales for Amazon products based on category and competition.",
+    description:
+      "Estimate potential sales for Amazon products based on category and competition.",
     icon: <TrendingUp className="h-5 w-5 text-primary" />,
     status: "Beta",
     version: "0.8.0",
     component: SalesEstimator,
   },
-  
-]
+];
 
 const devTools = [
   {
@@ -107,7 +129,8 @@ const devTools = [
   {
     id: "lighthouse-audit",
     title: "Lighthouse Audit",
-    description: "Audit web pages for performance, accessibility, and SEO using Lighthouse.",
+    description:
+      "Audit web pages for performance, accessibility, and SEO using Lighthouse.",
     icon: <TrendingUp className="h-5 w-5 text-primary" />,
     status: "Active",
     version: "1.0.0",
@@ -130,12 +153,22 @@ export default function FeaturedToolsSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <Badge variant="secondary" className="mb-4">
-            Powered by<Link href="https://sellsmart-hub.vercel.app" target="_blank" rel="noopener noreferrer">SellSmart</Link>
+            Powered by
+            <Link
+              href="https://sellsmart-hub.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              SellSmart
+            </Link>
           </Badge>
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">My Tools Suite</h2>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+            My Tools Suite
+          </h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            My collection of tools I've developed to help Amazon sellers optimize their listings, analyze performance, and increase
-            sales and additional utility tools for development and general use for free.
+            My collection of tools I've developed to help Amazon sellers
+            optimize their listings, analyze performance, and increase sales and
+            additional utility tools for development and general use for free.
           </p>
         </div>
 
@@ -154,11 +187,21 @@ export default function FeaturedToolsSection() {
           </Button>
         </div>
 
-        <Tabs defaultValue="fba-calculator" className="mb-12" onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="fba-calculator"
+          className="mb-12"
+          onValueChange={setActiveTab}
+        >
           <div className="flex justify-center mb-8">
-            <TabsList className={`grid ${activeToolCategory === 'amazon' ? 'grid-cols-4 md:grid-cols-8' : 'grid-cols-2'}`}>
+            <TabsList
+              className={`grid ${activeToolCategory === "amazon" ? "grid-cols-4 md:grid-cols-8" : "grid-cols-2"}`}
+            >
               {tools.map((tool) => (
-                <TabsTrigger key={tool.id} value={tool.id} className="flex flex-col items-center gap-1 p-3">
+                <TabsTrigger
+                  key={tool.id}
+                  value={tool.id}
+                  className="flex flex-col items-center gap-1 p-3"
+                >
                   {tool.icon}
                   <span className="text-xs hidden md:inline">{tool.title}</span>
                 </TabsTrigger>
@@ -177,7 +220,11 @@ export default function FeaturedToolsSection() {
                   <CardDescription>{activeTool?.description}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={activeTool?.status === "Active" ? "default" : "secondary"}>
+                  <Badge
+                    variant={
+                      activeTool?.status === "Active" ? "default" : "secondary"
+                    }
+                  >
                     {activeTool?.status}
                   </Badge>
                   <Badge variant="outline">v{activeTool?.version}</Badge>
@@ -195,6 +242,5 @@ export default function FeaturedToolsSection() {
         </Tabs>
       </div>
     </section>
-  )
+  );
 }
-

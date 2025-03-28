@@ -1,14 +1,20 @@
-import { CardFooter } from "@/components/ui/card"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Calendar } from "lucide-react"
+import { CardFooter } from "@/components/ui/card";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Calendar } from "lucide-react";
 
-import { getPosts } from "@/lib/blog"
+import { getPosts } from "@/lib/blog";
 
-const blogPosts = await getPosts()
+const blogPosts = await getPosts();
 
 export default function BlogSection() {
   return (
@@ -17,13 +23,17 @@ export default function BlogSection() {
         <div className="mb-12 text-center">
           <h2 className="section-heading">Blog & Articles</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Sharing insights and strategies for Amazon sellers and e-commerce businesses.
+            Sharing insights and strategies for Amazon sellers and e-commerce
+            businesses.
           </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {blogPosts.slice(0, 6).map((post) => (
-            <Card key={post.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <Card
+              key={post.id}
+              className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+            >
               <div className="aspect-video overflow-hidden">
                 <Image
                   src={post.image || "/default-image.svg"}
@@ -41,8 +51,12 @@ export default function BlogSection() {
                   <Calendar className="h-4 w-4" />
                   <span>{post.date}</span>
                 </div>
-                <CardTitle className="line-clamp-2 text-lg">{post.title}</CardTitle>
-                <CardDescription className="line-clamp-3">{post.summary}</CardDescription>
+                <CardTitle className="line-clamp-2 text-lg">
+                  {post.title}
+                </CardTitle>
+                <CardDescription className="line-clamp-3">
+                  {post.summary}
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 <div className="flex flex-wrap gap-2">
@@ -54,7 +68,11 @@ export default function BlogSection() {
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button asChild variant="ghost" className="p-0 hover:bg-transparent">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="p-0 hover:bg-transparent"
+                >
                   <Link
                     href={`/blog/${post.id}`}
                     className="flex items-center text-primary"
@@ -76,6 +94,5 @@ export default function BlogSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

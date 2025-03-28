@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { Github, Linkedin, Twitter, Mail } from "lucide-react"
+import Link from "next/link";
+import { Github, Linkedin, Twitter, Mail } from "lucide-react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="border-t bg-muted/40">
@@ -14,29 +14,42 @@ export default function Footer() {
               <h3 className="text-lg font-semibold">Wesley Quintero</h3>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Data-Driven Amazon & E-commerce Specialist helping brands scale with insights, automation, and AI.
+              Data-Driven Amazon & E-commerce Specialist helping brands scale
+              with insights, automation, and AI.
             </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="mt-2 space-y-2 text-sm">
               <li>
-                <Link href="#projects" className="text-muted-foreground hover:text-primary">
+                <Link
+                  href="#projects"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Projects
                 </Link>
               </li>
               <li>
-                <Link href="#about" className="text-muted-foreground hover:text-primary">
+                <Link
+                  href="#about"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   About
                 </Link>
               </li>
               <li>
-                <Link href="#blog" className="text-muted-foreground hover:text-primary">
+                <Link
+                  href="#blog"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="text-muted-foreground hover:text-primary">
+                <Link
+                  href="#contact"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Contact
                 </Link>
               </li>
@@ -99,7 +112,10 @@ export default function Footer() {
               >
                 <Twitter className="h-5 w-5 text-muted-foreground hover:text-primary" />
               </Link>
-              <Link href="mailto:johnwesleyquintero@gmail.com" aria-label="Email">
+              <Link
+                href="mailto:johnwesleyquintero@gmail.com"
+                aria-label="Email"
+              >
                 <Mail className="h-5 w-5 text-muted-foreground hover:text-primary" />
               </Link>
             </div>
@@ -112,5 +128,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
