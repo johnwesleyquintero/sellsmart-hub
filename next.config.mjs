@@ -34,17 +34,7 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "2mb"
     },
-    serverComponents: true,
-    serverComponentsExternalPackages: [],
-    esmExternals: true,
-    modularizeImports: {
-      "lucide-react": {
-        transform: "lucide-react/dist/esm/icons/{{member}}"
-      },
-      "@radix-ui/react-*": {
-        transform: "@radix-ui/react-{{member}}"
-      }
-    }
+    esmExternals: true
   },
   eslint: {
     ignoreDuringBuilds: true,

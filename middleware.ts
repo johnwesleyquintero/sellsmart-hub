@@ -1,13 +1,10 @@
 import { securityHeaders } from "@/lib/config/security";
-import { RateLimiter } from "@/lib/rate-limiter";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const limiter = new RateLimiter({
-  maxTokens: 100,
-  refillRate: 10,
-  refillInterval: 60 * 1000, // 1 minute
-});
+const rateLimit = new Map();
+const RATE_LIMIT = 100;
+const WINDOW_MS = 60 * 1000; // 1 minute
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -35,11 +32,20 @@ export async function middleware(request: NextRequest) {
 
   // Rate limiting for API routes
   if (request.nextUrl.pathname.startsWith("/api/")) {
-    try {
-      await limiter.acquire();
-    } catch {
+    const ip = request.ip || request.headers.get('x-forwarded-for') || '';
+    const current = rateLimit.get(ip) || { count: 0, lastReset: Date.now() };
+    
+    if (Date.now() - current.lastReset > WINDOW_MS) {
+      current.count = 0;
+      current.lastReset = Date.now();
+    }
+    
+    if (current.count >= RATE_LIMIT) {
       return new NextResponse("Too Many Requests", { status: 429 });
     }
+    
+    current.count++;
+    rateLimit.set(ip, current);
   }
 
   return response;
