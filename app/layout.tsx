@@ -5,21 +5,17 @@ import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
-import { Inter as interFont } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
 import "./globals.css";
 
-const inter = interFont({
-    subsets: ["latin"],
-    display: "swap",
-    preload: true,
-    fallback: ["system-ui", "sans-serif"]
+const inter = Inter({
+    subsets: ["latin"]
 });
 
 export const metadata: Metadata = {
   title: "Wesley Quintero | Data Analytics Innovator",
-  description:
-    "Data Analytics Innovator and Founder of Nebula Singularity, building tools that streamline workflows and provide valuable insights for Amazon sellers and e-commerce businesses.",
+  description: "Data Analytics Innovator and Founder of Nebula Singularity, building tools for Amazon sellers and e-commerce workflows.",
   keywords: [
     "Wesley Quintero",
     "Amazon Specialist",
