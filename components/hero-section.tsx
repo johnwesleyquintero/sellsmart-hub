@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
 
 
 export default function HeroSection() {
@@ -30,13 +31,13 @@ export default function HeroSection() {
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Button asChild size="lg" className="group">
+            <Button asChild size="lg" className="group hover:scale-105 transition-transform duration-300 animate-pulse hover:animate-none">
               <Link href="#projects">
                 View My Work
-                
+                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="hover:scale-105 transition-transform duration-300 hover:bg-primary hover:text-primary-foreground">
               <Link href="#contact">Get in Touch</Link>
             </Button>
           </div>
@@ -46,43 +47,47 @@ export default function HeroSection() {
               href="https://github.com/johnwesleyquintero"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
+              aria-label="GitHub"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary hover:scale-110 transition-transform duration-300 hover:bg-primary/10"
             >
-              GitHub
+              <Github className="h-5 w-5" />
             </Link>
             <Link
               href="https://linkedin.com/in/wesleyquintero"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
+              aria-label="LinkedIn"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary hover:scale-110 transition-transform duration-300 hover:bg-primary/10"
             >
-              LinkedIn
+              <Linkedin className="h-5 w-5" />
             </Link>
             <Link
               href="https://twitter.com/wesleyquintero"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
+              aria-label="Twitter"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary hover:scale-110 transition-transform duration-300 hover:bg-primary/10"
             >
-              Twitter
+              <Twitter className="h-5 w-5" />
             </Link>
             <Link
               href="mailto:johnwesleyquintero@gmail.com"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary"
+              aria-label="Email"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-colors hover:text-primary hover:scale-110 transition-transform duration-300 hover:bg-primary/10"
             >
-              Email
+              <Mail className="h-5 w-5" />
             </Link>
           </div>
         </div>
 
-        <div className="relative mx-auto aspect-square w-full max-w-md">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 blur-3xl"></div>
-          <div className="relative h-full overflow-hidden rounded-3xl border bg-background/50 shadow-xl backdrop-blur-sm">
+        <div className="relative mx-auto aspect-square w-full max-w-md animate-float">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 blur-3xl animate-pulse"></div>
+          <div className="relative h-full overflow-hidden rounded-3xl border bg-background/50 shadow-xl backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
             <Image
               src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
               fill
-              className="object-cover"
+              className="object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3"
               priority
             />
           </div>

@@ -82,15 +82,16 @@ export default function BlogSection() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {blogPosts.slice(0, 6).map((post) => (
-            <Card key={post.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
-              <div className="aspect-video overflow-hidden">
+            <Card key={post.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg group hover:border-primary">
+              <div className="aspect-video overflow-hidden relative">
                 <Image
                   src={post.image || "/placeholder.svg"}
                   alt={post.title}
                   width={600}
                   height={400}
-                  className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <CardHeader className="p-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -110,9 +111,9 @@ export default function BlogSection() {
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button asChild variant="ghost" className="p-0 hover:bg-transparent">
-                  <Link href={post.url} className="flex items-center text-primary">
-                    Read Article <ArrowRight className="ml-2 h-4 w-4" />
+                <Button asChild variant="ghost" className="p-0 hover:bg-transparent group">
+                  <Link href={post.url} className="flex items-center text-primary group-hover:underline">
+                    Read Article <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Link>
                 </Button>
               </CardFooter>

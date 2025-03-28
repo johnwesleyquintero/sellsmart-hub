@@ -105,20 +105,24 @@ export default function FeaturedToolsSection() {
           <Badge className="px-3 py-1 text-sm mb-2" variant="outline">
             Amazon Seller Tools
           </Badge>
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Free Amazon Seller Tools</h2>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Amazon Seller Tools</h2>
           <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
             A suite of powerful tools to help Amazon sellers optimize listings, analyze performance, and maximize
             profitability.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden group">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex justify-center mb-8">
                 <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {tools.slice(0, 4).map((tool) => (
-                    <TabsTrigger key={tool.id} value={tool.id} className="flex items-center gap-2">
+                    <TabsTrigger 
+                      key={tool.id} 
+                      value={tool.id} 
+                      className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
+                    >
                       {tool.icon}
                       <span className="hidden md:inline">{tool.name}</span>
                     </TabsTrigger>
@@ -128,7 +132,11 @@ export default function FeaturedToolsSection() {
               <div className="flex justify-center mb-8">
                 <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {tools.slice(4, 8).map((tool) => (
-                    <TabsTrigger key={tool.id} value={tool.id} className="flex items-center gap-2">
+                    <TabsTrigger 
+                      key={tool.id} 
+                      value={tool.id} 
+                      className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
+                    >
                       {tool.icon}
                       <span className="hidden md:inline">{tool.name}</span>
                     </TabsTrigger>
@@ -138,7 +146,7 @@ export default function FeaturedToolsSection() {
 
               {tools.map((tool) => (
                 <TabsContent key={tool.id} value={tool.id} className="mt-4">
-                  <Card>
+                  <Card className="hover:shadow-lg transition-all duration-300">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -154,7 +162,9 @@ export default function FeaturedToolsSection() {
                       </div>
                       <CardDescription>{tool.description}</CardDescription>
                     </CardHeader>
-                    <CardContent>{tool.component}</CardContent>
+                    <CardContent className="group-hover:bg-accent/10 transition-colors duration-300">
+                      {tool.component}
+                    </CardContent>
                   </Card>
                 </TabsContent>
               ))}
