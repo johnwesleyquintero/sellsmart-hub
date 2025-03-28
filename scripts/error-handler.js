@@ -1,4 +1,7 @@
 const fs = require("fs");
+const { readFile } = require('fs/promises');
+const chalk = require('chalk');
+const { EOL } = require('os');
 
 const ERROR_CATEGORIES = {
   CONFIG: "Incorrect TypeScript configuration",
@@ -48,80 +51,67 @@ const TROUBLESHOOTING_STEPS = {
   ],
 };
 
-function analyzeErrors(errorOutput) {
-  const errors = errorOutput.split("error TS");
-  const categorized = new Set();
-  const errorCounts = new Map();
+const ERROR_SEVERITY = {
+  WARNING: chalk.yellow,
+  ERROR: chalk.red,
+  INFO: chalk.cyan,
+};
 
-  errors.forEach((error) => {
-    let matched = false;
+/**
+ * Enhanced error analysis with code frame detection
+ */
+async function analyzeErrors(errorOutput) {
+  try {
+    const errors = errorOutput.split(/error TS\d+/);
+    const errorStats = {
+      total: errors.length - 1,
+      categories: new Map(),
+      codeFrames: []
+    };
 
-    // Syntax errors
-    if (error.match(/expected|unexpected|missing|';'|'{'|'}'|'\('|'\)'/i)) {
-      categorized.add(ERROR_CATEGORIES.SYNTAX);
-      matched = true;
+    for (const error of errors) {
+      const errorCodeMatch = error.match(/TS(\d+)/);
+      const errorCode = errorCodeMatch?.[1] || 'unknown';
+      
+      // Analyze error type using multiple criteria
+      const category = detectErrorCategory(error, errorCode);
+      errorStats.categories.set(category, (errorStats.categories.get(category) || 0) + 1);
+
+      // Extract code frames
+      const codeFrame = extractCodeFrame(error);
+      if (codeFrame) {
+        errorStats.codeFrames.push({
+          file: codeFrame.file,
+          snippet: highlightCodeFrame(codeFrame)
+        });
+      }
     }
 
-    // Module and path errors
-    if (
-      error.includes("Cannot find module") ||
-      error.includes("Cannot resolve module")
-    ) {
-      categorized.add(ERROR_CATEGORIES.PATH);
-      matched = true;
-    }
+    return errorStats;
+  } catch (err) {
+    console.error(chalk.red('Error analysis failed:'));
+    console.error(err);
+    process.exit(1);
+  }
+}
 
-    // Type definition errors
-    if (
-      error.includes("could not find a declaration file") ||
-      error.includes("requires types")
-    ) {
-      categorized.add(ERROR_CATEGORIES.TYPES);
-      matched = true;
-    }
-
-    // Import and export errors
-    if (
-      error.includes("has no exported member") ||
-      error.includes("Module not found")
-    ) {
-      categorized.add(ERROR_CATEGORIES.IMPORTS);
-      matched = true;
-    }
-
-    // Configuration errors
-    if (error.includes("compiler option") || error.includes("tsconfig")) {
-      categorized.add(ERROR_CATEGORIES.CONFIG);
-      matched = true;
-    }
-
-    // Library compatibility errors
-    if (error.includes("version") || error.includes("compatibility")) {
-      categorized.add(ERROR_CATEGORIES.LIBS);
-      matched = true;
-    }
-
-    // Dependency errors
-    if (
-      error.includes("requires types") ||
-      error.includes("peer dependencies")
-    ) {
-      categorized.add(ERROR_CATEGORIES.DEPS);
-      matched = true;
-    }
-
-    // Track error frequency
-    if (matched) {
-      Array.from(categorized).forEach((category) => {
-        errorCounts.set(category, (errorCounts.get(category) || 0) + 1);
-      });
-    }
+function formatOutput(errorStats) {
+  let output = chalk.bold(`\n${errorStats.total} TypeScript errors found:\n`);
+  
+  // Categorized error display
+  errorStats.categories.forEach((count, category) => {
+    output += `\n${ERROR_SEVERITY.ERROR('▶')} ${chalk.bold(category)}: ${count} errors`;
   });
 
-  // Sort categories by frequency
-  return Array.from(categorized).sort(
-    (a, b) => (errorCounts.get(b) || 0) - (errorCounts.get(a) || 0),
-  );
+  // Code frame display
+  if (errorStats.codeFrames.length > 0) {
+    output += '\n\n' + chalk.underline('Relevant Code Frames:') + '\n';
+    errorStats.codeFrames.forEach((frame, index) => {
+      output += `\n${chalk.dim(`#${index + 1}`)} ${frame.file}\n${frame.snippet}\n`;
+    });
+  }
+
+  return output;
 }
 
 // Read TypeScript output from stdin

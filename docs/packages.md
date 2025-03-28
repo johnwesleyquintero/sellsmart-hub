@@ -79,7 +79,7 @@ All UI components are from Radix UI's primitive collection:
 - `cross-env` - Environment variable setting
 - `npm-run-all` - Run multiple npm scripts
 - `serve` - Static file serving
-- `husky` - Git hooks
+
 
 ## Version Management
 

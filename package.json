@@ -11,18 +11,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix",
+    "lint": "pnpm exec eslint . --ext .ts,.tsx --cache --cache-location ./node_modules/.cache/.eslintcache",
     "format": "prettier --write .",
+    "prepare": "husky install",
+    "pre-commit": "npm run lint && npm run format && npm run type-check",
     "type-check": "tsc --noEmit",
     "clean:next": "rimraf .next",
     "clean:out": "rimraf out",
     "clean:modules": "rimraf node_modules",
-    "clean": "rimraf \".next\" \"out\"",
-    "clean:all": "rimraf \".next\" \"out\" \"node_modules\"",
+    "validate:seo": "node scripts/seo-validator.js",
+    "generate:component": "node scripts/component-template-generator.js",
+    "clean": "node scripts/cleanup.js",
+    "clean:all": "node scripts/cleanup.js --all",
     "verify": "run-s clean:all \"_install\" format type-check lint",
-    "_install": "cross-env SKIP_POSTINSTALL=1 pnpm install",
-    "prepare": "husky install",
-    "postinstall": "node scripts\\post-install.js"
+    "_install": "cross-env SKIP_POSTINSTALL=1 pnpm install"
   },
   "dependencies": {
     "@hookform/resolvers": "3.3.4",
@@ -56,7 +58,7 @@
     "@radix-ui/react-toggle": "1.0.3",
     "@radix-ui/react-toggle-group": "1.0.4",
     "@radix-ui/react-tooltip": "1.0.7",
-    "@sentry/nextjs": "7.120.3",
+  
     "@vercel/analytics": "1.2.2",
     "@vercel/speed-insights": "1.0.9",
     "class-variance-authority": "0.7.0",
@@ -85,6 +87,7 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
+    "husky": "^9.0.11",
     "@babel/core": "7.26.10",
     "@babel/preset-env": "7.26.9",
     "@babel/preset-react": "7.26.3",
@@ -103,7 +106,8 @@
     "eslint-config-next": "14.1.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-tailwindcss": "3.14.3",
-    "husky": "9.0.11",
+  
+    "cheerio": "1.0.0",
     "jest": "29.7.0",
     "lint-staged": "15.5.0",
     "npm-run-all": "4.1.5",
