@@ -21,8 +21,9 @@
     "clean:all": "node scripts/cleanup.js",
     "verify": "run-s _clean _install format type-check lint",
     "_clean": "node scripts/cleanup.js",
-    "_install": "pnpm install --frozen-lockfile",
-    "prepare": "husky install"
+    "_install": "SKIP_POSTINSTALL=1 pnpm install --no-frozen-lockfile",
+    "prepare": "husky install",
+    "postinstall": "node scripts/post-install.js"
   },
   "dependencies": {
     "@hookform/resolvers": "3.3.4",
