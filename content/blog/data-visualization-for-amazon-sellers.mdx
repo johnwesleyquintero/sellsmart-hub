@@ -37,16 +37,16 @@ When creating dashboards for your Amazon business, follow these core principles:
 ### Choosing the Right Visualization Types
 
 Select visualization types based on what you're trying to communicate:
-
-| Data Type | Best Visualization | Example Use Case |
-|-----------|-------------------|------------------|
-| Trends over time | Line charts | Sales performance over months |
-| Part-to-whole | Pie charts, Treemaps | Category sales distribution |
-| Comparisons | Bar charts | Product performance ranking |
-| Correlations | Scatter plots | Price vs. conversion rate |
-| Geographic data | Maps | Regional sales distribution |
-| KPIs | Gauges, Cards | Current performance metrics |
-
+```
+| **Data Type**        | **Best Visualization**       | **Example Use Case**                     |
+|----------------------|------------------------------|------------------------------------------|
+| Trends over time     | 📈 Line charts               | Sales performance over months            |
+| Part-to-whole        | 🥧 Pie charts, 🌳 Treemaps  | Category sales distribution              |
+| Comparisons          | 📊 Bar charts                | Product performance ranking              |
+| Correlations         | ✨ Scatter plots             | Price vs. conversion rate                |
+| Geographic data      | 🌎 Maps                      | Regional sales distribution              |
+| KPIs                 | ⚡ Gauges, 🃏 Cards          | Current performance metrics              |
+```
 ### Color Scheme Implementation
 
 Colors should enhance understanding, not distract:
@@ -80,3 +80,64 @@ A comprehensive sales dashboard should include:
 
 ### Sample Sales Dashboard Layout
 
+Here's a practical example of how to implement a sales dashboard using Amazon Seller Central data:
+
+1. **Data Preparation**
+   - Export "Business Reports" from Seller Central
+   - Clean data using Excel or Google Sheets
+   - Structure data with columns: Date, ASIN, Product Title, Units Ordered, Ordered Product Sales
+
+2. **Dashboard Implementation**
+```javascript
+// Example using Chart.js for visualization
+const salesChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Monthly Sales',
+      data: salesData,
+      borderColor: '#3e95cd',
+      fill: false
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Amazon Sales Trend'
+      }
+    }
+  }
+});
+```
+
+3. **Real-World Case Study**
+A seller increased conversion rate by 22% after:
+- Identifying underperforming products through bar chart comparisons
+- Discovering pricing inconsistencies via scatter plots
+- Implementing changes based on visualization insights
+
+4. **Pro Tips**
+- Refresh data weekly for accurate trends
+- Use conditional formatting for quick anomaly detection
+- Create separate dashboards for different business functions
+
+### Advanced Visualization Techniques
+
+For more sophisticated analysis, consider:
+
+- **Funnel Visualization**: Track customer journey from impressions to purchases
+- **Heatmaps**: Identify peak sales times by hour/day
+- **Network Graphs**: Show relationships between products in bundles
+
+### Tools Recommendation
+```
+| Tool | Best For | Integration |
+|------|----------|-------------|
+| Tableau | Advanced analytics | API connection |
+| Google Data Studio | Free option | Manual upload |
+| Sellerboard | Amazon-specific | Direct import |
+| Helium 10 | All-in-one solution | Built-in |
+```

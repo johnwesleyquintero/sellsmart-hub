@@ -110,3 +110,12 @@ cp .env.example .env
 - **shadcn/ui**: Accessible, customizable components
 - **MDX**: Markdown with React component support
 
+## Tools Documentation
+
+| Tool Name                  | Status       | Description                                      |
+|----------------------------|--------------|--------------------------------------------------|
+| ACoS Calculator            | Functional   | Calculates Advertising Cost of Sales for campaigns |
+| Sales Estimator            | Needs Implementation | Estimates sales volume and revenue with confidence indicators |
+| Keyword Deduplicator       | Functional   | Identifies and removes duplicate keywords         |
+| Description Editor         | Needs Implementation | Rich text editor for Amazon product descriptions |
+| PPC Campaign Auditor       | Functional   | Analyzes and optimizes PPC campaign performance   |
