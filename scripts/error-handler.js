@@ -61,6 +61,31 @@ const ERROR_SEVERITY = {
  * Enhanced error analysis with code frame detection
  */
 async function analyzeErrors(errorOutput) {
+function detectErrorCategory(errorText, errorCode) {
+  if (errorText.includes('Cannot find module')) return ERROR_CATEGORIES.IMPORTS;
+  if (errorText.includes('is not assignable')) return ERROR_CATEGORIES.TYPES;
+  if (errorCode === '2307') return ERROR_CATEGORIES.IMPORTS;
+  if (errorCode === '2322') return ERROR_CATEGORIES.TYPES;
+  if (errorCode === '7016') return ERROR_CATEGORIES.CONFIG;
+  return ERROR_CATEGORIES.SYNTAX;
+}
+
+function extractCodeFrame(errorText) {
+  const frameMatch = errorText.match(/(\d+):(\d+)[\s\S]*?\n([\s\S]*?\n)\s*(~+)/);
+  return frameMatch ? {
+    file: frameMatch.input.match(/([^\/]+\.[tj]sx?):/)?.[1] || 'unknown',
+    line: parseInt(frameMatch[1]),
+    column: parseInt(frameMatch[2]),
+    code: frameMatch[3].trim(),
+    underline: frameMatch[4]
+  } : null;
+}
+
+function highlightCodeFrame(frame) {
+  return `${chalk.dim(`${frame.line}:${frame.column}`)}  ${frame.code}\n${' '.repeat(frame.column + 3)}${chalk.red(frame.underline)}`;
+}
+
+
   try {
     const errors = errorOutput.split(/error TS\d+/);
     const errorStats = {
@@ -118,15 +143,16 @@ function formatOutput(errorStats) {
 let tsOutput = "";
 process.stdin.resume();
 process.stdin.on("data", (data) => (tsOutput += data));
-process.stdin.on("end", () => {
-  const categories = analyzeErrors(tsOutput);
+process.stdin.on("end", async () => {
+  const errorStats = await analyzeErrors(tsOutput);
+  console.log(formatOutput(errorStats));
 
   console.log("\n\x1b[31mType Check Failed\x1b[0m");
   console.log("\n\x1b[33mPotential Causes:\x1b[0m");
-  categories.forEach((cause, i) => console.log(`  ${i + 1}. ${cause}`));
+  errorStats.categories.forEach((count, cause) => console.log(`  ${chalk.yellow('▶')} ${cause}`));
 
   console.log("\n\x1b[36mTroubleshooting Steps:\x1b[0m");
-  categories.forEach((cause) => {
+  errorStats.categories.forEach((count, cause) => {
     TROUBLESHOOTING_STEPS[cause].forEach((step, i) =>
       console.log(`  › ${step}`),
     );
