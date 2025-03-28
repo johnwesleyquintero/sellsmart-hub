@@ -1,36 +1,29 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react"
 
 export default function ContactSection() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSubmitting(true)
 
     // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-  };
+    setIsSubmitting(false)
+    setIsSubmitted(true)
+  }
 
   return (
     <section id="contact" className="container relative mx-auto px-4 py-32">
@@ -45,8 +38,7 @@ export default function ContactSection() {
           </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Get In Touch</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Have a project in mind or want to discuss how I can help your
-            business? Feel free to reach out!
+            Have a project in mind or want to discuss how I can help your business? Feel free to reach out!
           </p>
         </div>
 
@@ -76,10 +68,7 @@ export default function ContactSection() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <a
-                href="tel:+639504469156"
-                className="text-sm text-muted-foreground hover:text-primary"
-              >
+              <a href="tel:+639504469156" className="text-sm text-muted-foreground hover:text-primary">
                 +63 950 446 9156
               </a>
             </CardContent>
@@ -93,9 +82,7 @@ export default function ContactSection() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">
-                Tagum, Davao Region, Philippines
-              </p>
+              <p className="text-sm text-muted-foreground">Tagum, Davao Region, Philippines</p>
             </CardContent>
           </Card>
         </div>
@@ -103,10 +90,7 @@ export default function ContactSection() {
         <Card className="mt-12 overflow-hidden">
           <CardHeader>
             <CardTitle>Send Me a Message</CardTitle>
-            <CardDescription>
-              Fill out the form below and I'll get back to you as soon as
-              possible.
-            </CardDescription>
+            <CardDescription>Fill out the form below and I'll get back to you as soon as possible.</CardDescription>
           </CardHeader>
           <CardContent>
             {isSubmitted ? (
@@ -115,14 +99,8 @@ export default function ContactSection() {
                   <Send className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold">Message Sent!</h3>
-                <p className="text-muted-foreground">
-                  Thank you for reaching out. I'll respond to your message soon.
-                </p>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => setIsSubmitted(false)}
-                >
+                <p className="text-muted-foreground">Thank you for reaching out. I'll respond to your message soon.</p>
+                <Button variant="outline" className="mt-4" onClick={() => setIsSubmitted(false)}>
                   Send Another Message
                 </Button>
               </div>
@@ -139,35 +117,20 @@ export default function ContactSection() {
                     <label htmlFor="email" className="text-sm font-medium">
                       Email
                     </label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Your email"
-                      required
-                    />
+                    <Input id="email" type="email" placeholder="Your email" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="subject" className="text-sm font-medium">
                     Subject
                   </label>
-                  <Input
-                    id="subject"
-                    placeholder="Subject of your message"
-                    required
-                  />
+                  <Input id="subject" placeholder="Subject of your message" required />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium">
                     Message
                   </label>
-                  <Textarea
-                    id="message"
-                    placeholder="Your message"
-                    rows={5}
-                    className="resize-none"
-                    required
-                  />
+                  <Textarea id="message" placeholder="Your message" rows={5} className="resize-none" required />
                 </div>
               </form>
             )}
@@ -175,9 +138,7 @@ export default function ContactSection() {
           {!isSubmitted && (
             <CardFooter className="flex justify-end border-t px-6 py-4">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isSubmitting ? "Sending..." : "Send Message"}
               </Button>
             </CardFooter>
@@ -185,5 +146,6 @@ export default function ContactSection() {
         </Card>
       </div>
     </section>
-  );
+  )
 }
+

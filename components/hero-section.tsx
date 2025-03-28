@@ -1,27 +1,15 @@
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Github,
-  Linkedin,
-  Twitter,
-  Mail,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Github, Linkedin, Twitter, Mail, ArrowRight, Sparkles } from "lucide-react"
 
 export default function HeroSection() {
   return (
     <section className="container relative mx-auto px-4 py-32 md:py-48">
       <div className="grid items-center gap-12 md:grid-cols-2">
         <div className="space-y-8">
-          <Badge
-            variant="secondary"
-            className="inline-flex items-center gap-1 rounded-full px-4 py-1.5"
-          >
+          <Badge variant="secondary" className="inline-flex items-center gap-1 rounded-full px-4 py-1.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
@@ -37,8 +25,8 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl">
-              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale
-              with Insights, Automation & AI.
+              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights{" "}
+              <span className="inline-block">📊</span>, Automation <span className="inline-block">🤖</span> & AI.{" "}
               <Sparkles className="inline-block h-5 w-5 text-yellow-500" />
             </p>
           </div>
@@ -93,21 +81,16 @@ export default function HeroSection() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 blur-3xl"></div>
           <div className="relative h-full overflow-hidden rounded-3xl border bg-background/50 shadow-xl backdrop-blur-sm">
             <Image
-              src="/images/profile.jpg"
+              src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
-              width={600}
-              height={600}
+              fill
               className="object-cover"
               priority
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJiEyNjE5ODYxPTQ6Pz1APTw+PT45Pz9AREdHUFVQU15+fn5+fn5+fn7/2wBDARUXFyAeIBsiHh4iKCIoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAb/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX2AAAAAH/2Q=="
-              loading="eager"
-              fetchPriority="high"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
             />
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
+

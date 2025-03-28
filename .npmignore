@@ -1,5 +1,0 @@
-.pnpm-cache/
-coverage/
-node_modules/
-.env*
-*.log

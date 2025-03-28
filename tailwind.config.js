@@ -1,6 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -19,9 +17,6 @@ module.exports = {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ["var(--font-sans)"],
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -76,7 +71,51 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: "100%",
+            color: "var(--tw-prose-body)",
+            a: {
+              color: "var(--tw-prose-links)",
+              "&:hover": {
+                color: "var(--tw-prose-links-hover)",
+              },
+            },
+            h1: {
+              color: "var(--tw-prose-headings)",
+            },
+            h2: {
+              color: "var(--tw-prose-headings)",
+            },
+            h3: {
+              color: "var(--tw-prose-headings)",
+            },
+            h4: {
+              color: "var(--tw-prose-headings)",
+            },
+            code: {
+              color: "var(--tw-prose-code)",
+              backgroundColor: "var(--tw-prose-code-bg)",
+              padding: "0.2em 0.4em",
+              borderRadius: "0.25rem",
+              fontWeight: "500",
+            },
+            "code::before": {
+              content: '""',
+            },
+            "code::after": {
+              content: '""',
+            },
+            blockquote: {
+              color: "var(--tw-prose-quotes)",
+              borderLeftColor: "var(--tw-prose-quote-borders)",
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-};
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+}
+

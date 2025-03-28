@@ -1,141 +1,135 @@
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
+import { Calendar, Clock, ArrowLeft, Tag } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { getPostBySlug, getAllPosts } from "@/lib/mdx"
+import { MDXRemote } from "next-mdx-remote/rsc"
+import { mdxComponents } from "@/components/blog/mdx-components"
 
-import { AuthorBio } from "@/components/blog/author-bio";
-import { BookmarkButton } from "@/components/blog/bookmark-button";
-import { Comments } from "@/components/blog/comments";
-import { NewsletterForm } from "@/components/blog/newsletter-form";
-import { ReadingProgress } from "@/components/blog/reading-progress";
-import { ShareButton } from "@/components/blog/share-button";
-import { TableOfContents } from "@/components/blog/table-of-contents";
-import { components } from "@/components/mdx";
-import { MDXRemote } from "next-mdx-remote/rsc";
-
-interface Post {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  author: string;
-  tags: string[];
-  image: string;
-  readingTime: string;
-  category: string;
-  tools?: { id: string }[];
-  content: string;
-}
-
-interface Props {
-  params: {
-    slug?: string;
-  };
-}
-
-async function getBlogPost(slug: string): Promise<Post | null> {
-  try {
-    const { posts } = await import("@/data/blog.json").then((m) => m.default);
-    if (!Array.isArray(posts)) {
-      console.error("Posts data is not an array");
-      return null;
-    }
-    const post = posts.find((post: Post) => post.id === slug);
-    if (!post) return null;
-
-    // Ensure all required fields exist
-    return {
-      id: post.id || "",
-      title: post.title || "",
-      description: post.description || "",
-      date: post.date || "",
-      author: post.author || "",
-      tags: Array.isArray(post.tags) ? post.tags : [],
-      image: post.image || "",
-      readingTime: post.readingTime || "",
-      category: post.category || "",
-      content: post.content || "",
-      tools: post.tools || [],
-    };
-  } catch (error) {
-    console.error(`Error loading blog post ${slug}:`, error);
-    return null;
-  }
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
-  const post = await getBlogPost(slug!);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug)
 
   if (!post) {
     return {
-      title: "Blog Post Not Found",
-    };
+      title: "Post Not Found | Wesley Quintero",
+    }
   }
 
   return {
-    title: post.title,
+    title: `${post.title} | Wesley Quintero`,
     description: post.description,
     openGraph: {
       title: post.title,
       description: post.description,
       type: "article",
-      authors: [post.author],
       publishedTime: post.date,
+      authors: ["Wesley Quintero"],
+      tags: post.tags,
+      images: [
+        {
+          url: post.image || "/og-image.svg",
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
-  };
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [post.image || "/og-image.svg"],
+    },
+  }
 }
 
 export async function generateStaticParams() {
-  try {
-    const { posts } = await import("@/data/blog.json").then((m) => m.default);
-    if (!Array.isArray(posts)) return [];
-    return posts.filter((post) => post?.id).map((post) => ({ slug: post.id }));
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
+  const posts = await getAllPosts()
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
 }
 
-export default async function BlogPost({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const post = await getBlogPost(params.slug);
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getPostBySlug(params.slug)
 
   if (!post) {
-    notFound();
+    notFound()
   }
 
   return (
-    <article className="container relative mx-auto max-w-6xl px-4 py-12">
-      <ReadingProgress />
-
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_250px]">
-        <div>
-          <div className="prose prose-slate max-w-none dark:prose-invert">
-            <MDXRemote source={post.content} components={components} />
-          </div>
-
-          <AuthorBio author={post.author} className="mt-12" />
-
-          <div className="mt-12">
-            <NewsletterForm />
-          </div>
-
-          <div className="mt-12">
-            <Comments postId={post.id} />
-          </div>
+    <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 min-h-screen">
+      <div className="container mx-auto px-4 py-16">
+        <div className="mb-8">
+          <Link href="/blog" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to all articles
+          </Link>
         </div>
 
-        <aside className="space-y-8">
-          <div className="flex items-center gap-4">
-            <BookmarkButton postId={post.id} />
-            <ShareButton title={post.title} description={post.description} />
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {post.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  <Tag className="h-3 w-3 mr-1" />
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">{post.title}</h1>
+
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>{post.date}</span>
+              </div>
+              {post.readingTime && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{post.readingTime}</span>
+                </div>
+              )}
+            </div>
+
+            {post.image && (
+              <div className="mb-8 overflow-hidden rounded-lg">
+                <Image
+                  src={post.image || "/placeholder.svg"}
+                  alt={post.title}
+                  width={1200}
+                  height={630}
+                  className="w-full object-cover"
+                />
+              </div>
+            )}
           </div>
 
-          <TableOfContents />
-        </aside>
+          <article className="prose prose-lg dark:prose-invert max-w-none">
+            <MDXRemote source={post.content} components={mdxComponents} />
+          </article>
+
+          <div className="mt-16 pt-8 border-t">
+            <h2 className="text-2xl font-bold mb-4">Continue Reading</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {post.relatedPosts?.map((relatedPost) => (
+                <Link
+                  key={relatedPost.slug}
+                  href={`/blog/${relatedPost.slug}`}
+                  className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                >
+                  <h3 className="font-medium mb-1">{relatedPost.title}</h3>
+                  <p className="text-sm text-muted-foreground">{relatedPost.description}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </article>
-  );
+    </div>
+  )
 }
+

@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Award, Calendar, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Award, Calendar, CheckCircle } from "lucide-react"
 
 const certifications = [
   {
@@ -59,7 +59,7 @@ const certifications = [
     status: "Active",
     credentialId: "LPT-2021-05",
   },
-];
+]
 
 export default function CertificationsSection() {
   return (
@@ -68,17 +68,13 @@ export default function CertificationsSection() {
         <div className="mb-12 text-center">
           <h2 className="section-heading">Certifications</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Professional certifications and credentials in Amazon, data
-            analytics, and e-commerce.
+            Professional certifications and credentials in Amazon, data analytics, and e-commerce.
           </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {certifications.map((cert, index) => (
-            <Card
-              key={index}
-              className="overflow-hidden transition-all duration-300 hover:shadow-lg"
-            >
+            <Card key={index} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <Award className="h-5 w-5 text-primary" />
@@ -95,9 +91,7 @@ export default function CertificationsSection() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-green-600 dark:text-green-400">
-                      {cert.status}
-                    </span>
+                    <span className="text-green-600 dark:text-green-400">{cert.status}</span>
                   </div>
                   {cert.credentialId !== "-" && (
                     <div className="pt-2">
@@ -113,5 +107,6 @@ export default function CertificationsSection() {
         </div>
       </div>
     </section>
-  );
+  )
 }
+

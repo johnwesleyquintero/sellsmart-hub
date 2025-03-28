@@ -1,7 +1,0 @@
-<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#232F3E"/>
-  <!-- PPC-themed icon: Bar chart -->
-  <path d="M500 330H700V430H500V330ZM550 380H650V430H550V380ZM600 430H700V480H600V430Z" fill="#FF9900"/>
-  <rect x="450" y="300" width="300" height="180" rx="8" fill="#FF9900" opacity="0.1"/>
-  <text x="600" y="550" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle">Mastering Amazon PPC</text>
-</svg>

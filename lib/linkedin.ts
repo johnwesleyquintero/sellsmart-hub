@@ -1,6 +1,10 @@
 export async function getLinkedInExperience() {
   try {
-    // Temporarily returning mock data while LinkedIn integration is disabled
+    // Check if environment variable is available
+    if (!process.env.LINKEDIN_ACCESS_TOKEN) {
+      console.warn("LinkedIn access token not configured");
+      return [];
+    }
 
     // For now, return a placeholder response
     // In a real implementation, you would use the LinkedIn API client
@@ -71,3 +75,4 @@ export async function getLinkedInExperience() {
     return [];
   }
 }
+

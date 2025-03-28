@@ -1,351 +1,182 @@
-"use client";
+"use client"
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useAnalytics } from "@/lib/hooks/use-analytics";
-import { motion } from "framer-motion";
-import {
-  BarChart,
-  Calculator,
-  CheckSquare,
-  DollarSign,
-  FileText,
-  Filter,
-  Search,
-  TrendingUp,
-} from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useInView } from "react-intersection-observer";
-import AcosCalculator from "./tools/acos-calculator";
-import { BuildReportApp } from "./tools/build-report";
-import DescriptionEditor from "./tools/description-editor";
-import FbaCalculator from "./tools/fba-calculator";
-import KeywordAnalyzer from "./tools/keyword-analyzer";
-import KeywordDeduplicator from "./tools/keyword-deduplicator";
-import LighthouseAudit from "./tools/lighthouse-audit";
-import ListingQualityChecker from "./tools/listing-quality-checker";
-import PpcCampaignAuditor from "./tools/ppc-campaign-auditor";
-import SalesEstimator from "./tools/sales-estimator";
-
-const amazonTools = [
-  {
-    id: "fba-calculator",
-    title: "FBA Calculator",
-    description:
-      "Calculate the profitability of selling products on Amazon using Fulfillment by Amazon (FBA).",
-    icon: <Calculator className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.0",
-    component: FbaCalculator,
-  },
-  {
-    id: "keyword-analyzer",
-    title: "Keyword Analyzer",
-    description:
-      "Identify high-volume, relevant keywords for Amazon product listings.",
-    icon: <Search className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.1.0",
-    component: KeywordAnalyzer,
-  },
-  {
-    id: "listing-quality-checker",
-    title: "Listing Quality Checker",
-    description:
-      "Analyze Amazon product listings for completeness and SEO best practices.",
-    icon: <CheckSquare className="h-5 w-5 text-primary" />,
-    status: "Beta",
-    version: "0.9.0",
-    component: ListingQualityChecker,
-  },
-  {
-    id: "ppc-campaign-auditor",
-    title: "PPC Campaign Auditor",
-    description:
-      "Audit Amazon PPC campaigns to identify areas for improvement.",
-    icon: <BarChart className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.2.0",
-    component: PpcCampaignAuditor,
-  },
-  {
-    id: "description-editor",
-    title: "Description Editor",
-    description:
-      "Create and optimize Amazon product descriptions with a rich text editor.",
-    icon: <FileText className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.1",
-    component: DescriptionEditor,
-  },
-  {
-    id: "keyword-deduplicator",
-    title: "Keyword Deduplicator",
-    description:
-      "Identify and remove duplicate keywords from Amazon product listings.",
-    icon: <Filter className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.0",
-    component: KeywordDeduplicator,
-  },
-  {
-    id: "acos-calculator",
-    title: "ACoS Calculator",
-    description:
-      "Calculate the Advertising Cost of Sales (ACoS) for Amazon PPC campaigns.",
-    icon: <DollarSign className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.0",
-    component: AcosCalculator,
-  },
-  {
-    id: "sales-estimator",
-    title: "Sales Estimator",
-    description:
-      "Estimate potential sales for Amazon products based on category and competition.",
-    icon: <TrendingUp className="h-5 w-5 text-primary" />,
-    status: "Beta",
-    version: "0.8.0",
-    component: SalesEstimator,
-  },
-];
-
-const devTools = [
-  {
-    id: "build-report",
-    title: "Build Report",
-    description: "Parse and format build reports into markdown.",
-    icon: <FileText className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.0",
-    component: BuildReportApp,
-  },
-  {
-    id: "lighthouse-audit",
-    title: "Lighthouse Audit",
-    description:
-      "Audit web pages for performance, accessibility, and SEO using Lighthouse.",
-    icon: <TrendingUp className="h-5 w-5 text-primary" />,
-    status: "Active",
-    version: "1.0.0",
-    component: LighthouseAudit,
-  },
-];
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import FbaCalculator from "./tools/fba-calculator"
+import KeywordAnalyzer from "./tools/keyword-analyzer"
+import ListingQualityChecker from "./tools/listing-quality-checker"
+import PpcCampaignAuditor from "./tools/ppc-campaign-auditor"
+import DescriptionEditor from "./tools/description-editor"
+import KeywordDeduplicator from "./tools/keyword-deduplicator"
+import AcosCalculator from "./tools/acos-calculator"
+import SalesEstimator from "./tools/sales-estimator"
+import { Calculator, Search, CheckSquare, TrendingUp, FileText, Filter, DollarSign, BarChart3 } from "lucide-react"
 
 export default function FeaturedToolsSection() {
-  const [activeTab, setActiveTab] = useState("fba-calculator");
-  const [activeToolCategory, setActiveToolCategory] = useState("amazon");
-  const tools = activeToolCategory === "amazon" ? amazonTools : devTools;
-  const activeTool = tools.find((tool) => tool.id === activeTab);
-  const { trackEvent } = useAnalytics();
+  const [activeTab, setActiveTab] = useState("fba-calculator")
 
-  const handleToolChange = (toolId: string) => {
-    setActiveTab(toolId);
-    trackEvent("tool_selected", { toolId });
-  };
-
-  const [isToolLoading, setIsToolLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setIsToolLoading(false), 1000);
-  }, [activeTab]);
-
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1,
-      },
+  const tools = [
+    {
+      id: "fba-calculator",
+      name: "FBA Calculator",
+      description: "Calculate profitability for FBA products with real-time ROI analysis",
+      icon: <Calculator className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <FbaCalculator />,
     },
-  };
+    {
+      id: "keyword-analyzer",
+      name: "Keyword Analyzer",
+      description: "Advanced keyword research and optimization tool",
+      icon: <Search className="h-5 w-5" />,
+      status: "active",
+      version: "1.1.0",
+      component: <KeywordAnalyzer />,
+    },
+    {
+      id: "listing-quality-checker",
+      name: "Listing Quality Checker",
+      description: "Comprehensive listing analysis and optimization tool",
+      icon: <CheckSquare className="h-5 w-5" />,
+      status: "beta",
+      version: "0.9.0",
+      component: <ListingQualityChecker />,
+    },
+    {
+      id: "ppc-campaign-auditor",
+      name: "PPC Campaign Auditor",
+      description: "PPC campaign performance analysis and optimization",
+      icon: <TrendingUp className="h-5 w-5" />,
+      status: "active",
+      version: "1.2.0",
+      component: <PpcCampaignAuditor />,
+    },
+    {
+      id: "description-editor",
+      name: "Description Editor",
+      description: "Rich text editor for Amazon product descriptions",
+      icon: <FileText className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.1",
+      component: <DescriptionEditor />,
+    },
+    {
+      id: "keyword-deduplicator",
+      name: "Keyword Deduplicator",
+      description: "Identifies and removes duplicate keywords with enhanced metrics",
+      icon: <Filter className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <KeywordDeduplicator />,
+    },
+    {
+      id: "acos-calculator",
+      name: "ACoS Calculator",
+      description: "Advertising Cost of Sales analysis tool with advanced metrics",
+      icon: <DollarSign className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <AcosCalculator />,
+    },
+    {
+      id: "sales-estimator",
+      name: "Sales Estimator",
+      description: "Sales volume and revenue estimation tool with confidence indicators",
+      icon: <BarChart3 className="h-5 w-5" />,
+      status: "beta",
+      version: "0.8.0",
+      component: <SalesEstimator />,
+    },
+  ]
 
   return (
-    <section id="tools" className="container relative mx-auto px-4 py-32">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 via-purple-100/30 to-pink-100/50 dark:from-blue-950/50 dark:via-purple-950/30 dark:to-pink-950/50 blur-3xl"></div>
-      </div>
-
-      <motion.div
-        ref={ref}
-        variants={containerVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        className="mx-auto max-w-5xl"
-      >
-        <div className="mb-12 text-center">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={inView ? { scale: 1, opacity: 1 } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <Badge variant="secondary" className="mb-4">
-              <span className="mr-2">⚡</span>
-              Powered by{" "}
-              <Link
-                href="https://sellsmart-hub.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 font-medium hover:underline"
-              >
-                SellSmart
-              </Link>
-            </Badge>
-            <h2 className="mb-4 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
-              Amazon Seller Tools Suite
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Optimize your Amazon business with our comprehensive suite of
-              tools designed to enhance listings, analyze performance, and boost
-              sales.
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="mb-8 flex justify-center gap-4">
-          <TooltipProvider>
-            {["amazon", "dev"].map((category) => (
-              <Tooltip key={category}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={
-                      activeToolCategory === category ? "default" : "outline"
-                    }
-                    onClick={() => setActiveToolCategory(category)}
-                    className="relative overflow-hidden"
-                  >
-                    <span className="relative z-10">
-                      {category === "amazon" ? "Amazon Tools" : "Dev Tools"}
-                    </span>
-                    {activeToolCategory === category && (
-                      <motion.div
-                        layoutId="activeCategory"
-                        className="absolute inset-0 bg-primary opacity-10"
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    {category === "amazon"
-                      ? "Amazon seller optimization tools"
-                      : "Development utilities"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </TooltipProvider>
-        </div>
-
-        <Tabs
-          defaultValue="fba-calculator"
-          className="mb-12"
-          onValueChange={handleToolChange}
-        >
-          <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-4 md:grid-cols-8">
-              {tools.map((tool) => (
-                <TooltipProvider key={tool.id}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <TabsTrigger
-                        value={tool.id}
-                        className="flex flex-col items-center gap-1 p-3 relative"
-                      >
-                        {tool.icon}
-                        <span className="text-xs hidden md:inline">
-                          {tool.title}
-                        </span>
-                        {tool.status === "Beta" && (
-                          <Badge
-                            variant="secondary"
-                            className="absolute -top-1 -right-1 text-[10px] px-1"
-                          >
-                            BETA
-                          </Badge>
-                        )}
-                      </TabsTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{tool.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </TabsList>
+    <section
+      id="tools"
+      className="py-16 md:py-24 bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800"
+    >
+      <div className="container px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+          <div className="inline-flex items-center justify-center p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
+            <Calculator className="h-6 w-6 text-primary" />
           </div>
+          <Badge className="px-3 py-1 text-sm mb-2" variant="outline">
+            Amazon Seller Tools
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Free Amazon Seller Tools</h2>
+          <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+            A suite of powerful tools to help Amazon sellers optimize listings, analyze performance, and maximize
+            profitability.
+          </p>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {activeTool?.icon}
-                    {activeTool?.title}
-                  </CardTitle>
-                  <CardDescription>{activeTool?.description}</CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="font-mono">
-                    {activeTool?.version}
-                  </Badge>
-                  <Badge
-                    variant={
-                      activeTool?.status === "Beta" ? "secondary" : "default"
-                    }
-                    className="animate-pulse"
-                  >
-                    {activeTool?.status}
-                  </Badge>
-                </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {tools.slice(0, 4).map((tool) => (
+                    <TabsTrigger key={tool.id} value={tool.id} className="flex items-center gap-2">
+                      {tool.icon}
+                      <span className="hidden md:inline">{tool.name}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isToolLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                  <div className="grid grid-cols-3 gap-4">
-                    <Skeleton className="h-24" />
-                    <Skeleton className="h-24" />
-                    <Skeleton className="h-24" />
-                  </div>
-                </div>
-              ) : (
-                tools.map((tool) => (
-                  <TabsContent key={tool.id} value={tool.id} className="mt-0">
-                    <tool.component />
-                  </TabsContent>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Tabs>
-      </motion.div>
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {tools.slice(4, 8).map((tool) => (
+                    <TabsTrigger key={tool.id} value={tool.id} className="flex items-center gap-2">
+                      {tool.icon}
+                      <span className="hidden md:inline">{tool.name}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              {tools.map((tool) => (
+                <TabsContent key={tool.id} value={tool.id} className="mt-4">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {tool.icon}
+                          <CardTitle>{tool.name}</CardTitle>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={tool.status === "active" ? "default" : "secondary"}>
+                            {tool.status === "active" ? "Active" : "Beta"}
+                          </Badge>
+                          <Badge variant="outline">v{tool.version}</Badge>
+                        </div>
+                      </div>
+                      <CardDescription>{tool.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>{tool.component}</CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+          <div className="p-6 bg-gray-50 dark:bg-gray-800/50">
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium mb-2">About These Tools:</p>
+              <p>
+                These tools are designed to help Amazon sellers optimize their listings, analyze performance, and
+                maximize profitability. All tools support CSV uploads for bulk processing and provide detailed analysis
+                with actionable insights.
+              </p>
+              <p className="mt-2">
+                For a demo, you can upload your own CSV files or use the manual entry options to see real-time
+                calculations and analysis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-  );
+  )
 }
+

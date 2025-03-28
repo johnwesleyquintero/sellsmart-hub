@@ -1,218 +1,178 @@
-"use client";
+"use client"
 
-import type { AnalysisResult } from "@/lib/error-reporting/types";
-import Papa from "papaparse";
-import type React from "react";
+import type React from "react"
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Download, FileText, Filter, Upload } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Upload, FileText, AlertCircle, Download, Filter, Info } from "lucide-react"
+import Papa from "papaparse"
+// Add import for SampleCsvButton
+import SampleCsvButton from "./sample-csv-button"
 
 type KeywordData = {
-  product: string;
-  originalKeywords: string[];
-  cleanedKeywords: string[];
-  duplicatesRemoved: number;
-};
-
-interface KeywordMetrics {
-  searchVolume: number;
-  competition: number;
-  relevanceScore: number;
-  difficulty: "Low" | "Medium" | "High";
-  trendsData: number[];
-}
-
-interface EnhancedKeywordData extends KeywordData {
-  metrics: Record<string, KeywordMetrics>;
-  suggestions: string[];
-  analysis: {
-    topPerforming: string[];
-    underutilized: string[];
-    competitive: string[];
-  };
-}
-
-interface KeywordProcessingResult {
-  product: string;
-  keywords: string;
+  product: string
+  originalKeywords: string[]
+  cleanedKeywords: string[]
+  duplicatesRemoved: number
 }
 
 export default function KeywordDeduplicator() {
-  const [products, setProducts] = useState<KeywordData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [manualKeywords, setManualKeywords] = useState("");
-  const [manualProduct, setManualProduct] = useState("");
-  const [processedKeywords, setProcessedKeywords] =
-    useState<KeywordData | null>(null);
+  const [products, setProducts] = useState<KeywordData[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [manualKeywords, setManualKeywords] = useState("")
+  const [manualProduct, setManualProduct] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const analyzeKeywords = async (
-    keywords: string[],
-  ): Promise<KeywordMetrics[]> => {
-    // Integration with real keyword analysis API
-    try {
-      const response = await fetch("/api/analyze-keywords", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords }),
-      });
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-      if (!response.ok) throw new Error("Failed to analyze keywords");
-      return await response.json();
-    } catch (error) {
-      console.error("Keyword analysis failed:", error);
-      return keywords.map(() => ({
-        searchVolume: 0,
-        competition: 0,
-        relevanceScore: 0,
-        difficulty: "Medium" as const,
-        trendsData: [],
-      }));
-    }
-  };
+    setIsLoading(true)
+    setError(null)
 
-  const processKeywords = async (
-    data: KeywordData,
-  ): Promise<AnalysisResult<EnhancedKeywordData>> => {
-    const startTime = performance.now();
-    const originalKeywords = data.keywords.split(",").map((k) => k.trim());
-    const cleanedKeywords = [...new Set(originalKeywords)];
+    Papa.parse<any>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        if (result.errors.length > 0) {
+          setError(`Error parsing CSV file: ${result.errors[0].message}. Please check the format.`)
+          setIsLoading(false)
+          return
+        }
 
-    // Get real metrics for keywords
-    const metrics = await analyzeKeywords(cleanedKeywords);
+        try {
+          // Process the parsed data
+          const processedData: KeywordData[] = result.data
+            .filter((item) => item.product && item.keywords)
+            .map((item) => {
+              // Split keywords by comma if it's a string
+              const originalKeywords =
+                typeof item.keywords === "string"
+                  ? item.keywords.split(",").map((k) => k.trim())
+                  : Array.isArray(item.keywords)
+                    ? item.keywords
+                    : []
 
-    const result: EnhancedKeywordData = {
-      ...data,
-      originalKeywords,
-      cleanedKeywords,
-      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
-      metrics: Object.fromEntries(
-        cleanedKeywords.map((kw, i) => [kw, metrics[i]]),
-      ),
-      suggestions: await generateKeywordSuggestions(cleanedKeywords),
-      analysis: analyzeKeywordPerformance(metrics),
-    };
+              // Remove duplicates
+              const cleanedKeywords = [...new Set(originalKeywords)]
 
-    return {
-      data: result,
-      status: "success",
-      timestamp: new Date(),
-      message: `Analyzed ${cleanedKeywords.length} keywords with metrics`,
-      performance: {
-        processingTime: performance.now() - startTime,
-        batchSize: cleanedKeywords.length,
-      },
-    };
-  };
+              return {
+                product: String(item.product),
+                originalKeywords,
+                cleanedKeywords,
+                duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+              }
+            })
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      Papa.parse<KeywordProcessingResult>(file, {
-        header: true,
-        complete: (result) => {
-          try {
-            if (result.errors.length > 0) {
-              throw new Error(result.errors[0].message);
-            }
-
-            const processedData = result.data
-              .filter((item): item is KeywordProcessingResult => {
-                return Boolean(item?.product && item?.keywords);
-              })
-              .map((item) => {
-                const originalKeywords = item.keywords
-                  .split(",")
-                  .map((k) => k.trim());
-                const cleanedKeywords = Array.from(new Set(originalKeywords));
-
-                return {
-                  product: item.product.trim(),
-                  originalKeywords,
-                  cleanedKeywords,
-                  duplicatesRemoved:
-                    originalKeywords.length - cleanedKeywords.length,
-                };
-              });
-
-            setProducts(processedData);
-          } catch (err) {
-            const error = err as Error;
-            setError(`Processing error: ${error.message}`);
-          } finally {
-            setIsLoading(false);
+          if (processedData.length === 0) {
+            setError("No valid data found in CSV. Please ensure your CSV has columns: product, keywords")
+            setIsLoading(false)
+            return
           }
-        },
-        error: (error: Error) => {
-          setError(`CSV parse error: ${error.message}`);
-          setIsLoading(false);
-        },
-      });
-    } catch (err) {
-      const error = err as Error;
-      setError(`Unexpected error: ${error.message}`);
-      setIsLoading(false);
+
+          setProducts(processedData)
+          setIsLoading(false)
+        } catch (err) {
+          setError("Failed to process CSV data. Please ensure your CSV has columns: product, keywords")
+          setIsLoading(false)
+        }
+      },
+      error: (error) => {
+        setError(`Error parsing CSV file: ${error.message}`)
+        setIsLoading(false)
+      },
+    })
+
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
     }
-  };
+  }
 
   const handleManualProcess = () => {
     if (!manualKeywords.trim()) {
-      setError("Please enter keywords to process");
-      return;
+      setError("Please enter keywords to process")
+      return
     }
 
-    const originalKeywords = manualKeywords.split(",").map((k) => k.trim());
-    const cleanedKeywords = [...new Set(originalKeywords)];
+    const originalKeywords = manualKeywords.split(",").map((k) => k.trim())
+    const cleanedKeywords = [...new Set(originalKeywords)]
 
     const result: KeywordData = {
       product: manualProduct || "Manual Entry",
       originalKeywords,
       cleanedKeywords,
       duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
-    };
+    }
 
-    setProcessedKeywords(result);
-    setProducts([...products, result]);
-    setError(null);
-  };
+    setProducts([...products, result])
+    setManualKeywords("")
+    setManualProduct("")
+    setError(null)
+  }
 
   const handleExport = () => {
-    if (products.length === 0) return;
+    if (products.length === 0) {
+      setError("No data to export")
+      return
+    }
 
-    const csvData = products.map((product) => ({
+    // Prepare data for CSV export
+    const exportData = products.map((product) => ({
       product: product.product,
-      original_keywords: product.originalKeywords.join(", "),
-      cleaned_keywords: product.cleanedKeywords.join(", "),
-      duplicates_removed: product.duplicatesRemoved,
-    }));
+      originalKeywords: product.originalKeywords.join(", "),
+      cleanedKeywords: product.cleanedKeywords.join(", "),
+      duplicatesRemoved: product.duplicatesRemoved,
+    }))
 
-    const csv = Papa.unparse(csvData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
+    // Create CSV content
+    const csv = Papa.unparse(exportData)
 
-    link.setAttribute("href", url);
-    link.setAttribute("download", "deduplicated_keywords.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    // Create a blob and download link
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", "deduplicated_keywords.csv")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const clearData = () => {
+    setProducts([])
+    setError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
 
   return (
     <div className="space-y-6">
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+        <div className="text-sm text-blue-700 dark:text-blue-300">
+          <p className="font-medium">CSV Format Requirements:</p>
+          <p>
+            Your CSV file should have the following columns: <code>product</code>, <code>keywords</code>{" "}
+            (comma-separated)
+          </p>
+          <p className="mt-1">
+            Example: <code>product,keywords</code>
+            <br />
+            <code>
+              Wireless Earbuds,"bluetooth earbuds, wireless earbuds, earbuds bluetooth, wireless headphones, bluetooth
+              earbuds"
+            </code>
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4 sm:flex-row">
         <Card className="flex-1">
           <CardContent className="p-4">
@@ -222,16 +182,12 @@ export default function KeywordDeduplicator() {
               </div>
               <div>
                 <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a CSV file with your product keywords
-                </p>
+                <p className="text-sm text-muted-foreground">Upload a CSV file with your product keywords</p>
               </div>
               <div className="w-full">
                 <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
                   <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click to upload CSV
-                  </span>
+                  <span className="text-sm font-medium">Click to upload CSV</span>
                   <span className="text-xs text-muted-foreground">
                     (CSV with product name and comma-separated keywords)
                   </span>
@@ -241,8 +197,17 @@ export default function KeywordDeduplicator() {
                     className="hidden"
                     onChange={handleFileUpload}
                     disabled={isLoading}
+                    ref={fileInputRef}
                   />
                 </label>
+                <div className="flex justify-center mt-4">
+                  <SampleCsvButton dataType="keyword-dedup" fileName="sample-keyword-deduplicator.csv" />
+                </div>
+                {products.length > 0 && (
+                  <Button variant="outline" className="w-full mt-4" onClick={clearData}>
+                    Clear Data
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
@@ -254,15 +219,12 @@ export default function KeywordDeduplicator() {
               <h3 className="text-lg font-medium">Manual Entry</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium">
-                    Product Name (Optional)
-                  </label>
+                  <label className="text-sm font-medium">Product Name (Optional)</label>
                   <input
                     type="text"
                     value={manualProduct}
                     onChange={(e) => setManualProduct(e.target.value)}
                     placeholder="Enter product name"
-                    autoComplete="off"
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
@@ -274,9 +236,7 @@ export default function KeywordDeduplicator() {
                     placeholder="Enter comma-separated keywords"
                     rows={4}
                   />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Enter keywords separated by commas
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">Enter keywords separated by commas</p>
                 </div>
                 <Button onClick={handleManualProcess} className="w-full">
                   <Filter className="mr-2 h-4 w-4" />
@@ -298,9 +258,7 @@ export default function KeywordDeduplicator() {
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
           <Progress value={45} className="h-2" />
-          <p className="text-sm text-muted-foreground">
-            Processing your keywords...
-          </p>
+          <p className="text-sm text-muted-foreground">Processing your keywords...</p>
         </div>
       )}
 
@@ -319,11 +277,7 @@ export default function KeywordDeduplicator() {
                 <CardContent className="p-4">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-lg font-medium">{product.product}</h3>
-                    <Badge
-                      variant={
-                        product.duplicatesRemoved > 0 ? "default" : "secondary"
-                      }
-                    >
+                    <Badge variant={product.duplicatesRemoved > 0 ? "default" : "secondary"}>
                       {product.duplicatesRemoved} duplicates removed
                     </Badge>
                   </div>
@@ -345,9 +299,7 @@ export default function KeywordDeduplicator() {
                     </div>
 
                     <div>
-                      <h4 className="mb-2 text-sm font-medium">
-                        Cleaned Keywords ({product.cleanedKeywords.length})
-                      </h4>
+                      <h4 className="mb-2 text-sm font-medium">Cleaned Keywords ({product.cleanedKeywords.length})</h4>
                       <div className="rounded-lg border p-3">
                         <div className="flex flex-wrap gap-2">
                           {product.cleanedKeywords.map((keyword, i) => (
@@ -366,5 +318,6 @@ export default function KeywordDeduplicator() {
         </>
       )}
     </div>
-  );
+  )
 }
+
