@@ -4,7 +4,7 @@
   },
   "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
-  "installCommand": "pnpm install",
+  "installCommand": "npm i -g pnpm@8.15.1 && pnpm install",
   "framework": "nextjs",
   "regions": ["sfo1"],
   "headers": [

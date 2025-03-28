@@ -3,11 +3,14 @@ components:
   - name: dev
     container:
       image: public.ecr.aws/aws-mde/universal-image:latest
+      env:
+        - name: PNPM_VERSION
+          value: "8.15.1"
 commands:
   - id: install
     exec:
       component: dev
-      commandLine: "pnpm install"
+      commandLine: "npm i -g pnpm@${PNPM_VERSION} && pnpm install"
   - id: build
     exec:
       component: dev
