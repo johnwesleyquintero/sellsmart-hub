@@ -2,10 +2,11 @@ import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
 import { AccessibleHeader } from "@/components/ui/accessible-header";
 import { cn } from "@/lib/utils";
 import { type Metadata } from "next";
+import { Inter as interFont } from "next/font/google";
 import { type ReactNode } from "react";
 import "./globals.css";
 
-const inter = Inter({
+const inter = interFont({
   subsets: ["latin"],
   display: "swap",
   preload: true,
@@ -85,7 +86,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          inter.className,
+          inter.className
         )}
       >
         <ThemeProviderWrapper>
