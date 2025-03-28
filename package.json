@@ -2,7 +2,7 @@
   "packageManager": "pnpm@8.15.x",
   "engines": {
     "pnpm": "8.15.x",
-    "node": "18.x"
+    "node": "v22.14.0"
   },
   "name": "developer-portfolio",
   "version": "0.1.0",
@@ -66,8 +66,10 @@
     "@radix-ui/react-toggle": "^1.1.2",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16",
     "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
