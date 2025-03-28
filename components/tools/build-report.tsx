@@ -81,8 +81,10 @@ export const BuildReportApp = () => {
 
         // Parse timestamps and log levels
         const timestampMatch = trimmedLine.match(/^\[(.*?)\]/);
-        const timestamp = timestampMatch ? timestampMatch[1] : new Date().toISOString();
-        
+        const timestamp = timestampMatch
+          ? timestampMatch[1]
+          : new Date().toISOString();
+
         let level: "info" | "warn" | "error" = "info";
         if (trimmedLine.match(/error|exception|failure/i)) {
           level = "error";
@@ -99,7 +101,9 @@ export const BuildReportApp = () => {
           metrics.duration = parseFloat(durationMatch[1]);
         }
 
-        const testsMatch = trimmedLine.match(/Tests run: (\d+), Passed: (\d+), Failed: (\d+)/i);
+        const testsMatch = trimmedLine.match(
+          /Tests run: (\d+), Passed: (\d+), Failed: (\d+)/i,
+        );
         if (testsMatch) {
           metrics.testsRun = parseInt(testsMatch[1]);
           metrics.testsPassed = parseInt(testsMatch[2]);
@@ -137,7 +141,10 @@ export const BuildReportApp = () => {
     }
   };
 
-  const generateDescription = (status: BuildReport["status"], metrics: NonNullable<BuildReport["metrics"]>): string => {
+  const generateDescription = (
+    status: BuildReport["status"],
+    metrics: NonNullable<BuildReport["metrics"]>,
+  ): string => {
     if (status === "Failed") {
       return `Build failed with ${metrics.testsFailed} failed tests. Coverage at ${metrics.coverage}%.`;
     }
@@ -146,7 +153,7 @@ export const BuildReportApp = () => {
 
   const formatAsMarkdown = () => {
     const { buildLogs, metrics } = buildReport;
-    
+
     const markdown = `# Build Report ${new Date().toISOString()}
 
 ## Summary
@@ -160,9 +167,9 @@ export const BuildReportApp = () => {
 ${selectedDescription || buildReport.description}
 
 ## Build Logs
-${buildLogs.map(log => (
-  `[${log.timestamp}] ${log.level.toUpperCase()}: ${log.message}`
-)).join("\n")}
+${buildLogs
+  .map((log) => `[${log.timestamp}] ${log.level.toUpperCase()}: ${log.message}`)
+  .join("\n")}
 
 ## Additional Notes
 ${additionalMessage || "No additional notes."}

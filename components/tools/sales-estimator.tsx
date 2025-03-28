@@ -102,31 +102,31 @@ export default function SalesEstimator() {
               item.price < 10
                 ? 2.0
                 : item.price < 20
-                  ? 1.7
-                  : item.price < 35
-                    ? 1.4
-                    : item.price < 50
-                      ? 1.2
-                      : item.price < 100
-                        ? 0.9
-                        : 0.7;
+                ? 1.7
+                : item.price < 35
+                ? 1.4
+                : item.price < 50
+                ? 1.2
+                : item.price < 100
+                ? 0.9
+                : 0.7;
 
             const competitionFactor =
               item.competition === "Low"
                 ? 1.4
                 : item.competition === "Medium"
-                  ? 1.0
-                  : 0.6;
+                ? 1.0
+                : 0.6;
 
             const currentMonth = new Date().getMonth();
             const seasonalFactor =
               currentMonth >= 10
                 ? 1.3
                 : currentMonth >= 7
-                  ? 1.1
-                  : currentMonth >= 4
-                    ? 1.0
-                    : 0.9;
+                ? 1.1
+                : currentMonth >= 4
+                ? 1.0
+                : 0.9;
 
             const marketTrendFactor = 1.1;
 
@@ -144,13 +144,13 @@ export default function SalesEstimator() {
               (item.competition === "Low"
                 ? 2
                 : item.competition === "Medium"
-                  ? 1
-                  : 0) +
+                ? 1
+                : 0) +
               (item.price >= 15 && item.price <= 50
                 ? 2
                 : item.price < 100
-                  ? 1
-                  : 0) +
+                ? 1
+                : 0) +
               (categoryBaseSales[
                 item.category as keyof typeof categoryBaseSales
               ]
@@ -161,8 +161,8 @@ export default function SalesEstimator() {
               confidenceScore >= 4
                 ? "High"
                 : confidenceScore >= 2
-                  ? "Medium"
-                  : "Low";
+                ? "Medium"
+                : "Low";
 
             return {
               ...item,
@@ -227,22 +227,22 @@ export default function SalesEstimator() {
       price < 10
         ? 2.0
         : price < 20
-          ? 1.7
-          : price < 35
-            ? 1.4
-            : price < 50
-              ? 1.2
-              : price < 100
-                ? 0.9
-                : 0.7;
+        ? 1.7
+        : price < 35
+        ? 1.4
+        : price < 50
+        ? 1.2
+        : price < 100
+        ? 0.9
+        : 0.7;
 
     // Enhanced competition factor analysis
     const competitionFactor =
       manualProduct.competition === "Low"
         ? 1.4
         : manualProduct.competition === "Medium"
-          ? 1.0
-          : 0.6;
+        ? 1.0
+        : 0.6;
 
     // Seasonal adjustment (example: higher sales during Q4)
     const currentMonth = new Date().getMonth();
@@ -250,10 +250,10 @@ export default function SalesEstimator() {
       currentMonth >= 10
         ? 1.3 // Q4 holiday season
         : currentMonth >= 7
-          ? 1.1 // Back to school
-          : currentMonth >= 4
-            ? 1.0 // Summer
-            : 0.9; // Q1
+        ? 1.1 // Back to school
+        : currentMonth >= 4
+        ? 1.0 // Summer
+        : 0.9; // Q1
 
     // Market trend adjustment
     const marketTrendFactor = 1.1; // Assuming growing market
@@ -274,8 +274,8 @@ export default function SalesEstimator() {
       (manualProduct.competition === "Low"
         ? 2
         : manualProduct.competition === "Medium"
-          ? 1
-          : 0) +
+        ? 1
+        : 0) +
       (price >= 15 && price <= 50 ? 2 : price < 100 ? 1 : 0) +
       (categoryBaseSales[
         manualProduct.category as keyof typeof categoryBaseSales
@@ -516,8 +516,8 @@ export default function SalesEstimator() {
                             product.competition === "Low"
                               ? "default"
                               : product.competition === "Medium"
-                                ? "secondary"
-                                : "destructive"
+                              ? "secondary"
+                              : "destructive"
                           }
                         >
                           {product.competition}
@@ -535,8 +535,8 @@ export default function SalesEstimator() {
                             product.confidence === "High"
                               ? "default"
                               : product.confidence === "Medium"
-                                ? "secondary"
-                                : "destructive"
+                              ? "secondary"
+                              : "destructive"
                           }
                         >
                           {product.confidence}

@@ -1,12 +1,15 @@
-import { ChevronLeft } from "lucide-react";
 import { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import MDXContent from "./mdx-content";
+import { AuthorBio } from "@/components/blog/author-bio";
+import { BookmarkButton } from "@/components/blog/bookmark-button";
+import { Comments } from "@/components/blog/comments";
+import { NewsletterForm } from "@/components/blog/newsletter-form";
+import { ReadingProgress } from "@/components/blog/reading-progress";
+import { ShareButton } from "@/components/blog/share-button";
+import { TableOfContents } from "@/components/blog/table-of-contents";
+import { components } from "@/components/mdx";
+import { MDXRemote } from "next-mdx-remote/rsc";
 
 interface Post {
   id: string;
@@ -17,6 +20,9 @@ interface Post {
   tags: string[];
   image: string;
   readingTime: string;
+  category: string;
+  tools?: { id: string }[];
+  content: string;
 }
 
 interface Props {
@@ -24,9 +30,35 @@ interface Props {
     slug?: string;
   };
 }
+
 async function getBlogPost(slug: string): Promise<Post | null> {
-  const posts = await import("@/data/blog.json").then((m) => m.default.posts);
-  return posts.find((post: Post) => post.id === slug!) || null;
+  try {
+    const { posts } = await import("@/data/blog.json").then(m => m.default);
+    if (!Array.isArray(posts)) {
+      console.error("Posts data is not an array");
+      return null;
+    }
+    const post = posts.find((post: Post) => post.id === slug);
+    if (!post) return null;
+    
+    // Ensure all required fields exist
+    return {
+      id: post.id || '',
+      title: post.title || '',
+      description: post.description || '',
+      date: post.date || '',
+      author: post.author || '',
+      tags: Array.isArray(post.tags) ? post.tags : [],
+      image: post.image || '',
+      readingTime: post.readingTime || '',
+      category: post.category || '',
+      content: post.content || '',
+      tools: post.tools || []
+    };
+  } catch (error) {
+    console.error(`Error loading blog post ${slug}:`, error);
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -53,64 +85,59 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const posts = await import("@/data/blog.json").then((m) => m.default.posts);
-  return posts.map((post: Post) => ({
-    slug: post.id,
-  }));
+  try {
+    const { posts } = await import("@/data/blog.json").then(m => m.default);
+    if (!Array.isArray(posts)) return [];
+    return posts.filter(post => post?.id).map(post => ({ slug: post.id }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
 }
 
-export default async function BlogPost({ params }: Props) {
-  const { slug } = params;
-  const post = await getBlogPost(slug!);
+export default async function BlogPost({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = await getBlogPost(params.slug);
 
   if (!post) {
     notFound();
   }
 
   return (
-    <article className="container mx-auto max-w-3xl px-4 py-16 md:py-24">
-      <div className="mb-12">
-        <Button
-          asChild
-          variant="ghost"
-          className="mb-6 -ml-4 h-8 text-muted-foreground hover:text-foreground"
-        >
-          <Link href="/blog" className="flex items-center gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Blog
-          </Link>
-        </Button>
-        <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl">
-          {post.title}
-        </h1>
-        <div className="mb-6 flex items-center gap-4 text-muted-foreground">
-          <span>{post.date}</span>
-          <span>•</span>
-          <span>{post.readingTime}</span>
-          <span>•</span>
-          <span>{post.author}</span>
+    <article className="container relative mx-auto max-w-6xl px-4 py-12">
+      <ReadingProgress />
+
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_250px]">
+        <div>
+          <div className="prose prose-slate max-w-none dark:prose-invert">
+            <MDXRemote source={post.content} components={components} />
+          </div>
+
+          <AuthorBio author={post.author} className="mt-12" />
+
+          <div className="mt-12">
+            <NewsletterForm />
+          </div>
+
+          <div className="mt-12">
+            <Comments postId={post.id} />
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {post.tags.map((tag) => (
-            <Badge key={tag} variant="secondary">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </div>
-      {post.image && (
-        <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-xl shadow-lg">
-          <Image
-            src={post.image}
-            alt={post.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-      )}
-      <div className="prose prose-lg dark:prose-invert">
-        <MDXContent slug={params.slug!} />
+
+        <aside className="space-y-8">
+          <div className="flex items-center gap-4">
+            <BookmarkButton postId={post.id} />
+            <ShareButton 
+              title={post.title}
+              description={post.description}
+            />
+          </div>
+
+          <TableOfContents />
+        </aside>
       </div>
     </article>
   );

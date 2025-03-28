@@ -288,8 +288,8 @@ export default function ListingQualityChecker() {
                         (listing.score || 0) >= 80
                           ? "default"
                           : (listing.score || 0) >= 50
-                            ? "secondary"
-                            : "destructive"
+                          ? "secondary"
+                          : "destructive"
                       }
                     >
                       {listing.score || 0}/100

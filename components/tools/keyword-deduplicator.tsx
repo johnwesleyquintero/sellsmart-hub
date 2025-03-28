@@ -133,14 +133,17 @@ export default function KeywordDeduplicator() {
                 return Boolean(item?.product && item?.keywords);
               })
               .map((item) => {
-                const originalKeywords = item.keywords.split(",").map((k) => k.trim());
+                const originalKeywords = item.keywords
+                  .split(",")
+                  .map((k) => k.trim());
                 const cleanedKeywords = Array.from(new Set(originalKeywords));
 
                 return {
                   product: item.product.trim(),
                   originalKeywords,
                   cleanedKeywords,
-                  duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+                  duplicatesRemoved:
+                    originalKeywords.length - cleanedKeywords.length,
                 };
               });
 
@@ -155,7 +158,7 @@ export default function KeywordDeduplicator() {
         error: (error: Error) => {
           setError(`CSV parse error: ${error.message}`);
           setIsLoading(false);
-        }
+        },
       });
     } catch (err) {
       const error = err as Error;

@@ -65,3 +65,7 @@ next-env.d.ts
 # Documentation
 .error.md
 *.md.backup
+
+# PNPM
+.pnpm-cache/
+.pnpm-store/

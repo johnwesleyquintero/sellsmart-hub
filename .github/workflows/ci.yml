@@ -11,39 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Use Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Build project
-      run: pnpm build
+      - name: Build project
+        run: pnpm build
 
-    - name: Install Lighthouse
-      run: npm install -g lighthouse
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
 
-    - name: Run Production Server
-      run: pnpm start &
-      env:
-        NODE_ENV: production
+      - name: Run Production Server
+        run: pnpm start &
+        env:
+          NODE_ENV: production
 
-    - name: Run Lighthouse Audit
-      run: |
-        sleep 30
-        lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html --chrome-flags="--headless"
+      - name: Run Lighthouse Audit
+        run: |
+          sleep 30
+          lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html --chrome-flags="--headless"
 
-    - name: Upload Lighthouse Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: lighthouse-report
-        path: ./lighthouse-report.html
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: ./lighthouse-report.html

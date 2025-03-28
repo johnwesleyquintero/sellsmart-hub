@@ -1,5 +1,7 @@
 "use client";
 
+import { calculateAmazonMetrics } from "@/lib/api-utils/amazon-metrics";
+import { getDefaultRecommendations } from "@/lib/utils/campaign-recommendations";
 import type React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { calculateAmazonMetrics } from "@/lib/api-utils";
 import {
   AlertCircle,
   Calculator,
@@ -29,12 +30,13 @@ type CampaignData = {
   ctr?: number;
   cpc?: number;
   conversionRate?: number;
+  category?: string; // Add category field
 };
 
 interface CampaignAnalytics extends CampaignData {
   metrics: ReturnType<typeof calculateAmazonMetrics>;
   performance: {
-    trend: 'up' | 'down' | 'stable';
+    trend: "up" | "down" | "stable";
     weekOverWeek: number;
     monthOverMonth: number;
     seasonalImpact: number;
@@ -58,22 +60,24 @@ export default function AcosCalculator() {
     sales: "",
   });
 
-  const analyzeCampaign = async (campaign: CampaignData): Promise<CampaignAnalytics> => {
+  const analyzeCampaign = async (
+    campaign: CampaignData,
+  ): Promise<CampaignAnalytics> => {
     try {
-      const response = await fetch('/api/analyze-campaign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(campaign)
+      const response = await fetch("/api/analyze-campaign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(campaign),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to analyze campaign');
+        throw new Error("Failed to analyze campaign");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Campaign analysis failed:', error);
-      
+      console.error("Campaign analysis failed:", error);
+
       // Fallback to local calculations if API fails
       const metrics = calculateAmazonMetrics({
         adSpend: campaign.adSpend,
@@ -81,25 +85,28 @@ export default function AcosCalculator() {
         impressions: campaign.impressions || 0,
         clicks: campaign.clicks || 0,
         cost: campaign.adSpend * 0.8, // Estimate cost as 80% of ad spend
-        category: campaign.category
+        category: campaign.category,
       });
 
       return {
         ...campaign,
         metrics,
         performance: {
-          trend: metrics.acos < 25 ? 'up' : metrics.acos > 35 ? 'down' : 'stable',
+          trend:
+            metrics.acos < 25 ? "up" : metrics.acos > 35 ? "down" : "stable",
           weekOverWeek: 0,
           monthOverMonth: 0,
           seasonalImpact: metrics.seasonality,
-          competitiveIndex: metrics.competitiveIndex
+          competitiveIndex: metrics.competitiveIndex,
         },
-        recommendations: getDefaultRecommendations(metrics)
+        recommendations: getDefaultRecommendations(metrics),
       };
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -121,8 +128,8 @@ export default function AcosCalculator() {
             .filter((item): item is CampaignData => {
               return Boolean(
                 item.campaign &&
-                typeof item.adSpend === 'number' &&
-                typeof item.sales === 'number'
+                  typeof item.adSpend === "number" &&
+                  typeof item.sales === "number",
               );
             })
             .map(async (item) => {
@@ -131,7 +138,7 @@ export default function AcosCalculator() {
               const baseData: CampaignData = {
                 ...item,
                 acos,
-                roas
+                roas,
               };
               return await analyzeCampaign(baseData);
             });
@@ -145,11 +152,11 @@ export default function AcosCalculator() {
           setIsLoading(false);
         },
         transform: (value, field) => {
-          if (['adSpend', 'sales', 'impressions', 'clicks'].includes(field)) {
+          if (["adSpend", "sales", "impressions", "clicks"].includes(field)) {
             return Number(value);
           }
           return value;
-        }
+        },
       });
     } catch (err) {
       const error = err as Error;
@@ -195,23 +202,23 @@ export default function AcosCalculator() {
   const handleExport = () => {
     if (campaigns.length === 0) return;
 
-    const csvData = campaigns.map(campaign => ({
+    const csvData = campaigns.map((campaign) => ({
       campaign: campaign.campaign,
       ad_spend: campaign.adSpend.toFixed(2),
       sales: campaign.sales.toFixed(2),
       acos: campaign.acos.toFixed(2),
       roas: campaign.roas.toFixed(2),
-      trend: campaign.performance?.trend || 'n/a',
-      week_over_week: campaign.performance?.weekOverWeek.toFixed(2) || 'n/a',
-      recommendations: campaign.recommendations?.join('; ') || 'n/a'
+      trend: campaign.performance?.trend || "n/a",
+      week_over_week: campaign.performance?.weekOverWeek.toFixed(2) || "n/a",
+      recommendations: campaign.recommendations?.join("; ") || "n/a",
     }));
 
     const csv = Papa.unparse(csvData);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'acos_analysis.csv';
+    link.download = "acos_analysis.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -391,7 +398,9 @@ export default function AcosCalculator() {
                         ${campaign.sales.toFixed(2)}
                       </td>
                       <td
-                        className={`px-4 py-3 text-right text-sm font-medium ${getAcosColor(campaign.acos)}`}
+                        className={`px-4 py-3 text-right text-sm font-medium ${getAcosColor(
+                          campaign.acos,
+                        )}`}
                       >
                         {campaign.acos.toFixed(2)}%
                       </td>
@@ -404,8 +413,8 @@ export default function AcosCalculator() {
                             campaign.acos < 25
                               ? "default"
                               : campaign.acos < 35
-                                ? "secondary"
-                                : "destructive"
+                              ? "secondary"
+                              : "destructive"
                           }
                         >
                           {getAcosRating(campaign.acos)}

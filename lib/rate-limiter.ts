@@ -85,7 +85,7 @@ export class RateLimiter {
     const now = Date.now();
     const timePassed = now - this.lastRefill;
     const refillAmount = Math.floor(
-      (timePassed * this.config.refillRate) / this.config.refillInterval
+      (timePassed * this.config.refillRate) / this.config.refillInterval,
     );
     this.tokens = Math.min(this.config.maxTokens, this.tokens + refillAmount);
     this.lastRefill = now;
@@ -93,10 +93,10 @@ export class RateLimiter {
 
   async acquire(): Promise<void> {
     this.refillTokens();
-    
+
     if (this.tokens <= 0) {
       const waitTime = this.config.refillInterval / this.config.refillRate;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
       this.refillTokens();
     }
 

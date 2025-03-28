@@ -121,7 +121,9 @@ export default class ErrorBoundary extends Component<
           </h2>
           <p className="mb-6 max-w-md text-red-700">
             {extendedError.type === "csv_parse_error"
-              ? `CSV Parsing Error: ${extendedError.details || "Invalid CSV format"}`
+              ? `CSV Parsing Error: ${
+                  extendedError.details || "Invalid CSV format"
+                }`
               : error.message || "An unexpected error occurred"}
           </p>
           <Button onClick={this.handleReset}>Try again</Button>

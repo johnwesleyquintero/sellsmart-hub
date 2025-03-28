@@ -232,17 +232,29 @@ export default function FbaCalculator() {
                       {item.fees.toFixed(2)}
                     </TableCell>
                     <TableCell
-                      className={`text-right font-semibold ${item.profit && item.profit < 0 ? "text-red-500" : "text-green-500"}`}
+                      className={`text-right font-semibold ${
+                        item.profit && item.profit < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }`}
                     >
                       {item.profit?.toFixed(2)}
                     </TableCell>
                     <TableCell
-                      className={`text-right ${item.roi && item.roi < 0 ? "text-red-500" : "text-green-500"}`}
+                      className={`text-right ${
+                        item.roi && item.roi < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }`}
                     >
                       {item.roi?.toFixed(2)}%
                     </TableCell>
                     <TableCell
-                      className={`text-right ${item.margin && item.margin < 0 ? "text-red-500" : "text-green-500"}`}
+                      className={`text-right ${
+                        item.margin && item.margin < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }`}
                     >
                       {item.margin?.toFixed(2)}%
                     </TableCell>
@@ -254,7 +266,13 @@ export default function FbaCalculator() {
                               ? Math.min(item.margin, 100)
                               : 0
                           }
-                          className={`h-2 ${item.margin && item.margin < 15 ? "bg-red-200" : item.margin && item.margin < 30 ? "bg-yellow-200" : "bg-green-200"}`}
+                          className={`h-2 ${
+                            item.margin && item.margin < 15
+                              ? "bg-red-200"
+                              : item.margin && item.margin < 30
+                              ? "bg-yellow-200"
+                              : "bg-green-200"
+                          }`}
                         />
                       </div>
                     </TableCell>

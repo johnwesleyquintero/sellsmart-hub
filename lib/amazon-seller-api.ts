@@ -80,7 +80,7 @@ export class AmazonSellerApi {
     this.rateLimiter = new RateLimiter({
       maxTokens: DEFAULT_RATE_LIMIT.burstSize,
       refillRate: DEFAULT_RATE_LIMIT.requestsPerSecond,
-      refillInterval: 1000
+      refillInterval: 1000,
     });
   }
 
@@ -150,7 +150,7 @@ export class AmazonSellerApi {
       if (error instanceof Error) {
         throw new AmazonSellerApiError(`Request failed: ${error.message}`);
       }
-      throw new AmazonSellerApiError('An unknown error occurred');
+      throw new AmazonSellerApiError("An unknown error occurred");
     }
   }
 

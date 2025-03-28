@@ -1,10 +1,10 @@
-import { calculateAmazonMetrics } from '@/lib/api-utils/amazon-metrics';
-import { NextResponse } from 'next/server';
+import { calculateAmazonMetrics } from "@/lib/api-utils/amazon-metrics";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const campaign = await request.json();
-    
+
     // Calculate real metrics
     const metrics = calculateAmazonMetrics({
       adSpend: campaign.adSpend,
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       impressions: campaign.impressions,
       clicks: campaign.clicks,
       cost: campaign.cost,
-      category: campaign.category
+      category: campaign.category,
     });
 
     // Determine trend based on historical data
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       weekOverWeek: await getHistoricalComparison(campaign.id, 7),
       monthOverMonth: await getHistoricalComparison(campaign.id, 30),
       seasonalImpact: metrics.seasonality,
-      competitiveIndex: metrics.competitiveIndex
+      competitiveIndex: metrics.competitiveIndex,
     };
 
     // Generate actionable recommendations
@@ -32,21 +32,21 @@ export async function POST(request: Request) {
       metrics,
       performance,
       recommendations,
-      benchmark: await getCategoryBenchmarks(campaign.category)
+      benchmark: await getCategoryBenchmarks(campaign.category),
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to analyze campaign' },
-      { status: 500 }
+      { error: "Failed to analyze campaign" },
+      { status: 500 },
     );
   }
 }
 
-function getTrend(metrics: any): 'up' | 'down' | 'stable' {
+function getTrend(metrics: any): "up" | "down" | "stable" {
   const acos = metrics.acos;
-  if (acos < 25) return 'up';
-  if (acos > 35) return 'down';
-  return 'stable';
+  if (acos < 25) return "up";
+  if (acos > 35) return "down";
+  return "stable";
 }
 
 function calculateWeekOverWeek(campaign: any): number {
@@ -61,21 +61,24 @@ function calculateSeasonalImpact(campaign: any): number {
 
 function generateRecommendations(metrics: any, performance: any): string[] {
   const recommendations: string[] = [];
-  
+
   if (metrics.acos > 35) {
-    recommendations.push('Consider reducing bid amounts');
+    recommendations.push("Consider reducing bid amounts");
   }
   if (metrics.ctr < 0.5) {
-    recommendations.push('Review keyword relevancy');
+    recommendations.push("Review keyword relevancy");
   }
   if (metrics.conversionRate < 10) {
-    recommendations.push('Optimize product listing');
+    recommendations.push("Optimize product listing");
   }
 
   return recommendations;
 }
 
-async function getHistoricalComparison(campaignId: string, days: number): Promise<number> {
+async function getHistoricalComparison(
+  campaignId: string,
+  days: number,
+): Promise<number> {
   // In a real implementation, fetch historical data from database
   return Math.random() * 20 - 10;
 }
@@ -85,6 +88,6 @@ async function getCategoryBenchmarks(category: string) {
   return {
     averageAcos: 25,
     averageCtr: 0.5,
-    averageConversion: 15
+    averageConversion: 15,
   };
 }

@@ -61,9 +61,12 @@ The portfolio is designed to be easily customizable and maintainable, making it 
 ## 🏁 Getting Started
 
 1. Clone the repository
+
    ```bash
    git clone https://github.com/johnwesleyquintero/portfolio.git
    cd portfolio
+
+   ```
 
 2. Install dependencies
    ```bash
@@ -72,6 +75,7 @@ The portfolio is designed to be easily customizable and maintainable, making it 
    pnpm build         # Build for production
    pnpm lint          # Run linting
    npm run dev
+   ```
 
 👩💻 Open http://localhost:3000 in your browser to view!
 
@@ -87,13 +91,16 @@ Please follow [GitHub Flow](https://guides.github.com/introduction/flow/) for co
 
 ## Professional Links
 
-| **Platform**       | **URL**                                                                 |
-|--------------------|-------------------------------------------------------------------------|
-| LinkedIn          | [View Profile](https://www.linkedin.com/in/wesleyquintero/)             |
-| Certifications    | [View Certifications](https://www.linkedin.com/in/wesleyquintero/details/certifications/) |
-| GitHub            | [View Repository](https://github.com/johnwesleyquintero)               |
-| Portfolio         | [View Portfolio](https://wesleyquintero.vercel.app/)                   |
-| Documentation     | [View Documentation](https://sellsmart-docs.vercel.app/)              |
-| Main Web App      | [View Main Web App](https://sellsmart-hub.vercel.app/)                |
-| DevFlowDB         | [View DevFlowDB](https://devflowdb.vercel.app/)                   |
+| **Platform**   | **URL**                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| LinkedIn       | [View Profile](https://www.linkedin.com/in/wesleyquintero/)                               |
+| Certifications | [View Certifications](https://www.linkedin.com/in/wesleyquintero/details/certifications/) |
+| GitHub         | [View Repository](https://github.com/johnwesleyquintero)                                  |
+| Portfolio      | [View Portfolio](https://wesleyquintero.vercel.app/)                                      |
+| Documentation  | [View Documentation](https://sellsmart-docs.vercel.app/)                                  |
+| Main Web App   | [View Main Web App](https://sellsmart-hub.vercel.app/)                                    |
+| DevFlowDB      | [View DevFlowDB](https://devflowdb.vercel.app/)                                           |
 
+## Dependencies
+
+For a detailed breakdown of project dependencies and their purposes, see [Package Documentation](docs/packages.md).

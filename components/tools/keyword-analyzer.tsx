@@ -227,8 +227,8 @@ export default function KeywordAnalyzer() {
                             product.competition === "High"
                               ? "destructive"
                               : product.competition === "Medium"
-                                ? "default"
-                                : "secondary"
+                              ? "default"
+                              : "secondary"
                           }
                         >
                           {product.competition}

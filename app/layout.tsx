@@ -1,9 +1,12 @@
 import { ThemeProviderWrapper } from "@/app/ThemeProviderWrapper";
+import { LoadingScreen } from "@/components/loading-screen";
 import { AccessibleHeader } from "@/components/ui/accessible-header";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Inter as interFont } from "next/font/google";
-import { type ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import "./globals.css";
 
 const inter = interFont({
@@ -83,6 +86,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <meta name="theme-color" content="#ffffff" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -93,7 +105,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="relative flex min-h-screen flex-col">
             <AccessibleHeader />
             <main id="main-content" className="flex-1">
-              {children}
+              <Suspense fallback={<LoadingScreen />}>
+                {children}
+                <Analytics />
+                <SpeedInsights />
+              </Suspense>
             </main>
           </div>
         </ThemeProviderWrapper>

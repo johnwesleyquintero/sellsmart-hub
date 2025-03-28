@@ -2,33 +2,39 @@
   "posts": [
     {
       "id": "getting-started-with-amazon-fba",
-      "title": "Getting Started with Amazon FBA: A Comprehensive Guide",
-      "description": "Learn everything you need to know about starting your Amazon FBA business, from product research to your first sale.",
+      "title": "Getting Started with Amazon FBA",
+      "description": "A comprehensive guide for beginners starting their Amazon FBA journey",
       "date": "2024-01-15",
       "author": "Wesley Quintero",
-      "tags": ["amazon-fba", "e-commerce", "business"],
-      "image": "/images/blog/getting-started-fba.svg",
-      "readingTime": "8 min read"
+      "tags": ["amazon fba", "ecommerce", "beginners"],
+      "image": "/blog/getting-started-fba.jpg",
+      "readingTime": "8 min",
+      "category": "Amazon FBA",
+      "content": "# Getting Started with Amazon FBA\n\nYour MDX content here..."
     },
     {
       "id": "mastering-amazon-ppc",
-      "title": "Mastering Amazon PPC: Advanced Campaign Structures for 2025",
-      "description": "Explore cutting-edge PPC campaign structures that maximize ROAS and minimize ACoS. Includes real case studies with before/after results.",
-      "date": "2024-12-12",
+      "title": "Mastering Amazon PPC",
+      "description": "Advanced strategies for Amazon PPC campaigns",
+      "date": "2024-01-20",
       "author": "Wesley Quintero",
-      "tags": ["amazon-ppc", "advertising", "roas-optimization"],
-      "image": "/images/blog/Mastering Amazon PPC.svg",
-      "readingTime": "15 min read"
+      "tags": ["amazon ppc", "advertising", "marketing"],
+      "image": "/blog/amazon-ppc.jpg",
+      "readingTime": "10 min",
+      "category": "PPC Strategy",
+      "content": "Your MDX content here..."
     },
     {
       "id": "data-visualization-for-amazon-sellers",
-      "title": "Data Visualization for Amazon Sellers: Turning Numbers into Actionable Insights",
-      "description": "Learn how to create powerful dashboards that transform your Amazon seller data into clear, actionable insights. Includes step-by-step tutorials and tool recommendations.",
-      "date": "2025-01-20",
+      "title": "Data Visualization for Amazon Sellers",
+      "description": "Learn how to create powerful dashboards for Amazon data",
+      "date": "2024-01-25",
       "author": "Wesley Quintero",
       "tags": ["data-visualization", "analytics", "dashboard-design"],
-      "image": "/images/blog/Data Visualization for Amazon Sellers.svg",
-      "readingTime": "12 min read"
+      "image": "/images/blog/data-visualization.svg",
+      "readingTime": "12 min",
+      "category": "Analytics",
+      "content": "# Data Visualization for Amazon Sellers\n\nYour MDX content here..."
     },
     {
       "id": "10-advanced-amazon-seo-techniques",
@@ -39,6 +45,17 @@
       "tags": ["amazon-seo", "a9-algorithm", "keyword-optimization"],
       "image": "/images/blog/10 Advanced Amazon SEO Techniques That Actually Work in 2025.svg",
       "readingTime": "10 min read"
+    },
+    {
+      "id": "amazon-ppc-optimization",
+      "title": "Amazon PPC Campaign Optimization Guide",
+      "description": "Learn how to optimize your Amazon PPC campaigns for better ROAS",
+      "category": "PPC Strategy",
+      "date": "2024-03-15",
+      "readingTime": "8 min read",
+      "image": "/blog/ppc-optimization.jpg",
+      "tags": ["PPC", "Amazon Ads", "Optimization"],
+      "tools": ["ppc-campaign-auditor", "acos-calculator"]
     }
   ]
 }

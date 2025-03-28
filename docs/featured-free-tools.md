@@ -3,6 +3,7 @@
 ![Project Badge](https://img.shields.io/badge/Status-Active-success) ![Version](https://img.shields.io/badge/Version-1.0-blue)
 
 ## 📚 Table of Contents
+
 - [Introduction](#-introduction)
 - [Tool Features](#-tool-features)
   - [FBA Calculator](#-fba-calculator)
@@ -25,28 +26,30 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 <details>
 <summary>📦 Component Features Overview</summary>
 
-| Tool | Status | Version |
-|------|--------|----------|
-| FBA Calculator | ✅ Active | 1.0.0 |
-| Keyword Analyzer | ✅ Active | 1.1.0 |
-| Listing Quality Checker | 🚧 Beta | 0.9.0 |
-| PPC Campaign Auditor | ✅ Active | 1.2.0 |
-| Description Editor | ✅ Active | 1.0.1 |
-| Keyword Deduplicator | ✅ Active | 1.0.0 |
-| ACoS Calculator | ✅ Active | 1.0.0 |
-| Sales Estimator | 🚧 Beta | 0.8.0 |
+| Tool                    | Status    | Version |
+| ----------------------- | --------- | ------- |
+| FBA Calculator          | ✅ Active | 1.0.0   |
+| Keyword Analyzer        | ✅ Active | 1.1.0   |
+| Listing Quality Checker | 🚧 Beta   | 0.9.0   |
+| PPC Campaign Auditor    | ✅ Active | 1.2.0   |
+| Description Editor      | ✅ Active | 1.0.1   |
+| Keyword Deduplicator    | ✅ Active | 1.0.0   |
+| ACoS Calculator         | ✅ Active | 1.0.0   |
+| Sales Estimator         | 🚧 Beta   | 0.8.0   |
 
 </details>
 
 ## 🔧 Tool Features
 
 ### 1. FBA Calculator
+
 **Status**: ✅ Active  
 **Version**: 1.0.0
 
 🔍 **Description**: Calculates profitability for FBA products with real-time ROI analysis.
 
 **Features**:
+
 - CSV upload for bulk product analysis
 - Real-time profit and ROI calculations
 - Interactive data visualization
@@ -54,23 +57,26 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 - Detailed fee breakdown
 
 **Implementation Highlights**:
+
 ```tsx
 // Implements CSV parsing with Papa Parse
 // Features error handling and data validation
 // Uses shadcn/ui components for modern UI
-import { useState } from "react"
-import { calculateProfit, type ProductData } from "@/lib/fba-calculator-utils"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { useState } from "react";
+import { calculateProfit, type ProductData } from "@/lib/fba-calculator-utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 ```
 
 ### 2. Keyword Analyzer
+
 **Status**: ✅ Active  
 **Version**: 1.1.0
 
 🔍 **Description**: Advanced keyword research and optimization tool.
 
 **Features**:
+
 - Bulk keyword analysis via CSV
 - Search volume metrics
 - Competition analysis
@@ -78,12 +84,14 @@ import { Card } from "@/components/ui/card"
 - Export functionality
 
 ### 3. Listing Quality Checker
+
 **Status**: 🚧 Beta  
 **Version**: 0.9.0
 
 🔍 **Description**: Comprehensive listing analysis and optimization tool.
 
 **Features**:
+
 - Title optimization
 - Description analysis
 - Bullet point validation
@@ -91,12 +99,14 @@ import { Card } from "@/components/ui/card"
 - SEO recommendations
 
 ### 4. PPC Campaign Auditor
+
 **Status**: ✅ Active  
 **Version**: 1.2.0
 
 🔍 **Description**: PPC campaign performance analysis and optimization.
 
 **Features**:
+
 - Campaign performance metrics
 - Bid optimization suggestions
 - Keyword performance analysis
@@ -104,12 +114,14 @@ import { Card } from "@/components/ui/card"
 - Trend visualization
 
 ### 5. Description Editor
+
 **Status**: ✅ Active  
 **Version**: 1.0.1
 
 🔍 **Description**: Rich text editor for Amazon product descriptions.
 
 **Features**:
+
 - HTML formatting support
 - Keyword integration
 - Character counter
@@ -117,36 +129,42 @@ import { Card } from "@/components/ui/card"
 - Preview mode
 
 ### 6. Keyword Deduplicator
+
 **Status**: ✅ Active  
 **Version**: 1.0.0
 
 🔍 **Description**: Identifies and removes duplicate keywords.
 
 **Features**:
+
 - Bulk keyword processing
 - Smart duplicate detection
 - Alternative suggestions
 - Export cleaned lists
 
 ### 7. ACoS Calculator
+
 **Status**: ✅ Active  
 **Version**: 1.0.0
 
 🔍 **Description**: Advertising Cost of Sales analysis tool.
 
 **Features**:
+
 - Campaign cost tracking
 - Revenue analysis
 - Performance metrics
 - Trend visualization
 
 ### 8. Sales Estimator
+
 **Status**: 🚧 Beta  
 **Version**: 0.8.0
 
 🔍 **Description**: Sales volume and revenue estimation tool.
 
 **Features**:
+
 - Category-based analysis
 - Competition assessment
 - Revenue projections
@@ -165,6 +183,7 @@ import { Card } from "@/components/ui/card"
 - **Charts**: Recharts
 
 All components follow modern React patterns and best practices:
+
 - Strong TypeScript typing
 - Error boundary implementation
 - Accessibility compliance
@@ -179,11 +198,13 @@ All components follow modern React patterns and best practices:
 <summary>📋 Quick Start Guide</summary>
 
 1. **CSV Format Requirements**:
+
    - Headers must match expected fields
    - Data types must be consistent
    - UTF-8 encoding required
 
 2. **Common Operations**:
+
    - Upload CSV files
    - View analysis results
    - Export processed data

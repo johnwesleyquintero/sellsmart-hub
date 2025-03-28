@@ -1,0 +1,15 @@
+{
+  "studies": [
+    {
+      "id": "beauty-brand-optimization",
+      "title": "Beauty Brand PPC Optimization",
+      "summary": "Reduced ACoS by 40% while increasing sales",
+      "results": {
+        "acos_reduction": 40,
+        "sales_increase": 65,
+        "roi": 350
+      },
+      "tools_used": ["ppc-campaign-auditor", "keyword-analyzer"]
+    }
+  ]
+}
