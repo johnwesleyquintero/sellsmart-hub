@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <!-- Background with professional gradient -->
+    <defs>
+        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1E3A8A" />
+            <stop offset="100%" stop-color="#075985" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+            <feOffset dx="0" dy="4" result="offsetblur" />
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.4" />
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <style type="text/css">
+            <![CDATA[
+                .title { font-family: 'Montserrat', Arial, sans-serif; font-weight: 800; }
+                .subtitle { font-family: 'Montserrat', Arial, sans-serif; font-weight: 500; }
+                .step-title { font-family: 'Montserrat', Arial, sans-serif; font-weight: 600; }
+                .step-item { font-family: 'Open Sans', Arial, sans-serif; font-weight: 400; }
+            ]]>
+        </style>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1200" height="630" fill="url(#bg-gradient)" />
+
+    <!-- Decorative elements -->
+    <circle cx="200" cy="150" r="100" fill="#ffffff" fill-opacity="0.1" />
+    <circle cx="1000" cy="500" r="150" fill="#ffffff" fill-opacity="0.1" />
+    <rect x="1100" y="100" width="80" height="80" rx="10" fill="#ffffff" fill-opacity="0.1" />
+
+    <!-- B2B Strategies Box -->
+    <g transform="translate(150, 250)" filter="url(#shadow)">
+        <rect x="0" y="0" width="350" height="250" fill="#ffffff" rx="15" />
+        <rect x="10" y="10" width="330" height="230" fill="#F8FAFC" rx="10" />
+        
+        <!-- B2B strategies header -->
+        <text x="175" y="40" class="step-title" font-size="20" text-anchor="middle" fill="#1E293B">
+            Key B2B Strategies
+        </text>
+        
+        <!-- Strategies with icons -->
+        <g transform="translate(40, 70)">
+            <g>
+                <circle cx="15" cy="15" r="8" fill="#3B82F6" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Supplier Negotiation</text>
+            </g>
+            <g transform="translate(0, 35)">
+                <circle cx="15" cy="15" r="8" fill="#10B981" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Volume Discounts</text>
+            </g>
+            <g transform="translate(0, 70)">
+                <circle cx="15" cy="15" r="8" fill="#F59E0B" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Exclusive Deals</text>
+            </g>
+            <g transform="translate(0, 105)">
+                <circle cx="15" cy="15" r="8" fill="#EC4899" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Brand Partnerships</text>
+            </g>
+            <g transform="translate(0, 140)">
+                <circle cx="15" cy="15" r="8" fill="#8B5CF6" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Long-term Contracts</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- Title -->
+    <text x="600" y="180" class="title" font-size="52" text-anchor="middle" fill="white" filter="url(#shadow)">
+        B2B Strategies for Amazon Sellers
+    </text>
+
+    <!-- Subtitle -->
+    <text x="600" y="240" class="subtitle" font-size="32" text-anchor="middle" fill="white" opacity="0.9">
+        Building Profitable Wholesale Relationships
+    </text>
+
+    <!-- Tagline -->
+    <text x="600" y="290" class="subtitle" font-size="24" text-anchor="middle" fill="white" opacity="0.85">
+        A comprehensive guide to establishing and nurturing B2B relationships
+    </text>
+
+    <!-- Author info -->
+    <g transform="translate(600, 580)" text-anchor="middle">
+        <text font-family="'Open Sans', Arial, sans-serif" font-size="20" fill="white" opacity="0.9">
+            By <tspan font-weight="600">Wesley Quintero</tspan> • March 15, 2025
+        </text>
+    </g>
+
+    <!-- Amazon Professional logo -->
+    <g transform="translate(1000, 100)" filter="url(#shadow)">
+        <rect x="0" y="0" width="180" height="50" fill="#00A8E1" rx="5" />
+        <text x="90" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="bold" 
+              text-anchor="middle" fill="white">Amazon B2B</text>
+    </g>
+</svg>

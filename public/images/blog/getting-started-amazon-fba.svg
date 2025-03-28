@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <!-- Background with Amazon-inspired gradient -->
+    <defs>
+        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF9900" />
+            <stop offset="100%" stop-color="#146EB4" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+            <feOffset dx="0" dy="4" result="offsetblur" />
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.4" />
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <style type="text/css">
+            <![CDATA[
+                .title { font-family: 'Montserrat', Arial, sans-serif; font-weight: 800; }
+                .subtitle { font-family: 'Montserrat', Arial, sans-serif; font-weight: 500; }
+                .step-title { font-family: 'Montserrat', Arial, sans-serif; font-weight: 600; }
+                .step-item { font-family: 'Open Sans', Arial, sans-serif; font-weight: 400; }
+            ]]>
+        </style>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1200" height="630" fill="url(#bg-gradient)" />
+
+    <!-- Decorative elements -->
+    <circle cx="200" cy="150" r="100" fill="#ffffff" fill-opacity="0.1" />
+    <circle cx="1000" cy="500" r="150" fill="#ffffff" fill-opacity="0.1" />
+
+    <!-- FBA Steps Box -->
+    <g transform="translate(150, 250)" filter="url(#shadow)">
+        <rect x="0" y="0" width="350" height="250" fill="#ffffff" rx="15" />
+        <rect x="10" y="10" width="330" height="230" fill="#F8FAFC" rx="10" />
+        
+        <!-- Steps header -->
+        <text x="175" y="40" class="step-title" font-size="20" text-anchor="middle" fill="#1E293B">
+            FBA Beginner Steps
+        </text>
+        
+        <!-- Steps with icons -->
+        <g transform="translate(40, 70)">
+            <g>
+                <circle cx="15" cy="15" r="8" fill="#FF9900" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Account Setup</text>
+            </g>
+            <g transform="translate(0, 35)">
+                <circle cx="15" cy="15" r="8" fill="#146EB4" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Product Research</text>
+            </g>
+            <g transform="translate(0, 70)">
+                <circle cx="15" cy="15" r="8" fill="#FF9900" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Supplier Sourcing</text>
+            </g>
+            <g transform="translate(0, 105)">
+                <circle cx="15" cy="15" r="8" fill="#146EB4" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Listing Optimization</text>
+            </g>
+            <g transform="translate(0, 140)">
+                <circle cx="15" cy="15" r="8" fill="#FF9900" />
+                <text x="35" y="20" class="step-item" font-size="16" fill="#334155">Launch Strategy</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- Title -->
+    <text x="600" y="180" class="title" font-size="52" text-anchor="middle" fill="white" filter="url(#shadow)">
+        Getting Started with Amazon FBA
+    </text>
+
+    <!-- Subtitle -->
+    <text x="600" y="240" class="subtitle" font-size="32" text-anchor="middle" fill="white" opacity="0.9">
+        A Comprehensive Guide for Beginners
+    </text>
+
+    <!-- Tagline -->
+    <text x="600" y="290" class="subtitle" font-size="24" text-anchor="middle" fill="white" opacity="0.85">
+        Everything you need to know to start your Amazon FBA journey
+    </text>
+
+    <!-- Author info -->
+    <g transform="translate(600, 580)" text-anchor="middle">
+        <text font-family="'Open Sans', Arial, sans-serif" font-size="20" fill="white" opacity="0.9">
+            By <tspan font-weight="600">Wesley Quintero</tspan> • March 15, 2025
+        </text>
+    </g>
+
+    <!-- Amazon FBA logo -->
+    <g transform="translate(1000, 100)" filter="url(#shadow)">
+        <rect x="0" y="0" width="150" height="50" fill="#FF9900" rx="5" />
+        <text x="75" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="bold" 
+              text-anchor="middle" fill="white">Amazon FBA</text>
+    </g>
+</svg>
