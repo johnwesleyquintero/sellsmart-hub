@@ -1,20 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+const { rmSync } = require('fs');
+const { join } = require('path');
 
-const dirsToClean = ['.next', 'out', 'node_modules'];
+const dirs = ['.next', 'out', 'node_modules'];
+const root = process.cwd();
 
-function cleanDir(dir) {
+for (const dir of dirs) {
   try {
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true, force: true });
-      console.log(`✓ Cleaned ${dir}`);
-    }
+    rmSync(join(root, dir), { recursive: true, force: true });
+    console.log(`Cleaned ${dir}`);
   } catch (err) {
-    console.warn(`⚠ Warning: Could not clean ${dir}:`, err.message);
+    if (err.code !== 'ENOENT') {
+      console.warn(`Warning: Could not clean ${dir}:`, err.message);
+    }
   }
 }
-
-dirsToClean.forEach(dir => {
-  const fullPath = path.join(process.cwd(), dir);
-  cleanDir(fullPath);
-});

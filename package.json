@@ -2,10 +2,10 @@
   "name": "developer-portfolio",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@8.x",
+  "packageManager": "pnpm@8.15.9",
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": "8.15.1"
+    "node": "^18.17.0",
+    "pnpm": "^8.15.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -14,16 +14,15 @@
     "lint": "next lint --fix",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "clean:next": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
-    "clean:out": "node -e \"require('fs').rmSync('out', { recursive: true, force: true })\"",
-    "clean:modules": "node -e \"require('fs').rmSync('node_modules', { recursive: true, force: true })\"",
-    "clean": "run-s clean:next clean:out",
-    "clean:all": "node scripts/cleanup.js",
-    "verify": "run-s _clean _install format type-check lint",
-    "_clean": "node scripts/cleanup.js",
+    "clean:next": "rimraf .next",
+    "clean:out": "rimraf out",
+    "clean:modules": "rimraf node_modules",
+    "clean": "rimraf \".next\" \"out\"",
+    "clean:all": "rimraf \".next\" \"out\" \"node_modules\"",
+    "verify": "run-s clean:all \"_install\" format type-check lint",
     "_install": "cross-env SKIP_POSTINSTALL=1 pnpm install",
     "prepare": "husky install",
-    "postinstall": "node scripts/post-install.js"
+    "postinstall": "node scripts\\post-install.js"
   },
   "dependencies": {
     "@hookform/resolvers": "3.3.4",
