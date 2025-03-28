@@ -6,7 +6,7 @@ const rateLimit = new Map();
 const RATE_LIMIT = 100;
 const WINDOW_MS = 60 * 1000; // 1 minute
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Apply security headers
