@@ -270,8 +270,8 @@ export default function FbaCalculator() {
                             item.margin && item.margin < 15
                               ? "bg-red-200"
                               : item.margin && item.margin < 30
-                              ? "bg-yellow-200"
-                              : "bg-green-200"
+                                ? "bg-yellow-200"
+                                : "bg-green-200"
                           }`}
                         />
                       </div>

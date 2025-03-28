@@ -11,7 +11,9 @@ const ContentSecurityPolicy = `
   img-src 'self' blob: data: *.githubusercontent.com;
   frame-src 'none';
   connect-src 'self' https://api.github.com vitals.vercel-insights.com;
-`.replace(/\s{2,}/g, ' ').trim();
+`
+  .replace(/\s{2,}/g, " ")
+  .trim();
 
 const withMDX = createMDX({
   extension: /\.mdx?$/,
@@ -29,6 +31,25 @@ const nextConfig = {
     // parallelServerBuildTraces: true, // Disabled for debugging font error
     // parallelServerCompiles: true, // Disabled for debugging font error
     // optimizePackageImports: ['lucide-react', '@shadcn/ui'] // Disabled for debugging font error
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+    serverComponents: true,
+    // Enable strict mode for server/client boundary
+    serverComponentsExternalPackages: ["@sentry/node"],
+    // Enable proper module resolution
+    esmExternals: true,
+    // Improve module loading
+    modularizeImports: {
+      "lucide-react": {
+        transform: "lucide-react/dist/esm/icons/{{member}}",
+      },
+    },
+    // Enable better error handling
+    serverActions: {
+      bodySizeLimit: "2mb",
+      allowedOrigins: ["localhost:3000"],
+    },
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -39,15 +60,15 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'wesleyquintero.vercel.app',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "wesleyquintero.vercel.app",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        pathname: '/**',
-      }
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "/**",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,
@@ -104,11 +125,35 @@ const nextConfig = {
     NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
+  webpack: (config, { dev, isServer }) => {
+    // Fix module resolution issues
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      module: false,
+      path: false,
+    };
+
+    // Improve module loading
+    config.module.rules.push({
+      test: /\.tsx?$/,
+      exclude: /node_modules/,
+      use: [
+        {
+          loader: "babel-loader",
+          options: {
+            presets: ["next/babel"],
+          },
+        },
+      ],
+    });
+
+    return config;
+  },
 };
 
 // Only use Sentry in production
-const config = process.env.NODE_ENV === 'production' 
-  ? withMDX(nextConfig)
-  : nextConfig;
+const config =
+  process.env.NODE_ENV === "production" ? withMDX(nextConfig) : nextConfig;
 
 export default config;

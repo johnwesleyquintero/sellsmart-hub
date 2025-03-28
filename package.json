@@ -4,19 +4,25 @@
   "private": true,
   "packageManager": "pnpm@8.x",
   "engines": {
-    "node": ">=18.17.0",
-    "pnpm": ">=8.0.0"
+    "node": "18.x",
+    "pnpm": ">=8.15.0"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint --fix",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "clean": "rimraf .next out",
-    "clean:all": "rimraf .next out node_modules",
-    "check:all": "pnpm format && pnpm type-check && pnpm lint --max-warnings=0"
+    "clean:next": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
+    "clean:out": "node -e \"require('fs').rmSync('out', { recursive: true, force: true })\"",
+    "clean:modules": "node -e \"require('fs').rmSync('node_modules', { recursive: true, force: true })\"",
+    "clean": "run-s clean:next clean:out",
+    "clean:all": "node scripts/cleanup.js",
+    "verify": "run-s _clean _install format type-check lint",
+    "_clean": "node scripts/cleanup.js",
+    "_install": "pnpm install --frozen-lockfile",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@hookform/resolvers": "3.3.4",

@@ -1,10 +1,11 @@
 {
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "PNPM_VERSION": "8.15.1"
   },
-  "buildCommand": "pnpm run build",
+  "buildCommand": "export PNPM_HOME=\"$HOME/.local/share/pnpm\" && export PATH=\"$PNPM_HOME:$PATH\" && pnpm run build",
   "devCommand": "pnpm run dev",
-  "installCommand": "npm i -g pnpm@8.15.1 && pnpm install",
+  "installCommand": "curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@8.15.1 && pnpm install",
   "framework": "nextjs",
   "regions": ["sfo1"],
   "headers": [

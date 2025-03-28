@@ -9,7 +9,10 @@ export function AuthorBio({ author, className }: AuthorBioProps) {
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       <Avatar>
-        <AvatarImage src={`/images/authors/${author.toLowerCase()}.jpg`} alt={author} />
+        <AvatarImage
+          src={`/images/authors/${author.toLowerCase()}.jpg`}
+          alt={author}
+        />
         <AvatarFallback>{author[0]}</AvatarFallback>
       </Avatar>
       <div>

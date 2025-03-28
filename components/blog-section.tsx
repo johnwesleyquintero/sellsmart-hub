@@ -60,9 +60,12 @@ export default function BlogSection() {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (Array.isArray(post.tags) && post.tags.some((tag) =>
-        typeof tag === 'string' && tag.toLowerCase().includes(searchTerm.toLowerCase()),
-      ));
+      (Array.isArray(post.tags) &&
+        post.tags.some(
+          (tag) =>
+            typeof tag === "string" &&
+            tag.toLowerCase().includes(searchTerm.toLowerCase()),
+        ));
 
     const matchesCategory =
       selectedCategory === "All" || post.category === selectedCategory;

@@ -1,81 +1,96 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ErrorWithContext } from "@/lib/error-reporting/types";
 import { captureException } from "@sentry/nextjs";
 import { AlertTriangle } from "lucide-react";
+import dynamic from "next/dynamic";
 import type React from "react";
-import { Component, ErrorInfo } from "react";
+import { Component, ErrorInfo, Suspense } from "react";
+
+// Dynamically import ClientOnly with no SSR
+const ClientOnly = dynamic(
+  () => import("./client-only").then((mod) => mod.ClientOnly),
+  {
+    ssr: false,
+  },
+);
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  fallback?: React.ReactNode;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
-}
-
-interface CSVParseError extends Error {
-  type: "csv_parse_error";
-  details?: string;
-}
-
-interface CSVParseErrorEvent extends CustomEvent<CSVParseError> {
-  type: "csvparsingerror";
-}
-
-interface ExtendedError extends Error {
-  type?: string;
-  details?: string;
-}
-
-declare global {
-  interface WindowEventMap {
-    csvparsingerror: CSVParseErrorEvent;
-  }
+  isHydrationError: boolean;
 }
 
 export default class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
+  private hydrationComplete: boolean = false;
+  private hasSetHydrationError: boolean = false;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      isHydrationError: false,
+    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    const isHydrationError =
+      typeof window !== "undefined" &&
+      !window.__NEXT_DATA__?.props &&
+      (error.message.includes("hydrat") ||
+        error.message.includes("content does not match") ||
+        error.message.includes("Text content does not match") ||
+        error.message.includes("Minified React error #418") ||
+        error.message.includes("Minified React error #419"));
+
+    return {
+      hasError: true,
+      error,
+      isHydrationError,
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    const errorWithContext: ErrorWithContext = Object.assign(error, {
-      context: {
-        toolName: "KeywordDeduplicator",
-        operation: "Processing",
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString(),
+    // Handle hydration errors differently
+    if (this.state.isHydrationError && !this.hasSetHydrationError) {
+      this.hasSetHydrationError = true;
+      // Force client-side render without reload
+      this.setState({ hasError: false, error: null });
+      return;
+    }
+
+    captureException(error, {
+      extra: {
+        ...errorInfo,
+        isHydrationError: this.state.isHydrationError,
+        hydrationComplete: this.hydrationComplete,
       },
     });
 
-    // Log to error tracking service
-    captureException(errorWithContext);
-
-    // Notify parent
-    this.props.onError?.(errorWithContext, errorInfo);
-
-    // Log locally
-    console.error("Error caught by boundary:", {
-      error: errorWithContext,
-      info: errorInfo,
-      state: this.state,
-    });
+    if (this.state.isHydrationError && !this.hydrationComplete) {
+      // Prevent infinite reload loops
+      if (!sessionStorage.getItem("hydrationRetry")) {
+        sessionStorage.setItem("hydrationRetry", "1");
+        window.location.reload();
+      }
+    }
   }
 
   componentDidMount(): void {
+    this.hydrationComplete = true;
     window.addEventListener("csvparsingerror", this.handleCSVError);
+
+    // Clear hydration retry flag
+    sessionStorage.removeItem("hydrationRetry");
   }
 
   componentWillUnmount(): void {
@@ -90,28 +105,49 @@ export default class ErrorBoundary extends Component<
 
   private handleReset = async (): Promise<void> => {
     try {
-      // Attempt to save current state
-      await this.saveCurrentState();
+      this.setState({
+        hasError: false,
+        error: null,
+        isHydrationError: false,
+      });
 
-      // Clear error state
-      this.setState({ hasError: false, error: null });
-
-      // Reload only if necessary
-      if (this.shouldReload()) {
+      // Only reload for non-hydration errors
+      if (!this.state.isHydrationError && this.shouldReload()) {
         window.location.reload();
       }
     } catch (error) {
       console.error("Reset failed:", error);
-      // Fallback to full reload
       window.location.reload();
     }
   };
 
   render(): React.ReactNode {
-    const { hasError, error } = this.state;
-    const { children } = this.props;
+    const { hasError, error, isHydrationError } = this.state;
+    const { children, fallback } = this.props;
+
+    if (isHydrationError && !this.hydrationComplete) {
+      return (
+        <Suspense fallback={null}>
+          <ClientOnly>{children}</ClientOnly>
+        </Suspense>
+      );
+    }
 
     if (hasError && error) {
+      if (isHydrationError) {
+        return (
+          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-yellow-200 bg-yellow-50 p-8 text-center">
+            <AlertTriangle className="mb-4 h-12 w-12 text-yellow-500" />
+            <h2 className="mb-2 text-xl font-bold text-yellow-800">
+              Loading Error
+            </h2>
+            <p className="mb-6 max-w-md text-yellow-700">
+              There was an error loading this content. Retrying...
+            </p>
+          </div>
+        );
+      }
+
       const extendedError = error as ExtendedError;
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center">

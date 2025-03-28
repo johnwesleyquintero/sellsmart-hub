@@ -65,4 +65,3 @@ const components = {
 };
 
 export { components };
-

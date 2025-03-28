@@ -33,27 +33,27 @@ interface Props {
 
 async function getBlogPost(slug: string): Promise<Post | null> {
   try {
-    const { posts } = await import("@/data/blog.json").then(m => m.default);
+    const { posts } = await import("@/data/blog.json").then((m) => m.default);
     if (!Array.isArray(posts)) {
       console.error("Posts data is not an array");
       return null;
     }
     const post = posts.find((post: Post) => post.id === slug);
     if (!post) return null;
-    
+
     // Ensure all required fields exist
     return {
-      id: post.id || '',
-      title: post.title || '',
-      description: post.description || '',
-      date: post.date || '',
-      author: post.author || '',
+      id: post.id || "",
+      title: post.title || "",
+      description: post.description || "",
+      date: post.date || "",
+      author: post.author || "",
       tags: Array.isArray(post.tags) ? post.tags : [],
-      image: post.image || '',
-      readingTime: post.readingTime || '',
-      category: post.category || '',
-      content: post.content || '',
-      tools: post.tools || []
+      image: post.image || "",
+      readingTime: post.readingTime || "",
+      category: post.category || "",
+      content: post.content || "",
+      tools: post.tools || [],
     };
   } catch (error) {
     console.error(`Error loading blog post ${slug}:`, error);
@@ -86,9 +86,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export async function generateStaticParams() {
   try {
-    const { posts } = await import("@/data/blog.json").then(m => m.default);
+    const { posts } = await import("@/data/blog.json").then((m) => m.default);
     if (!Array.isArray(posts)) return [];
-    return posts.filter(post => post?.id).map(post => ({ slug: post.id }));
+    return posts.filter((post) => post?.id).map((post) => ({ slug: post.id }));
   } catch (error) {
     console.error("Error generating static params:", error);
     return [];
@@ -130,10 +130,7 @@ export default async function BlogPost({
         <aside className="space-y-8">
           <div className="flex items-center gap-4">
             <BookmarkButton postId={post.id} />
-            <ShareButton 
-              title={post.title}
-              description={post.description}
-            />
+            <ShareButton title={post.title} description={post.description} />
           </div>
 
           <TableOfContents />

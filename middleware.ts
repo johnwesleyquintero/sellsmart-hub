@@ -14,15 +14,24 @@ export async function middleware(request: NextRequest) {
 
   // Apply security headers
   Object.entries(securityHeaders).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      response.headers.set(key.replace(/([A-Z])/g, '-$1').toLowerCase(), value);
+    if (typeof value === "string") {
+      response.headers.set(key.replace(/([A-Z])/g, "-$1").toLowerCase(), value);
     }
   });
 
   // Apply CORS headers
-  response.headers.set('Access-Control-Allow-Origin', 'https://wesleyquintero.vercel.app');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set(
+    "Access-Control-Allow-Origin",
+    "https://wesleyquintero.vercel.app",
+  );
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS",
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization",
+  );
 
   // Rate limiting for API routes
   if (request.nextUrl.pathname.startsWith("/api/")) {

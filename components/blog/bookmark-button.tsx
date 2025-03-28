@@ -18,7 +18,7 @@ export function BookmarkButton({ postId }: BookmarkButtonProps) {
     if (isBookmarked) {
       localStorage.setItem(
         "bookmarks",
-        JSON.stringify(bookmarks.filter((id: string) => id !== postId))
+        JSON.stringify(bookmarks.filter((id: string) => id !== postId)),
       );
     } else {
       localStorage.setItem("bookmarks", JSON.stringify([...bookmarks, postId]));

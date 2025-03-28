@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 
 export const initSentry = () => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     Sentry.init({
       dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
       tracesSampleRate: 1.0,
@@ -12,10 +12,13 @@ export const initSentry = () => {
   }
 };
 
-export const captureException = (error: Error, context?: Record<string, any>) => {
-  if (process.env.NODE_ENV === 'production') {
+export const captureException = (
+  error: Error,
+  context?: Record<string, any>,
+) => {
+  if (process.env.NODE_ENV === "production") {
     Sentry.captureException(error, { extra: context });
   } else {
-    console.error('Development Error:', error, context);
+    console.error("Development Error:", error, context);
   }
 };

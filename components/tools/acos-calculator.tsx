@@ -413,8 +413,8 @@ export default function AcosCalculator() {
                             campaign.acos < 25
                               ? "default"
                               : campaign.acos < 35
-                              ? "secondary"
-                              : "destructive"
+                                ? "secondary"
+                                : "destructive"
                           }
                         >
                           {getAcosRating(campaign.acos)}
