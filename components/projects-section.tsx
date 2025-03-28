@@ -36,7 +36,7 @@ const projects = [
     title: "Inventory Management",
     description:
       "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
-    image: "/images/projects/InventoryManagementSystem.svg",
+    image: "/images/projects/InventoryManagementSystem.png",
     tags: ["Inventory", "Process Optimization", "SOP"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
     githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
@@ -46,7 +46,7 @@ const projects = [
     id: 4,
     title: "FBA Department Operations",
     description: "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
-    image: "/images/projects/FBADepartmentOperations.svg",
+    image: "/images/projects/FBADepartmentOperations.png",
     tags: ["Training", "Workflow", "Documentation"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
     githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
@@ -68,7 +68,7 @@ const projects = [
     title: "Wholesale Buyer's Guide",
     description:
       "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
-    image: "/images/projects/WholesaleBuyer'sGuide.svg",
+    image: "/images/projects/WholesaleBuyer.png",
     tags: ["Client Engagement", "Best Practices", "Documentation"],
     liveUrl: "https://sellsmart-docs.vercel.app/",
     githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
