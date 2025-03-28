@@ -6,14 +6,14 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Inter as interFont } from "next/font/google";
-import { type ReactNode, Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import "./globals.css";
 
 const inter = interFont({
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-  fallback: ["system-ui", "sans-serif"],
+    subsets: ["latin"],
+    display: "swap",
+    preload: true,
+    fallback: ["system-ui", "sans-serif"]
 });
 
 export const metadata: Metadata = {

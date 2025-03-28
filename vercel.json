@@ -1,13 +1,10 @@
 {
   "env": {
-    "NODE_ENV": "production",
-    "PNPM_VERSION": "8.15.9",
-    "SKIP_INSTALL_DEPS": "1",
-    "NODE_VERSION": "18.17.0"
+    "NODE_ENV": "production"
   },
-  "buildCommand": "pnpm run build",
-  "devCommand": "pnpm run dev",
-  "installCommand": "npm install -g pnpm@8.15.9 && SKIP_POSTINSTALL=1 pnpm install",
+  "buildCommand": "bun run build",
+  "devCommand": "bun run dev",
+  "installCommand": "bun install",
   "framework": "nextjs",
   "regions": ["sfo1"],
   "headers": [

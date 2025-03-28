@@ -8,10 +8,5 @@ export function trackToolUsage(toolId: string, action: string) {
     });
   }
 
-  // Track with Sentry
-  Sentry.addBreadcrumb({
-    category: "tool_usage",
-    message: `Tool ${toolId} - ${action}`,
-    level: "info",
-  });
+
 }

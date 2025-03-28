@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { captureException } from "@sentry/nextjs";
 import { AlertTriangle } from "lucide-react";
 import dynamic from "next/dynamic";
 import type React from "react";

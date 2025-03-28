@@ -231,14 +231,6 @@
 
 ### Recommended Setup
 
-1. Add Husky for pre-commit hooks:
-
-   ```bash
-   npm install husky --save-dev
-   npx husky install
-   npx husky add .husky/pre-commit "npm run lint && npm run type-check"
-   ```
-
 2. Enhanced Pre-commit Quality Checks:
    - Added comprehensive pre-commit hook running:
      - ESLint for code pattern validation

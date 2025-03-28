@@ -18,22 +18,18 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build project
-        run: pnpm build
+        run: bun run build
 
       - name: Install Lighthouse
         run: npm install -g lighthouse
 
       - name: Run Production Server
-        run: pnpm start &
+        run: bun run start &
         env:
           NODE_ENV: production
 

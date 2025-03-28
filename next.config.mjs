@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 // Define CSP
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-analytics.com *.vercel.app;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' 
   child-src 'none';
   style-src 'self' 'unsafe-inline';
   font-src 'self';
@@ -35,7 +35,7 @@ const nextConfig = {
       bodySizeLimit: "2mb"
     },
     serverComponents: true,
-    serverComponentsExternalPackages: ["@sentry/node"],
+    serverComponentsExternalPackages: [],
     esmExternals: true,
     modularizeImports: {
       "lucide-react": {
@@ -45,8 +45,6 @@ const nextConfig = {
         transform: "@radix-ui/react-{{member}}"
       }
     }
-      allowedOrigins: ["localhost:3000"],
-    },
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -120,7 +118,7 @@ const nextConfig = {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_VERCEL_URL: process.env.VERCEL_URL,
     NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    
   },
   webpack: (config, { dev, isServer }) => {
     // Fix module resolution issues
@@ -149,7 +147,7 @@ const nextConfig = {
   },
 };
 
-// Only use Sentry in production
+
 const config =
   process.env.NODE_ENV === "production" ? withMDX(nextConfig) : nextConfig;
 
