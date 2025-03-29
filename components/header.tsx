@@ -4,11 +4,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Menu, X, FileText } from "lucide-react"
+import { Moon, Sun, Menu, X, FileText, Loader2 } from "lucide-react"
 import jsPDF from 'jspdf';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -20,9 +21,26 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen)
   }
 
-  const handleExportClick = () => {
-  window.open('/profile/Profile.pdf', '_blank');
-};
+  const handleExportClick = async () => {
+    try {
+      setIsDownloading(true)
+      const response = await fetch('/api/download')
+      if (!response.ok) throw new Error('Download failed')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'Wesley_Quintero_Resume.pdf'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Failed to download resume:', error)
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   const navItems = [
     { name: "Home", href: "#hero" },
@@ -45,7 +63,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex md:gap-6 items-center"
+        <nav className="hidden md:flex md:gap-6 items-center">
           {navItems.map((item) => (
             item.external ? (
               <a key={item.name} href={item.href} className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full" target="_blank" rel="noopener noreferrer">
@@ -77,8 +95,13 @@ export default function Header() {
                 aria-label="Export as PDF"
                 className="mr-2"
                 onClick={handleExportClick}
+                disabled={isDownloading}
               >
-                <FileText className="h-5 w-5" />
+                {isDownloading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <FileText className="h-5 w-5" />
+                )}
               </Button>
             </>
           )}
