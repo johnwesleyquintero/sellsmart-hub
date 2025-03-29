@@ -15,7 +15,18 @@ import {
   Download,
   Search,
   Info,
+  BarChart2,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
 
@@ -193,7 +204,7 @@ export default function KeywordAnalyzer() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
@@ -321,8 +332,8 @@ export default function KeywordAnalyzer() {
             {products.map((product, index) => (
               <Card key={index}>
                 <CardContent className="p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h3 className="text-lg font-medium">{product.product}</h3>
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-xl font-semibold">{product.product}</h3>
                     {product.searchVolume && (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
@@ -353,13 +364,36 @@ export default function KeywordAnalyzer() {
                       <h4 className="mb-2 text-sm font-medium">
                         Current Keywords
                       </h4>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {product.keywords.map((keyword, i) => (
                           <Badge key={i} variant="outline">
                             {keyword}
                           </Badge>
                         ))}
                       </div>
+                      {product.searchVolume && (
+                        <div className="h-80 w-full">
+                          <h4 className="mb-2 text-sm font-medium">Keyword Performance</h4>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                              data={[
+                                {
+                                  name: 'Search Volume',
+                                  value: product.searchVolume,
+                                },
+                              ]}
+                              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" />
+                              <YAxis />
+                              <Tooltip />
+                              <Legend />
+                              <Bar dataKey="value" fill="#8884d8" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </div>
                     {product.suggestions && (
                       <div>
