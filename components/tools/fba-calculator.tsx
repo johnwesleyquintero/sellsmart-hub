@@ -44,7 +44,7 @@ export default function FbaCalculator() {
       return
     }
 
-    Papa.parse<any>(file, {
+    Papa.parse<FBAData>(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,
@@ -56,9 +56,9 @@ export default function FbaCalculator() {
         }
 
         try {
-          const validData = result.data.filter((item: any) => {
+          const validData = result.data.filter((item: FBAData) => {
             return item.product && !isNaN(Number(item.cost)) && !isNaN(Number(item.price)) && !isNaN(Number(item.fees))
-          }).map((item: any) => ({
+          }).map((item: FBAData) => ({
               product: String(item.product),
               cost: Number(item.cost),
               price: Number(item.price),

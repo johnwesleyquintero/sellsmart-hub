@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Upload, FileText, AlertCircle, CheckCircle, XCircle } from "lucide-react"
+import Papa from 'papaparse';
 
 type ListingData = {
   product: string
@@ -42,77 +43,48 @@ export default function ListingQualityChecker() {
         if (typeof content !== 'string') {
           throw new Error('Invalid file content');
         }
-        
-        const rows = content.split('\n').filter(row => row.trim());
-        if (rows.length < 2) {
-          throw new Error('CSV must contain at least one data row after headers');
-        }
-        
-        const headers = rows[0].split(',').map(h => h.trim());
-        const requiredHeaders = ['product', 'title', 'description', 'bulletPoints', 'images', 'keywords'];
-        const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-        
-        if (missingHeaders.length > 0) {
-          throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
-        }
-        
-        const parsedData = rows.slice(1).map(row => {
-          const values = row.split(',');
-          return {
-            product: values[headers.indexOf('product')] || '',
-            title: values[headers.indexOf('title')] || '',
-            description: values[headers.indexOf('description')] || '',
-            bulletPoints: values[headers.indexOf('bulletPoints')]?.split('|') || [],
-            images: parseInt(values[headers.indexOf('images')]) || 0,
-            keywords: values[headers.indexOf('keywords')]?.split('|') || []
-          };
+
+        Papa.parse(content, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            if (results.errors.length > 0) {
+              throw new Error(`CSV errors: ${results.errors.map(e => e.message).join(', ')}`);
+            }
+
+            const requiredColumns = ['product', 'title', 'description', 'bullet_points', 'images', 'keywords'];
+            const missingColumns = requiredColumns.filter(col => !results.meta.fields.includes(col));
+            if (missingColumns.length > 0) {
+              throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+            }
+
+            const processedData = results.data.map(row => ({
+              product: row.product,
+              title: row.title,
+              description: row.description,
+              bulletPoints: row.bullet_points?.split(';').filter(Boolean),
+              images: Number(row.images) || 0,
+              keywords: row.keywords?.split(',').map(k => k.trim()).filter(Boolean)
+            }));
+
+            setListings(processedData);
+            setError(null);
+            toast({
+              title: 'Success',
+              description: `${file.name} processed successfully`,
+              variant: 'default',
+            });
+          }
         });
-        
-        const analyzedData = parsedData.map((item) => {
-          // Analyze listing quality
-          const issues: string[] = []
-          const suggestions: string[] = []
-
-          if (!item.title) {
-            issues.push("Missing title")
-            suggestions.push("Add a descriptive title with main keywords")
-          } else if (item.title.length < 30) {
-            issues.push("Title too short")
-            suggestions.push("Expand title to 150-200 characters with relevant keywords")
-          }
-
-          if (!item.description || item.description.length < 100) {
-            issues.push("Description too short")
-            suggestions.push("Add a detailed description (1000+ characters)")
-          }
-
-          if (!item.bulletPoints || item.bulletPoints.length < 3) {
-            issues.push("Too few bullet points")
-            suggestions.push("Add 5-6 detailed bullet points highlighting benefits")
-          }
-
-          if (!item.images || item.images < 5) {
-            issues.push("Not enough images")
-            suggestions.push("Add at least 7 high-quality images from different angles")
-          }
-
-          if (!item.keywords || item.keywords.length < 3) {
-            issues.push("Not enough keywords")
-            suggestions.push("Add more relevant keywords to improve searchability")
-          }
-
-          // Calculate score based on issues
-          const score = Math.max(0, 100 - issues.length * 15)
-
-          return { ...item, issues, suggestions, score }
-        })
-
-        setListings(analyzedData)
-        setIsLoading(false)
-      } catch (err) {
-        setError(`Failed to parse CSV file: ${err.message}`)
-        setIsLoading(false)
+      } catch (error) {
+        setError(error.message);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
       }
+      setIsLoading(false);
     };
     reader.readAsText(file);
   }

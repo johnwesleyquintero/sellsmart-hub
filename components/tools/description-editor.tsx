@@ -39,41 +39,48 @@ export default function DescriptionEditor() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
-      try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData = [
-          {
-            product: "Wireless Earbuds",
-            asin: "B08N5KWB9H",
-            description:
-              "Experience crystal clear sound with our premium wireless earbuds. Featuring advanced noise cancellation technology, these earbuds deliver immersive audio quality for music, calls, and more. With a comfortable ergonomic design and long-lasting battery life, you can enjoy your favorite content all day long.",
-          },
-          {
-            product: "Phone Case",
-            asin: "B07XS3DMQC",
-            description:
-              "Protect your device with our durable phone case. Made from high-quality materials, this case offers superior protection against drops, scratches, and everyday wear and tear.",
-          },
-        ]
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          const requiredColumns = ['product', 'description'];
+          const missingColumns = requiredColumns.filter(col => !results.meta.fields.includes(col));
+          if (missingColumns.length > 0) {
+            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+          }
 
-        const processedData = sampleData.map((item) => ({
-          ...item,
-          characterCount: item.description.length,
-          keywordCount: countKeywords(item.description),
-          score: calculateScore(item.description),
-        }))
+          const processedData = results.data.map(row => ({
+            product: row.product,
+            asin: row.asin || '',
+            description: row.description,
+            characterCount: row.description?.length || 0,
+            keywordCount: (row.description?.match(/\b\w+\b/g) || []).length
+          }));
 
-        setProducts(processedData)
-        setActiveProduct(processedData[0])
-        setIsLoading(false)
-      } catch (err) {
-        setError("Failed to parse CSV file. Please check the format and try again.")
-        setIsLoading(false)
+          setProducts(processedData);
+          setError(null);
+          toast({
+            title: 'CSV Processed',
+            description: `Loaded ${processedData.length} product descriptions`,
+            variant: 'default',
+          });
+        } catch (error) {
+          setError(error.message);
+          toast({
+            title: 'Processing Failed',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+        setIsLoading(false);
+      },
+      error: (error) => {
+        setError(error.message);
+        setIsLoading(false);
       }
-    }, 1500)
-  }
+    });
+  };
 
   const handleDescriptionChange = (value: string) => {
     if (!activeProduct) return

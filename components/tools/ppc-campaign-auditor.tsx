@@ -38,7 +38,7 @@ export default function PpcCampaignAuditor() {
     setIsLoading(true)
     setError(null)
 
-    Papa.parse<any>(file, {
+    Papa.parse<CampaignData>(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,

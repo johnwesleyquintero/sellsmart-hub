@@ -110,7 +110,11 @@ export default function KeywordTrendAnalyzer() {
   const analyzeTrends = useCallback(async () => {
     setIsLoading(true);
     try {
-      let processedData = csvData;
+      const processedData = csvData;
+      
+      if (!processedData || processedData.length === 0) {
+        throw new Error('No valid data to analyze');
+      }
       
       // Transform CSV data for visualization
       const formattedData = processedData.reduce((acc, { keyword, date, search_volume, ranking }) => {
@@ -123,11 +127,17 @@ export default function KeywordTrendAnalyzer() {
         return acc;
       }, {});
 
-      setChartData(Object.values(formattedData));
+      const chartData = Object.values(formattedData);
+      
+      if (chartData.length === 0) {
+        throw new Error('Failed to generate chart data');
+      }
+      
+      setChartData(chartData);
       
       toast({
         title: 'Analysis Complete',
-        description: `Trend visualization for ${Object.keys(formattedData).length} days generated`,
+        description: `Trend visualization for ${chartData.length} days generated`,
         variant: 'default',
       });
 

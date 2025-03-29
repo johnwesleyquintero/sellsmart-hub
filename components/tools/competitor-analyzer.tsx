@@ -107,17 +107,15 @@ export default function CompetitorAnalyzer() {
       
       // If no API call needed (using uploaded CSV data)
       if (processedSellerData && processedCompetitorData) {
-        const formattedData = processedCompetitorData.slice(1).map((row, index) => {
-          const competitor = row.split(',')[0]; // First column is ASIN
+        const formattedData = processedCompetitorData.map((row) => {
+          const competitor = row.asin;
           const dataPoint = {
             name: competitor
           };
           
           metrics.forEach(metric => {
-            const metricIndex = processedSellerData[0].split(',').indexOf(metric);
-            if (metricIndex !== -1) {
-              const value = row.split(',')[metricIndex];
-              dataPoint[metric] = Number(value) || 0;
+            if (row[metric] !== undefined) {
+              dataPoint[metric] = Number(row[metric]) || 0;
             }
           });
           
@@ -211,6 +209,7 @@ export default function CompetitorAnalyzer() {
                     <p>Upload a CSV with columns: asin, price, reviews, rating, conversion_rate, click_through_rate</p>
                   </TooltipContent>
                 </Tooltip>
+                </Tooltip>
               </TooltipProvider>
             </div>
             <Input
@@ -232,6 +231,7 @@ export default function CompetitorAnalyzer() {
                   <TooltipContent>
                     <p>Upload a CSV with columns: asin, price, reviews, rating, conversion_rate, click_through_rate</p>
                   </TooltipContent>
+                </Tooltip>
                 </Tooltip>
               </TooltipProvider>
             </div>

@@ -34,7 +34,7 @@ export default function KeywordAnalyzer() {
     setIsLoading(true)
     setError(null)
 
-    Papa.parse<any>(file, {
+    Papa.parse<KeywordData>(file, {
       header: true,
       skipEmptyLines: true,
       complete: (result) => {

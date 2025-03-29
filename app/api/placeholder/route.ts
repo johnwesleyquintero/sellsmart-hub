@@ -5,7 +5,7 @@ import mermaid from "mermaid"
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
-    const type = (searchParams.get("type") as any) || "flow"
+    const type = (searchParams.get("type") as string) || "flow"
     const title = searchParams.get("title") || ""
     const theme = searchParams.get("theme") || "dark"
 

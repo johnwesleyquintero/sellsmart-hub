@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Upload, FileUp, AlertCircle, Download, Info, Percent } from "lucide-react"
+import { Upload, AlertCircle, Download, Percent } from "lucide-react"
 import Papa from "papaparse"
 import SampleCsvButton from "./sample-csv-button"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
@@ -26,7 +26,7 @@ type ProductData = {
 }
 
 export default function ProfitMarginCalculator() {
-  const [csvData, setCsvData] = useState<ProductData[]>([])
+  const [, setCsvData] = useState<ProductData[]>([])
   const [results, setResults] = useState<ProductData[]>([])
   const [error, setError] = useState<string | null>(null)
   const [manualProduct, setManualProduct] = useState<ProductData>({
@@ -47,7 +47,7 @@ export default function ProfitMarginCalculator() {
       return
     }
 
-    Papa.parse<any>(file, {
+    Papa.parse<ProductData>(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,
@@ -61,7 +61,7 @@ export default function ProfitMarginCalculator() {
             throw new Error(`Missing required columns: ${missingColumns.join(', ')}`)
           }
           
-          const processedData = result.data.map((item: any) => ({
+          const processedData = result.data.map((item: ProductData) => ({
             product: item.product || "",
             cost: Number(item.cost) || 0,
             price: Number(item.price) || 0,
@@ -88,6 +88,11 @@ export default function ProfitMarginCalculator() {
   }
 
   const calculateResults = (data: ProductData[]) => {
+    if (!data || data.length === 0) {
+      setError('No valid data to calculate');
+      return;
+    }
+    
     const calculated = data.map((item) => {
       const profit = item.price - item.cost - item.fees
       const margin = (profit / item.price) * 100
@@ -99,6 +104,12 @@ export default function ProfitMarginCalculator() {
         roi: parseFloat(roi.toFixed(2)),
       }
     })
+    
+    if (calculated.length === 0) {
+      setError('Failed to calculate results');
+      return;
+    }
+    
     setResults(calculated)
   }
 

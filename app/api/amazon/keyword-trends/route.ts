@@ -22,7 +22,7 @@ function processCSVData(data: string[]) {
 
 export async function POST(request: Request) {
   try {
-    const { keywords, timeRange, csvData } = await request.json();
+    const { timeRange, csvData } = await request.json();
     let trendData = [];
     
     if (csvData) {

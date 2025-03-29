@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     // Process uploaded CSV data
     let competitors = [];
-    let metricsData: Record<string, number[]> = {};
+    const metricsData: Record<string, number[]> = {};
 
     if (sellerData && competitorData) {
       const sellerRows = processCSVData(sellerData);
