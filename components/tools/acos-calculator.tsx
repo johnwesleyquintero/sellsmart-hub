@@ -120,16 +120,32 @@ export default function AcosCalculator() {
   }
 
   const handleManualCalculate = () => {
-    if (!manualCampaign.campaign || !manualCampaign.adSpend || !manualCampaign.sales) {
-      setError("Please fill in all fields")
+    if (!manualCampaign.campaign.trim()) {
+      setError("Please enter a campaign name")
+      return
+    }
+    if (!manualCampaign.adSpend) {
+      setError("Please enter ad spend amount")
+      return
+    }
+    if (!manualCampaign.sales) {
+      setError("Please enter sales amount")
       return
     }
 
     const adSpend = Number.parseFloat(manualCampaign.adSpend)
     const sales = Number.parseFloat(manualCampaign.sales)
 
-    if (isNaN(adSpend) || isNaN(sales)) {
-      setError("Please enter valid numbers for Ad Spend and Sales")
+    if (isNaN(adSpend) || adSpend < 0) {
+      setError("Ad Spend must be a valid positive number")
+      return
+    }
+    if (isNaN(sales) || sales < 0) {
+      setError("Sales amount must be a valid positive number")
+      return
+    }
+    if (sales === 0) {
+      setError("Sales amount cannot be zero as it would result in invalid ACOS calculation")
       return
     }
 

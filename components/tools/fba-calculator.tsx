@@ -56,13 +56,9 @@ export default function FbaCalculator() {
         }
 
         try {
-          // Map the parsed data to our ProductData type
-          const validData = result.data
-            .filter(
-              (item) =>
-                item.product && !isNaN(Number(item.cost)) && !isNaN(Number(item.price)) && !isNaN(Number(item.fees)),
-            )
-            .map((item) => ({
+          const processedData = result.data.filter((item: any) => {
+            return item.product && !isNaN(Number(item.cost)) && !isNaN(Number(item.price)) && !isNaN(Number(item.fees))
+          }).map((item: any) => ({
               product: String(item.product),
               cost: Number(item.cost),
               price: Number(item.price),

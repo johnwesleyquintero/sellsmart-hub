@@ -92,11 +92,42 @@ export default function ProfitMarginCalculator() {
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+
+    if (!manualProduct.product.trim()) {
+      setError("Please enter a product name")
+      return
+    }
+
+    const cost = Number(manualProduct.cost)
+    const price = Number(manualProduct.price)
+    const fees = Number(manualProduct.fees)
+
+    if (isNaN(cost) || cost <= 0) {
+      setError("Product cost must be a valid positive number")
+      return
+    }
+
+    if (isNaN(price) || price <= 0) {
+      setError("Selling price must be a valid positive number")
+      return
+    }
+
+    if (isNaN(fees) || fees < 0) {
+      setError("Fees must be a valid non-negative number")
+      return
+    }
+
+    if (price <= cost + fees) {
+      setError("Selling price must be greater than the sum of cost and fees for a profitable margin")
+      return
+    }
+
     const newProduct = {
-      product: manualProduct.product,
-      cost: Number(manualProduct.cost) || 0,
-      price: Number(manualProduct.price) || 0,
-      fees: Number(manualProduct.fees) || 0,
+      product: manualProduct.product.trim(),
+      cost,
+      price,
+      fees,
     }
 
     calculateResults([newProduct])
