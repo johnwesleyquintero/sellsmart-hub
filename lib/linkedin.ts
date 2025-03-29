@@ -2,7 +2,6 @@ export async function getLinkedInExperience() {
   try {
     // Check if environment variable is available
     if (!process.env.LINKEDIN_ACCESS_TOKEN) {
-      console.warn('LinkedIn access token not configured');
       return [];
     }
 
