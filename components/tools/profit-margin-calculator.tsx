@@ -28,6 +28,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LineChart,
+  Line,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 

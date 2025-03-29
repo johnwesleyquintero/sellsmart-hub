@@ -101,7 +101,7 @@ export default function HeroSection() {
               src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3 animate-pulse duration-3000 hover:animate-none"
+              className="object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3 hover:animate-none"
               priority
             />
           </div>
