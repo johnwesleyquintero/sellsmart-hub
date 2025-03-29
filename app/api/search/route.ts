@@ -18,7 +18,8 @@ export async function GET(request: Request) {
     const blogPosts = await loadStaticData<BlogPost[]>('blog');
 
     // Load tools data
-    const tools = await loadStaticData<{name: string; description: string}[]>('tools');
+    const tools =
+      await loadStaticData<{ name: string; description: string }[]>('tools');
 
     // Search blog posts
     const blogResults = blogPosts.filter(

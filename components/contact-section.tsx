@@ -116,7 +116,8 @@ export default function ContactSection() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold">Message Sent!</h3>
                 <p className="text-muted-foreground">
-                  Thank you for reaching out. I&apos;ll respond to your message soon.
+                  Thank you for reaching out. I&apos;ll respond to your message
+                  soon.
                 </p>
                 <Button
                   variant="outline"
