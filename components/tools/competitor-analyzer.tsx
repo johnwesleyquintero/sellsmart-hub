@@ -12,13 +12,7 @@ import {
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+
 import { toast } from '../ui/use-toast';
 import {
   Tooltip,
@@ -42,7 +36,7 @@ export default function CompetitorAnalyzer() {
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (csvData: any[], type: string): ProcessedRow[] => {
+  const processCsvData = (csvData: unknown[], type: string): ProcessedRow[] => {
     return csvData.map((row) => ({
       asin: row.asin,
       price: parseFloat(row.price),
@@ -57,7 +51,7 @@ export default function CompetitorAnalyzer() {
     if (chartData) {
       setSelectedMetrics(metrics);
     }
-  }, [chartData]);
+  }, [chartData, metrics]);
 
   const handleFileUpload = useCallback((event, setData, type) => {
     const file = event.target.files?.[0];

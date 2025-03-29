@@ -7,9 +7,9 @@ function processCSVData(data: string[]) {
 
   rows.forEach((row) => {
     const values = row.split(',');
-    const keyword = values[headers.indexOf('keyword')];
     const volume = Number(values[headers.indexOf('volume')]);
     const date = values[headers.indexOf('date')];
+    const keyword = values[headers.indexOf('keyword')];
 
     if (!processedData[keyword]) {
       processedData[keyword] = [];
@@ -22,7 +22,7 @@ function processCSVData(data: string[]) {
 
 export async function POST(request: Request) {
   try {
-    const { timeRange, csvData } = await request.json();
+    const { csvData } = await request.json();
     let trendData = [];
 
     if (csvData) {
@@ -39,28 +39,8 @@ export async function POST(request: Request) {
         });
         return dataPoint;
       });
-    } else if (keywords && keywords.length > 0) {
-      // Generate trend data points for the specified time range
-      const endDate = new Date();
-      const startDate = new Date(
-        endDate.getTime() - timeRange * 24 * 60 * 60 * 1000,
-      );
-
-      for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dataPoint = {
-          name: d.toISOString().split('T')[0],
-        };
-
-        keywords.forEach((keyword) => {
-          // Here you would typically fetch real trend data from a service
-          // For now, we'll throw an error to prompt users to use CSV data
-          throw new Error('Please upload CSV data for keyword trend analysis');
-        });
-
-        trendData.push(dataPoint);
-      }
     } else {
-      throw new Error('Please provide either keywords or CSV data');
+      throw new Error('Please provide CSV data for keyword trend analysis');
     }
 
     return NextResponse.json(trendData);

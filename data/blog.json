@@ -56,6 +56,23 @@
       "image": "/blog/ppc-optimization.jpg",
       "tags": ["PPC", "Amazon Ads", "Optimization"],
       "tools": ["ppc-campaign-auditor", "acos-calculator"]
+    },
+    {
+      "id": "amazon-seller-tools",
+      "title": "Essential Amazon Seller Tools",
+      "description": "A curated list of must-have tools for Amazon sellers to optimize their business",
+      "date": "2024-03-20",
+      "author": "Wesley Quintero",
+      "tags": ["tools", "productivity", "optimization"],
+      "image": "/images/blog/amazon-seller-tools.svg",
+      "readingTime": "8 min read",
+      "category": "Tools",
+      "tools": [
+        "fba-calculator",
+        "keyword-analyzer",
+        "ppc-campaign-auditor",
+        "acos-calculator"
+      ]
     }
   ]
 }

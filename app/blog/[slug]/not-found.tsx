@@ -7,7 +7,8 @@ export default function BlogNotFound() {
     <div className="container mx-auto px-4 py-32 text-center">
       <h1 className="text-4xl font-bold mb-4">Article Not Found</h1>
       <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-        The blog post you're looking for doesn't exist or has been moved.
+        The blog post you&apos;re looking for doesn&apos;t exist or has been
+        moved.
       </p>
       <Button asChild>
         <Link href="/blog" className="flex items-center">

@@ -104,7 +104,7 @@ export default function ContactSection() {
           <CardHeader>
             <CardTitle>Send Me a Message</CardTitle>
             <CardDescription>
-              Fill out the form below and I'll get back to you as soon as
+              Fill out the form below and I&apos;ll get back to you as soon as
               possible.
             </CardDescription>
           </CardHeader>
@@ -116,7 +116,7 @@ export default function ContactSection() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold">Message Sent!</h3>
                 <p className="text-muted-foreground">
-                  Thank you for reaching out. I'll respond to your message soon.
+                  Thank you for reaching out. I&apos;ll respond to your message soon.
                 </p>
                 <Button
                   variant="outline"
