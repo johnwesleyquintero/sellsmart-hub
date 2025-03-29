@@ -30,20 +30,9 @@ export async function POST(request: Request) {
         metricsData[metric] = allData.map(row => row[metric] as number);
       });
     } else if (asin) {
-      // Mock data for demonstration when only ASIN is provided
-      competitors = [asin, 'COMP1', 'COMP2', 'COMP3'];
-      metrics.forEach(metric => {
-        metricsData[metric] = Array(4).fill(0).map(() => Math.random() * 100);
-        
-        // Adjust values based on metric type
-        if (metric === 'rating') {
-          metricsData[metric] = metricsData[metric].map(v => (v % 5) + 1);
-        } else if (metric.includes('rate')) {
-          metricsData[metric] = metricsData[metric].map(v => v / 100);
-        } else if (metric === 'price') {
-          metricsData[metric] = metricsData[metric].map(v => v + 10);
-        }
-      });
+      throw new Error('Please upload CSV data files for analysis');
+    } else {
+      throw new Error('Please provide either CSV data files or an ASIN for analysis');
     }
 
     return NextResponse.json({

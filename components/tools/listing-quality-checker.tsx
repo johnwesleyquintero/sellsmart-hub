@@ -35,19 +35,40 @@ export default function ListingQualityChecker() {
     setIsLoading(true)
     setError(null)
 
-    // Simulate CSV parsing
-    setTimeout(() => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
       try {
-        // This is a simulation - in a real app, you'd use Papa Parse or similar
-        const sampleData: ListingData[] = [
-          {
-            product: "Wireless Earbuds",
-            title: "Premium Wireless Earbuds with Noise Cancellation and Long Battery Life",
-            description: "Experience crystal clear sound with our premium wireless earbuds...",
-            bulletPoints: ["Noise cancellation", "8-hour battery life", "Comfortable fit"],
-            images: 5,
-            keywords: ["wireless earbuds", "bluetooth earphones", "noise cancelling"],
-          },
+        const content = e.target?.result;
+        if (typeof content !== 'string') {
+          throw new Error('Invalid file content');
+        }
+        
+        const rows = content.split('\n').filter(row => row.trim());
+        if (rows.length < 2) {
+          throw new Error('CSV must contain at least one data row after headers');
+        }
+        
+        const headers = rows[0].split(',').map(h => h.trim());
+        const requiredHeaders = ['product', 'title', 'description', 'bulletPoints', 'images', 'keywords'];
+        const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+        
+        if (missingHeaders.length > 0) {
+          throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+        }
+        
+        const parsedData = rows.slice(1).map(row => {
+          const values = row.split(',');
+          return {
+            product: values[headers.indexOf('product')] || '',
+            title: values[headers.indexOf('title')] || '',
+            description: values[headers.indexOf('description')] || '',
+            bulletPoints: values[headers.indexOf('bulletPoints')]?.split('|') || [],
+            images: parseInt(values[headers.indexOf('images')]) || 0,
+            keywords: values[headers.indexOf('keywords')]?.split('|') || []
+          };
+        });
+        
+        const analyzedData = parsedData.map((item) => {
           {
             product: "Phone Case",
             title: "Protective Phone Case",
@@ -66,7 +87,7 @@ export default function ListingQualityChecker() {
           },
         ]
 
-        const analyzedData = sampleData.map((item) => {
+        const analyzedData = parsedData.map((item) => {
           // Analyze listing quality
           const issues: string[] = []
           const suggestions: string[] = []
@@ -108,10 +129,11 @@ export default function ListingQualityChecker() {
         setListings(analyzedData)
         setIsLoading(false)
       } catch (err) {
-        setError("Failed to parse CSV file. Please check the format and try again.")
+        setError(`Failed to parse CSV file: ${err.message}`)
         setIsLoading(false)
       }
-    }, 1500)
+    };
+    reader.readAsText(file);
   }
 
   const handleAsinCheck = () => {

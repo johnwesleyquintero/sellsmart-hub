@@ -289,10 +289,9 @@ export default function ProfitMarginCalculator() {
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="margin" fill="#8884d8" name="Margin %" />
-                          <Bar dataKey="roi" fill="#82ca9d" name="ROI %" />
-                          <Line type="monotone" dataKey="price" stroke="#ff7300" name="Price" />
-                          <Line type="monotone" dataKey="cost" stroke="#387908" name="Cost" />
+                          <Bar dataKey="profit" fill="#10b981" name="Profit ($)" />
+                          <Bar dataKey="cost" fill="#ef4444" name="Cost ($)" />
+                          <Bar dataKey="fees" fill="#f59e0b" name="Fees ($)" />
                         </BarChart>
                         </ResponsiveContainer>
                       </div>

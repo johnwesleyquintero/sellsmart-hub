@@ -12,7 +12,7 @@ import { useIsMobile } from '../../hooks/use-mobile';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
-  const [metrics, setMetrics] = useState(['price', 'reviews', 'rating', 'conversion_rate', 'click_through_rate']);
+  const [metrics, setMetrics] = useState(['price', 'reviews', 'rating']);
   const [chartData, setChartData] = useState(null);
   const [sellerData, setSellerData] = useState(null);
   const [competitorData, setCompetitorData] = useState(null);
@@ -126,13 +126,28 @@ export default function CompetitorAnalyzer() {
       
       const data = await response.json();
       
-      const formattedData = data.competitors.map((competitor, index) => ({
-        name: competitor,
-        ...metrics.reduce((acc, metric) => {
-          acc[metric] = data.metrics[metric][index];
-          return acc;
-        }, {})
-      }));
+      // Ensure data has the expected structure
+      if (!data || !data.competitors || !data.metrics) {
+        throw new Error('Invalid response format from server');
+      }
+      
+      const formattedData = data.competitors.map((competitor, index) => {
+        const dataPoint = {
+          name: competitor
+        };
+        
+        // Safely map each metric
+        metrics.forEach(metric => {
+          const metricData = data.metrics[metric];
+          if (Array.isArray(metricData) && metricData[index] !== undefined) {
+            dataPoint[metric] = Number(metricData[index]);
+          } else {
+            dataPoint[metric] = 0; // Default value if data is missing
+          }
+        });
+        
+        return dataPoint;
+      });
       setChartData(formattedData);
       setIsLoading(false);
     } catch (error) {
@@ -211,7 +226,14 @@ export default function CompetitorAnalyzer() {
           <Label htmlFor="metrics">Metrics to Compare</Label>
           <Select
             value={metrics.join(',')}
-            onValueChange={(value) => setMetrics(value.split(','))}
+            onValueChange={(value) => {
+              const selectedMetrics = value.split(',');
+              if (selectedMetrics.includes('price,reviews,rating,sales_velocity,inventory_levels,conversion_rate,click_through_rate')) {
+                setMetrics(['price', 'reviews', 'rating', 'sales_velocity', 'inventory_levels', 'conversion_rate', 'click_through_rate']);
+              } else {
+                setMetrics(selectedMetrics);
+              }
+            }}
             multiple
           >
             <SelectTrigger>
@@ -301,13 +323,7 @@ export default function CompetitorAnalyzer() {
                     key={metric}
                     type="monotone"
                     dataKey={metric}
-                    stroke={{
-                      price: '#FF6B6B',
-                      reviews: '#4ECDC4',
-                      rating: '#45B7D1',
-                      conversion_rate: '#96CEB4',
-                      click_through_rate: '#FFEEAD'
-                    }[metric]}
+                    stroke={metric === 'price' ? '#FF6B6B' : metric === 'reviews' ? '#4ECDC4' : '#45B7D1'}
                     activeDot={{ r: 8 }}
                   />
                 ))}
