@@ -29,13 +29,20 @@ export default function HeroSection() {
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
               Helping Amazon sellers increase profits by 30-50% through
-              <span className="font-semibold text-primary"> data-driven automation</span> and
-              <span className="font-semibold text-primary"> AI-powered insights</span>.
+              <span className="font-semibold text-primary">
+                {' '}
+                data-driven automation
+              </span>{' '}
+              and
+              <span className="font-semibold text-primary">
+                {' '}
+                AI-powered insights
+              </span>
+              .
             </p>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            
             <Button
               asChild
               size="lg"

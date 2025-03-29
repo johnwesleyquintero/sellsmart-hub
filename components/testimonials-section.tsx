@@ -14,8 +14,8 @@ const testimonials = [
     position: 'Product Manager at TechCorp',
     image: '/profile/sarah-johnson.jpg',
     content:
-      'After implementing Wesley\'s automation tools, our profits increased by 42% in 3 months while reducing manual work by 60%. His data-driven approach transformed our Amazon business.',
-    metrics: '42% profit increase | 60% time savings'
+      "After implementing Wesley's automation tools, our profits increased by 42% in 3 months while reducing manual work by 60%. His data-driven approach transformed our Amazon business.",
+    metrics: '42% profit increase | 60% time savings',
   },
   {
     id: 2,
@@ -23,8 +23,8 @@ const testimonials = [
     position: 'CTO at StartupX',
     image: '/profile/michael-chen.jpg',
     content:
-      'Wesley\'s AI-powered insights helped us optimize our PPC campaigns, reducing our ACoS from 35% to 22% while maintaining sales volume. His tools pay for themselves.',
-    metrics: '37% lower ACoS | maintained sales'
+      "Wesley's AI-powered insights helped us optimize our PPC campaigns, reducing our ACoS from 35% to 22% while maintaining sales volume. His tools pay for themselves.",
+    metrics: '37% lower ACoS | maintained sales',
   },
   {
     id: 3,
@@ -32,8 +32,8 @@ const testimonials = [
     position: 'Founder of DesignHub',
     image: '/profile/emily-rodriguez.jpg',
     content:
-      'Our conversion rate jumped from 8% to 14% after using Wesley\'s listing optimization tools. His deep understanding of Amazon\'s algorithm is unmatched.',
-    metrics: '75% conversion increase'
+      "Our conversion rate jumped from 8% to 14% after using Wesley's listing optimization tools. His deep understanding of Amazon's algorithm is unmatched.",
+    metrics: '75% conversion increase',
   },
 ];
 

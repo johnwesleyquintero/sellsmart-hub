@@ -373,7 +373,9 @@ export default function KeywordAnalyzer() {
                       </div>
                       {product.searchVolume && (
                         <div className="h-80 w-full">
-                          <h4 className="mb-2 text-sm font-medium">Keyword Performance</h4>
+                          <h4 className="mb-2 text-sm font-medium">
+                            Keyword Performance
+                          </h4>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={[
@@ -382,7 +384,12 @@ export default function KeywordAnalyzer() {
                                   value: product.searchVolume,
                                 },
                               ]}
-                              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                              margin={{
+                                top: 5,
+                                right: 30,
+                                left: 20,
+                                bottom: 5,
+                              }}
                             >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="name" />
