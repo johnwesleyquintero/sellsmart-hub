@@ -129,8 +129,15 @@ cp .env.example .env
 
 | Tool Name                  | Status       | Description                                      |
 |----------------------------|--------------|--------------------------------------------------|
-| ACoS Calculator            | Functional   | Calculates Advertising Cost of Sales for campaigns |
-| Sales Estimator            | Needs Implementation | Estimates sales volume and revenue with confidence indicators |
-| Keyword Deduplicator       | Functional   | Identifies and removes duplicate keywords         |
-| Description Editor         | Needs Implementation | Rich text editor for Amazon product descriptions |
-| PPC Campaign Auditor       | Functional   | Analyzes and optimizes PPC campaign performance   |
+| ACoS Calculator            | Functional   | Advanced ACoS calculator with historical trend analysis and campaign optimization suggestions |
+| Competitor Analyzer        | Functional   | Analyzes competitor listings, pricing, and performance metrics |
+| Description Editor         | Functional   | Rich text editor with A+ content support and keyword optimization |
+| FBA Calculator            | Functional   | Calculates FBA fees, profit margins, and storage costs |
+| Keyword Analyzer           | Functional   | Analyzes keyword performance, search volume, and competition |
+| Keyword Deduplicator       | Functional   | Identifies and removes duplicate keywords with smart matching |
+| Keyword Trend Analyzer     | Functional   | Tracks keyword trends and seasonal patterns over time |
+| Listing Quality Checker    | Functional   | Evaluates listing quality and suggests improvements |
+| PPC Campaign Auditor       | Functional   | Comprehensive PPC campaign analysis and optimization |
+| Profit Margin Calculator   | Functional   | Calculates profit margins with dynamic cost factors |
+| Sales Estimator            | Functional   | Estimates sales potential with market data analysis |
+| Sample CSV Button          | Functional   | Generates sample CSV data for testing tools
