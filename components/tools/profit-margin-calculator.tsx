@@ -53,17 +53,29 @@ export default function ProfitMarginCalculator() {
       skipEmptyLines: true,
       complete: (result) => {
         try {
+          // Validate required columns
+          const requiredColumns = ['product', 'cost', 'price', 'fees']
+          const missingColumns = requiredColumns.filter(col => !result.meta.fields.includes(col))
+          
+          if (missingColumns.length > 0) {
+            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`)
+          }
+          
           const processedData = result.data.map((item: any) => ({
             product: item.product || "",
             cost: Number(item.cost) || 0,
             price: Number(item.price) || 0,
             fees: Number(item.fees) || 0,
           }))
+          
+          if (processedData.length === 0) {
+            throw new Error("No valid data found in CSV")
+          }
 
           setCsvData(processedData)
           calculateResults(processedData)
         } catch (err) {
-          setError("Error processing CSV file. Please check the format.")
+          setError(`Error processing CSV file: ${err.message}`)
         } finally {
           setIsLoading(false)
         }

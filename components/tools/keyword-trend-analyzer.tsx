@@ -83,6 +83,13 @@ export default function KeywordTrendAnalyzer() {
     
     setIsLoading(true);
     try {
+      // Process CSV data if uploaded
+      let processedCsvData = csvData;
+      
+      if (typeof csvData === 'string') {
+        processedCsvData = processCsvData(csvData);
+      }
+      
       const response = await fetch('/api/amazon/keyword-trends', {
         method: 'POST',
         headers: {
@@ -91,7 +98,7 @@ export default function KeywordTrendAnalyzer() {
         body: JSON.stringify({
           keywords: keywords.split(',').map(k => k.trim()),
           timeRange: parseInt(timeRange),
-          csvData
+          csvData: processedCsvData
         }),
       });
       
@@ -100,7 +107,13 @@ export default function KeywordTrendAnalyzer() {
       }
       
       const data = await response.json();
-      setChartData(data);
+      
+      // Ensure we have data to render
+      if (data && Object.keys(data).length > 0) {
+        setChartData(data);
+      } else {
+        throw new Error('No trend data available to render');
+      }
     } catch (error) {
       toast({
         title: 'Error',

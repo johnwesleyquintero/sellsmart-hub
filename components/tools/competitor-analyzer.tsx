@@ -107,6 +107,18 @@ export default function CompetitorAnalyzer() {
     
     setIsLoading(true);
     try {
+      // Process CSV data if uploaded
+      let processedSellerData = sellerData;
+      let processedCompetitorData = competitorData;
+      
+      if (typeof sellerData === 'string') {
+        processedSellerData = processCsvData(sellerData, 'seller');
+      }
+      
+      if (typeof competitorData === 'string') {
+        processedCompetitorData = processCsvData(competitorData, 'competitor');
+      }
+      
       const response = await fetch('/api/amazon/competitor-analysis', {
         method: 'POST',
         headers: {
@@ -115,8 +127,8 @@ export default function CompetitorAnalyzer() {
         body: JSON.stringify({
           asin,
           metrics,
-          sellerData,
-          competitorData
+          sellerData: processedSellerData,
+          competitorData: processedCompetitorData
         }),
       });
       
@@ -148,7 +160,14 @@ export default function CompetitorAnalyzer() {
         
         return dataPoint;
       });
-      setChartData(formattedData);
+      
+      // Ensure we have data to render
+      if (formattedData.length > 0) {
+        setChartData(formattedData);
+      } else {
+        throw new Error('No data available to render');
+      }
+      
       setIsLoading(false);
     } catch (error) {
       toast({
@@ -156,6 +175,7 @@ export default function CompetitorAnalyzer() {
         description: error.message,
         variant: 'destructive',
       });
+      setChartData(null);
       setIsLoading(false);
     }
   };
@@ -282,7 +302,7 @@ export default function CompetitorAnalyzer() {
           </Button>
         </div>
         
-        {chartData && (
+        {chartData ? (
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>

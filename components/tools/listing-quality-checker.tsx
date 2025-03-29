@@ -69,25 +69,6 @@ export default function ListingQualityChecker() {
         });
         
         const analyzedData = parsedData.map((item) => {
-          {
-            product: "Phone Case",
-            title: "Protective Phone Case",
-            description: "A basic phone case for your device.",
-            bulletPoints: ["Protective"],
-            images: 2,
-            keywords: ["phone case"],
-          },
-          {
-            product: "Charging Cable",
-            title: "",
-            description: "Fast charging cable for all your devices.",
-            bulletPoints: ["Fast charging", "Durable"],
-            images: 1,
-            keywords: ["charging cable", "usb cable"],
-          },
-        ]
-
-        const analyzedData = parsedData.map((item) => {
           // Analyze listing quality
           const issues: string[] = []
           const suggestions: string[] = []
