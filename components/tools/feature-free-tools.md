@@ -47,6 +47,23 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 
 ## 🔧 Tool Features
 
+### 📊 Analytics Tools
+- **Competitor Analyzer**
+- **Keyword Analyzer**
+- **Keyword Trend Analyzer**
+- **PPC Campaign Auditor**
+- **Sales Estimator**
+
+### 💰 Financial Calculators
+- **ACoS Calculator**
+- **FBA Calculator**
+- **Profit Margin Calculator**
+
+### ✍️ Content Tools
+- **Description Editor**
+- **Keyword Deduplicator**
+- **Listing Quality Checker**
+
 ### 1. FBA Calculator
 
 **Status**: ✅ Active  
