@@ -25,7 +25,7 @@
     {
       "id": 3,
       "title": "Inventory Management",
-      "image": "/images/projects/InventoryManagementSystem.svg",
+      "image": "/images/projects/InventoryManagementSystem.png",
       "description": "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
       "tags": ["Inventory", "Process Optimization", "SOP"],
       "liveUrl": "https://sellsmart-docs.vercel.app/",
@@ -35,7 +35,7 @@
     {
       "id": 4,
       "title": "FBA Department Operations",
-      "image": "/images/projects/FBADepartmentOperations.svg",
+      "image": "/images/projects/FBADepartmentOperations.png",
       "description": "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
       "tags": ["Training", "Workflow", "Documentation"],
       "liveUrl": "https://sellsmart-docs.vercel.app/",
@@ -56,7 +56,7 @@
       "id": 6,
       "title": "Wholesale Buyer's Guide",
       "description": "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
-      "image": "/images/projects/WholesaleBuyer'sGuide.svg",
+      "image": "/images/projects/WholesaleBuyer.png",
       "tags": ["Client Engagement", "Best Practices", "Documentation"],
       "liveUrl": "https://sellsmart-docs.vercel.app/",
       "githubUrl": "https://github.com/johnwesleyquintero/sellsmart-docs",

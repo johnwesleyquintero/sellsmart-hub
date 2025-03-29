@@ -30,12 +30,12 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 | ----------------------- | --------- | ------- |
 | FBA Calculator          | ✅ Active | 1.0.0   |
 | Keyword Analyzer        | ✅ Active | 1.1.0   |
-| Listing Quality Checker | 🚧 Beta   | 0.9.0   |
+| Listing Quality Checker | ✅ Active | 1.0.0   |
 | PPC Campaign Auditor    | ✅ Active | 1.2.0   |
 | Description Editor      | ✅ Active | 1.0.1   |
 | Keyword Deduplicator    | ✅ Active | 1.0.0   |
 | ACoS Calculator         | ✅ Active | 1.0.0   |
-| Sales Estimator         | 🚧 Beta   | 0.8.0   |
+| Sales Estimator         | ✅ Active | 1.0.0   |
 
 </details>
 

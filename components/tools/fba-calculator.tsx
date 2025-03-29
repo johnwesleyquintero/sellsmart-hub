@@ -169,8 +169,8 @@ export default function FbaCalculator() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
           <p>
-            Your CSV file should have the following columns: <code>product</code>, <code>cost</code>, <code>price</code>
-            , <code>fees</code>
+            Your CSV file should have the following columns: <code>product</code>, <code>cost</code>, <code>price</code>,{" "}
+            <code>fees</code>
           </p>
           <p className="mt-1">
             Example: <code>product,cost,price,fees</code>
@@ -358,4 +358,3 @@ export default function FbaCalculator() {
     </div>
   )
 }
-

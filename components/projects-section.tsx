@@ -9,72 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ExternalLink, Github } from "lucide-react"
 
-const projects = [
-  {
-    id: 1,
-    title: "SellSmart",
-    description: "AI-powered analytics and automation tools delivered as a modern web application for Amazon sellers.",
-    image: "/images/projects/sellsmart-hub.svg",
-    tags: ["React", "Node.js", "AI", "Analytics"],
-    liveUrl: "https://sellsmart-hub.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/sellsmart",
-    category: "data",
-  },
-  {
-    id: 2,
-    title: "DevFlowDB",
-    description:
-      "Lightweight WASM-powered SQL database with HTTPvfs integration. Handles 500+ queries/sec with <200ms latency (1MB demo). Features schema versioning and IndexedDB caching.",
-    image: "/images/projects/devflowdb-preview.svg",
-    tags: ["WASM", "SQL", "Performance", "Database"],
-    liveUrl: "https://devflowdb.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/devflowdb",
-    category: "data",
-  },
-  {
-    id: 3,
-    title: "Inventory Management",
-    description:
-      "Enhanced operational efficiency by 40% through streamlined listing management and account health monitoring.",
-    image: "/images/projects/InventoryManagementSystem.png",
-    tags: ["Inventory", "Process Optimization", "SOP"],
-    liveUrl: "https://sellsmart-docs.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
-    category: "backend",
-  },
-  {
-    id: 4,
-    title: "FBA Department Operations",
-    description: "Streamlined team productivity by 35% through comprehensive training materials and workflow planning.",
-    image: "/images/projects/FBADepartmentOperations.png",
-    tags: ["Training", "Workflow", "Documentation"],
-    liveUrl: "https://sellsmart-docs.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
-    category: "backend",
-  },
-  {
-    id: 5,
-    title: "SellSmart Design x Docs",
-    description:
-      "Comprehensive design system documentation with component guidelines, design tokens, and framework implementation details.",
-    image: "/images/projects/sellsmart-docs.svg",
-    tags: ["Documentation", "Design System", "Components"],
-    liveUrl: "https://sellsmart-docs.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
-    category: "data",
-  },
-  {
-    id: 6,
-    title: "Wholesale Buyer's Guide",
-    description:
-      "Improved client satisfaction rate to 95% through optimized client engagement and inventory management.",
-    image: "/images/projects/WholesaleBuyer.png",
-    tags: ["Client Engagement", "Best Practices", "Documentation"],
-    liveUrl: "https://sellsmart-docs.vercel.app/",
-    githubUrl: "https://github.com/johnwesleyquintero/sellsmart-docs",
-    category: "frontend",
-  },
-]
+import projectsData from "@/data/projects.json"
+
+const projects = projectsData.projects
 
 export default function ProjectsSection() {
   const [activeTab, setActiveTab] = useState("all")
@@ -111,8 +48,8 @@ export default function ProjectsSection() {
           <TabsContent value={activeTab} className="mt-8">
             <div className="grid gap-6 sm:grid-cols-2">
               {filteredProjects.map((project) => (
-                <Card key={project.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
-                  <div className="aspect-video overflow-hidden bg-muted p-4">
+                <Card key={project.id} className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+                  <div className="aspect-video overflow-hidden bg-muted p-4 group-hover:bg-muted/80 transition-colors duration-300">
                     <Image
                       src={project.image || "/placeholder.svg"}
                       alt={project.title}

@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress"
 import { Upload, FileText, AlertCircle, Download, Calculator, Info } from "lucide-react"
 import Papa from "papaparse"
 import SampleCsvButton from "./sample-csv-button"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { ChartContainer } from "@/components/ui/chart"
 
 type CampaignData = {
   campaign: string
@@ -207,6 +209,27 @@ export default function AcosCalculator() {
 
   return (
     <div className="space-y-6">
+      <ChartContainer 
+        config={{
+          acos: { label: "ACOS", theme: { light: "#ef4444", dark: "#ef4444" } },
+          roas: { label: "ROAS", theme: { light: "#10b981", dark: "#10b981" } },
+          ctr: { label: "CTR", theme: { light: "#3b82f6", dark: "#3b82f6" } }
+        }}
+        className="h-[400px] mb-6"
+      >
+        {(width, height) => (
+          <BarChart width={width} height={height} data={campaigns}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="campaign" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="acos" name="ACOS" fill="#ef4444" />
+            <Bar dataKey="roas" name="ROAS" fill="#10b981" />
+            <Bar dataKey="ctr" name="CTR" fill="#3b82f6" />
+          </BarChart>
+        )}
+      </ChartContainer>
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
