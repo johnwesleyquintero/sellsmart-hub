@@ -18,14 +18,14 @@ export default function HeroSection() {
             Available for projects
           </Badge>
 
-          <div>
+          <div className="animate-fadeIn">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               I'm{" "}
               <span className="bg-gradient-to-r from-primary via-purple-500 to-purple-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none duration-5000">
                 Wesley Quintero
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground md:text-2xl">
+            <p className="text-xl text-muted-foreground md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
               Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights, Automation & AI.
             </p>
           </div>
@@ -48,7 +48,7 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
             >
               <Github className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
             </Link>
@@ -57,7 +57,7 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
               <Linkedin className="h-5 w-5" />
             </Link>
@@ -66,14 +66,14 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
               <Twitter className="h-5 w-5" />
             </Link>
             <Link
               href="mailto:johnwesleyquintero@gmail.com"
               aria-label="Email"
-              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
               <Mail className="h-5 w-5" />
             </Link>

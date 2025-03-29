@@ -45,14 +45,14 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex md:gap-6">
+        <nav className="hidden md:flex md:gap-6 items-center"
           {navItems.map((item) => (
             item.external ? (
-              <a key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary" target="_blank" rel="noopener noreferrer">
+              <a key={item.name} href={item.href} className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full" target="_blank" rel="noopener noreferrer">
                 {item.name}
               </a>
             ) : (
-              <Link key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary">
+              <Link key={item.name} href={item.href} className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">
                 {item.name}
               </Link>
             )
@@ -91,15 +91,15 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="absolute left-0 right-0 top-16 z-50 border-b bg-background p-4 md:hidden">
+          <div className="absolute left-0 right-0 top-16 z-50 border-b bg-background/95 backdrop-blur-sm p-4 md:hidden animate-fadeIn">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 item.external ? (
-                  <a key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)}>
+                  <a key={item.name} href={item.href} className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)}>
                     {item.name}
                   </a>
                 ) : (
-                  <Link key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary" onClick={() => setIsMenuOpen(false)}>
+                  <Link key={item.name} href={item.href} className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full" onClick={() => setIsMenuOpen(false)}>
                     {item.name}
                   </Link>
                 )

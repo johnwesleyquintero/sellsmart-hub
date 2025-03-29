@@ -48,14 +48,14 @@ export default function ProjectsSection() {
           <TabsContent value={activeTab} className="mt-8">
             <div className="grid gap-6 sm:grid-cols-2">
               {filteredProjects.map((project) => (
-                <Card key={project.id} className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
-                  <div className="aspect-video overflow-hidden bg-muted p-4 group-hover:bg-muted/80 transition-colors duration-300">
+                <Card key={project.id} className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:bg-gradient-to-tr hover:from-background hover:to-muted/50 dark:hover:from-background dark:hover:to-muted/10">
+                  <div className="aspect-video overflow-hidden bg-muted p-4 group-hover:bg-muted/50 transition-all duration-500 group-hover:translate-y-1">
                     <Image
                       src={project.image || "/placeholder.svg"}
                       alt={project.title}
                       width={600}
                       height={400}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <CardHeader>

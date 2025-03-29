@@ -78,3 +78,12 @@
   @apply bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent;
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
