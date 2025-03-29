@@ -8,6 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { toast } from '../ui/use-toast';
 import { Info } from 'lucide-react';
 import { TooltipProvider, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import Papa from 'papaparse';
 
 export default function KeywordTrendAnalyzer() {
   const [keywords, setKeywords] = useState('');
@@ -43,27 +44,40 @@ export default function KeywordTrendAnalyzer() {
         if (typeof content !== 'string') {
           throw new Error('Invalid file content');
         }
-        
-        const rows = content.split('\n').filter(row => row.trim());
-        if (rows.length < 2) {
-          throw new Error('CSV must contain at least one data row after headers');
-        }
-        
-        const headers = rows[0].split(',').map(h => h.trim());
-        if (!headers.includes('keyword') || !headers.includes('volume') || !headers.includes('date')) {
-          throw new Error('CSV must contain keyword, volume, and date columns');
-        }
-        
-        setCsvData(rows);
-        toast({
-          title: 'Success',
-          description: 'CSV data uploaded successfully',
-          variant: 'default',
+
+        Papa.parse(content, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            if (results.errors.length > 0) {
+              throw new Error(`CSV errors: ${results.errors.map(e => e.message).join(', ')}`);
+            }
+
+            const requiredFields = ['keyword', 'date', 'search_volume', 'ranking'];
+            const missingFields = requiredFields.filter(f => !results.meta.fields.includes(f));
+            if (missingFields.length > 0) {
+              throw new Error(`Missing columns: ${missingFields.join(', ')}`);
+            }
+
+            const processedData = results.data.map(row => ({
+              keyword: row.keyword,
+              date: new Date(row.date),
+              search_volume: Number(row.search_volume),
+              ranking: Number(row.ranking)
+            }));
+
+            setCsvData(processedData);
+            toast({
+              title: 'Success',
+              description: `${file.name} processed successfully`,
+              variant: 'default',
+            });
+          }
         });
       } catch (error) {
         toast({
           title: 'Error',
-          description: `Failed to process CSV: ${error.message}`,
+          description: `CSV processing failed: ${error.message}`,
           variant: 'destructive',
         });
       }
@@ -93,63 +107,39 @@ export default function KeywordTrendAnalyzer() {
     }
   };
 
-  const analyzeTrends = async () => {
-    if (!csvData && !keywords) {
-      toast({
-        title: 'Error',
-        description: 'Please enter keywords or upload CSV data',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
+  const analyzeTrends = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Process CSV data if uploaded
-      let processedCsvData = csvData ? processCsvData(csvData.join('\n')) : null;
+      let processedData = csvData;
       
-      const response = await fetch('/api/amazon/keyword-trends', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          keywords: keywords.split(',').map(k => k.trim()),
-          timeRange: parseInt(timeRange),
-          csvData: processedCsvData
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch trend data');
-      }
-      
-      const data = await response.json();
-      
-      // Transform data for Recharts format
-      const transformedData = Object.entries(data).map(([date, values]) => ({
-        name: new Date(date).toLocaleDateString(),
-        ...Object.fromEntries(Object.entries(values).map(([keyword, volume]) => [
-          keyword.trim(),
-          volume
-        ]))
-      }));
+      // Transform CSV data for visualization
+      const formattedData = processedData.reduce((acc, { keyword, date, search_volume, ranking }) => {
+        const dateKey = date.toISOString().split('T')[0];
+        if (!acc[dateKey]) {
+          acc[dateKey] = { date: dateKey };
+        }
+        acc[dateKey][`${keyword}_volume`] = search_volume;
+        acc[dateKey][`${keyword}_rank`] = ranking;
+        return acc;
+      }, {});
 
-      if (transformedData.length > 0) {
-        setChartData(transformedData);
-      } else {
-        throw new Error('No trend data available to render');
-      }
+      setChartData(Object.values(formattedData));
+      
+      toast({
+        title: 'Analysis Complete',
+        description: `Trend visualization for ${Object.keys(formattedData).length} days generated`,
+        variant: 'default',
+      });
+
     } catch (error) {
       toast({
-        title: 'Error',
+        title: 'Analysis Failed',
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+    setIsLoading(false);
+  }, [csvData]);
 
   return (
     <Card className="p-6">

@@ -52,7 +52,7 @@
     "next": "15.1.0",
     "next-mdx-remote": "latest",
     "next-themes": "latest",
-    "papaparse": "latest",
+    "papaparse": "^5.5.2",
     "path": "latest",
     "react": "^19",
     "react-day-picker": "8.10.1",

@@ -9,6 +9,7 @@ import { toast } from '../ui/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Info } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
+import Papa from 'papaparse';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
@@ -44,43 +45,28 @@ export default function CompetitorAnalyzer() {
         if (typeof content !== 'string') {
           throw new Error('Invalid file content - file must be text-based');
         }
-        
-        const rows = content.split('\n').filter(row => row.trim());
-        if (rows.length < 2) {
-          throw new Error('CSV must contain at least one data row after headers');
-        }
-        
-        // Validate CSV headers
-        const headers = rows[0].split(',').map(h => h.trim());
-        const requiredHeaders = ['asin', 'price', 'reviews', 'rating', 'conversion_rate', 'click_through_rate'];
-        const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-        
-        if (missingHeaders.length > 0) {
-          throw new Error(`Missing required columns: ${missingHeaders.join(', ')}. Please check your CSV format.`);
-        }
-        
-        // Validate data rows
-        for (let i = 1; i < rows.length; i++) {
-          const values = rows[i].split(',');
-          if (values.length !== headers.length) {
-            throw new Error(`Row ${i} has ${values.length} columns but expected ${headers.length}`);
-          }
-          
-          // Validate numeric fields
-          const numericFields = ['price', 'reviews', 'rating', 'conversion_rate', 'click_through_rate'];
-          numericFields.forEach(field => {
-            const index = headers.indexOf(field);
-            if (index !== -1 && isNaN(Number(values[index]))) {
-              throw new Error(`Row ${i}, column '${field}' must be a number`);
+
+        Papa.parse(content, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            if (results.errors.length > 0) {
+              throw new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`);
             }
-          });
-        }
-        
-        setData(rows);
-        toast({
-          title: 'Success',
-          description: `${type} data (${file.name}) uploaded successfully`,
-          variant: 'default',
+
+            const requiredHeaders = ['asin', 'price', 'reviews', 'rating', 'conversion_rate', 'click_through_rate'];
+            const missingHeaders = requiredHeaders.filter(h => !results.meta.fields.includes(h));
+            if (missingHeaders.length > 0) {
+              throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+            }
+
+            setData(results.data);
+            toast({
+              title: 'Success',
+              description: `${type} data (${file.name}) processed successfully`,
+              variant: 'default',
+            });
+          }
         });
       } catch (error) {
         toast({
@@ -145,7 +131,7 @@ export default function CompetitorAnalyzer() {
         }
       }
       
-      // Fallback to API call if no CSV data
+      // Fallback to API call if no valid CSV data
       const response = await fetch('/api/amazon/competitor-analysis', {
         method: 'POST',
         headers: {
@@ -377,3 +363,17 @@ export default function CompetitorAnalyzer() {
     </Card>
   );
 }
+
+
+  const processCsvData = (csvData, type) => {
+    return csvData.map(row => {
+      return {
+        asin: row.asin,
+        price: parseFloat(row.price),
+        reviews: parseInt(row.reviews),
+        rating: parseFloat(row.rating),
+        conversion_rate: parseFloat(row.conversion_rate),
+        click_through_rate: parseFloat(row.click_through_rate)
+      };
+    });
+  };
