@@ -6,13 +6,28 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 
 ## Features
 
-- 🎨 Modern UI with dark/light mode
-- 📱 Fully responsive design
-- 🛠️ Interactive Amazon seller tools
-- 📊 Project showcase with filtering
-- 📝 Blog section with MDX content
-- 📜 Certifications display
-- 📫 Contact form
+- 🎨 Modern UI with dark/light mode and seamless theme switching
+- 📱 Fully responsive design optimized for all devices
+- 🛠️ Interactive Amazon seller tools with CSV data processing
+- 📊 Project showcase with dynamic filtering and sorting
+- 📝 Blog section with MDX content and rich typography
+- 📜 Certifications display with downloadable resume
+- 📫 Contact form with validation and error handling
+
+### Enhanced Resume Download
+- One-click PDF resume download
+- Optimized file size and fast delivery
+- Automatic PDF generation from profile data
+- Cached for improved performance
+
+### Blog Structure
+- MDX-powered content with code highlighting
+- Custom SVG illustrations per post
+- Rich typography with Tailwind Typography
+- Responsive images and media
+- Category-based filtering
+- Reading time estimation
+- Related posts suggestions
 
 ## Technologies Used
 
