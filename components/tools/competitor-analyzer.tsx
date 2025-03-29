@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Card } from '../ui/card';
-import { Chart } from '../ui/chart';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -8,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from '../ui/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Info } from 'lucide-react';
-import { useMobile } from '../../hooks/use-mobile';
+import { useIsMobile } from '../../hooks/use-mobile';
 
-export function CompetitorAnalyzer() {
+export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
   const [metrics, setMetrics] = useState(['price', 'reviews', 'rating', 'conversion_rate', 'click_through_rate']);
   const [chartData, setChartData] = useState(null);
@@ -126,15 +126,14 @@ export function CompetitorAnalyzer() {
       
       const data = await response.json();
       
-      setChartData({
-        labels: data.competitors,
-        datasets: metrics.map((metric, i) => ({
-          label: metric,
-          data: data.metrics[metric],
-          borderColor: `hsl(${i * 90}, 70%, 50%)`,
-          backgroundColor: `hsla(${i * 90}, 70%, 50%, 0.2)`,
-        }))
-      });
+      const formattedData = data.competitors.map((competitor, index) => ({
+        name: competitor,
+        ...metrics.reduce((acc, metric) => {
+          acc[metric] = data.metrics[metric][index];
+          return acc;
+        }, {})
+      }));
+      setChartData(formattedData);
       setIsLoading(false);
     } catch (error) {
       toast({
@@ -146,7 +145,7 @@ export function CompetitorAnalyzer() {
     }
   };
 
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   return (
     <Card className="p-6">
@@ -263,47 +262,57 @@ export function CompetitorAnalyzer() {
         
         {chartData && (
           <div className="h-[400px]">
-            <Chart
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: (context) => {
-                        const label = context.dataset.label || '';
-                        const value = context.raw;
-                        let formattedValue = value;
-                        
-                        if (label.includes('price')) {
-                          formattedValue = `$${value.toFixed(2)}`;
-                        } else if (label.includes('rate')) {
-                          formattedValue = `${(value * 100).toFixed(1)}%`;
-                        } else if (label === 'rating') {
-                          formattedValue = `${value.toFixed(1)} stars`;
-                        }
-                        
-                        return `${label}: ${formattedValue}`;
-                      },
-                      afterLabel: (context) => {
-                        const tooltips = {
-                          price: 'The current selling price of the product',
-                          reviews: 'Total number of customer reviews',
-                          rating: 'Average star rating from customers',
-                          conversion_rate: 'Percentage of visitors who purchase the product',
-                          click_through_rate: 'Percentage of impressions that result in clicks'
-                        };
-                        return tooltips[context.dataset.label] || '';
-                      }
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-background border rounded p-2 shadow-lg">
+                          <p className="font-medium">{label}</p>
+                          {payload.map((entry, index) => {
+                            let value = entry.value;
+                            const name = entry.name;
+                            if (name === 'price') {
+                              value = `$${Number(value).toFixed(2)}`;
+                            } else if (name.includes('rate')) {
+                              value = `${(Number(value) * 100).toFixed(1)}%`;
+                            } else if (name === 'rating') {
+                              value = `${Number(value).toFixed(1)} stars`;
+                            }
+                            return (
+                              <p key={index} style={{ color: entry.color }}>
+                                {name}: {value}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      );
                     }
-                  }
-                },
-              }}
-              data={chartData}
-              type="line"
-            />
+                    return null;
+                  }}
+                />
+                <Legend />
+                {metrics.map((metric) => (
+                  <Line
+                    key={metric}
+                    type="monotone"
+                    dataKey={metric}
+                    stroke={{
+                      price: '#FF6B6B',
+                      reviews: '#4ECDC4',
+                      rating: '#45B7D1',
+                      conversion_rate: '#96CEB4',
+                      click_through_rate: '#FFEEAD'
+                    }[metric]}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>

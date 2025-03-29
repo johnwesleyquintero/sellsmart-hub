@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import { Upload, FileText, AlertCircle, Download, Calculator, Info } from "lucide-react"
 import Papa from "papaparse"
 import SampleCsvButton from "./sample-csv-button"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 
 type CampaignData = {
@@ -209,27 +209,49 @@ export default function AcosCalculator() {
 
   return (
     <div className="space-y-6">
-      <ChartContainer 
-        config={{
-          acos: { label: "ACOS", theme: { light: "#ef4444", dark: "#ef4444" } },
-          roas: { label: "ROAS", theme: { light: "#10b981", dark: "#10b981" } },
-          ctr: { label: "CTR", theme: { light: "#3b82f6", dark: "#3b82f6" } }
-        }}
-        className="h-[400px] mb-6"
-      >
-        {(width, height) => (
-          <BarChart width={width} height={height} data={campaigns}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="campaign" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="acos" name="ACOS" fill="#ef4444" />
-            <Bar dataKey="roas" name="ROAS" fill="#10b981" />
-            <Bar dataKey="ctr" name="CTR" fill="#3b82f6" />
-          </BarChart>
-        )}
-      </ChartContainer>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <ChartContainer 
+          config={{
+            acos: { label: "ACOS", theme: { light: "#ef4444", dark: "#ef4444" } },
+            roas: { label: "ROAS", theme: { light: "#10b981", dark: "#10b981" } },
+            ctr: { label: "CTR", theme: { light: "#3b82f6", dark: "#3b82f6" } }
+          }}
+          className="h-[400px]"
+        >
+          {(width, height) => (
+            <BarChart width={width} height={height} data={campaigns}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="campaign" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="acos" name="ACOS" fill="#ef4444" />
+              <Bar dataKey="roas" name="ROAS" fill="#10b981" />
+              <Bar dataKey="ctr" name="CTR" fill="#3b82f6" />
+            </BarChart>
+          )}
+        </ChartContainer>
+
+        <ChartContainer 
+          config={{
+            acos: { label: "ACOS Trend", theme: { light: "#ef4444", dark: "#ef4444" } },
+            roas: { label: "ROAS Trend", theme: { light: "#10b981", dark: "#10b981" } }
+          }}
+          className="h-[400px]"
+        >
+          {(width, height) => (
+            <LineChart width={width} height={height} data={campaigns}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="campaign" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="acos" name="ACOS Trend" stroke="#ef4444" strokeWidth={2} dot={{ fill: "#ef4444" }} />
+              <Line type="monotone" dataKey="roas" name="ROAS Trend" stroke="#10b981" strokeWidth={2} dot={{ fill: "#10b981" }} />
+            </LineChart>
+          )}
+        </ChartContainer>
+      </div>
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">

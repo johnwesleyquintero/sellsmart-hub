@@ -1,0 +1,11 @@
+Product ID,Category,Product Name,Current Price,Cost,Inventory Level,Units Sold (30 Days),Revenue (30 Days),Profit Margin,BSR Rank,Review Count,Average Rating
+S001,Electronics,Wireless Earbuds Pro,89.99,45.00,150,85,7649.15,49.99%,1250,342,4.6
+S002,Home & Kitchen,Smart Coffee Maker,129.99,65.50,75,42,5459.58,49.61%,3420,156,4.4
+S003,Sports,Yoga Mat Premium,34.99,12.25,200,120,4198.80,64.99%,5680,289,4.8
+S004,Beauty,Organic Face Serum,24.99,8.75,300,165,4123.35,64.99%,2340,678,4.7
+S005,Pet Supplies,Dog Training Kit,49.99,20.00,125,95,4749.05,59.99%,4560,234,4.5
+S006,Books,Business Strategy Guide,19.99,6.00,400,250,4997.50,69.98%,7890,445,4.3
+S007,Toys,Educational Robot Kit,79.99,36.00,100,68,5439.32,54.99%,3670,167,4.6
+S008,Fashion,Designer Backpack,59.99,24.00,180,110,6598.90,59.99%,6780,223,4.4
+S009,Health,Vitamin Complex,29.99,10.50,250,180,5398.20,64.99%,4320,890,4.7
+S010,Office,Ergonomic Keyboard,94.99,42.75,90,55,5224.45,54.99%,2890,445,4.5

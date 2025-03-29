@@ -12,12 +12,42 @@ import DescriptionEditor from "./tools/description-editor"
 import KeywordDeduplicator from "./tools/keyword-deduplicator"
 import AcosCalculator from "./tools/acos-calculator"
 import SalesEstimator from "./tools/sales-estimator"
-import { Calculator, Search, CheckSquare, TrendingUp, FileText, Filter, DollarSign, BarChart3 } from "lucide-react"
+import CompetitorAnalyzer from "./tools/competitor-analyzer"
+import KeywordTrendAnalyzer from "./tools/keyword-trend-analyzer"
+import ProfitMarginCalculator from "./tools/profit-margin-calculator"
+import { Calculator, Search, CheckSquare, TrendingUp, FileText, Filter, DollarSign, BarChart3, Users, LineChart, Percent } from "lucide-react"
 
 export default function FeaturedToolsSection() {
   const [activeTab, setActiveTab] = useState("fba-calculator")
 
   const tools = [
+    {
+      id: "competitor-analyzer",
+      name: "Competitor Analyzer",
+      description: "Analyze competitor listings, pricing strategies, and market positioning",
+      icon: <Users className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <CompetitorAnalyzer />,
+    },
+    {
+      id: "keyword-trend-analyzer",
+      name: "Keyword Trend Analyzer",
+      description: "Track and analyze keyword performance trends over time",
+      icon: <LineChart className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <KeywordTrendAnalyzer />,
+    },
+    {
+      id: "profit-margin-calculator",
+      name: "Profit Margin Calculator",
+      description: "Calculate and analyze profit margins with detailed breakdowns",
+      icon: <Percent className="h-5 w-5" />,
+      status: "active",
+      version: "1.0.0",
+      component: <ProfitMarginCalculator />,
+    },
     {
       id: "fba-calculator",
       name: "FBA Calculator",
@@ -115,33 +145,49 @@ export default function FeaturedToolsSection() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden group">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="flex justify-center mb-8">
-                <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {tools.slice(0, 4).map((tool) => (
-                    <TabsTrigger 
-                      key={tool.id} 
-                      value={tool.id} 
-                      className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
-                    >
-                      {tool.icon}
-                      <span className="hidden md:inline">{tool.name}</span>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-              <div className="flex justify-center mb-8">
-                <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {tools.slice(4, 8).map((tool) => (
-                    <TabsTrigger 
-                      key={tool.id} 
-                      value={tool.id} 
-                      className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
-                    >
-                      {tool.icon}
-                      <span className="hidden md:inline">{tool.name}</span>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              <div className="flex flex-col gap-8">
+                <div className="flex justify-center">
+                  <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {tools.slice(0, 4).map((tool) => (
+                      <TabsTrigger 
+                        key={tool.id} 
+                        value={tool.id} 
+                        className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
+                      >
+                        {tool.icon}
+                        <span className="hidden md:inline">{tool.name}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                <div className="flex justify-center">
+                  <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {tools.slice(4, 8).map((tool) => (
+                      <TabsTrigger 
+                        key={tool.id} 
+                        value={tool.id} 
+                        className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
+                      >
+                        {tool.icon}
+                        <span className="hidden md:inline">{tool.name}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                <div className="flex justify-center">
+                  <TabsList className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {tools.slice(8).map((tool) => (
+                      <TabsTrigger 
+                        key={tool.id} 
+                        value={tool.id} 
+                        className="flex items-center gap-2 hover:bg-accent/50 transition-colors duration-300"
+                      >
+                        {tool.icon}
+                        <span className="hidden md:inline">{tool.name}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
               </div>
 
               {tools.map((tool) => (

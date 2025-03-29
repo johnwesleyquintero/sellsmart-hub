@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Card } from '../ui/card';
-import { Chart } from '../ui/chart';
+import { ChartContainer } from '../ui/chart';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-export function KeywordTrendAnalyzer() {
+export default function KeywordTrendAnalyzer() {
   const [keywords, setKeywords] = useState('');
   const [timeRange, setTimeRange] = useState('30');
   const [chartData, setChartData] = useState(null);
@@ -13,15 +14,13 @@ export function KeywordTrendAnalyzer() {
   const analyzeTrends = () => {
     // TODO: Implement API call to fetch keyword trend data
     // Mock data for now
-    const mockData = {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: keywords.split(',').map((keyword, i) => ({
-        label: keyword.trim(),
-        data: Array(4).fill(0).map(() => Math.floor(Math.random() * 100)),
-        borderColor: `hsl(${i * 90}, 70%, 50%)`,
-        backgroundColor: `hsla(${i * 90}, 70%, 50%, 0.2)`,
-      }))
-    };
+    const mockData = keywords.split(',').map((keyword, i) => ({
+      name: 'Week ' + (i + 1),
+      ...keywords.split(',').reduce((acc, k) => ({
+        ...acc,
+        [k.trim()]: Math.floor(Math.random() * 100)
+      }), {})
+    }));
     setChartData(mockData);
   };
 
@@ -53,19 +52,34 @@ export function KeywordTrendAnalyzer() {
         <Button onClick={analyzeTrends}>Analyze Trends</Button>
         
         {chartData && (
-          <div className="h-[400px]">
-            <Chart
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                },
-              }}
-              data={chartData}
-            />
-          </div>
+          <ChartContainer
+            config={{
+              keywords: {
+                label: "Keyword Trends",
+                theme: { light: "#10b981", dark: "#10b981" }
+              }
+            }}
+            className="h-[400px]"
+          >
+            {(width, height) => (
+              <LineChart width={width} height={height} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {keywords.split(',').map((keyword, index) => (
+                  <Line
+                    key={keyword.trim()}
+                    type="monotone"
+                    dataKey={keyword.trim()}
+                    name={keyword.trim()}
+                    stroke={`hsl(${index * 90}, 70%, 50%)`}
+                  />
+                ))}
+              </LineChart>
+            )}
+          </ChartContainer>
         )}
       </div>
     </Card>
