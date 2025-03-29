@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Card } from '../ui/card';
+import { Card } from '@/components/ui/card';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -12,7 +12,7 @@ import { useIsMobile } from '../../hooks/use-mobile';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
-  const [metrics, setMetrics] = useState(['price', 'reviews', 'rating']);
+  const [metrics, setMetrics] = useState<string[]>(['price', 'reviews', 'rating']);
   const [chartData, setChartData] = useState(null);
   const [sellerData, setSellerData] = useState(null);
   const [competitorData, setCompetitorData] = useState(null);
@@ -119,6 +119,33 @@ export default function CompetitorAnalyzer() {
         processedCompetitorData = processCsvData(competitorData, 'competitor');
       }
       
+      // If no API call needed (using uploaded CSV data)
+      if (processedSellerData && processedCompetitorData) {
+        const formattedData = processedCompetitorData.slice(1).map((row, index) => {
+          const competitor = row.split(',')[0]; // First column is ASIN
+          const dataPoint = {
+            name: competitor
+          };
+          
+          metrics.forEach(metric => {
+            const metricIndex = processedSellerData[0].split(',').indexOf(metric);
+            if (metricIndex !== -1) {
+              const value = row.split(',')[metricIndex];
+              dataPoint[metric] = Number(value) || 0;
+            }
+          });
+          
+          return dataPoint;
+        });
+        
+        if (formattedData.length > 0) {
+          setChartData(formattedData);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Fallback to API call if no CSV data
       const response = await fetch('/api/amazon/competitor-analysis', {
         method: 'POST',
         headers: {
@@ -244,32 +271,26 @@ export default function CompetitorAnalyzer() {
         
         <div>
           <Label htmlFor="metrics">Metrics to Compare</Label>
-          <Select
-            value={metrics.join(',')}
-            onValueChange={(value) => {
-              const selectedMetrics = value.split(',');
-              if (selectedMetrics.includes('price,reviews,rating,sales_velocity,inventory_levels,conversion_rate,click_through_rate')) {
-                setMetrics(['price', 'reviews', 'rating', 'sales_velocity', 'inventory_levels', 'conversion_rate', 'click_through_rate']);
-              } else {
-                setMetrics(selectedMetrics);
-              }
-            }}
-            multiple
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select metrics" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="price">Price</SelectItem>
-              <SelectItem value="reviews">Review Count</SelectItem>
-              <SelectItem value="rating">Rating</SelectItem>
-              <SelectItem value="sales_velocity">Sales Velocity</SelectItem>
-              <SelectItem value="inventory_levels">Inventory Levels</SelectItem>
-              <SelectItem value="conversion_rate">Conversion Rate</SelectItem>
-              <SelectItem value="click_through_rate">Click Through Rate</SelectItem>
-              <SelectItem value="price,reviews,rating,sales_velocity,inventory_levels,conversion_rate,click_through_rate">All Metrics</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-2">
+            {['price', 'reviews', 'rating', 'sales_velocity', 'inventory_levels', 'conversion_rate', 'click_through_rate'].map((metric) => (
+              <div key={metric} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={metric}
+                  checked={metrics.includes(metric)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMetrics([...metrics, metric]);
+                    } else {
+                      setMetrics(metrics.filter((m) => m !== metric));
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <Label htmlFor={metric}>{metric.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Label>
+              </div>
+            ))
+          </div>
         </div>
         
         <div className="flex gap-4">
@@ -346,7 +367,8 @@ export default function CompetitorAnalyzer() {
                     stroke={metric === 'price' ? '#FF6B6B' : metric === 'reviews' ? '#4ECDC4' : '#45B7D1'}
                     activeDot={{ r: 8 }}
                   />
-                ))}
+                ))
+                ))}              
               </LineChart>
             </ResponsiveContainer>
           </div>

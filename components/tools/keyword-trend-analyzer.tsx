@@ -71,6 +71,28 @@ export default function KeywordTrendAnalyzer() {
     reader.readAsText(file);
   }, []);
 
+  const processCsvData = (csvContent) => {
+    try {
+      const rows = csvContent.split('\n').filter(row => row.trim());
+      const headers = rows[0].split(',').map(h => h.trim());
+      return rows.slice(1).map(row => {
+        const values = row.split(',');
+        return {
+          keyword: values[headers.indexOf('keyword')].trim(),
+          volume: parseInt(values[headers.indexOf('volume')], 10),
+          date: new Date(values[headers.indexOf('date')])
+        };
+      });
+    } catch (error) {
+      toast({
+        title: 'CSV Processing Error',
+        description: 'Failed to parse CSV content: ' + error.message,
+        variant: 'destructive'
+      });
+      return null;
+    }
+  };
+
   const analyzeTrends = async () => {
     if (!csvData && !keywords) {
       toast({
@@ -84,11 +106,7 @@ export default function KeywordTrendAnalyzer() {
     setIsLoading(true);
     try {
       // Process CSV data if uploaded
-      let processedCsvData = csvData;
-      
-      if (typeof csvData === 'string') {
-        processedCsvData = processCsvData(csvData);
-      }
+      let processedCsvData = csvData ? processCsvData(csvData.join('\n')) : null;
       
       const response = await fetch('/api/amazon/keyword-trends', {
         method: 'POST',
@@ -108,9 +126,17 @@ export default function KeywordTrendAnalyzer() {
       
       const data = await response.json();
       
-      // Ensure we have data to render
-      if (data && Object.keys(data).length > 0) {
-        setChartData(data);
+      // Transform data for Recharts format
+      const transformedData = Object.entries(data).map(([date, values]) => ({
+        name: new Date(date).toLocaleDateString(),
+        ...Object.fromEntries(Object.entries(values).map(([keyword, volume]) => [
+          keyword.trim(),
+          volume
+        ]))
+      }));
+
+      if (transformedData.length > 0) {
+        setChartData(transformedData);
       } else {
         throw new Error('No trend data available to render');
       }
@@ -187,7 +213,7 @@ export default function KeywordTrendAnalyzer() {
             className="h-[400px]"
           >
             {(width, height) => (
-              <LineChart width={width} height={height} data={chartData}>
+              <LineChart width={width} height={height} data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
