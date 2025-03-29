@@ -1,20 +1,24 @@
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Calendar, Clock, ArrowLeft, Tag } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { getPostBySlug, getAllPosts } from "@/lib/mdx"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import { mdxComponents } from "@/components/blog/mdx-components"
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { getPostBySlug, getAllPosts } from '@/lib/mdx';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { mdxComponents } from '@/components/blog/mdx-components';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     return {
-      title: "Post Not Found | Wesley Quintero",
-    }
+      title: 'Post Not Found | Wesley Quintero',
+    };
   }
 
   return {
@@ -23,13 +27,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     openGraph: {
       title: post.title,
       description: post.description,
-      type: "article",
+      type: 'article',
       publishedTime: post.date,
-      authors: ["Wesley Quintero"],
+      authors: ['Wesley Quintero'],
       tags: post.tags,
       images: [
         {
-          url: post.image || "/og-image.svg",
+          url: post.image || '/og-image.svg',
           width: 1200,
           height: 630,
           alt: post.title,
@@ -37,33 +41,40 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: post.title,
       description: post.description,
-      images: [post.image || "/og-image.svg"],
+      images: [post.image || '/og-image.svg'],
     },
-  }
+  };
 }
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts()
+  const posts = await getAllPosts();
   return posts.map((post) => ({
     slug: post.slug,
-  }))
+  }));
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug)
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 min-h-screen">
       <div className="container mx-auto px-4 py-16">
         <div className="mb-8">
-          <Link href="/blog" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+          <Link
+            href="/blog"
+            className="flex items-center text-muted-foreground hover:text-primary transition-colors"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to all articles
           </Link>
@@ -80,7 +91,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               ))}
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">{post.title}</h1>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+              {post.title}
+            </h1>
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8">
               <div className="flex items-center gap-1">
@@ -98,7 +111,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             {post.image && (
               <div className="mb-8 overflow-hidden rounded-lg">
                 <Image
-                  src={post.image || "/placeholder.svg"}
+                  src={post.image || '/placeholder.svg'}
                   alt={post.title}
                   width={1200}
                   height={630}
@@ -122,7 +135,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                   className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <h3 className="font-medium mb-1">{relatedPost.title}</h3>
-                  <p className="text-sm text-muted-foreground">{relatedPost.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {relatedPost.description}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -130,6 +145,5 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         </div>
       </div>
     </div>
-  )
+  );
 }
-

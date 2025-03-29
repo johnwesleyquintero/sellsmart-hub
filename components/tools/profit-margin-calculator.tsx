@@ -1,50 +1,66 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Upload, AlertCircle, Download, Percent } from "lucide-react"
-import Papa from "papaparse"
-import SampleCsvButton from "./sample-csv-button"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
-import { ChartContainer } from "@/components/ui/chart"
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Upload, AlertCircle, Download, Percent } from 'lucide-react';
+import Papa from 'papaparse';
+import SampleCsvButton from './sample-csv-button';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { ChartContainer } from '@/components/ui/chart';
 
 type ProductData = {
-  product: string
-  cost: number
-  price: number
-  fees: number
-  profit?: number
-  roi?: number
-  margin?: number
-}
+  product: string;
+  cost: number;
+  price: number;
+  fees: number;
+  profit?: number;
+  roi?: number;
+  margin?: number;
+};
 
 export default function ProfitMarginCalculator() {
-  const [, setCsvData] = useState<ProductData[]>([])
-  const [results, setResults] = useState<ProductData[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [, setCsvData] = useState<ProductData[]>([]);
+  const [results, setResults] = useState<ProductData[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [manualProduct, setManualProduct] = useState<ProductData>({
-    product: "",
+    product: '',
     cost: 0,
     price: 0,
     fees: 0,
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null)
-    setIsLoading(true)
-    const file = event.target.files?.[0]
+    setError(null);
+    setIsLoading(true);
+    const file = event.target.files?.[0];
     if (!file) {
-      setIsLoading(false)
-      return
+      setIsLoading(false);
+      return;
     }
 
     Papa.parse<ProductData>(file, {
@@ -54,96 +70,102 @@ export default function ProfitMarginCalculator() {
       complete: (result) => {
         try {
           // Validate required columns
-          const requiredColumns = ['product', 'cost', 'price', 'fees']
-          const missingColumns = requiredColumns.filter(col => !result.meta.fields.includes(col))
-          
+          const requiredColumns = ['product', 'cost', 'price', 'fees'];
+          const missingColumns = requiredColumns.filter(
+            (col) => !result.meta.fields.includes(col),
+          );
+
           if (missingColumns.length > 0) {
-            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`)
+            throw new Error(
+              `Missing required columns: ${missingColumns.join(', ')}`,
+            );
           }
-          
+
           const processedData = result.data.map((item: ProductData) => ({
-            product: item.product || "",
+            product: item.product || '',
             cost: Number(item.cost) || 0,
             price: Number(item.price) || 0,
             fees: Number(item.fees) || 0,
-          }))
-          
+          }));
+
           if (processedData.length === 0) {
-            throw new Error("No valid data found in CSV")
+            throw new Error('No valid data found in CSV');
           }
 
-          setCsvData(processedData)
-          calculateResults(processedData)
+          setCsvData(processedData);
+          calculateResults(processedData);
         } catch (err) {
-          setError(`Error processing CSV file: ${err.message}`)
+          setError(`Error processing CSV file: ${err.message}`);
         } finally {
-          setIsLoading(false)
+          setIsLoading(false);
         }
       },
       error: (error) => {
-        setError(`Error parsing CSV: ${error.message}`)
-        setIsLoading(false)
+        setError(`Error parsing CSV: ${error.message}`);
+        setIsLoading(false);
       },
-    })
-  }
+    });
+  };
 
   const calculateResults = (data: ProductData[]) => {
     if (!data || data.length === 0) {
       setError('No valid data to calculate');
       return;
     }
-    
+
     const calculated = data.map((item) => {
-      const profit = item.price - item.cost - item.fees
-      const margin = (profit / item.price) * 100
-      const roi = (profit / item.cost) * 100
+      const profit = item.price - item.cost - item.fees;
+      const margin = (profit / item.price) * 100;
+      const roi = (profit / item.cost) * 100;
       return {
         ...item,
         profit,
         margin: parseFloat(margin.toFixed(2)),
         roi: parseFloat(roi.toFixed(2)),
-      }
-    })
-    
+      };
+    });
+
     if (calculated.length === 0) {
       setError('Failed to calculate results');
       return;
     }
-    
-    setResults(calculated)
-  }
+
+    setResults(calculated);
+  };
 
   const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (!manualProduct.product.trim()) {
-      setError("Please enter a product name")
-      return
+      setError('Please enter a product name');
+      return;
     }
 
-    const cost = Number(manualProduct.cost)
-    const price = Number(manualProduct.price)
-    const fees = Number(manualProduct.fees)
+    const cost = Number(manualProduct.cost);
+    const price = Number(manualProduct.price);
+    const fees = Number(manualProduct.fees);
 
     if (isNaN(cost) || cost <= 0) {
-      setError("Product cost must be a valid positive number")
-      return
+      setError('Product cost must be a valid positive number');
+      return;
     }
 
     if (isNaN(price) || price <= 0) {
-      setError("Selling price must be a valid positive number")
-      return
+      setError('Selling price must be a valid positive number');
+      return;
     }
 
     if (isNaN(fees) || fees < 0) {
-      setError("Fees must be a valid non-negative number")
-      return
+      setError('Fees must be a valid non-negative number');
+      return;
     }
 
     if (price <= cost + fees) {
-      setError("Selling price must be greater than the sum of cost and fees for a profitable margin")
-      return
+      setError(
+        'Selling price must be greater than the sum of cost and fees for a profitable margin',
+      );
+      return;
     }
 
     const newProduct = {
@@ -151,22 +173,26 @@ export default function ProfitMarginCalculator() {
       cost,
       price,
       fees,
-    }
+    };
 
-    calculateResults([newProduct])
-  }
+    calculateResults([newProduct]);
+  };
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardContent className="p-6">
-        <ChartContainer 
-          config={
-            {
-              profit: { label: "Profit", theme: { light: "#10b981", dark: "#10b981" } },
-              roi: { label: "ROI", theme: { light: "#3b82f6", dark: "#3b82f6" } },
-              margin: { label: "Margin", theme: { light: "#8b5cf6", dark: "#8b5cf6" } }
-            }
-          }
+        <ChartContainer
+          config={{
+            profit: {
+              label: 'Profit',
+              theme: { light: '#10b981', dark: '#10b981' },
+            },
+            roi: { label: 'ROI', theme: { light: '#3b82f6', dark: '#3b82f6' } },
+            margin: {
+              label: 'Margin',
+              theme: { light: '#8b5cf6', dark: '#8b5cf6' },
+            },
+          }}
           className="h-[400px] mb-6"
         >
           {(width, height) => (
@@ -237,7 +263,7 @@ export default function ProfitMarginCalculator() {
                     <Input
                       id="cost"
                       type="number"
-                      value={manualProduct.cost || ""}
+                      value={manualProduct.cost || ''}
                       onChange={(e) =>
                         setManualProduct({
                           ...manualProduct,
@@ -253,7 +279,7 @@ export default function ProfitMarginCalculator() {
                     <Input
                       id="price"
                       type="number"
-                      value={manualProduct.price || ""}
+                      value={manualProduct.price || ''}
                       onChange={(e) =>
                         setManualProduct({
                           ...manualProduct,
@@ -269,7 +295,7 @@ export default function ProfitMarginCalculator() {
                     <Input
                       id="fees"
                       type="number"
-                      value={manualProduct.fees || ""}
+                      value={manualProduct.fees || ''}
                       onChange={(e) =>
                         setManualProduct({
                           ...manualProduct,
@@ -307,15 +333,27 @@ export default function ProfitMarginCalculator() {
                             data={results}
                             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                           >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="product" />
-                          <YAxis />
-                          <Tooltip />
-                          <Legend />
-                          <Bar dataKey="profit" fill="#10b981" name="Profit ($)" />
-                          <Bar dataKey="cost" fill="#ef4444" name="Cost ($)" />
-                          <Bar dataKey="fees" fill="#f59e0b" name="Fees ($)" />
-                        </BarChart>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="product" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar
+                              dataKey="profit"
+                              fill="#10b981"
+                              name="Profit ($)"
+                            />
+                            <Bar
+                              dataKey="cost"
+                              fill="#ef4444"
+                              name="Cost ($)"
+                            />
+                            <Bar
+                              dataKey="fees"
+                              fill="#f59e0b"
+                              name="Fees ($)"
+                            />
+                          </BarChart>
                         </ResponsiveContainer>
                       </div>
                       <div className="h-80">
@@ -329,40 +367,55 @@ export default function ProfitMarginCalculator() {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Line type="monotone" dataKey="price" stroke="#ff7300" name="Price" />
-                            <Line type="monotone" dataKey="cost" stroke="#387908" name="Cost" />
-                            <Line type="monotone" dataKey="fees" stroke="#ff0000" name="Fees" />
+                            <Line
+                              type="monotone"
+                              dataKey="price"
+                              stroke="#ff7300"
+                              name="Price"
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="cost"
+                              stroke="#387908"
+                              name="Cost"
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="fees"
+                              stroke="#ff0000"
+                              name="Fees"
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
-                    </div>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Product</TableHead>
-                          <TableHead className="text-right">Profit</TableHead>
-                          <TableHead className="text-right">Margin</TableHead>
-                          <TableHead className="text-right">ROI</TableHead>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead className="text-right">Profit</TableHead>
+                        <TableHead className="text-right">Margin</TableHead>
+                        <TableHead className="text-right">ROI</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {results.map((result, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{result.product}</TableCell>
+                          <TableCell className="text-right">
+                            ${result.profit?.toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {result.margin}%
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {result.roi}%
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {results.map((result, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{result.product}</TableCell>
-                            <TableCell className="text-right">
-                              ${result.profit?.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {result.margin}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {result.roi}%
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                      ))}
+                    </TableBody>
+                  </Table>
 
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm">
@@ -381,5 +434,5 @@ export default function ProfitMarginCalculator() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

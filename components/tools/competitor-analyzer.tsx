@@ -209,7 +209,6 @@ export default function CompetitorAnalyzer() {
                     <p>Upload a CSV with columns: asin, price, reviews, rating, conversion_rate, click_through_rate</p>
                   </TooltipContent>
                 </Tooltip>
-                </Tooltip>
               </TooltipProvider>
             </div>
             <Input
@@ -231,7 +230,6 @@ export default function CompetitorAnalyzer() {
                   <TooltipContent>
                     <p>Upload a CSV with columns: asin, price, reviews, rating, conversion_rate, click_through_rate</p>
                   </TooltipContent>
-                </Tooltip>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -275,7 +273,7 @@ export default function CompetitorAnalyzer() {
                 />
                 <Label htmlFor={metric}>{metric.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Label>
               </div>
-            ))
+            ))}
           </div>
         </div>
         

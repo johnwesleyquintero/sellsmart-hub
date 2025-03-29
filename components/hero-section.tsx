@@ -1,16 +1,18 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
-
 
 export default function HeroSection() {
   return (
     <section className="container relative mx-auto px-4 py-32 md:py-48">
       <div className="grid items-center gap-12 md:grid-cols-2">
         <div className="space-y-8">
-          <Badge variant="secondary" className="inline-flex items-center gap-1 rounded-full px-4 py-1.5">
+          <Badge
+            variant="secondary"
+            className="inline-flex items-center gap-1 rounded-full px-4 py-1.5"
+          >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75 duration-3000"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
@@ -20,24 +22,36 @@ export default function HeroSection() {
 
           <div className="animate-fadeIn">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              I&apos;m{" "}
+              I&apos;m{' '}
               <span className="bg-gradient-to-r from-primary via-purple-500 to-purple-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none duration-5000">
                 Wesley Quintero
               </span>
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
-              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale with Insights, Automation & AI.
+              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale
+              with Insights, Automation & AI.
             </p>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Button asChild size="lg" className="group hover:scale-105 transition-transform duration-300 animate-pulse hover:animate-none bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg hover:shadow-xl hover:from-primary/90 hover:to-purple-600/90">
+            <Button
+              asChild
+              size="lg"
+              className="group hover:scale-105 transition-transform duration-300 animate-pulse hover:animate-none bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg hover:shadow-xl hover:from-primary/90 hover:to-purple-600/90"
+            >
               <Link href="#projects">
                 View My Work
-                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
+                  →
+                </span>
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="hover:scale-105 transition-transform duration-300 hover:bg-primary hover:text-primary-foreground border-2 border-primary/20 hover:border-primary/50">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="hover:scale-105 transition-transform duration-300 hover:bg-primary hover:text-primary-foreground border-2 border-primary/20 hover:border-primary/50"
+            >
               <Link href="#contact">Get in Touch</Link>
             </Button>
           </div>
@@ -94,6 +108,5 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

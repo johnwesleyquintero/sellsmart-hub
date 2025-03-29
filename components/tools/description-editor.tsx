@@ -1,43 +1,45 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Save, Eye } from "lucide-react"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Upload, FileText, AlertCircle, Save, Eye } from 'lucide-react';
 
 type ProductDescription = {
-  product: string
-  asin?: string
-  description: string
-  characterCount: number
-  keywordCount: number
-  score?: number
-}
+  product: string;
+  asin?: string;
+  description: string;
+  characterCount: number;
+  keywordCount: number;
+  score?: number;
+};
 
 export default function DescriptionEditor() {
-  const [products, setProducts] = useState<ProductDescription[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [activeProduct, setActiveProduct] = useState<ProductDescription | null>(null)
-  const [showPreview, setShowPreview] = useState(false)
+  const [products, setProducts] = useState<ProductDescription[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeProduct, setActiveProduct] = useState<ProductDescription | null>(
+    null,
+  );
+  const [showPreview, setShowPreview] = useState(false);
   const [newProduct, setNewProduct] = useState({
-    product: "",
-    asin: "",
-    description: "",
-  })
+    product: '',
+    asin: '',
+    description: '',
+  });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     Papa.parse(file, {
       header: true,
@@ -45,17 +47,21 @@ export default function DescriptionEditor() {
       complete: (results) => {
         try {
           const requiredColumns = ['product', 'description'];
-          const missingColumns = requiredColumns.filter(col => !results.meta.fields.includes(col));
+          const missingColumns = requiredColumns.filter(
+            (col) => !results.meta.fields.includes(col),
+          );
           if (missingColumns.length > 0) {
-            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+            throw new Error(
+              `Missing required columns: ${missingColumns.join(', ')}`,
+            );
           }
 
-          const processedData = results.data.map(row => ({
+          const processedData = results.data.map((row) => ({
             product: row.product,
             asin: row.asin || '',
             description: row.description,
             characterCount: row.description?.length || 0,
-            keywordCount: (row.description?.match(/\b\w+\b/g) || []).length
+            keywordCount: (row.description?.match(/\b\w+\b/g) || []).length,
           }));
 
           setProducts(processedData);
@@ -78,12 +84,12 @@ export default function DescriptionEditor() {
       error: (error) => {
         setError(error.message);
         setIsLoading(false);
-      }
+      },
     });
   };
 
   const handleDescriptionChange = (value: string) => {
-    if (!activeProduct) return
+    if (!activeProduct) return;
 
     const updatedProduct = {
       ...activeProduct,
@@ -91,18 +97,22 @@ export default function DescriptionEditor() {
       characterCount: value.length,
       keywordCount: countKeywords(value),
       score: calculateScore(value),
-    }
+    };
 
-    setActiveProduct(updatedProduct)
+    setActiveProduct(updatedProduct);
 
     // Update the product in the products array
-    setProducts(products.map((p) => (p.product === activeProduct.product ? updatedProduct : p)))
-  }
+    setProducts(
+      products.map((p) =>
+        p.product === activeProduct.product ? updatedProduct : p,
+      ),
+    );
+  };
 
   const handleAddProduct = () => {
     if (!newProduct.product || !newProduct.description) {
-      setError("Please fill in both product name and description")
-      return
+      setError('Please fill in both product name and description');
+      return;
     }
 
     const productData: ProductDescription = {
@@ -112,47 +122,56 @@ export default function DescriptionEditor() {
       characterCount: newProduct.description.length,
       keywordCount: countKeywords(newProduct.description),
       score: calculateScore(newProduct.description),
-    }
+    };
 
-    setProducts([...products, productData])
-    setActiveProduct(productData)
-    setNewProduct({ product: "", asin: "", description: "" })
-    setError(null)
-  }
+    setProducts([...products, productData]);
+    setActiveProduct(productData);
+    setNewProduct({ product: '', asin: '', description: '' });
+    setError(null);
+  };
 
   const countKeywords = (text: string): number => {
     // This is a simplified keyword counter
     // In a real app, you'd have a more sophisticated algorithm
-    const commonKeywords = ["premium", "quality", "durable", "comfortable", "advanced", "innovative"]
-    return commonKeywords.filter((keyword) => text.toLowerCase().includes(keyword.toLowerCase())).length
-  }
+    const commonKeywords = [
+      'premium',
+      'quality',
+      'durable',
+      'comfortable',
+      'advanced',
+      'innovative',
+    ];
+    return commonKeywords.filter((keyword) =>
+      text.toLowerCase().includes(keyword.toLowerCase()),
+    ).length;
+  };
 
   const calculateScore = (text: string): number => {
     // This is a simplified scoring algorithm
     // In a real app, you'd have a more sophisticated algorithm
-    let score = 0
+    let score = 0;
 
     // Length score (0-40 points)
-    if (text.length > 1000) score += 40
-    else if (text.length > 500) score += 30
-    else if (text.length > 250) score += 20
-    else if (text.length > 100) score += 10
+    if (text.length > 1000) score += 40;
+    else if (text.length > 500) score += 30;
+    else if (text.length > 250) score += 20;
+    else if (text.length > 100) score += 10;
 
     // Keyword score (0-30 points)
-    const keywordCount = countKeywords(text)
-    score += keywordCount * 6
+    const keywordCount = countKeywords(text);
+    score += keywordCount * 6;
 
     // Readability score (0-30 points)
     // This is a very simplified readability check
-    const sentences = text.split(/[.!?]+/).filter(Boolean)
-    const avgSentenceLength = text.length / (sentences.length || 1)
+    const sentences = text.split(/[.!?]+/).filter(Boolean);
+    const avgSentenceLength = text.length / (sentences.length || 1);
 
-    if (avgSentenceLength < 25) score += 30
-    else if (avgSentenceLength < 35) score += 20
-    else if (avgSentenceLength < 45) score += 10
+    if (avgSentenceLength < 25) score += 30;
+    else if (avgSentenceLength < 35) score += 20;
+    else if (avgSentenceLength < 45) score += 10;
 
-    return Math.min(100, score)
-  }
+    return Math.min(100, score);
+  };
 
   return (
     <div className="space-y-6">
@@ -165,13 +184,19 @@ export default function DescriptionEditor() {
               </div>
               <div>
                 <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">Upload a CSV file with your product descriptions</p>
+                <p className="text-sm text-muted-foreground">
+                  Upload a CSV file with your product descriptions
+                </p>
               </div>
               <div className="w-full">
                 <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
                   <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">Click to upload CSV</span>
-                  <span className="text-xs text-muted-foreground">(CSV with product name, ASIN, and description)</span>
+                  <span className="text-sm font-medium">
+                    Click to upload CSV
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    (CSV with product name, ASIN, and description)
+                  </span>
                   <input
                     type="file"
                     accept=".csv"
@@ -194,7 +219,9 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">Product Name</label>
                   <Input
                     value={newProduct.product}
-                    onChange={(e) => setNewProduct({ ...newProduct, product: e.target.value })}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, product: e.target.value })
+                    }
                     placeholder="Enter product name"
                   />
                 </div>
@@ -202,7 +229,9 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">ASIN (Optional)</label>
                   <Input
                     value={newProduct.asin}
-                    onChange={(e) => setNewProduct({ ...newProduct, asin: e.target.value })}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, asin: e.target.value })
+                    }
                     placeholder="Enter Amazon ASIN"
                   />
                 </div>
@@ -210,7 +239,12 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">Description</label>
                   <Textarea
                     value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Enter product description"
                     rows={3}
                   />
@@ -234,7 +268,9 @@ export default function DescriptionEditor() {
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
           <Progress value={45} className="h-2" />
-          <p className="text-sm text-muted-foreground">Processing your data...</p>
+          <p className="text-sm text-muted-foreground">
+            Processing your data...
+          </p>
         </div>
       )}
 
@@ -244,11 +280,15 @@ export default function DescriptionEditor() {
             {products.map((product, index) => (
               <Badge
                 key={index}
-                variant={activeProduct?.product === product.product ? "default" : "outline"}
+                variant={
+                  activeProduct?.product === product.product
+                    ? 'default'
+                    : 'outline'
+                }
                 className="cursor-pointer"
                 onClick={() => {
-                  setActiveProduct(product)
-                  setShowPreview(false)
+                  setActiveProduct(product);
+                  setShowPreview(false);
                 }}
               >
                 {product.product}
@@ -261,11 +301,21 @@ export default function DescriptionEditor() {
               <CardContent className="p-4">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium">{activeProduct.product}</h3>
-                    {activeProduct.asin && <p className="text-sm text-muted-foreground">ASIN: {activeProduct.asin}</p>}
+                    <h3 className="text-lg font-medium">
+                      {activeProduct.product}
+                    </h3>
+                    {activeProduct.asin && (
+                      <p className="text-sm text-muted-foreground">
+                        ASIN: {activeProduct.asin}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPreview(!showPreview)}
+                    >
                       {showPreview ? (
                         <>Edit</>
                       ) : (
@@ -296,10 +346,10 @@ export default function DescriptionEditor() {
                     <span
                       className={
                         (activeProduct.score || 0) >= 80
-                          ? "text-green-600 dark:text-green-400"
+                          ? 'text-green-600 dark:text-green-400'
                           : (activeProduct.score || 0) >= 50
-                            ? "text-yellow-600 dark:text-yellow-400"
-                            : "text-red-600 dark:text-red-400"
+                            ? 'text-yellow-600 dark:text-yellow-400'
+                            : 'text-red-600 dark:text-red-400'
                       }
                     >
                       {activeProduct.score}/100
@@ -311,9 +361,11 @@ export default function DescriptionEditor() {
                   <div className="rounded-lg border p-4">
                     <h4 className="mb-2 text-sm font-medium">Preview</h4>
                     <div className="prose prose-sm max-w-none dark:prose-invert">
-                      {activeProduct.description.split("\n").map((paragraph, i) => (
-                        <p key={i}>{paragraph}</p>
-                      ))}
+                      {activeProduct.description
+                        .split('\n')
+                        .map((paragraph, i) => (
+                          <p key={i}>{paragraph}</p>
+                        ))}
                     </div>
                   </div>
                 ) : (
@@ -326,8 +378,8 @@ export default function DescriptionEditor() {
                       className="font-mono text-sm"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
-                      <span className="font-medium">Tip:</span> Aim for 1000+ characters with relevant keywords for
-                      better visibility.
+                      <span className="font-medium">Tip:</span> Aim for 1000+
+                      characters with relevant keywords for better visibility.
                     </div>
                   </div>
                 )}
@@ -337,6 +389,5 @@ export default function DescriptionEditor() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

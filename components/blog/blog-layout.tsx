@@ -1,9 +1,9 @@
-import type React from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import type React from 'react';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 
 interface BlogLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function BlogLayout({ children }: BlogLayoutProps) {
@@ -13,6 +13,5 @@ export default function BlogLayout({ children }: BlogLayoutProps) {
       <main>{children}</main>
       <Footer />
     </div>
-  )
+  );
 }
-

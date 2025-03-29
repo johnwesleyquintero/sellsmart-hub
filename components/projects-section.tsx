@@ -1,22 +1,32 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ExternalLink, Github } from "lucide-react"
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ExternalLink, Github } from 'lucide-react';
 
-import projectsData from "@/data/projects.json"
+import projectsData from '@/data/projects.json';
 
-const projects = projectsData.projects
+const projects = projectsData.projects;
 
 export default function ProjectsSection() {
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab, setActiveTab] = useState('all');
 
-  const filteredProjects = activeTab === "all" ? projects : projects.filter((project) => project.category === activeTab)
+  const filteredProjects =
+    activeTab === 'all'
+      ? projects
+      : projects.filter((project) => project.category === activeTab);
 
   return (
     <section id="projects" className="container relative mx-auto px-4 py-32">
@@ -31,7 +41,8 @@ export default function ProjectsSection() {
           </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Featured Work</h2>
           <p className="text-xl text-muted-foreground">
-            A collection of my recent projects in Amazon marketplace optimization and e-commerce development.
+            A collection of my recent projects in Amazon marketplace
+            optimization and e-commerce development.
           </p>
         </div>
 
@@ -48,10 +59,13 @@ export default function ProjectsSection() {
           <TabsContent value={activeTab} className="mt-8">
             <div className="grid gap-6 sm:grid-cols-2">
               {filteredProjects.map((project) => (
-                <Card key={project.id} className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:bg-gradient-to-tr hover:from-background hover:to-muted/50 dark:hover:from-background dark:hover:to-muted/10">
+                <Card
+                  key={project.id}
+                  className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:bg-gradient-to-tr hover:from-background hover:to-muted/50 dark:hover:from-background dark:hover:to-muted/10"
+                >
                   <div className="aspect-video overflow-hidden bg-muted p-4 group-hover:bg-muted/50 transition-all duration-500 group-hover:translate-y-1">
                     <Image
-                      src={project.image || "/placeholder.svg"}
+                      src={project.image || '/placeholder.svg'}
                       alt={project.title}
                       width={600}
                       height={400}
@@ -73,12 +87,20 @@ export default function ProjectsSection() {
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                      <Link
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Github className="mr-2 h-4 w-4" /> Code
                       </Link>
                     </Button>
                     <Button asChild size="sm">
-                      <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                      <Link
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
                       </Link>
                     </Button>
@@ -90,6 +112,5 @@ export default function ProjectsSection() {
         </Tabs>
       </div>
     </section>
-  )
+  );
 }
-

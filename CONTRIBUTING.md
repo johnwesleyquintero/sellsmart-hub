@@ -12,6 +12,7 @@
 ## Development Standards
 
 ### Code Style
+
 - Use TypeScript for all new code
 - Follow the existing ESLint and Prettier configuration
 - Use meaningful variable and function names
@@ -20,6 +21,7 @@
 - Use shadcn/ui components for UI elements
 
 ### Testing
+
 - Write unit tests for utility functions
 - Add integration tests for complex features
 - Test both light and dark themes
@@ -27,6 +29,7 @@
 - Test with sample CSV data for tools
 
 ### Documentation
+
 - Update README.md for major features
 - Document all new API endpoints
 - Add TypeScript interfaces and types
@@ -34,6 +37,7 @@
 - Update tool documentation with new features
 
 ### Component Guidelines
+
 - Use TypeScript for type safety
 - Implement error boundaries where needed
 - Add loading states for async operations
@@ -41,6 +45,7 @@
 - Use React Server Components when possible
 
 ### Blog Posts
+
 - Follow MDX formatting guidelines
 - Include metadata for all posts
 - Optimize images and SVGs

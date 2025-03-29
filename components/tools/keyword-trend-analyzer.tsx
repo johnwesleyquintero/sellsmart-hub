@@ -4,7 +4,15 @@ import { ChartContainer } from '../ui/chart';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import { toast } from '../ui/use-toast';
 import { Info } from 'lucide-react';
 import { TooltipProvider, TooltipTrigger, TooltipContent } from '../ui/tooltip';
@@ -27,7 +35,7 @@ export default function KeywordTrendAnalyzer() {
       });
       return;
     }
-    
+
     if (!file.name.endsWith('.csv')) {
       toast({
         title: 'Error',
@@ -36,7 +44,7 @@ export default function KeywordTrendAnalyzer() {
       });
       return;
     }
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -50,20 +58,29 @@ export default function KeywordTrendAnalyzer() {
           skipEmptyLines: true,
           complete: (results) => {
             if (results.errors.length > 0) {
-              throw new Error(`CSV errors: ${results.errors.map(e => e.message).join(', ')}`);
+              throw new Error(
+                `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
+              );
             }
 
-            const requiredFields = ['keyword', 'date', 'search_volume', 'ranking'];
-            const missingFields = requiredFields.filter(f => !results.meta.fields.includes(f));
+            const requiredFields = [
+              'keyword',
+              'date',
+              'search_volume',
+              'ranking',
+            ];
+            const missingFields = requiredFields.filter(
+              (f) => !results.meta.fields.includes(f),
+            );
             if (missingFields.length > 0) {
               throw new Error(`Missing columns: ${missingFields.join(', ')}`);
             }
 
-            const processedData = results.data.map(row => ({
+            const processedData = results.data.map((row) => ({
               keyword: row.keyword,
               date: new Date(row.date),
               search_volume: Number(row.search_volume),
-              ranking: Number(row.ranking)
+              ranking: Number(row.ranking),
             }));
 
             setCsvData(processedData);
@@ -72,7 +89,7 @@ export default function KeywordTrendAnalyzer() {
               description: `${file.name} processed successfully`,
               variant: 'default',
             });
-          }
+          },
         });
       } catch (error) {
         toast({
@@ -87,21 +104,21 @@ export default function KeywordTrendAnalyzer() {
 
   const processCsvData = (csvContent) => {
     try {
-      const rows = csvContent.split('\n').filter(row => row.trim());
-      const headers = rows[0].split(',').map(h => h.trim());
-      return rows.slice(1).map(row => {
+      const rows = csvContent.split('\n').filter((row) => row.trim());
+      const headers = rows[0].split(',').map((h) => h.trim());
+      return rows.slice(1).map((row) => {
         const values = row.split(',');
         return {
           keyword: values[headers.indexOf('keyword')].trim(),
           volume: parseInt(values[headers.indexOf('volume')], 10),
-          date: new Date(values[headers.indexOf('date')])
+          date: new Date(values[headers.indexOf('date')]),
         };
       });
     } catch (error) {
       toast({
         title: 'CSV Processing Error',
         description: 'Failed to parse CSV content: ' + error.message,
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return null;
     }
@@ -111,36 +128,38 @@ export default function KeywordTrendAnalyzer() {
     setIsLoading(true);
     try {
       const processedData = csvData;
-      
+
       if (!processedData || processedData.length === 0) {
         throw new Error('No valid data to analyze');
       }
-      
+
       // Transform CSV data for visualization
-      const formattedData = processedData.reduce((acc, { keyword, date, search_volume, ranking }) => {
-        const dateKey = date.toISOString().split('T')[0];
-        if (!acc[dateKey]) {
-          acc[dateKey] = { date: dateKey };
-        }
-        acc[dateKey][`${keyword}_volume`] = search_volume;
-        acc[dateKey][`${keyword}_rank`] = ranking;
-        return acc;
-      }, {});
+      const formattedData = processedData.reduce(
+        (acc, { keyword, date, search_volume, ranking }) => {
+          const dateKey = date.toISOString().split('T')[0];
+          if (!acc[dateKey]) {
+            acc[dateKey] = { date: dateKey };
+          }
+          acc[dateKey][`${keyword}_volume`] = search_volume;
+          acc[dateKey][`${keyword}_rank`] = ranking;
+          return acc;
+        },
+        {},
+      );
 
       const chartData = Object.values(formattedData);
-      
+
       if (chartData.length === 0) {
         throw new Error('Failed to generate chart data');
       }
-      
+
       setChartData(chartData);
-      
+
       toast({
         title: 'Analysis Complete',
         description: `Trend visualization for ${chartData.length} days generated`,
         variant: 'default',
       });
-
     } catch (error) {
       toast({
         title: 'Analysis Failed',
@@ -185,7 +204,7 @@ export default function KeywordTrendAnalyzer() {
             placeholder="Enter keywords to analyze"
           />
         </div>
-        
+
         <div>
           <Label htmlFor="timeRange">Time Range (days)</Label>
           <Input
@@ -197,23 +216,28 @@ export default function KeywordTrendAnalyzer() {
             max="365"
           />
         </div>
-        
+
         <Button onClick={analyzeTrends} disabled={isLoading}>
           {isLoading ? 'Analyzing...' : 'Analyze Trends'}
         </Button>
-        
+
         {chartData && (
           <ChartContainer
             config={{
               keywords: {
-                label: "Keyword Trends",
-                theme: { light: "#10b981", dark: "#10b981" }
-              }
+                label: 'Keyword Trends',
+                theme: { light: '#10b981', dark: '#10b981' },
+              },
             }}
             className="h-[400px]"
           >
             {(width, height) => (
-              <LineChart width={width} height={height} data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <LineChart
+                width={width}
+                height={height}
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />

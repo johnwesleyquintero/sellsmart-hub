@@ -1,11 +1,11 @@
 ---
-title: "Data Visualization for Amazon Sellers"
-description: "Learn how to create powerful dashboards that transform your Amazon seller data into clear, actionable insights"
-date: "2024-01-25"
-author: "Wesley Quintero"
-tags: ["data-visualization", "analytics", "dashboard-design"]
-image: "/images/blog/data-visualization-for-amazon-sellers.svg"
-readingTime: "12 min read"
+title: 'Data Visualization for Amazon Sellers'
+description: 'Learn how to create powerful dashboards that transform your Amazon seller data into clear, actionable insights'
+date: '2024-01-25'
+author: 'Wesley Quintero'
+tags: ['data-visualization', 'analytics', 'dashboard-design']
+image: '/images/blog/data-visualization-for-amazon-sellers.svg'
+readingTime: '12 min read'
 ---
 
 # Data Visualization for Amazon Sellers
@@ -37,6 +37,7 @@ When creating dashboards for your Amazon business, follow these core principles:
 ### Choosing the Right Visualization Types
 
 Select visualization types based on what you're trying to communicate:
+
 ```
 | **Data Type**        | **Best Visualization**       | **Example Use Case**                     |
 |----------------------|------------------------------|------------------------------------------|
@@ -47,6 +48,7 @@ Select visualization types based on what you're trying to communicate:
 | Geographic data      | 🌎 Maps                      | Regional sales distribution              |
 | KPIs                 | ⚡ Gauges, 🃏 Cards          | Current performance metrics              |
 ```
+
 ### Color Scheme Implementation
 
 Colors should enhance understanding, not distract:
@@ -64,11 +66,13 @@ Colors should enhance understanding, not distract:
 A comprehensive sales dashboard should include:
 
 1. **Revenue Trends**
+
    - Daily, weekly, monthly sales
    - Year-over-year comparison
    - Sales by marketplace
 
 2. **Product Performance**
+
    - Top/bottom performing products
    - Sales velocity
    - Conversion rate by product
@@ -83,43 +87,49 @@ A comprehensive sales dashboard should include:
 Here's a practical example of how to implement a sales dashboard using Amazon Seller Central data:
 
 1. **Data Preparation**
+
    - Export "Business Reports" from Seller Central
    - Clean data using Excel or Google Sheets
    - Structure data with columns: Date, ASIN, Product Title, Units Ordered, Ordered Product Sales
 
 2. **Dashboard Implementation**
+
 ```javascript
 // Example using Chart.js for visualization
 const salesChart = new Chart(ctx, {
   type: 'line',
   data: {
     labels: months,
-    datasets: [{
-      label: 'Monthly Sales',
-      data: salesData,
-      borderColor: '#3e95cd',
-      fill: false
-    }]
+    datasets: [
+      {
+        label: 'Monthly Sales',
+        data: salesData,
+        borderColor: '#3e95cd',
+        fill: false,
+      },
+    ],
   },
   options: {
     responsive: true,
     plugins: {
       title: {
         display: true,
-        text: 'Amazon Sales Trend'
-      }
-    }
-  }
+        text: 'Amazon Sales Trend',
+      },
+    },
+  },
 });
 ```
 
 3. **Real-World Case Study**
-A seller increased conversion rate by 22% after:
+   A seller increased conversion rate by 22% after:
+
 - Identifying underperforming products through bar chart comparisons
 - Discovering pricing inconsistencies via scatter plots
 - Implementing changes based on visualization insights
 
 4. **Pro Tips**
+
 - Refresh data weekly for accurate trends
 - Use conditional formatting for quick anomaly detection
 - Create separate dashboards for different business functions
@@ -133,6 +143,7 @@ For more sophisticated analysis, consider:
 - **Network Graphs**: Show relationships between products in bundles
 
 ### Tools Recommendation
+
 ```
 | Tool | Best For | Integration |
 |------|----------|-------------|

@@ -1,19 +1,26 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, ArrowRight } from "lucide-react"
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, ArrowRight } from 'lucide-react';
 
 interface BlogCardProps {
   post: {
-    slug: string
-    title: string
-    description: string
-    date: string
-    image: string
-    tags: string[]
-    readingTime?: string
-  }
+    slug: string;
+    title: string;
+    description: string;
+    date: string;
+    image: string;
+    tags: string[];
+    readingTime?: string;
+  };
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
@@ -21,7 +28,7 @@ export default function BlogCard({ post }: BlogCardProps) {
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="aspect-video overflow-hidden">
         <Image
-          src={post.image || "/placeholder.svg?height=400&width=600"}
+          src={post.image || '/placeholder.svg?height=400&width=600'}
           alt={post.title}
           width={600}
           height={400}
@@ -42,7 +49,9 @@ export default function BlogCard({ post }: BlogCardProps) {
           )}
         </div>
         <CardTitle className="line-clamp-2 text-xl">{post.title}</CardTitle>
-        <CardDescription className="line-clamp-3">{post.description}</CardDescription>
+        <CardDescription className="line-clamp-3">
+          {post.description}
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <div className="flex flex-wrap gap-2">
@@ -54,11 +63,13 @@ export default function BlogCard({ post }: BlogCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Link href={`/blog/${post.slug}`} className="flex items-center text-primary hover:underline">
+        <Link
+          href={`/blog/${post.slug}`}
+          className="flex items-center text-primary hover:underline"
+        >
           Read Article <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

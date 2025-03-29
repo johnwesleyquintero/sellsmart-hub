@@ -1,8 +1,19 @@
-type DiagramType = "flow" | "sequence" | "class" | "graph" | "er" | "ai" | "analytics" | "web"
+type DiagramType =
+  | 'flow'
+  | 'sequence'
+  | 'class'
+  | 'graph'
+  | 'er'
+  | 'ai'
+  | 'analytics'
+  | 'web';
 
-export function generatePlaceholderDiagram(type: DiagramType = "flow", title = ""): string {
+export function generatePlaceholderDiagram(
+  type: DiagramType = 'flow',
+  title = '',
+): string {
   switch (type) {
-    case "ai":
+    case 'ai':
       return `
         flowchart TD
           A[Data Collection] -->|Process| B[AI Analysis]
@@ -17,8 +28,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
-    case "analytics":
+      `;
+    case 'analytics':
       return `
         flowchart LR
           A[Raw Data] --> B[ETL Process]
@@ -34,8 +45,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style E1 fill:#d946ef,color:#fff
           style E2 fill:#d946ef,color:#fff
           style E3 fill:#d946ef,color:#fff
-      `
-    case "web":
+      `;
+    case 'web':
       return `
         flowchart TD
           A[Frontend] --> B[API Layer]
@@ -49,8 +60,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
           style F fill:#ec4899,color:#fff
-      `
-    case "flow":
+      `;
+    case 'flow':
       return `
         flowchart TD
           A[Inventory Data] -->|Process| B[Catalog System]
@@ -63,8 +74,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           style C fill:#8b5cf6,color:#fff
           style D fill:#a855f7,color:#fff
           style E fill:#d946ef,color:#fff
-      `
-    case "sequence":
+      `;
+    case 'sequence':
       return `
         sequenceDiagram
           participant T as Training
@@ -74,8 +85,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           W->>O: Standard Procedures
           O->>T: Feedback Loop
           Note over T,O: 35% Productivity Increase
-      `
-    case "class":
+      `;
+    case 'class':
       return `
         classDiagram
           class ClientEngagement {
@@ -93,8 +104,8 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           }
           ClientEngagement --|> BestPractices
           InventoryManagement --|> BestPractices
-      `
-    case "graph":
+      `;
+    case 'graph':
       return `
         graph TD
           A((Start)) --> B{Process}
@@ -102,16 +113,15 @@ export function generatePlaceholderDiagram(type: DiagramType = "flow", title = "
           B -->|No| D[Error]
           C --> E((End))
           D --> E
-      `
-    case "er":
+      `;
+    case 'er':
       return `
         erDiagram
           DATA ||--o{ ANALYSIS : contains
           ANALYSIS ||--|{ INSIGHTS : produces
           INSIGHTS }|..|{ ACTIONS : triggers
-      `
+      `;
     default:
-      return generatePlaceholderDiagram("flow")
+      return generatePlaceholderDiagram('flow');
   }
 }
-

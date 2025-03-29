@@ -29,19 +29,19 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 <details>
 <summary>📦 Component Features Overview</summary>
 
-| Tool                    | Status    | Version |
-| ----------------------- | --------- | ------- |
-| FBA Calculator          | ✅ Active | 2.0.0   |
-| Keyword Analyzer        | ✅ Active | 2.0.0   |
-| Listing Quality Checker | ✅ Active | 1.5.0   |
-| PPC Campaign Auditor    | ✅ Active | 2.0.0   |
-| Description Editor      | ✅ Active | 1.5.0   |
-| Keyword Deduplicator    | ✅ Active | 1.5.0   |
-| ACoS Calculator         | ✅ Active | 1.5.0   |
-| Sales Estimator         | ✅ Active | 1.0.0   |
-| Competitor Analyzer     | ✅ Active | 1.0.0   |
-| Keyword Trend Analyzer  | ✅ Active | 1.0.0   |
-| Profit Margin Calculator| ✅ Active | 1.0.0   |
+| Tool                     | Status    | Version |
+| ------------------------ | --------- | ------- |
+| FBA Calculator           | ✅ Active | 2.0.0   |
+| Keyword Analyzer         | ✅ Active | 2.0.0   |
+| Listing Quality Checker  | ✅ Active | 1.5.0   |
+| PPC Campaign Auditor     | ✅ Active | 2.0.0   |
+| Description Editor       | ✅ Active | 1.5.0   |
+| Keyword Deduplicator     | ✅ Active | 1.5.0   |
+| ACoS Calculator          | ✅ Active | 1.5.0   |
+| Sales Estimator          | ✅ Active | 1.0.0   |
+| Competitor Analyzer      | ✅ Active | 1.0.0   |
+| Keyword Trend Analyzer   | ✅ Active | 1.0.0   |
+| Profit Margin Calculator | ✅ Active | 1.0.0   |
 
 </details>
 
@@ -71,10 +71,10 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 // Implements CSV parsing with Papa Parse
 // Features error handling and data validation
 // Uses shadcn/ui components for modern UI
-import { useState } from "react";
-import { calculateProfit, type ProductData } from "@/lib/fba-calculator-utils";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useState } from 'react';
+import { calculateProfit, type ProductData } from '@/lib/fba-calculator-utils';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 ```
 
 ### 2. Keyword Analyzer
@@ -306,4 +306,3 @@ All components follow modern React patterns and best practices:
    - Utilize trend analysis
 
 </details>
-

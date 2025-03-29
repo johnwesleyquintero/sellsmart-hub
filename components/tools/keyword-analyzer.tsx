@@ -1,47 +1,56 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Upload, FileText, AlertCircle, Download, Search, Info } from "lucide-react"
-import Papa from "papaparse"
-import SampleCsvButton from "./sample-csv-button"
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  Upload,
+  FileText,
+  AlertCircle,
+  Download,
+  Search,
+  Info,
+} from 'lucide-react';
+import Papa from 'papaparse';
+import SampleCsvButton from './sample-csv-button';
 
 type KeywordData = {
-  product: string
-  keywords: string[]
-  searchVolume?: number
-  competition?: string
-  suggestions?: string[]
-}
+  product: string;
+  keywords: string[];
+  searchVolume?: number;
+  competition?: string;
+  suggestions?: string[];
+};
 
 export default function KeywordAnalyzer() {
-  const [products, setProducts] = useState<KeywordData[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [products, setProducts] = useState<KeywordData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     Papa.parse<KeywordData>(file, {
       header: true,
       skipEmptyLines: true,
       complete: (result) => {
         if (result.errors.length > 0) {
-          setError(`Error parsing CSV file: ${result.errors[0].message}. Please check the format.`)
-          setIsLoading(false)
-          return
+          setError(
+            `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
+          );
+          setIsLoading(false);
+          return;
         }
 
         try {
@@ -51,17 +60,19 @@ export default function KeywordAnalyzer() {
             .map((item) => {
               // Split keywords by comma if it's a string
               const keywordArray =
-                typeof item.keywords === "string"
-                  ? item.keywords.split(",").map((k) => k.trim())
+                typeof item.keywords === 'string'
+                  ? item.keywords.split(',').map((k) => k.trim())
                   : Array.isArray(item.keywords)
                     ? item.keywords
-                    : []
+                    : [];
 
               // Parse search volume if available
-              const searchVolume = item.searchVolume ? Number.parseInt(item.searchVolume) : undefined
+              const searchVolume = item.searchVolume
+                ? Number.parseInt(item.searchVolume)
+                : undefined;
 
               // Get competition level if available
-              const competition = item.competition || undefined
+              const competition = item.competition || undefined;
 
               return {
                 product: String(item.product),
@@ -70,45 +81,56 @@ export default function KeywordAnalyzer() {
                 competition,
                 // Generate suggestions based on keywords
                 suggestions: keywordArray.map((kw) => {
-                  const variations = [`best ${kw}`, `${kw} for amazon`, `premium ${kw}`, `affordable ${kw}`]
-                  return variations[Math.floor(Math.random() * variations.length)]
+                  const variations = [
+                    `best ${kw}`,
+                    `${kw} for amazon`,
+                    `premium ${kw}`,
+                    `affordable ${kw}`,
+                  ];
+                  return variations[
+                    Math.floor(Math.random() * variations.length)
+                  ];
                 }),
-              }
-            })
+              };
+            });
 
           if (processedData.length === 0) {
-            setError("No valid data found in CSV. Please ensure your CSV has columns: product, keywords")
-            setIsLoading(false)
-            return
+            setError(
+              'No valid data found in CSV. Please ensure your CSV has columns: product, keywords',
+            );
+            setIsLoading(false);
+            return;
           }
 
-          setProducts(processedData)
-          setIsLoading(false)
+          setProducts(processedData);
+          setIsLoading(false);
         } catch (err) {
-          setError("Failed to process CSV data. Please ensure your CSV has columns: product, keywords")
-          setIsLoading(false)
+          setError(
+            'Failed to process CSV data. Please ensure your CSV has columns: product, keywords',
+          );
+          setIsLoading(false);
         }
       },
       error: (error) => {
-        setError(`Error parsing CSV file: ${error.message}`)
-        setIsLoading(false)
+        setError(`Error parsing CSV file: ${error.message}`);
+        setIsLoading(false);
       },
-    })
+    });
 
     // Reset the file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = '';
     }
-  }
+  };
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
-      setError("Please enter a search term")
-      return
+      setError('Please enter a search term');
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     // In a real implementation, this would call an API to get keyword data
     // For now, we'll create a simulated response
@@ -124,51 +146,51 @@ export default function KeywordAnalyzer() {
           `${searchTerm} with free shipping`,
         ],
         searchVolume: Math.floor(Math.random() * 100000),
-        competition: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
-      }
+        competition: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)],
+      };
 
-      setProducts([...products, newProduct])
-      setSearchTerm("")
-      setIsLoading(false)
-    }, 1500)
-  }
+      setProducts([...products, newProduct]);
+      setSearchTerm('');
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const handleExport = () => {
     if (products.length === 0) {
-      setError("No data to export")
-      return
+      setError('No data to export');
+      return;
     }
 
     // Prepare data for CSV export
     const exportData = products.map((product) => ({
       product: product.product,
-      keywords: product.keywords.join(", "),
-      suggestions: product.suggestions?.join(", "),
-      searchVolume: product.searchVolume || "",
-      competition: product.competition || "",
-    }))
+      keywords: product.keywords.join(', '),
+      suggestions: product.suggestions?.join(', '),
+      searchVolume: product.searchVolume || '',
+      competition: product.competition || '',
+    }));
 
     // Create CSV content
-    const csv = Papa.unparse(exportData)
+    const csv = Papa.unparse(exportData);
 
     // Create a blob and download link
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.setAttribute("download", "keyword_analysis.csv")
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'keyword_analysis.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const clearData = () => {
-    setProducts([])
-    setError(null)
+    setProducts([]);
+    setError(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = '';
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -177,16 +199,20 @@ export default function KeywordAnalyzer() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
           <p>
-            Your CSV file should have the following columns: <code>product</code>, <code>keywords</code>{" "}
-            (comma-separated)
+            Your CSV file should have the following columns:{' '}
+            <code>product</code>, <code>keywords</code> (comma-separated)
           </p>
           <p>
-            Optional columns: <code>searchVolume</code>, <code>competition</code> (Low, Medium, High)
+            Optional columns: <code>searchVolume</code>,{' '}
+            <code>competition</code> (Low, Medium, High)
           </p>
           <p className="mt-1">
             Example: <code>product,keywords,searchVolume,competition</code>
             <br />
-            <code>Wireless Earbuds,"bluetooth earbuds, wireless headphones, earphones",135000,High</code>
+            <code>
+              Wireless Earbuds,"bluetooth earbuds, wireless headphones,
+              earphones",135000,High
+            </code>
           </p>
         </div>
       </div>
@@ -200,13 +226,19 @@ export default function KeywordAnalyzer() {
               </div>
               <div>
                 <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">Upload a CSV file with your product and keyword data</p>
+                <p className="text-sm text-muted-foreground">
+                  Upload a CSV file with your product and keyword data
+                </p>
               </div>
               <div className="w-full">
                 <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
                   <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">Click to upload CSV</span>
-                  <span className="text-xs text-muted-foreground">(CSV with columns: product, keywords)</span>
+                  <span className="text-sm font-medium">
+                    Click to upload CSV
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    (CSV with columns: product, keywords)
+                  </span>
                   <input
                     type="file"
                     accept=".csv"
@@ -217,10 +249,17 @@ export default function KeywordAnalyzer() {
                   />
                 </label>
                 <div className="flex justify-center mt-4">
-                  <SampleCsvButton dataType="keyword" fileName="sample-keyword-analyzer.csv" />
+                  <SampleCsvButton
+                    dataType="keyword"
+                    fileName="sample-keyword-analyzer.csv"
+                  />
                 </div>
                 {products.length > 0 && (
-                  <Button variant="outline" className="w-full mt-4" onClick={clearData}>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-4"
+                    onClick={clearData}
+                  >
                     Clear Data
                   </Button>
                 )}
@@ -235,7 +274,9 @@ export default function KeywordAnalyzer() {
               <h3 className="text-lg font-medium">Search for Keywords</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium">Product or Keyword</label>
+                  <label className="text-sm font-medium">
+                    Product or Keyword
+                  </label>
                   <div className="flex gap-2">
                     <Input
                       value={searchTerm}
@@ -284,16 +325,22 @@ export default function KeywordAnalyzer() {
                     <h3 className="text-lg font-medium">{product.product}</h3>
                     {product.searchVolume && (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Search Volume:</span>
-                        <Badge variant="outline">{product.searchVolume.toLocaleString()}</Badge>
-                        <span className="text-sm text-muted-foreground">Competition:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Search Volume:
+                        </span>
+                        <Badge variant="outline">
+                          {product.searchVolume.toLocaleString()}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          Competition:
+                        </span>
                         <Badge
                           variant={
-                            product.competition === "High"
-                              ? "destructive"
-                              : product.competition === "Medium"
-                                ? "default"
-                                : "secondary"
+                            product.competition === 'High'
+                              ? 'destructive'
+                              : product.competition === 'Medium'
+                                ? 'default'
+                                : 'secondary'
                           }
                         >
                           {product.competition}
@@ -303,7 +350,9 @@ export default function KeywordAnalyzer() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="mb-2 text-sm font-medium">Current Keywords</h4>
+                      <h4 className="mb-2 text-sm font-medium">
+                        Current Keywords
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {product.keywords.map((keyword, i) => (
                           <Badge key={i} variant="outline">
@@ -314,7 +363,9 @@ export default function KeywordAnalyzer() {
                     </div>
                     {product.suggestions && (
                       <div>
-                        <h4 className="mb-2 text-sm font-medium">Suggested Keywords</h4>
+                        <h4 className="mb-2 text-sm font-medium">
+                          Suggested Keywords
+                        </h4>
                         <div className="flex flex-wrap gap-2">
                           {product.suggestions.map((keyword, i) => (
                             <Badge key={i} variant="secondary">
@@ -332,6 +383,5 @@ export default function KeywordAnalyzer() {
         </>
       )}
     </div>
-  )
+  );
 }
-

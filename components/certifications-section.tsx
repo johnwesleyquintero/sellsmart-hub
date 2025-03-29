@@ -1,65 +1,65 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Award, Calendar, CheckCircle } from "lucide-react"
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Award, Calendar, CheckCircle } from 'lucide-react';
 
 const certifications = [
   {
-    name: "Amazon Advertising",
-    issuer: "Amazon",
-    date: "2023",
-    status: "Active",
-    credentialId: "-",
+    name: 'Amazon Advertising',
+    issuer: 'Amazon',
+    date: '2023',
+    status: 'Active',
+    credentialId: '-',
   },
   {
-    name: "Data Modeling",
-    issuer: "Pragmatic Works",
-    date: "2024",
-    status: "Active",
-    credentialId: "PW-2024-DM",
+    name: 'Data Modeling',
+    issuer: 'Pragmatic Works',
+    date: '2024',
+    status: 'Active',
+    credentialId: 'PW-2024-DM',
   },
   {
-    name: "Catalog Management",
-    issuer: "MAG School",
-    date: "2024",
-    status: "Active",
-    credentialId: "66a7c61defaf90db750bde04",
+    name: 'Catalog Management',
+    issuer: 'MAG School',
+    date: '2024',
+    status: 'Active',
+    credentialId: '66a7c61defaf90db750bde04',
   },
   {
-    name: "Design & Conversion",
-    issuer: "MAG School",
-    date: "2024",
-    status: "Active",
-    credentialId: "66a7c65840e6a05d9005d5eb",
+    name: 'Design & Conversion',
+    issuer: 'MAG School',
+    date: '2024',
+    status: 'Active',
+    credentialId: '66a7c65840e6a05d9005d5eb',
   },
   {
-    name: "Launching on Amazon",
-    issuer: "MAG School",
-    date: "2024",
-    status: "Active",
-    credentialId: "66a7ce36b87e351e77072f99",
+    name: 'Launching on Amazon',
+    issuer: 'MAG School',
+    date: '2024',
+    status: 'Active',
+    credentialId: '66a7ce36b87e351e77072f99',
   },
   {
-    name: "Main Image CTR Course",
-    issuer: "MAG School",
-    date: "2024",
-    status: "Active",
-    credentialId: "66a7c5d70ef423bb240bd554",
+    name: 'Main Image CTR Course',
+    issuer: 'MAG School',
+    date: '2024',
+    status: 'Active',
+    credentialId: '66a7c5d70ef423bb240bd554',
   },
   {
-    name: "SEO Optimization",
-    issuer: "MAG School",
-    date: "2024",
-    status: "Active",
-    credentialId: "66a7c4f76b8386f0560b9407",
+    name: 'SEO Optimization',
+    issuer: 'MAG School',
+    date: '2024',
+    status: 'Active',
+    credentialId: '66a7c4f76b8386f0560b9407',
   },
   {
-    name: "Licensed Teacher",
-    issuer: "PRC",
-    date: "2021",
-    status: "Active",
-    credentialId: "LPT-2021-05",
+    name: 'Licensed Teacher',
+    issuer: 'PRC',
+    date: '2021',
+    status: 'Active',
+    credentialId: 'LPT-2021-05',
   },
-]
+];
 
 export default function CertificationsSection() {
   return (
@@ -68,13 +68,17 @@ export default function CertificationsSection() {
         <div className="mb-12 text-center">
           <h2 className="section-heading">Certifications</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Professional certifications and credentials in Amazon, data analytics, and e-commerce.
+            Professional certifications and credentials in Amazon, data
+            analytics, and e-commerce.
           </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {certifications.map((cert, index) => (
-            <Card key={index} className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <Card
+              key={index}
+              className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+            >
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <Award className="h-5 w-5 text-primary" />
@@ -91,9 +95,11 @@ export default function CertificationsSection() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-green-600 dark:text-green-400">{cert.status}</span>
+                    <span className="text-green-600 dark:text-green-400">
+                      {cert.status}
+                    </span>
                   </div>
-                  {cert.credentialId !== "-" && (
+                  {cert.credentialId !== '-' && (
                     <div className="pt-2">
                       <Badge variant="secondary" className="text-xs">
                         ID: {cert.credentialId}
@@ -107,6 +113,5 @@ export default function CertificationsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-
