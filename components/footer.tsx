@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -63,6 +63,16 @@ export default function Footer() {
                   SellSmart Hub
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="https://sellsmart-pro.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary"
+                >
+                  SellSmart Pro
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -73,30 +83,43 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
+                className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
               >
-                <Github className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                <Github className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
               </Link>
               <Link
                 href="https://linkedin.com/in/wesleyquintero"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
+                className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
               >
-                <Linkedin className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                <Linkedin className="h-5 w-5" />
               </Link>
               <Link
                 href="https://twitter.com/wesleyquintero"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
+                className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
               >
-                <Twitter className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                <Twitter className="h-5 w-5" />
               </Link>
               <Link
                 href="mailto:johnwesleyquintero@gmail.com"
                 aria-label="Email"
+                className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
               >
-                <Mail className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                <Mail className="h-5 w-5" />
+              </Link>
+              <Link
+                href="https://sellsmart-pro.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="SellSmart Pro"
+                className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
+              >
+                <Triangle className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
               </Link>
             </div>
           </div>

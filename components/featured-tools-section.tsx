@@ -48,6 +48,7 @@ export default function FeaturedToolsSection() {
       status: 'active',
       version: '1.0.0',
       component: <CompetitorAnalyzer />,
+      category: 'Market Analysis',
     },
     {
       id: 'keyword-trend-analyzer',
@@ -186,6 +187,11 @@ export default function FeaturedToolsSection() {
                       >
                         {tool.icon}
                         <span className="hidden md:inline">{tool.name}</span>
+                        {tool.status === 'beta' && (
+                          <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
+                            Beta
+                          </Badge>
+                        )}
                       </TabsTrigger>
                     ))}
                   </TabsList>

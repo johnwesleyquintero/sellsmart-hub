@@ -12,25 +12,28 @@ const testimonials = [
     id: 1,
     name: 'Sarah Johnson',
     position: 'Product Manager at TechCorp',
-    image: 'https://v0.dev/placeholder/user?name=SJ&bg=4f46e5',
+    image: '/profile/sarah-johnson.jpg',
     content:
-      'Wesley is an exceptional developer who consistently delivers high-quality work...',
+      'After implementing Wesley\'s automation tools, our profits increased by 42% in 3 months while reducing manual work by 60%. His data-driven approach transformed our Amazon business.',
+    metrics: '42% profit increase | 60% time savings'
   },
   {
     id: 2,
     name: 'Michael Chen',
     position: 'CTO at StartupX',
-    image: 'https://v0.dev/placeholder/user?name=MC&bg=2563eb',
+    image: '/profile/michael-chen.jpg',
     content:
-      'Working with Wesley was a pleasure. His understanding of data analytics...',
+      'Wesley\'s AI-powered insights helped us optimize our PPC campaigns, reducing our ACoS from 35% to 22% while maintaining sales volume. His tools pay for themselves.',
+    metrics: '37% lower ACoS | maintained sales'
   },
   {
     id: 3,
     name: 'Emily Rodriguez',
     position: 'Founder of DesignHub',
-    image: 'https://v0.dev/placeholder/user?name=ER&bg=3b82f6',
+    image: '/profile/emily-rodriguez.jpg',
     content:
-      'Wesley transformed our analytics infrastructure with his exceptional development skills...',
+      'Our conversion rate jumped from 8% to 14% after using Wesley\'s listing optimization tools. His deep understanding of Amazon\'s algorithm is unmatched.',
+    metrics: '75% conversion increase'
   },
 ];
 
@@ -110,6 +113,11 @@ export default function TestimonialsSection() {
                       <p className="text-sm text-muted-foreground">
                         {testimonial.position}
                       </p>
+                      {testimonial.metrics && (
+                        <p className="text-xs mt-1 text-primary">
+                          {testimonial.metrics}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>

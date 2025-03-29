@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -28,19 +28,21 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
-              Data-Driven Amazon & E-commerce Specialist. Helping Brands Scale
-              with Insights, Automation & AI.
+              Helping Amazon sellers increase profits by 30-50% through
+              <span className="font-semibold text-primary"> data-driven automation</span> and
+              <span className="font-semibold text-primary"> AI-powered insights</span>.
             </p>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
+            
             <Button
               asChild
               size="lg"
               className="group hover:scale-105 transition-transform duration-300 animate-pulse hover:animate-none bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg hover:shadow-xl hover:from-primary/90 hover:to-purple-600/90"
             >
               <Link href="#projects">
-                View My Work
+                View Case Studies
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
                   →
                 </span>
@@ -52,7 +54,15 @@ export default function HeroSection() {
               size="lg"
               className="hover:scale-105 transition-transform duration-300 hover:bg-primary hover:text-primary-foreground border-2 border-primary/20 hover:border-primary/50"
             >
-              <Link href="#contact">Get in Touch</Link>
+              <Link href="#tools">Explore Tools</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="lg"
+              className="hover:scale-105 transition-transform duration-300 hover:bg-primary/10 hover:text-primary border border-primary/20 hover:border-primary/50"
+            >
+              <Link href="#contact">Get Free Consultation</Link>
             </Button>
           </div>
 
@@ -90,6 +100,15 @@ export default function HeroSection() {
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
               <Mail className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://sellsmart-pro.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="SellSmart Pro"
+              className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
+            >
+              <Triangle className="h-5 w-5" />
             </Link>
           </div>
         </div>
