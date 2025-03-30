@@ -23,11 +23,7 @@ import {
 import { Info } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
 import Papa from 'papaparse';
-import {
-  ProcessedRow,
-  MetricType,
-  ChartDataPoint,
-} from '@/lib/amazon-types';
+import { ProcessedRow, MetricType, ChartDataPoint } from '@/lib/amazon-types';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');

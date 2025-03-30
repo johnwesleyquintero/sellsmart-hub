@@ -1,7 +1,5 @@
 'use client';
 
-
-
 export type CampaignData = {
   campaign: string;
   adSpend: number;
