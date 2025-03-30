@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       const allData = [...sellerRows, ...competitorRows];
 
       competitors = allData.map((row) => row.asin as string);
-      metrics.forEach((metric) => {
+      metrics.forEach((metric: string) => {
         metricsData[metric] = allData.map((row) => row[metric] as number);
       });
     } else if (asin) {
