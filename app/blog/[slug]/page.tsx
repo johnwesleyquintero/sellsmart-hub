@@ -13,17 +13,33 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  try {
+    const post = await getPostBySlug(params.slug);
 
-  if (!post) {
-    return {
-      title: 'Post Not Found | Wesley Quintero',
-    };
-  }
+    if (!post) {
+      return {
+        title: 'Post Not Found | Wesley Quintero',
+        description: 'The requested blog post could not be found.',
+        openGraph: {
+          title: 'Post Not Found | Wesley Quintero',
+          description: 'The requested blog post could not be found.',
+          images: [{ url: '/default-fallback.svg', width: 1200, height: 630, alt: 'Post Not Found' }]
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: 'Post Not Found | Wesley Quintero',
+          description: 'The requested blog post could not be found.',
+          images: ['/default-fallback.svg']
+        }
+      };
+    }
 
   return {
     title: `${post.title} | Wesley Quintero`,
     description: post.description,
+    alternates: {
+      canonical: `https://wesleyquintero.vercel.app/blog/${params.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,
@@ -33,10 +49,16 @@ export async function generateMetadata({
       tags: post.tags,
       images: [
         {
-          url: post.image || '/og-image.svg',
+          url: post.image || '/default-fallback.svg',
           width: 1200,
           height: 630,
           alt: post.title,
+        },
+        {
+          url: '/default-fallback.svg',
+          width: 1200,
+          height: 630,
+          alt: `${post.title} - Fallback Image`,
         },
       ],
     },
@@ -44,9 +66,27 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: post.title,
       description: post.description,
-      images: [post.image || '/og-image.svg'],
+      images: [post.image || '/default-fallback.svg', '/default-fallback.svg'],
     },
   };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Error | Wesley Quintero',
+      description: 'An error occurred while loading this page.',
+      openGraph: {
+        title: 'Error | Wesley Quintero',
+        description: 'An error occurred while loading this page.',
+        images: [{ url: '/default-fallback.svg', width: 1200, height: 630, alt: 'Error Page' }]
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Error | Wesley Quintero',
+        description: 'An error occurred while loading this page.',
+        images: ['/default-fallback.svg']
+      }
+    };
+  }
 }
 
 export async function generateStaticParams() {
