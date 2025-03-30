@@ -217,38 +217,79 @@ export default function Header() {
       </header>
 
       {/* Search Results Dropdown */}
-      {debouncedQuery && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-background shadow-lg rounded-md p-4 max-h-96 overflow-y-auto">
+      {(query || isSearchOpen) && (
+        <div className="absolute top-full mt-2 w-full rounded-md border bg-popover p-2 shadow-md max-h-[300px] overflow-y-auto">
+          {!query && searchHistory.length > 0 && (
+            <div className="mb-4">
+              <div className="mb-2 text-sm font-medium text-muted-foreground">Recent Searches</div>
+              {searchHistory.map((item, index) => (
+                <button
+                  key={item}
+                  className="block w-full text-left px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => setQuery(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          )}
           {isLoading && (
-            <div className="text-muted-foreground">Searching...</div>
+            <div className="flex items-center justify-center py-2 text-muted-foreground">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <span>Searching...</span>
+            </div>
           )}
-          {isError && (
-            <div className="text-destructive">Error loading results</div>
+          {!isLoading && data && (
+            <div className="space-y-4">
+              {data.blog && data.blog.length > 0 && (
+                <div>
+                  <div className="mb-2 text-sm font-medium text-muted-foreground">Blog Posts</div>
+                  {data.blog.map((item, index) => (
+                    <Link
+                      key={item.slug}
+                      href={`/blog/${item.slug}`}
+                      className={cn(
+                        'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                        selectedIndex === index ? 'bg-accent text-accent-foreground' : ''
+                      )}
+                      onClick={() => {
+                        setQuery('');
+                        setIsSearchOpen(false);
+                      }}
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {data.tools && data.tools.length > 0 && (
+                <div>
+                  <div className="mb-2 text-sm font-medium text-muted-foreground">Tools</div>
+                  {data.tools.map((item, index) => (
+                    <Link
+                      key={item.id}
+                      href={`#${item.id}`}
+                      className={cn(
+                        'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                        selectedIndex === index + (data.blog?.length || 0) ? 'bg-accent text-accent-foreground' : ''
+                      )}
+                      onClick={() => {
+                        setQuery('');
+                        setIsSearchOpen(false);
+                      }}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {(!data.blog?.length && !data.tools?.length) && (
+                <div className="text-sm text-muted-foreground text-center py-2">
+                  No results found
+                </div>
+              )}
+            </div>
           )}
-          {data?.blog?.map((post) => (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="block p-2 hover:bg-muted rounded"
-            >
-              <div className="font-medium">{post.title}</div>
-              <div className="text-sm text-muted-foreground">
-                {post.description}
-              </div>
-            </Link>
-          ))}
-          {data?.tools?.map((tool) => (
-            <Link
-              key={tool.slug}
-              href={`/tools/${tool.slug}`}
-              className="block p-2 hover:bg-muted rounded"
-            >
-              <div className="font-medium">{tool.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {tool.description}
-              </div>
-            </Link>
-          ))}
         </div>
       )}
     </>
