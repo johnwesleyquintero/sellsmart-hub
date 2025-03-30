@@ -50,11 +50,19 @@ export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<'acos' | 'roas' | 'ctr' | 'cpc'>('acos');
   const [manualCampaign, setManualCampaign] = useState({
     campaign: '',
     adSpend: '',
     sales: '',
   });
+
+  const chartConfig = {
+    acos: { label: 'ACoS %', theme: { light: '#ef4444', dark: '#f87171' } },
+    roas: { label: 'ROAS', theme: { light: '#22c55e', dark: '#4ade80' } },
+    ctr: { label: 'CTR %', theme: { light: '#3b82f6', dark: '#60a5fa' } },
+    cpc: { label: 'CPC $', theme: { light: '#a855f7', dark: '#c084fc' } },
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,26 +267,67 @@ export default function AcosCalculator() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center mb-6">
+        <Button
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full sm:w-auto"
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Upload CSV
+        </Button>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileUpload}
+          ref={fileInputRef}
+          className="hidden"
+        />
+        <SampleCsvButton dataType="acos" fileName="sample-acos-calculator.csv" />
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          className="w-full sm:w-auto"
+          disabled={campaigns.length === 0}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Export Data
+        </Button>
+        <div className="flex gap-2">
+          {Object.entries(chartConfig).map(([key, config]) => (
+            <Button
+              key={key}
+              variant={selectedMetric === key ? 'default' : 'outline'}
+              onClick={() => setSelectedMetric(key as typeof selectedMetric)}
+              className="w-full sm:w-auto"
+            >
+              {config.label}
+            </Button>
+          ))}
+        </div>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartContainer
-          config={{
-            acos: {
-              label: 'ACOS',
-              theme: { light: '#ef4444', dark: '#ef4444' },
-            },
-            roas: {
-              label: 'ROAS',
-              theme: { light: '#10b981', dark: '#10b981' },
-            },
-            ctr: { label: 'CTR', theme: { light: '#3b82f6', dark: '#3b82f6' } },
-          }}
+          config={chartConfig}
           className="h-[400px]"
         >
-          // @ts-expect-error
-          {(width: number, height: number) => (
-            <>
-              <BarChart width={width} height={height} data={campaigns} />
-            </>
+          {(width: number, height: number): React.ReactElement => (
+            <BarChart 
+              width={width} 
+              height={height} 
+              data={campaigns}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="campaign" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar
+                dataKey={selectedMetric}
+                name={chartConfig[selectedMetric].label}
+                fill={chartConfig[selectedMetric].theme.light}
+              />
+            </BarChart>
           )}
         </ChartContainer>
 
@@ -295,8 +344,7 @@ export default function AcosCalculator() {
           }}
           className="h-[400px]"
         >
-          // @ts-expect-error
-          {(width: number, height: number) => (
+          {(width: number, height: number): React.ReactElement => (
             <LineChart width={width} height={height} data={campaigns} />
           )}
         </ChartContainer>
@@ -456,6 +504,30 @@ export default function AcosCalculator() {
               <Download className="mr-2 h-4 w-4" />
               Export Calculations
             </Button>
+          </div>
+
+          {/* Data Visualization Charts */}
+          <div className="mb-6 grid gap-4 md:grid-cols-2">
+            <ChartContainer>
+              <BarChart width={500} height={300} data={campaigns}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="campaign" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="acos" name="ACoS (%)" fill="#4f46e5" />
+              </BarChart>
+            </ChartContainer>
+            <ChartContainer>
+              <LineChart width={500} height={300} data={campaigns}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="campaign" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="roas" name="ROAS" stroke="#10b981" />
+              </LineChart>
+            </ChartContainer>
           </div>
 
           <div className="rounded-lg border">

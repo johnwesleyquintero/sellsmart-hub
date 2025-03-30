@@ -34,11 +34,13 @@ export async function generateMetadata({
       };
     }
 
+    const canonicalUrl = new URL(`/blog/${params.slug}`, 'https://wesleyquintero.vercel.app').toString();
+
     return {
       title: `${post.title} | Wesley Quintero`,
       description: post.description,
       alternates: {
-        canonical: `https://wesleyquintero.vercel.app/blog/${params.slug}`,
+        canonical: canonicalUrl,
       },
       openGraph: {
         title: post.title,
@@ -47,6 +49,7 @@ export async function generateMetadata({
         publishedTime: post.date,
         authors: ['Wesley Quintero'],
         tags: post.tags,
+        url: canonicalUrl,
         images: [
           {
             url: post.image || '/default-fallback.svg',
