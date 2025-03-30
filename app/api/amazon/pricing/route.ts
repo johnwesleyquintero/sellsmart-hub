@@ -12,10 +12,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const optimalPrice = AmazonAlgorithms.calculateOptimalPrice(
+        const optimalPrice = AmazonAlgorithms.calculateOptimalPrice(
       basePrice,
       competition,
       demandFactor,
+      [...Array(30).fill(95)],
+      0.8,
+      1.2,
     );
 
     return NextResponse.json({

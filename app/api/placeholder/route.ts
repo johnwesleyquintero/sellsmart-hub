@@ -7,26 +7,27 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const type = (searchParams.get('type') as string) || 'flow';
     const title = searchParams.get('title') || '';
-    const theme = searchParams.get('theme') || 'dark';
+        const theme = (searchParams.get('theme') || 'default');
 
     // Configure mermaid
     mermaid.initialize({
-      theme: theme,
+      theme: theme as 'default' | 'base' | 'dark' | 'forest' | 'neutral' | 'null',
       startOnLoad: false,
       securityLevel: 'strict',
       flowchart: { curve: 'basis' },
     });
 
     // Generate diagram
-    const diagram = generatePlaceholderDiagram(type, title);
-    const { svg } = await mermaid.render('diagram', diagram);
+        //const diagram = generatePlaceholderDiagram(type, title);
+    const svg = "";
+    //const { svg } = await mermaid.render('diagram');
 
-    return new NextResponse(svg, {
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    });
+    //return new NextResponse(svg, {
+    //  headers: {
+    //    'Content-Type': 'image/svg+xml',
+    //    'Cache-Control': 'public, max-age=31536000, immutable',
+    //  },
+    //});
   } catch (error) {
     console.error('Error generating placeholder:', error);
     return NextResponse.json(

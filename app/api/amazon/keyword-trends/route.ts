@@ -32,7 +32,7 @@ function processCSVData(data: string[]) {
 export async function POST(request: Request) {
   try {
     const { csvData } = (await request.json()) as { csvData: string[] };
-    let trendData: { name: string; [key: string]: number }[] = [];
+    let trendData: { name: string; [key: string]: any }[] = [];
 
     if (csvData) {
       const processedData = processCSVData(csvData);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       ].sort();
 
       trendData = dates.map((date) => {
-        const dataPoint = { name: date };
+        const dataPoint: { name: string; [key: string]: any } = { name: date };
         Object.keys(processedData).forEach((keyword) => {
           const entry = processedData[keyword].find((e) => e.date === date);
           dataPoint[keyword] = entry ? entry.volume : 0;
