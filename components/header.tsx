@@ -7,10 +7,18 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, Menu, X, FileText, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { cn } from '@/lib/utils';
 
 export default function Header() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -18,6 +26,37 @@ export default function Header() {
     }, 500);
     return () => clearTimeout(handler);
   }, [query]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const searchContainer = document.querySelector('.search-container');
+      if (searchContainer && !searchContainer.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      } else if (e.key === 'Escape') {
+        setIsSearchOpen(false);
+        setQuery('');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['search', debouncedQuery],
@@ -31,14 +70,13 @@ export default function Header() {
     },
     enabled: !!debouncedQuery,
   });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    if (searchQuery && !searchHistory.includes(searchQuery)) {
+      setSearchHistory(prev => [searchQuery, ...prev].slice(0, 5));
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -73,7 +111,6 @@ export default function Header() {
     { name: 'Certifications', href: '#certifications' },
     { name: 'Blog', href: '#blog' },
     { name: 'Contact', href: '#contact' },
-    // Add external link
     {
       name: 'SellSmart Pro',
       href: 'https://sellsmart-pro.vercel.app/',
@@ -96,7 +133,6 @@ export default function Header() {
             <span className="text-xl font-bold">Wesley Quintero</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex md:gap-6 items-center">
             {navItems.map((item) =>
               item.external ? (
@@ -122,19 +158,96 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="relative hidden md:block">
+            <div className="relative hidden md:block search-container">
               <input
                 type="text"
                 placeholder="Search..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => setIsSearchOpen(true)}
                 className="h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
-
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K
               </kbd>
+
+              {(query || isSearchOpen) && (
+                <div className="absolute top-full mt-2 w-full rounded-md border bg-popover p-2 shadow-md max-h-[300px] overflow-y-auto">
+                  {!query && searchHistory.length > 0 && (
+                    <div className="mb-4">
+                      <div className="mb-2 text-sm font-medium text-muted-foreground">Recent Searches</div>
+                      {searchHistory.map((item, index) => (
+                        <button
+                          key={item}
+                          className="block w-full text-left px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => handleSearch(item)}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {isLoading && (
+                    <div className="flex items-center justify-center py-2 text-muted-foreground">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>Searching...</span>
+                    </div>
+                  )}
+                  {!isLoading && data && (
+                    <div className="space-y-4">
+                      {data.blog && data.blog.length > 0 && (
+                        <div>
+                          <div className="mb-2 text-sm font-medium text-muted-foreground">Blog Posts</div>
+                          {data.blog.map((item, index) => (
+                            <Link
+                              key={item.slug}
+                              href={`/blog/${item.slug}`}
+                              className={cn(
+                                'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                                selectedIndex === index ? 'bg-accent text-accent-foreground' : ''
+                              )}
+                              onClick={() => {
+                                setQuery('');
+                                setIsSearchOpen(false);
+                              }}
+                            >
+                              {item.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      {data.tools && data.tools.length > 0 && (
+                        <div>
+                          <div className="mb-2 text-sm font-medium text-muted-foreground">Tools</div>
+                          {data.tools.map((item, index) => (
+                            <Link
+                              key={item.id}
+                              href={`#${item.id}`}
+                              className={cn(
+                                'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                                selectedIndex === index + (data.blog?.length || 0) ? 'bg-accent text-accent-foreground' : ''
+                              )}
+                              onClick={() => {
+                                setQuery('');
+                                setIsSearchOpen(false);
+                              }}
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      {(!data.blog?.length && !data.tools?.length) && (
+                        <div className="text-sm text-muted-foreground text-center py-2">
+                          No results found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+
             {mounted && (
               <>
                 <Button
@@ -167,7 +280,6 @@ export default function Header() {
               </>
             )}
 
-            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -183,7 +295,6 @@ export default function Header() {
             </Button>
           </div>
 
-          {/* Mobile Navigation */}
           {isMenuOpen && (
             <div className="absolute left-0 right-0 top-16 z-50 border-b bg-background/95 backdrop-blur-sm p-4 md:hidden animate-fadeIn">
               <nav className="flex flex-col space-y-4">
@@ -215,83 +326,6 @@ export default function Header() {
           )}
         </div>
       </header>
-
-      {/* Search Results Dropdown */}
-      {(query || isSearchOpen) && (
-        <div className="absolute top-full mt-2 w-full rounded-md border bg-popover p-2 shadow-md max-h-[300px] overflow-y-auto">
-          {!query && searchHistory.length > 0 && (
-            <div className="mb-4">
-              <div className="mb-2 text-sm font-medium text-muted-foreground">Recent Searches</div>
-              {searchHistory.map((item, index) => (
-                <button
-                  key={item}
-                  className="block w-full text-left px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground"
-                  onClick={() => setQuery(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          )}
-          {isLoading && (
-            <div className="flex items-center justify-center py-2 text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              <span>Searching...</span>
-            </div>
-          )}
-          {!isLoading && data && (
-            <div className="space-y-4">
-              {data.blog && data.blog.length > 0 && (
-                <div>
-                  <div className="mb-2 text-sm font-medium text-muted-foreground">Blog Posts</div>
-                  {data.blog.map((item, index) => (
-                    <Link
-                      key={item.slug}
-                      href={`/blog/${item.slug}`}
-                      className={cn(
-                        'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                        selectedIndex === index ? 'bg-accent text-accent-foreground' : ''
-                      )}
-                      onClick={() => {
-                        setQuery('');
-                        setIsSearchOpen(false);
-                      }}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-              {data.tools && data.tools.length > 0 && (
-                <div>
-                  <div className="mb-2 text-sm font-medium text-muted-foreground">Tools</div>
-                  {data.tools.map((item, index) => (
-                    <Link
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className={cn(
-                        'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                        selectedIndex === index + (data.blog?.length || 0) ? 'bg-accent text-accent-foreground' : ''
-                      )}
-                      onClick={() => {
-                        setQuery('');
-                        setIsSearchOpen(false);
-                      }}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-              {(!data.blog?.length && !data.tools?.length) && (
-                <div className="text-sm text-muted-foreground text-center py-2">
-                  No results found
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </>
   );
 }
