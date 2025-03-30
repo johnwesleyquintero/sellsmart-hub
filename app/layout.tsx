@@ -3,7 +3,7 @@ import type React from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styling-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();

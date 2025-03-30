@@ -23,7 +23,12 @@ import {
 import { Info } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
 import Papa from 'papaparse';
-import { ProcessedRow, MetricType, ChartDataPoint, CompetitorDataRow } from '@/lib/amazon-types';
+import {
+  ProcessedRow,
+  MetricType,
+  ChartDataPoint,
+  CompetitorDataRow,
+} from '@/lib/amazon-types';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
@@ -37,7 +42,9 @@ export default function CompetitorAnalyzer() {
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (csvData: Record<string, string>[]): ProcessedRow[] => {
+  const processCsvData = (
+    csvData: Record<string, string>[],
+  ): ProcessedRow[] => {
     return csvData.map((row) => ({
       asin: row.asin,
       price: parseFloat(row.price),
@@ -54,80 +61,87 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>, setData: (data: ProcessedRow[] | ProcessedRow) => void, type: 'seller' | 'competitor') => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      toast({
-        title: 'Error',
-        description: 'No file selected',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!file.name.endsWith('.csv')) {
-      toast({
-        title: 'Error',
-        description: 'Only CSV files are supported',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result;
-        if (typeof content !== 'string') {
-          throw new Error('Invalid file content - file must be text-based');
-        }
-
-        Papa.parse(content, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            if (results.errors.length > 0) {
-              throw new Error(
-                `CSV parsing errors: ${results.errors.map((e) => e.message).join(', ')}`,
-              );
-            }
-
-            const requiredHeaders = [
-              'asin',
-              'price',
-              'reviews',
-              'rating',
-              'conversion_rate',
-              'click_through_rate',
-            ];
-            const missingHeaders = requiredHeaders.filter(
-              (h) => !results.meta.fields.includes(h),
-            );
-            if (missingHeaders.length > 0) {
-              throw new Error(
-                `Missing required columns: ${missingHeaders.join(', ')}`,
-              );
-            }
-
-            const processedData = processCsvData(results.data);
-            setData(type === 'seller' ? processedData[0] : processedData);
-            toast({
-              title: 'Success',
-              description: `${type} data (${file.name}) processed successfully`,
-              variant: 'default',
-            });
-          },
-        });
-      } catch (error) {
+  const handleFileUpload = useCallback(
+    (
+      event: React.ChangeEvent<HTMLInputElement>,
+      setData: (data: ProcessedRow[] | ProcessedRow) => void,
+      type: 'seller' | 'competitor',
+    ) => {
+      const file = event.target.files?.[0];
+      if (!file) {
         toast({
           title: 'Error',
-          description: `Failed to process ${type} CSV (${file.name}): ${error instanceof Error ? error.message : 'Unknown error'}`,
+          description: 'No file selected',
           variant: 'destructive',
         });
+        return;
       }
-    };
-    reader.readAsText(file);
-  }, []);
+
+      if (!file.name.endsWith('.csv')) {
+        toast({
+          title: 'Error',
+          description: 'Only CSV files are supported',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result;
+          if (typeof content !== 'string') {
+            throw new Error('Invalid file content - file must be text-based');
+          }
+
+          Papa.parse(content, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              if (results.errors.length > 0) {
+                throw new Error(
+                  `CSV parsing errors: ${results.errors.map((e) => e.message).join(', ')}`,
+                );
+              }
+
+              const requiredHeaders = [
+                'asin',
+                'price',
+                'reviews',
+                'rating',
+                'conversion_rate',
+                'click_through_rate',
+              ];
+              const missingHeaders = requiredHeaders.filter(
+                (h) => !results.meta.fields.includes(h),
+              );
+              if (missingHeaders.length > 0) {
+                throw new Error(
+                  `Missing required columns: ${missingHeaders.join(', ')}`,
+                );
+              }
+
+              const processedData = processCsvData(results.data);
+              setData(type === 'seller' ? processedData[0] : processedData);
+              toast({
+                title: 'Success',
+                description: `${type} data (${file.name}) processed successfully`,
+                variant: 'default',
+              });
+            },
+          });
+        } catch (error) {
+          toast({
+            title: 'Error',
+            description: `Failed to process ${type} CSV (${file.name}): ${error instanceof Error ? error.message : 'Unknown error'}`,
+            variant: 'destructive',
+          });
+        }
+      };
+      reader.readAsText(file);
+    },
+    [],
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -203,7 +217,7 @@ export default function CompetitorAnalyzer() {
         metrics: Record<MetricType, number[]>;
       }
 
-      const data = await response.json() as ApiResponse;
+      const data = (await response.json()) as ApiResponse;
 
       // Ensure data has the expected structure
       if (!data || !data.competitors || !data.metrics) {

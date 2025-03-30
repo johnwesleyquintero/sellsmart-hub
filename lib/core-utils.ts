@@ -1,13 +1,13 @@
 export const exportFormats = ['CSV', 'Excel', 'PDF', 'JSON'] as const;
 
-export type ExportFormat = typeof exportFormats[number];
+export type ExportFormat = (typeof exportFormats)[number];
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(value);
 }
 

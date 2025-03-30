@@ -1,9 +1,9 @@
 ---
-title: "A Complete Guide to Next.js Metadata API"
-date: "2024-01-10"
-author: "Wesley Quintero"
-summary: "Learn how to leverage Next.js Metadata API for better SEO and social sharing with practical examples and best practices."
-tags: ["Next.js", "SEO", "Web Development", "React"]
+title: 'A Complete Guide to Next.js Metadata API'
+date: '2024-01-10'
+author: 'Wesley Quintero'
+summary: 'Learn how to leverage Next.js Metadata API for better SEO and social sharing with practical examples and best practices.'
+tags: ['Next.js', 'SEO', 'Web Development', 'React']
 ---
 
 # A Complete Guide to Next.js Metadata API
@@ -21,12 +21,12 @@ Next.js offers two approaches to implementing metadata:
 ### Static Metadata
 
 ```typescript
-import type { Metadata } from 'next'
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'My Website',
   description: 'Welcome to my website',
-}
+};
 ```
 
 ### Dynamic Metadata
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export async function generateMetadata({ params }) {
   return {
     title: '...',
-  }
+  };
 }
 ```
 
@@ -54,7 +54,7 @@ export const metadata = {
   authors: [{ name: 'John Doe' }],
   creator: 'John Doe',
   publisher: 'Next.js',
-}
+};
 ```
 
 ### OpenGraph Integration
@@ -76,7 +76,7 @@ export const metadata = {
     locale: 'en_US',
     type: 'website',
   },
-}
+};
 ```
 
 ### Twitter Card Integration
@@ -90,7 +90,7 @@ export const metadata = {
     creator: '@johndoe',
     images: ['https://mywebsite.com/og.png'],
   },
-}
+};
 ```
 
 ## Best Practices
@@ -106,4 +106,4 @@ The Next.js Metadata API provides a powerful and flexible way to manage your app
 
 ---
 
-*Source: [Next.js Documentation - Metadata API](https://nextjs.org/docs)*
+_Source: [Next.js Documentation - Metadata API](https://nextjs.org/docs)_

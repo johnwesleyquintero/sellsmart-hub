@@ -15,12 +15,14 @@ export type CampaignData = {
   conversionRate?: number;
 };
 
-export const calculateMetrics = (data: Pick<CampaignData, 'adSpend' | 'sales' | 'impressions' | 'clicks'>): Omit<CampaignData, 'campaign' | 'adSpend' | 'sales'> => {
+export const calculateMetrics = (
+  data: Pick<CampaignData, 'adSpend' | 'sales' | 'impressions' | 'clicks'>,
+): Omit<CampaignData, 'campaign' | 'adSpend' | 'sales'> => {
   const { adSpend, sales, impressions, clicks } = data;
-  
+
   const metrics: Omit<CampaignData, 'campaign' | 'adSpend' | 'sales'> = {
     acos: (adSpend / sales) * 100,
-    roas: sales / adSpend
+    roas: sales / adSpend,
   };
 
   if (impressions && clicks) {
@@ -52,28 +54,44 @@ export const getAcosColor = (acos: number): string => {
 };
 
 export const chartConfig = {
-  acos: { 
+  acos: {
     label: 'ACoS %',
-    theme: { light: '#ef4444', dark: '#f87171' }
+    theme: { light: '#ef4444', dark: '#f87171' },
   },
-  roas: { 
+  roas: {
     label: 'ROAS',
-    theme: { light: '#22c55e', dark: '#4ade80' }
+    theme: { light: '#22c55e', dark: '#4ade80' },
   },
-  ctr: { 
+  ctr: {
     label: 'CTR %',
-    theme: { light: '#3b82f6', dark: '#60a5fa' }
+    theme: { light: '#3b82f6', dark: '#60a5fa' },
   },
-  cpc: { 
+  cpc: {
     label: 'CPC $',
-    theme: { light: '#a855f7', dark: '#c084fc' }
-  }
+    theme: { light: '#a855f7', dark: '#c084fc' },
+  },
 } as const;
 
 export const acosRatingGuide = [
-  { label: 'Excellent', range: '<15%', color: 'text-green-600 dark:text-green-400' },
-  { label: 'Good', range: '15-25%', color: 'text-emerald-600 dark:text-emerald-400' },
-  { label: 'Average', range: '25-35%', color: 'text-yellow-600 dark:text-yellow-400' },
-  { label: 'Poor', range: '35-45%', color: 'text-orange-600 dark:text-orange-400' },
-  { label: 'Critical', range: '>45%', color: 'text-red-600 dark:text-red-400' }
+  {
+    label: 'Excellent',
+    range: '<15%',
+    color: 'text-green-600 dark:text-green-400',
+  },
+  {
+    label: 'Good',
+    range: '15-25%',
+    color: 'text-emerald-600 dark:text-emerald-400',
+  },
+  {
+    label: 'Average',
+    range: '25-35%',
+    color: 'text-yellow-600 dark:text-yellow-400',
+  },
+  {
+    label: 'Poor',
+    range: '35-45%',
+    color: 'text-orange-600 dark:text-orange-400',
+  },
+  { label: 'Critical', range: '>45%', color: 'text-red-600 dark:text-red-400' },
 ] as const;

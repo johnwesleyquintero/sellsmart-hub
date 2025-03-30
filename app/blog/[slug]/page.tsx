@@ -23,18 +23,28 @@ export async function generateMetadata({
         openGraph: {
           title: 'Post Not Found | Wesley Quintero',
           description: 'The requested blog post could not be found.',
-          images: [{ url: '/default-fallback.svg', width: 1200, height: 630, alt: 'Post Not Found' }]
+          images: [
+            {
+              url: '/default-fallback.svg',
+              width: 1200,
+              height: 630,
+              alt: 'Post Not Found',
+            },
+          ],
         },
         twitter: {
           card: 'summary_large_image',
           title: 'Post Not Found | Wesley Quintero',
           description: 'The requested blog post could not be found.',
-          images: ['/default-fallback.svg']
-        }
+          images: ['/default-fallback.svg'],
+        },
       };
     }
 
-    const canonicalUrl = new URL(`/blog/${params.slug}`, 'https://wesleyquintero.vercel.app').toString();
+    const canonicalUrl = new URL(
+      `/blog/${params.slug}`,
+      'https://wesleyquintero.vercel.app',
+    ).toString();
 
     return {
       title: `${post.title} | Wesley Quintero`,

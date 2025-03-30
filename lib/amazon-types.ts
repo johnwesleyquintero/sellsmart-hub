@@ -42,17 +42,22 @@ export enum ProductCategory {
   STANDARD = 'standard',
   OVERSIZE = 'oversize',
   HAZMAT = 'hazmat',
-  APPAREL = 'apparel'
+  APPAREL = 'apparel',
 }
 
 export enum InventoryHealthStatus {
   HEALTHY = 'healthy',
   LOW = 'low',
   EXCESS = 'excess',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
-export type MetricType = 'price' | 'reviews' | 'rating' | 'conversion_rate' | 'click_through_rate';
+export type MetricType =
+  | 'price'
+  | 'reviews'
+  | 'rating'
+  | 'conversion_rate'
+  | 'click_through_rate';
 
 export interface ChartDataPoint {
   name: string;

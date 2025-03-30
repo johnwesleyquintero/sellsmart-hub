@@ -16,7 +16,8 @@ export class AmazonAlgorithms {
     // Normalized values (0-1 scale)
     const normalizedConversion = Math.min(product.conversionRate / 20, 1);
     const normalizedSessions = Math.min(product.sessions / 500, 1);
-    const normalizedReviews = (product.reviewRating / 5) * (Math.log(product.reviewCount + 1) / 5);
+    const normalizedReviews =
+      (product.reviewRating / 5) * (Math.log(product.reviewCount + 1) / 5);
     const normalizedPricing = product.priceCompetitiveness;
     const normalizedInventory = product.inventoryHealth;
 
@@ -25,19 +26,26 @@ export class AmazonAlgorithms {
         normalizedSessions * sessionWeight +
         normalizedReviews * reviewWeight +
         normalizedPricing * pricingWeight +
-        normalizedInventory * inventoryWeight) * 100
+        normalizedInventory * inventoryWeight) *
+        100,
     );
   }
 
   /**
    * Official FBA fee calculation with real-time adjustments
    */
-  static calculateFBAFees(product: Product, feeStructure: FeeStructure): number {
+  static calculateFBAFees(
+    product: Product,
+    feeStructure: FeeStructure,
+  ): number {
     const baseFee = feeStructure.baseFee;
-    const weightFee = Math.max(product.weight * feeStructure.perKgFee - feeStructure.weightThreshold, 0);
+    const weightFee = Math.max(
+      product.weight * feeStructure.perKgFee - feeStructure.weightThreshold,
+      0,
+    );
     const storageFee = product.volume * feeStructure.monthlyStorageFee;
     const referralFee = product.price * feeStructure.referralPercentage;
-    
+
     return Number((baseFee + weightFee + storageFee + referralFee).toFixed(2));
   }
 
@@ -55,17 +63,18 @@ export class AmazonAlgorithms {
       salesLast30Days: z.number().positive(),
       leadTime: z.number().int().nonnegative(),
       currentInventory: z.number().nonnegative(),
-      historicalSales: z.array(z.number().nonnegative()).min(30)
+      historicalSales: z.array(z.number().nonnegative()).min(30),
     });
-    
+
     const { success } = inventorySchema.safeParse(current);
-    if (!success) throw new InventoryOptimizationError('Invalid inventory data');
+    if (!success)
+      throw new InventoryOptimizationError('Invalid inventory data');
 
     // AI-powered time series forecasting
     const forecast = new TimeSeriesForecaster({
       series: current.historicalSales,
       seasonality: 'weekly',
-      outliers: 'auto'
+      outliers: 'auto',
     }).predict(leadTimeDays);
 
     // Calculate dynamic safety stock with 95% confidence
@@ -73,7 +82,7 @@ export class AmazonAlgorithms {
       demandMean: forecast.mean,
       demandStdDev: forecast.stdDev,
       leadTime: leadTimeDays,
-      serviceLevel: 0.95
+      serviceLevel: 0.95,
     });
 
     // Calculate optimal values
@@ -81,15 +90,15 @@ export class AmazonAlgorithms {
     const optimalOrderQty = Math.ceil(
       Math.max(
         reorderPoint - current.currentInventory,
-        Math.ceil(forecast.mean * 7)
-      )
+        Math.ceil(forecast.mean * 7),
+      ),
     );
 
     return {
       reorderPoint,
       optimalOrderQty,
       forecastedDemand: forecast.values,
-      confidenceInterval: [forecast.lowerBound, forecast.upperBound]
+      confidenceInterval: [forecast.lowerBound, forecast.upperBound],
     };
   }
 
@@ -102,14 +111,14 @@ export class AmazonAlgorithms {
     demandFactor: number,
     historicalPrices: number[],
     salesVelocity: number,
-    seasonalityIndex: number
+    seasonalityIndex: number,
   ): number {
     const pricingSchema = z.object({
       basePrice: z.number().positive(),
       competition: z.array(z.number().positive()).min(3),
       historicalPrices: z.array(z.number().positive()).min(30),
       salesVelocity: z.number().min(0).max(1),
-      seasonalityIndex: z.number().min(0.5).max(2)
+      seasonalityIndex: z.number().min(0.5).max(2),
     });
 
     const { success } = pricingSchema.safeParse({
@@ -117,7 +126,7 @@ export class AmazonAlgorithms {
       competition,
       historicalPrices,
       salesVelocity,
-      seasonalityIndex
+      seasonalityIndex,
     });
     if (!success) throw new PricingOptimizationError('Invalid pricing data');
 
@@ -125,22 +134,24 @@ export class AmazonAlgorithms {
     const priceModel = new DemandPriceRegressor({
       historicalPrices,
       salesVelocity,
-      seasonality: seasonalityIndex
+      seasonality: seasonalityIndex,
     });
-    
+
     const mlPrediction = priceModel.predictOptimalPrice();
     const competitionWeight = 0.3;
     const mlWeight = 0.7;
 
-    const avgCompetition = competition.reduce((a, b) => a + b, 0) / competition.length;
-    const weightedPrice = (mlPrediction * mlWeight) + (avgCompetition * competitionWeight);
-    
+    const avgCompetition =
+      competition.reduce((a, b) => a + b, 0) / competition.length;
+    const weightedPrice =
+      mlPrediction * mlWeight + avgCompetition * competitionWeight;
+
     const dynamicCeiling = Math.max(weightedPrice * 1.15, avgCompetition * 1.1);
     const dynamicFloor = Math.min(weightedPrice * 0.85, avgCompetition * 0.9);
 
     let optimal = basePrice * demandFactor * seasonalityIndex;
     optimal = Math.min(Math.max(optimal, dynamicFloor), dynamicCeiling);
-    
+
     return Number(optimal.toFixed(2));
   }
 }

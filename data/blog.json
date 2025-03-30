@@ -73,8 +73,7 @@
         "ppc-campaign-auditor",
         "acos-calculator"
       ]
-    }
-    ,
+    },
     {
       "id": "next-js-metadata-api-guide",
       "title": "A Complete Guide to Next.js Metadata API",

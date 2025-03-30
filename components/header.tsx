@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, Menu, X, FileText, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styling-utils';
 
 export default function Header() {
   const [query, setQuery] = useState('');
@@ -74,7 +74,7 @@ export default function Header() {
   const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
     if (searchQuery && !searchHistory.includes(searchQuery)) {
-      setSearchHistory(prev => [searchQuery, ...prev].slice(0, 5));
+      setSearchHistory((prev) => [searchQuery, ...prev].slice(0, 5));
     }
   };
 
@@ -175,7 +175,9 @@ export default function Header() {
                 <div className="absolute top-full mt-2 w-full rounded-md border bg-popover p-2 shadow-md max-h-[300px] overflow-y-auto">
                   {!query && searchHistory.length > 0 && (
                     <div className="mb-4">
-                      <div className="mb-2 text-sm font-medium text-muted-foreground">Recent Searches</div>
+                      <div className="mb-2 text-sm font-medium text-muted-foreground">
+                        Recent Searches
+                      </div>
                       {searchHistory.map((item, index) => (
                         <button
                           key={item}
@@ -197,14 +199,18 @@ export default function Header() {
                     <div className="space-y-4">
                       {data.blog && data.blog.length > 0 && (
                         <div>
-                          <div className="mb-2 text-sm font-medium text-muted-foreground">Blog Posts</div>
+                          <div className="mb-2 text-sm font-medium text-muted-foreground">
+                            Blog Posts
+                          </div>
                           {data.blog.map((item, index) => (
                             <Link
                               key={item.slug}
                               href={`/blog/${item.slug}`}
                               className={cn(
                                 'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                selectedIndex === index ? 'bg-accent text-accent-foreground' : ''
+                                selectedIndex === index
+                                  ? 'bg-accent text-accent-foreground'
+                                  : '',
                               )}
                               onClick={() => {
                                 setQuery('');
@@ -218,14 +224,19 @@ export default function Header() {
                       )}
                       {data.tools && data.tools.length > 0 && (
                         <div>
-                          <div className="mb-2 text-sm font-medium text-muted-foreground">Tools</div>
+                          <div className="mb-2 text-sm font-medium text-muted-foreground">
+                            Tools
+                          </div>
                           {data.tools.map((item, index) => (
                             <Link
                               key={item.id}
                               href={`#${item.id}`}
                               className={cn(
                                 'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                selectedIndex === index + (data.blog?.length || 0) ? 'bg-accent text-accent-foreground' : ''
+                                selectedIndex ===
+                                  index + (data.blog?.length || 0)
+                                  ? 'bg-accent text-accent-foreground'
+                                  : '',
                               )}
                               onClick={() => {
                                 setQuery('');
@@ -237,7 +248,7 @@ export default function Header() {
                           ))}
                         </div>
                       )}
-                      {(!data.blog?.length && !data.tools?.length) && (
+                      {!data.blog?.length && !data.tools?.length && (
                         <div className="text-sm text-muted-foreground text-center py-2">
                           No results found
                         </div>
