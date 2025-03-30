@@ -7,7 +7,16 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
 // Sample testimonials data
-const testimonials = [
+interface Testimonial {
+  id: number;
+  name: string;
+  position: string;
+  image: string;
+  content: string;
+  metrics: string;
+}
+
+const testimonials: Testimonial[] = [
   {
     id: 1,
     name: 'Sarah Johnson',
@@ -39,7 +48,9 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleTestimonials, setVisibleTestimonials] = useState([]);
+  const [visibleTestimonials, setVisibleTestimonials] = useState<
+    typeof testimonials
+  >([]);
   const [itemsPerView, setItemsPerView] = useState(3);
 
   useEffect(() => {

@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 
+interface TrendEntry {
+  date: string;
+  volume: number;
+}
+
+interface ProcessedData {
+  [keyword: string]: TrendEntry[];
+}
+
 function processCSVData(data: string[]) {
   const headers = data[0].split(',').map((h) => h.trim());
   const rows = data.slice(1);
-  const processedData = {};
+  const processedData: ProcessedData = {};
 
   rows.forEach((row) => {
     const values = row.split(',');
@@ -22,8 +31,8 @@ function processCSVData(data: string[]) {
 
 export async function POST(request: Request) {
   try {
-    const { csvData } = await request.json();
-    let trendData = [];
+    const { csvData } = (await request.json()) as { csvData: string[] };
+    let trendData: { name: string; [key: string]: number }[] = [];
 
     if (csvData) {
       const processedData = processCSVData(csvData);
@@ -47,7 +56,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error processing keyword trends:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to process keyword trends' },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to process keyword trends',
+      },
       { status: 500 },
     );
   }
