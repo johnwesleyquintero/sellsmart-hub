@@ -89,7 +89,7 @@ export default function KeywordDeduplicator() {
 
           setProducts(processedData);
           setIsLoading(false);
-        } catch (err) {
+        } catch {
           setError(
             'Failed to process CSV data. Please ensure your CSV has columns: product, keywords',
           );
@@ -180,8 +180,8 @@ export default function KeywordDeduplicator() {
             Example: <code>product,keywords</code>
             <br />
             <code>
-              Wireless Earbuds,"bluetooth earbuds, wireless earbuds, earbuds
-              bluetooth, wireless headphones, bluetooth earbuds"
+              Wireless Earbuds,&quot;bluetooth earbuds, wireless earbuds,
+              earbuds bluetooth, wireless headphones, bluetooth earbuds&quot;
             </code>
           </p>
         </div>

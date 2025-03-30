@@ -144,7 +144,10 @@ export default function PpcCampaignAuditor() {
           setCampaigns(processedData);
           setIsLoading(false);
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to process CSV data. Please ensure your CSV has the correct format';
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : 'Failed to process CSV data. Please ensure your CSV has the correct format';
           setError(errorMessage);
           setIsLoading(false);
         }

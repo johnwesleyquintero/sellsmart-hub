@@ -92,7 +92,7 @@ export default function FbaCalculator() {
           setCsvData(validData);
           calculateProfit(validData);
           setIsLoading(false);
-        } catch (err) {
+        } catch {
           setError(
             'Failed to process CSV data. Please ensure your CSV has columns: product, cost, price, fees',
           );

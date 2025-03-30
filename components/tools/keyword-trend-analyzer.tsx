@@ -102,28 +102,6 @@ export default function KeywordTrendAnalyzer() {
     reader.readAsText(file);
   }, []);
 
-  const processCsvData = (csvContent) => {
-    try {
-      const rows = csvContent.split('\n').filter((row) => row.trim());
-      const headers = rows[0].split(',').map((h) => h.trim());
-      return rows.slice(1).map((row) => {
-        const values = row.split(',');
-        return {
-          keyword: values[headers.indexOf('keyword')].trim(),
-          volume: parseInt(values[headers.indexOf('volume')], 10),
-          date: new Date(values[headers.indexOf('date')]),
-        };
-      });
-    } catch (error) {
-      toast({
-        title: 'CSV Processing Error',
-        description: 'Failed to parse CSV content: ' + error.message,
-        variant: 'destructive',
-      });
-      return null;
-    }
-  };
-
   const analyzeTrends = useCallback(async () => {
     setIsLoading(true);
     try {

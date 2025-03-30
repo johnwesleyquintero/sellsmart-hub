@@ -36,7 +36,7 @@ export default function CompetitorAnalyzer() {
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (csvData: unknown[], type: string): ProcessedRow[] => {
+  const processCsvData = (csvData: unknown[]): ProcessedRow[] => {
     return csvData.map((row) => ({
       asin: row.asin,
       price: parseFloat(row.price),

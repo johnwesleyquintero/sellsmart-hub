@@ -15,18 +15,8 @@ import {
   Download,
   Search,
   Info,
-  BarChart2,
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
 
@@ -115,7 +105,7 @@ export default function KeywordAnalyzer() {
 
           setProducts(processedData);
           setIsLoading(false);
-        } catch (err) {
+        } catch {
           setError(
             'Failed to process CSV data. Please ensure your CSV has columns: product, keywords',
           );
@@ -143,8 +133,10 @@ export default function KeywordAnalyzer() {
     setIsLoading(true);
     setError(null);
 
-    // In a real implementation, this would call an API to get keyword data
-    // For now, we'll create a simulated response
+    {
+      /* In a real implementation, this would call an API to get keyword data.
+        For now, we'll create a simulated response */
+    }
     setTimeout(() => {
       const newProduct: KeywordData = {
         product: searchTerm,
@@ -221,8 +213,8 @@ export default function KeywordAnalyzer() {
             Example: <code>product,keywords,searchVolume,competition</code>
             <br />
             <code>
-              Wireless Earbuds,"bluetooth earbuds, wireless headphones,
-              earphones",135000,High
+              Wireless Earbuds,&quot;bluetooth earbuds, wireless headphones,
+              earphones&quot;,135000,High
             </code>
           </p>
         </div>

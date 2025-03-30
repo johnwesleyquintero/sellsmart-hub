@@ -8,9 +8,7 @@ type DiagramType =
   | 'analytics'
   | 'web';
 
-export function generatePlaceholderDiagram(
-  type: DiagramType = 'flow'
-): string {
+export function generatePlaceholderDiagram(type: DiagramType = 'flow'): string {
   switch (type) {
     case 'ai':
       return `

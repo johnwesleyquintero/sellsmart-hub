@@ -115,7 +115,10 @@ export default function SalesEstimator() {
         setProducts(processedData);
         setIsLoading(false);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to parse CSV file. Please check the format and try again.';
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Failed to parse CSV file. Please check the format and try again.';
         setError(errorMessage);
         setIsLoading(false);
       }
