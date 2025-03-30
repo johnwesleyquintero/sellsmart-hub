@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       ].sort();
 
       trendData = dates.map((date) => {
-        const dataPoint: { name: string; [key: string]: any } = { name: date };
+        const dataPoint: { name: string; [key: string]: number } = { name: date };
         Object.keys(processedData).forEach((keyword) => {
           const entry = processedData[keyword].find((e) => e.date === date);
           dataPoint[keyword] = entry ? entry.volume : 0;
