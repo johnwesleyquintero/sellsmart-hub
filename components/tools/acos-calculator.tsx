@@ -1,50 +1,18 @@
 'use client';
 
 import type React from 'react';
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Upload,
-  FileText,
-  AlertCircle,
-  Download,
-  Calculator,
-  Info,
-} from 'lucide-react';
+import { Upload, FileText, AlertCircle, Download, Calculator, Info } from 'lucide-react';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { BarChart, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, Line } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
-
-type ChartFunction = (width: number, height: number) => React.ReactElement;
-
-type CampaignData = {
-  campaign: string;
-  adSpend: number;
-  sales: number;
-  acos?: number;
-  roas?: number;
-  impressions?: number;
-  clicks?: number;
-  ctr?: number;
-  cpc?: number;
-  conversionRate?: number;
-};
+import { type CampaignData, calculateMetrics, getAcosRating, getAcosColor, chartConfig, acosRatingGuide } from '@/lib/acos-utils';
 
 export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
@@ -57,12 +25,6 @@ export default function AcosCalculator() {
     sales: '',
   });
 
-  const chartConfig = {
-    acos: { label: 'ACoS %', theme: { light: '#ef4444', dark: '#f87171' } },
-    roas: { label: 'ROAS', theme: { light: '#22c55e', dark: '#4ade80' } },
-    ctr: { label: 'CTR %', theme: { light: '#3b82f6', dark: '#60a5fa' } },
-    cpc: { label: 'CPC $', theme: { light: '#a855f7', dark: '#c084fc' } },
-  };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,72 +40,38 @@ export default function AcosCalculator() {
       skipEmptyLines: true,
       complete: (result) => {
         if (result.errors.length > 0) {
-          setError(
-            `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
-          );
+          setError(`Error parsing CSV file: ${result.errors[0].message}. Please check the format.`);
           setIsLoading(false);
           return;
         }
 
         try {
-          // Process the parsed data
           const processedData: CampaignData[] = result.data
-            .filter(
-              (item) =>
-                item.campaign &&
-                !isNaN(Number(item.adSpend)) &&
-                !isNaN(Number(item.sales)),
-            )
-            .map((item) => {
-              // Calculate metrics
-              const adSpend = Number(item.adSpend);
-              const sales = Number(item.sales);
-
-              const acos = (adSpend / sales) * 100;
-              const roas = sales / adSpend;
-
-              // Optional metrics
-              let ctr, cpc, conversionRate;
-              if (item.impressions && item.clicks) {
-                ctr = (Number(item.clicks) / Number(item.impressions)) * 100;
-              }
-              if (item.clicks) {
-                cpc = adSpend / Number(item.clicks);
-                if (sales) {
-                  conversionRate = (sales / Number(item.clicks)) * 100;
-                }
-              }
-
-              return {
-                campaign: String(item.campaign),
-                adSpend,
-                sales,
-                acos,
-                roas,
-                impressions: item.impressions
-                  ? Number(item.impressions)
-                  : undefined,
+            .filter(item => item.campaign && !isNaN(Number(item.adSpend)) && !isNaN(Number(item.sales)))
+            .map(item => ({
+              campaign: String(item.campaign),
+              adSpend: Number(item.adSpend),
+              sales: Number(item.sales),
+              impressions: item.impressions ? Number(item.impressions) : undefined,
+              clicks: item.clicks ? Number(item.clicks) : undefined,
+              ...calculateMetrics({
+                adSpend: Number(item.adSpend),
+                sales: Number(item.sales),
+                impressions: item.impressions ? Number(item.impressions) : undefined,
                 clicks: item.clicks ? Number(item.clicks) : undefined,
-                ctr,
-                cpc,
-                conversionRate,
-              };
-            });
+              })
+            }));
 
           if (processedData.length === 0) {
-            setError(
-              'No valid data found in CSV. Please ensure your CSV has columns: campaign, adSpend, sales',
-            );
+            setError('No valid data found in CSV. Please ensure your CSV has columns: campaign, adSpend, sales');
             setIsLoading(false);
             return;
           }
 
           setCampaigns(processedData);
-          setIsLoading(false);
         } catch (err) {
-          setError(
-            'Failed to process CSV data. Please ensure your CSV has the correct format',
-          );
+          setError('Failed to process CSV data. Please ensure your CSV has the correct format');
+        } finally {
           setIsLoading(false);
         }
       },
@@ -153,7 +81,6 @@ export default function AcosCalculator() {
       },
     });
 
-    // Reset the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -185,21 +112,16 @@ export default function AcosCalculator() {
       return;
     }
     if (sales === 0) {
-      setError(
-        'Sales amount cannot be zero as it would result in invalid ACOS calculation',
-      );
+      setError('Sales amount cannot be zero as it would result in invalid ACOS calculation');
       return;
     }
 
-    const acos = (adSpend / sales) * 100;
-    const roas = sales / adSpend;
-
+    const metrics = calculateMetrics({ adSpend, sales });
     const newCampaign: CampaignData = {
       campaign: manualCampaign.campaign,
       adSpend,
       sales,
-      acos,
-      roas,
+      ...metrics
     };
 
     setCampaigns([...campaigns, newCampaign]);
@@ -213,8 +135,7 @@ export default function AcosCalculator() {
       return;
     }
 
-    // Prepare data for CSV export
-    const exportData = campaigns.map((campaign) => ({
+    const exportData = campaigns.map(campaign => ({
       campaign: campaign.campaign,
       adSpend: campaign.adSpend.toFixed(2),
       sales: campaign.sales.toFixed(2),
@@ -224,13 +145,10 @@ export default function AcosCalculator() {
       clicks: campaign.clicks || '',
       ctr: campaign.ctr?.toFixed(2) || '',
       cpc: campaign.cpc?.toFixed(2) || '',
-      conversionRate: campaign.conversionRate?.toFixed(2) || '',
+      conversionRate: campaign.conversionRate?.toFixed(2) || ''
     }));
 
-    // Create CSV content
     const csv = Papa.unparse(exportData);
-
-    // Create a blob and download link
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -239,22 +157,6 @@ export default function AcosCalculator() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  const getAcosRating = (acos: number): string => {
-    if (acos < 15) return 'Excellent';
-    if (acos < 25) return 'Good';
-    if (acos < 35) return 'Average';
-    if (acos < 45) return 'Poor';
-    return 'Critical';
-  };
-
-  const getAcosColor = (acos: number): string => {
-    if (acos < 15) return 'text-green-600 dark:text-green-400';
-    if (acos < 25) return 'text-emerald-600 dark:text-emerald-400';
-    if (acos < 35) return 'text-yellow-600 dark:text-yellow-400';
-    if (acos < 45) return 'text-orange-600 dark:text-orange-400';
-    return 'text-red-600 dark:text-red-400';
   };
 
   const clearData = () => {
@@ -268,28 +170,13 @@ export default function AcosCalculator() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center mb-6">
-        <Button
-          variant="outline"
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full sm:w-auto"
-        >
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto">
           <Upload className="mr-2 h-4 w-4" />
           Upload CSV
         </Button>
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleFileUpload}
-          ref={fileInputRef}
-          className="hidden"
-        />
+        <input type="file" accept=".csv" onChange={handleFileUpload} ref={fileInputRef} className="hidden" />
         <SampleCsvButton dataType="acos" fileName="sample-acos-calculator.csv" />
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          className="w-full sm:w-auto"
-          disabled={campaigns.length === 0}
-        >
+        <Button variant="outline" onClick={handleExport} className="w-full sm:w-auto" disabled={campaigns.length === 0}>
           <Download className="mr-2 h-4 w-4" />
           Export Data
         </Button>
@@ -306,17 +193,11 @@ export default function AcosCalculator() {
           ))}
         </div>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartContainer
-          config={chartConfig}
-          className="h-[400px]"
-        >
+        <ChartContainer config={chartConfig} className="h-[400px]">
           {(width: number, height: number): React.ReactElement => (
-            <BarChart 
-              width={width} 
-              height={height} 
-              data={campaigns}
-            >
+            <BarChart width={width} height={height} data={campaigns}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="campaign" />
               <YAxis />
@@ -333,39 +214,34 @@ export default function AcosCalculator() {
 
         <ChartContainer
           config={{
-            acos: {
-              label: 'ACOS Trend',
-              theme: { light: '#ef4444', dark: '#ef4444' },
-            },
-            roas: {
-              label: 'ROAS Trend',
-              theme: { light: '#10b981', dark: '#10b981' },
-            },
+            acos: { label: 'ACOS Trend', theme: { light: '#ef4444', dark: '#ef4444' } },
+            roas: { label: 'ROAS Trend', theme: { light: '#10b981', dark: '#10b981' } }
           }}
           className="h-[400px]"
         >
           {(width: number, height: number): React.ReactElement => (
-            <LineChart width={width} height={height} data={campaigns} />
+            <LineChart width={width} height={height} data={campaigns}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="campaign" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="acos" name="ACoS (%)" stroke="#ef4444" />
+              <Line type="monotone" dataKey="roas" name="ROAS" stroke="#10b981" />
+            </LineChart>
           )}
         </ChartContainer>
       </div>
+
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
-          <p>
-            Your CSV file should have the following columns:{' '}
-            <code>campaign</code>, <code>adSpend</code>, <code>sales</code>
-          </p>
-          <p>
-            Optional columns: <code>impressions</code>, <code>clicks</code>
-          </p>
+          <p>Your CSV file should have the following columns: <code>campaign</code>, <code>adSpend</code>, <code>sales</code></p>
+          <p>Optional columns: <code>impressions</code>, <code>clicks</code></p>
           <p className="mt-1">
-            Example: <code>campaign,adSpend,sales,impressions,clicks</code>
-            <br />
-            <code>
-              Auto Campaign - Wireless Earbuds,245.67,1245.89,12450,320
-            </code>
+            Example: <code>campaign,adSpend,sales,impressions,clicks</code><br />
+            <code>Auto Campaign - Wireless Earbuds,245.67,1245.89,12450,320</code>
           </p>
         </div>
       </div>
@@ -379,19 +255,13 @@ export default function AcosCalculator() {
               </div>
               <div>
                 <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a CSV file with your campaign data
-                </p>
+                <p className="text-sm text-muted-foreground">Upload a CSV file with your campaign data</p>
               </div>
               <div className="w-full">
                 <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
                   <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click to upload CSV
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    (CSV with campaign name, ad spend, and sales)
-                  </span>
+                  <span className="text-sm font-medium">Click to upload CSV</span>
+                  <span className="text-xs text-muted-foreground">(CSV with campaign name, ad spend, and sales)</span>
                   <input
                     type="file"
                     accept=".csv"
@@ -402,17 +272,10 @@ export default function AcosCalculator() {
                   />
                 </label>
                 <div className="flex justify-center mt-4">
-                  <SampleCsvButton
-                    dataType="acos"
-                    fileName="sample-acos-calculator.csv"
-                  />
+                  <SampleCsvButton dataType="acos" fileName="sample-acos-calculator.csv" />
                 </div>
                 {campaigns.length > 0 && (
-                  <Button
-                    variant="outline"
-                    className="w-full mt-4"
-                    onClick={clearData}
-                  >
+                  <Button variant="outline" className="w-full mt-4" onClick={clearData}>
                     Clear Data
                   </Button>
                 )}
@@ -430,12 +293,7 @@ export default function AcosCalculator() {
                   <label className="text-sm font-medium">Campaign Name</label>
                   <Input
                     value={manualCampaign.campaign}
-                    onChange={(e) =>
-                      setManualCampaign({
-                        ...manualCampaign,
-                        campaign: e.target.value,
-                      })
-                    }
+                    onChange={(e) => setManualCampaign({ ...manualCampaign, campaign: e.target.value })}
                     placeholder="Enter campaign name"
                   />
                 </div>
@@ -446,12 +304,7 @@ export default function AcosCalculator() {
                     min="0"
                     step="0.01"
                     value={manualCampaign.adSpend}
-                    onChange={(e) =>
-                      setManualCampaign({
-                        ...manualCampaign,
-                        adSpend: e.target.value,
-                      })
-                    }
+                    onChange={(e) => setManualCampaign({ ...manualCampaign, adSpend: e.target.value })}
                     placeholder="Enter ad spend amount"
                   />
                 </div>
@@ -462,12 +315,7 @@ export default function AcosCalculator() {
                     min="0"
                     step="0.01"
                     value={manualCampaign.sales}
-                    onChange={(e) =>
-                      setManualCampaign({
-                        ...manualCampaign,
-                        sales: e.target.value,
-                      })
-                    }
+                    onChange={(e) => setManualCampaign({ ...manualCampaign, sales: e.target.value })}
                     placeholder="Enter sales amount"
                   />
                 </div>
@@ -491,154 +339,61 @@ export default function AcosCalculator() {
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
           <Progress value={45} className="h-2" />
-          <p className="text-sm text-muted-foreground">
-            Processing your data...
-          </p>
+          <p className="text-sm text-muted-foreground">Processing your data...</p>
         </div>
       )}
 
       {campaigns.length > 0 && (
-        <>
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export Calculations
-            </Button>
-          </div>
-
-          {/* Data Visualization Charts */}
-          <div className="mb-6 grid gap-4 md:grid-cols-2">
-            <ChartContainer>
-              <BarChart width={500} height={300} data={campaigns}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="campaign" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="acos" name="ACoS (%)" fill="#4f46e5" />
-              </BarChart>
-            </ChartContainer>
-            <ChartContainer>
-              <LineChart width={500} height={300} data={campaigns}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="campaign" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="roas" name="ROAS" stroke="#10b981" />
-              </LineChart>
-            </ChartContainer>
-          </div>
-
-          <div className="rounded-lg border">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Campaign
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-medium">
-                      Ad Spend
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-medium">
-                      Sales
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-medium">
-                      ACoS
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-medium">
-                      ROAS
-                    </th>
-                    <th className="px-4 py-3 text-center text-sm font-medium">
-                      Rating
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campaigns.map((campaign, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-4 py-3 text-sm">{campaign.campaign}</td>
-                      <td className="px-4 py-3 text-right text-sm">
-                        ${campaign.adSpend.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-3 text-right text-sm">
-                        ${campaign.sales.toFixed(2)}
-                      </td>
-                      <td
-                        className={`px-4 py-3 text-right text-sm font-medium ${getAcosColor(campaign.acos || 0)}`}
+        <div className="rounded-lg border">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-3 text-left text-sm font-medium">Campaign</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">Ad Spend</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">Sales</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">ACoS</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">ROAS</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium">Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((campaign, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="px-4 py-3 text-sm">{campaign.campaign}</td>
+                    <td className="px-4 py-3 text-right text-sm">${campaign.adSpend.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-sm">${campaign.sales.toFixed(2)}</td>
+                    <td className={`px-4 py-3 text-right text-sm font-medium ${getAcosColor(campaign.acos || 0)}`}>
+                      {campaign.acos?.toFixed(2)}%
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium">{campaign.roas?.toFixed(2)}x</td>
+                    <td className="px-4 py-3 text-center">
+                      <Badge
+                        variant={campaign.acos && campaign.acos < 25 ? 'default' : campaign.acos && campaign.acos < 35 ? 'secondary' : 'destructive'}
                       >
-                        {campaign.acos?.toFixed(2)}%
-                      </td>
-                      <td className="px-4 py-3 text-right text-sm font-medium">
-                        {campaign.roas?.toFixed(2)}x
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <Badge
-                          variant={
-                            campaign.acos && campaign.acos < 25
-                              ? 'default'
-                              : campaign.acos && campaign.acos < 35
-                                ? 'secondary'
-                                : 'destructive'
-                          }
-                        >
-                          {getAcosRating(campaign.acos || 0)}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        {getAcosRating(campaign.acos || 0)}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        </div>
+      )}
 
-          <div className="rounded-lg border bg-muted/20 p-4">
-            <h3 className="mb-2 text-sm font-medium">
-              ACoS Interpretation Guide
-            </h3>
-            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-5">
-              <div className="rounded-lg border bg-background p-2 text-center">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Excellent
-                </div>
-                <div className="text-green-600 dark:text-green-400">
-                  &lt;15%
-                </div>
+      {campaigns.length > 0 && (
+        <div className="rounded-lg border bg-muted/20 p-4">
+          <h3 className="mb-2 text-sm font-medium">ACoS Interpretation Guide</h3>
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-5">
+            {acosRatingGuide.map((rating) => (
+              <div key={rating.label} className="rounded-lg border bg-background p-2 text-center">
+                <div className="text-xs font-medium text-muted-foreground">{rating.label}</div>
+                <div className={rating.color}>{rating.range}</div>
               </div>
-              <div className="rounded-lg border bg-background p-2 text-center">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Good
-                </div>
-                <div className="text-emerald-600 dark:text-emerald-400">
-                  15-25%
-                </div>
-              </div>
-              <div className="rounded-lg border bg-background p-2 text-center">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Average
-                </div>
-                <div className="text-yellow-600 dark:text-yellow-400">
-                  25-35%
-                </div>
-              </div>
-              <div className="rounded-lg border bg-background p-2 text-center">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Poor
-                </div>
-                <div className="text-orange-600 dark:text-orange-400">
-                  35-45%
-                </div>
-              </div>
-              <div className="rounded-lg border bg-background p-2 text-center">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Critical
-                </div>
-                <div className="text-red-600 dark:text-red-400">&gt;45%</div>
-              </div>
-            </div>
+            ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
