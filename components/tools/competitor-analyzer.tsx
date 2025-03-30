@@ -23,20 +23,21 @@ import {
 import { Info } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
 import Papa from 'papaparse';
+import { ProcessedRow, MetricType, ChartDataPoint, CompetitorDataRow } from '@/lib/amazon-types';
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
-  const [metrics, setMetrics] = useState<string[]>([
+  const [metrics, setMetrics] = useState<MetricType[]>([
     'price',
     'reviews',
     'rating',
   ]);
-  const [chartData, setChartData] = useState(null);
-  const [sellerData, setSellerData] = useState(null);
+  const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
+  const [sellerData, setSellerData] = useState<ProcessedRow | null>(null);
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (csvData: unknown[]): ProcessedRow[] => {
+  const processCsvData = (csvData: Record<string, string>[]): ProcessedRow[] => {
     return csvData.map((row) => ({
       asin: row.asin,
       price: parseFloat(row.price),
@@ -53,7 +54,7 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
-  const handleFileUpload = useCallback((event, setData, type) => {
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>, setData: (data: ProcessedRow[] | ProcessedRow) => void, type: 'seller' | 'competitor') => {
     const file = event.target.files?.[0];
     if (!file) {
       toast({
@@ -108,7 +109,8 @@ export default function CompetitorAnalyzer() {
               );
             }
 
-            setData(results.data);
+            const processedData = processCsvData(results.data);
+            setData(type === 'seller' ? processedData[0] : processedData);
             toast({
               title: 'Success',
               description: `${type} data (${file.name}) processed successfully`,
@@ -119,7 +121,7 @@ export default function CompetitorAnalyzer() {
       } catch (error) {
         toast({
           title: 'Error',
-          description: `Failed to process ${type} CSV (${file.name}): ${error.message}`,
+          description: `Failed to process ${type} CSV (${file.name}): ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: 'destructive',
         });
       }
@@ -145,25 +147,26 @@ export default function CompetitorAnalyzer() {
       let processedSellerData = sellerData;
       let processedCompetitorData = competitorData;
 
-      if (typeof sellerData === 'string') {
-        processedSellerData = processCsvData(sellerData, 'seller');
+      if (Array.isArray(sellerData)) {
+        processedSellerData = processCsvData(sellerData);
       }
 
-      if (typeof competitorData === 'string') {
-        processedCompetitorData = processCsvData(competitorData, 'competitor');
+      if (Array.isArray(competitorData)) {
+        processedCompetitorData = processCsvData(competitorData);
       }
 
       // If no API call needed (using uploaded CSV data)
       if (processedSellerData && processedCompetitorData) {
         const formattedData = processedCompetitorData.map((row) => {
           const competitor = row.asin;
-          const dataPoint = {
+          const dataPoint: ChartDataPoint = {
             name: competitor,
           };
 
           metrics.forEach((metric) => {
-            if (row[metric] !== undefined) {
-              dataPoint[metric] = Number(row[metric]) || 0;
+            const value = row[metric as keyof ProcessedRow];
+            if (value !== undefined) {
+              dataPoint[metric] = value;
             }
           });
 
@@ -195,7 +198,12 @@ export default function CompetitorAnalyzer() {
         throw new Error('Failed to fetch competitor data');
       }
 
-      const data = await response.json();
+      interface ApiResponse {
+        competitors: string[];
+        metrics: Record<MetricType, number[]>;
+      }
+
+      const data = await response.json() as ApiResponse;
 
       // Ensure data has the expected structure
       if (!data || !data.competitors || !data.metrics) {
@@ -203,7 +211,7 @@ export default function CompetitorAnalyzer() {
       }
 
       const formattedData = data.competitors.map((competitor, index) => {
-        const dataPoint = {
+        const dataPoint: ChartDataPoint = {
           name: competitor,
         };
 
@@ -211,7 +219,7 @@ export default function CompetitorAnalyzer() {
         metrics.forEach((metric) => {
           const metricData = data.metrics[metric];
           if (Array.isArray(metricData) && metricData[index] !== undefined) {
-            dataPoint[metric] = Number(metricData[index]);
+            dataPoint[metric] = Number(metricData[index]) || 0;
           } else {
             dataPoint[metric] = 0; // Default value if data is missing
           }
