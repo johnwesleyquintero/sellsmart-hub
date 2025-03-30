@@ -7,7 +7,7 @@
       "date": "2024-01-15",
       "author": "Wesley Quintero",
       "tags": ["amazon fba", "ecommerce", "beginners"],
-      "image": "/blog/getting-started-fba.jpg",
+      "image": "/blog/getting-started-fba.svg",
       "readingTime": "8 min",
       "category": "Amazon FBA",
       "content": "# Getting Started with Amazon FBA\n\n## Understanding the Basics\n\n- Comprehensive overview of FBA program benefits\n- Step-by-step guide to account setup\n- Product selection criteria and validation\n- Initial investment considerations\n\n## Inventory Management\n\n- Optimal inventory levels calculation\n- Storage fee optimization strategies\n- Seasonal inventory planning\n- Reorder point determination\n\n## Pricing Strategy\n\n- Competitive pricing analysis\n- Fee structure breakdown\n- Profit margin calculation\n- Dynamic pricing implementation\n\n## Success Metrics\n\n- Key performance indicators (KPIs)\n- Sales velocity tracking\n- Inventory turnover optimization\n- Customer satisfaction metrics\n\n## Common Pitfalls\n\n- Inventory management mistakes\n- Pricing strategy errors\n- Shipping and logistics issues\n- Account health monitoring\n\n## Advanced Tips\n\n- Long-term storage fee avoidance\n- Multi-channel fulfillment opportunities\n- Brand Registry benefits\n- International expansion considerations"
@@ -19,7 +19,7 @@
       "date": "2024-01-20",
       "author": "Wesley Quintero",
       "tags": ["amazon ppc", "advertising", "marketing"],
-      "image": "/blog/amazon-ppc.jpg",
+      "image": "/blog/amazon-ppc.svg",
       "readingTime": "10 min",
       "category": "PPC Strategy",
       "content": "# Mastering Amazon PPC\n\n## Campaign Structure\n\n- Automatic vs. manual targeting\n- Campaign hierarchy optimization\n- Keyword research methodology\n- Bid strategy development\n\n## Advanced Targeting\n\n- Product targeting strategies\n- Category refinement techniques\n- Negative keyword implementation\n- Search term optimization\n\n## Budget Management\n\n- Daily budget allocation\n- Campaign budget optimization\n- Seasonal adjustment strategies\n- ACOS/TACOS targets\n\n## Performance Analysis\n\n- Key metrics interpretation\n- Performance trending analysis\n- Bid adjustment automation\n- ROI optimization techniques\n\n## Optimization Techniques\n\n- Bid adjustment strategies\n- Search term harvesting\n- Placement optimization\n- Day-parting implementation\n\n## Advanced Features\n\n- Sponsored Brands optimization\n- Video ad implementation\n- Display targeting strategies\n- Portfolio management"
@@ -53,7 +53,7 @@
       "category": "PPC Strategy",
       "date": "2024-03-15",
       "readingTime": "8 min read",
-      "image": "/blog/ppc-optimization.jpg",
+      "image": "/blog/ppc-optimization.svg",
       "tags": ["PPC", "Amazon Ads", "Optimization"],
       "tools": ["ppc-campaign-auditor", "acos-calculator"]
     },
@@ -73,6 +73,19 @@
         "ppc-campaign-auditor",
         "acos-calculator"
       ]
+    }
+    ,
+    {
+      "id": "next-js-metadata-api-guide",
+      "title": "A Complete Guide to Next.js Metadata API",
+      "description": "Learn how to leverage Next.js Metadata API for better SEO and social sharing with practical examples and best practices.",
+      "date": "2024-01-10",
+      "author": "Wesley Quintero",
+      "tags": ["Next.js", "SEO", "Web Development", "React"],
+      "image": "/images/blog/next-js-metadata-api-guide.svg",
+      "readingTime": "10 min",
+      "category": "Web Development",
+      "content": "# A Complete Guide to Next.js Metadata API\n\nNext.js provides a powerful Metadata API that allows you to define metadata for your application in a declarative way. This guide will walk you through the essential concepts and show you how to implement metadata effectively in your Next.js applications.\n\n## What is the Metadata API?\n\nThe Metadata API is based on the W3C Web Platform Metadata specification and is supported by all modern browsers. It enables you to define metadata in a single place, and Next.js automatically generates the correct metadata for you.\n\n## Static vs Dynamic Metadata\n\nNext.js offers two approaches to implementing metadata:\n\n### Static Metadata\n\n```typescript\nimport type { Metadata } from 'next'\n\nexport const metadata: Metadata = {\n  title: 'My Website',\n  description: 'Welcome to my website',\n}\n```\n\n### Dynamic Metadata\n\n```typescript\nexport async function generateMetadata({ params }) {\n  return {\n    title: '...',\n  }\n}\n```\n\n## Essential Metadata Fields\n\n### Basic Fields\n\n```typescript\nexport const metadata = {\n  title: 'My Website',\n  description: 'Welcome to my website',\n  generator: 'Next.js',\n  applicationName: 'Next.js Blog',\n  referrer: 'origin-when-cross-origin',\n  keywords: ['Next.js', 'React', 'Web Development'],\n  authors: [{ name: 'John Doe' }],\n  creator: 'John Doe',\n  publisher: 'Next.js',\n}\n```\n\n### OpenGraph Integration\n\n```typescript\nexport const metadata = {\n  openGraph: {\n    title: 'My Website',\n    description: 'Welcome to my website',\n    url: 'https://mywebsite.com',\n    siteName: 'My Website',\n    images: [\n      {\n        url: 'https://mywebsite.com/og.png',\n        width: 800,\n        height: 600,\n      },\n    ],\n    locale: 'en_US',\n    type: 'website',\n  },\n}\n```\n\n### Twitter Card Integration\n\n```typescript\nexport const metadata = {\n  twitter: {\n    card: 'summary_large_image',\n    title: 'My Website',\n    description: 'Welcome to my website',\n    creator: '@johndoe',\n    images: ['https://mywebsite.com/og.png'],\n  },\n}\n```\n\n## Best Practices\n\n1. **Use Dynamic Metadata** when your metadata depends on dynamic data or route parameters\n2. **Optimize Images** for different social media platforms\n3. **Include Essential Meta Tags** for better SEO\n4. **Test Your Metadata** using social media preview tools\n\n## Conclusion\n\nThe Next.js Metadata API provides a powerful and flexible way to manage your application's metadata. By following this guide, you can implement effective metadata strategies for better SEO and social sharing.\n\n---\n\n*Source: [Next.js Documentation - Metadata API](https://nextjs.org/docs)*"
     }
   ]
 }

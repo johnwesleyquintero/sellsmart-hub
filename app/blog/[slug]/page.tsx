@@ -34,57 +34,40 @@ export async function generateMetadata({
       };
     }
 
-  return {
-    title: `${post.title} | Wesley Quintero`,
-    description: post.description,
-    alternates: {
-      canonical: `https://wesleyquintero.vercel.app/blog/${params.slug}`,
-    },
-    openGraph: {
-      title: post.title,
+    return {
+      title: `${post.title} | Wesley Quintero`,
       description: post.description,
-      type: 'article',
-      publishedTime: post.date,
-      authors: ['Wesley Quintero'],
-      tags: post.tags,
-      images: [
-        {
-          url: post.image || '/default-fallback.svg',
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-        {
-          url: '/default-fallback.svg',
-          width: 1200,
-          height: 630,
-          alt: `${post.title} - Fallback Image`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
-      images: [post.image || '/default-fallback.svg', '/default-fallback.svg'],
-    },
-  };
+      alternates: {
+        canonical: `https://wesleyquintero.vercel.app/blog/${params.slug}`,
+      },
+      openGraph: {
+        title: post.title,
+        description: post.description,
+        type: 'article',
+        publishedTime: post.date,
+        authors: ['Wesley Quintero'],
+        tags: post.tags,
+        images: [
+          {
+            url: post.image || '/default-fallback.svg',
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description: post.description,
+        images: [post.image || '/default-fallback.svg'],
+      },
+    };
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
       title: 'Error | Wesley Quintero',
-      description: 'An error occurred while loading this page.',
-      openGraph: {
-        title: 'Error | Wesley Quintero',
-        description: 'An error occurred while loading this page.',
-        images: [{ url: '/default-fallback.svg', width: 1200, height: 630, alt: 'Error Page' }]
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: 'Error | Wesley Quintero',
-        description: 'An error occurred while loading this page.',
-        images: ['/default-fallback.svg']
-      }
+      description: 'An error occurred while loading this blog post.',
     };
   }
 }
