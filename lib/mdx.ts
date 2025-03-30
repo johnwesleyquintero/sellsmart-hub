@@ -110,7 +110,7 @@ export async function getPostBySlug(slug: string) {
       content,
       relatedPosts,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

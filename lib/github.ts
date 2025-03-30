@@ -31,11 +31,3 @@ export async function getGitHubProjects() {
     },
   ];
 }
-
-function getCategoryFromTopics(topics: string[]) {
-  if (topics.includes('frontend')) return 'frontend';
-  if (topics.includes('backend')) return 'backend';
-  if (topics.includes('fullstack')) return 'fullstack';
-  if (topics.includes('data')) return 'data';
-  return 'fullstack';
-}

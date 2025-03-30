@@ -9,8 +9,7 @@ type DiagramType =
   | 'web';
 
 export function generatePlaceholderDiagram(
-  type: DiagramType = 'flow',
-  title = '',
+  type: DiagramType = 'flow'
 ): string {
   switch (type) {
     case 'ai':

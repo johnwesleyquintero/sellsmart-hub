@@ -3,7 +3,23 @@ import Papa from 'papaparse';
 type SampleDataType = 'fba' | 'keyword' | 'ppc' | 'keyword-dedup' | 'acos';
 
 export function generateSampleCsv(dataType: SampleDataType): string {
-  let data: any[] = [];
+  interface SampleData {
+    product: string;
+    cost?: number;
+    price?: number;
+    fees?: number;
+    keywords?: string;
+    searchVolume?: number;
+    competition?: string;
+    clicks?: number;
+    impressions?: number;
+    ctr?: number;
+    cpc?: number;
+    spend?: number;
+    acos?: number;
+  }
+
+  let data: SampleData[] = [];
 
   switch (dataType) {
     case 'fba':
