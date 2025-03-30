@@ -8,13 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Upload,
-  FileText,
-  AlertCircle,
-  Download,
-  TrendingUp,
-} from 'lucide-react';
+import { formatCurrency, validateAmazonAsin, generateExportFilename } from '@/lib/core-utils';
+import { formatCurrency, validateAmazonAsin, generateExportFilename } from '@/lib/core-utils';
+import { Upload, FileText, AlertCircle, Download, TrendingUp } from 'lucide-react';
 
 type ProductData = {
   product: string;

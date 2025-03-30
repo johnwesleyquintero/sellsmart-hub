@@ -14,8 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, Progress } from '@/components/ui';
 import { Upload, AlertCircle, Download, Percent } from 'lucide-react';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
@@ -31,7 +30,7 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
+import { ChartContainer } from '@/components/ui';
 
 type ProductData = {
   product: string;
@@ -116,7 +115,25 @@ export default function ProfitMarginCalculator() {
     }
 
     const calculated = data.map((item) => {
-      const profit = item.price - item.cost - item.fees;
+      const productScore = AmazonAlgorithms.calculateProductScore({
+  conversionRate: item.conversionRate || 15,
+  sessions: item.sessions || 300,
+  reviewRating: item.reviewRating || 4.5,
+  reviewCount: item.reviewCount || 42,
+  priceCompetitiveness: item.priceCompetitiveness || 0.92,
+  inventoryHealth: item.inventoryHealth || 0.8,
+  weight: item.weight || 1.2,
+  volume: item.volume || 0.05,
+  category: ProductCategory.STANDARD
+});
+
+const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice(
+  item.price,
+  item.competitorPrices || [item.price * 0.9, item.price * 1.1],
+  productScore / 100
+);
+
+const profit = adjustedPrice - item.cost - item.fees;
       const margin = (profit / item.price) * 100;
       const roi = (profit / item.cost) * 100;
       return {

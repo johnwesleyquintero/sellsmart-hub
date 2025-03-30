@@ -2,16 +2,16 @@
 
 import type React from 'react';
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Progress } from '@/components/ui';
 import { Upload, FileText, AlertCircle, Download, Calculator, Info } from 'lucide-react';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
 import { BarChart, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, Line } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
+import { ChartContainer } from '@/components/ui';
 import { type CampaignData, calculateMetrics, getAcosRating, getAcosColor, chartConfig, acosRatingGuide } from '@/lib/acos-utils';
 
 export default function AcosCalculator() {
