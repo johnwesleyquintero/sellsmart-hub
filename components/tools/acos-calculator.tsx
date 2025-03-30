@@ -110,7 +110,7 @@ export default function AcosCalculator() {
           setCampaigns(processedData);
         } catch (err) {
           setError(
-            'Failed to process CSV data. Please ensure your CSV has the correct format',
+            `Failed to process CSV data: ${err instanceof Error ? err.message : String(err)}. Please ensure your CSV has the correct format`,
           );
         } finally {
           setIsLoading(false);

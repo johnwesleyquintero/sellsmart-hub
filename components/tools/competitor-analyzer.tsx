@@ -27,7 +27,6 @@ import {
   ProcessedRow,
   MetricType,
   ChartDataPoint,
-  CompetitorDataRow,
 } from '@/lib/amazon-types';
 
 export default function CompetitorAnalyzer() {

@@ -16,7 +16,7 @@ import {
   Search,
   Info,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend } from 'recharts';
 import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
 

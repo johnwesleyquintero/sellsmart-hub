@@ -14,7 +14,7 @@ export default function Header() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -58,7 +58,7 @@ export default function Header() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['search', debouncedQuery],
     queryFn: async () => {
       if (!debouncedQuery) return { blog: [], tools: [] };
@@ -178,7 +178,7 @@ export default function Header() {
                       <div className="mb-2 text-sm font-medium text-muted-foreground">
                         Recent Searches
                       </div>
-                      {searchHistory.map((item, index) => (
+                      {searchHistory.map((item) => (
                         <button
                           key={item}
                           className="block w-full text-left px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground"
