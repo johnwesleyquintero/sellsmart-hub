@@ -17,6 +17,9 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     cpc?: number;
     spend?: number;
     acos?: number;
+    campaign?: string;
+    adSpend?: number;
+    sales?: number;
   }
 
   let data: SampleData[] = [];
