@@ -100,6 +100,7 @@ export default function BlogSection() {
               <div className="aspect-video overflow-hidden relative">
                 <Image
                   src={post.image || '/default-fallback.svg'}
+                  alt={post.title}
                   width={800}
                   height={400}
                   quality={75}
