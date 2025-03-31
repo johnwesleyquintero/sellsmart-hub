@@ -1,4 +1,10 @@
-import { NextResponse } from 'next/server';
+import { InventoryOptimizationError } from '@/lib/amazon-errors';
+import { loadStaticData } from '@/lib/load-static-data';
+import { z } from 'zod';
+
+interface CompetitorData {
+  [key: string]: string | number;
+}
 
 function processCSVData(data: string[]) {
   const headers = data[0].split(',').map((h) => h.trim());
@@ -16,11 +22,24 @@ function processCSVData(data: string[]) {
 }
 
 export async function POST(request: Request) {
+  const schema = z.object({
+    asin: z.string().optional(),
+    metrics: z.array(z.string()).optional(),
+    sellerData: z.array(z.string()).optional(),
+    competitorData: z.array(z.string()).optional(),
+  });
+
+  const parsedBody = schema.safeParse(await request.json());
+
+  if (!parsedBody.success) {
+    console.log(parsedBody.error.issues);
+    return new Response(parsedBody.error.message, { status: 400 });
+  }
+
   try {
-    const { asin, metrics, sellerData, competitorData } = await request.json();
+    const { asin, metrics, sellerData, competitorData } = parsedBody.data;
 
     // Process uploaded CSV data
-    let competitors = [];
     const metricsData: Record<string, number[]> = {};
 
     if (sellerData && competitorData) {
@@ -28,8 +47,7 @@ export async function POST(request: Request) {
       const competitorRows = processCSVData(competitorData);
       const allData = [...sellerRows, ...competitorRows];
 
-      competitors = allData.map((row) => row.asin as string);
-      metrics.forEach((metric: string) => {
+      metrics?.forEach((metric: string) => {
         metricsData[metric] = allData.map((row) => row[metric] as number);
       });
     } else if (asin) {
@@ -40,15 +58,39 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
-      competitors,
-      metrics: metricsData,
+    const data = (await loadStaticData<CompetitorData[]>('case-studies')) || [];
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
-  } catch (error) {
-    console.error('Error processing competitor analysis:', error);
-    return NextResponse.json(
-      { error: 'Failed to process competitor analysis' },
-      { status: 500 },
+  } catch (err: any) {
+    if (err instanceof InventoryOptimizationError) {
+      return new Response(
+        JSON.stringify({
+          message: err.message,
+          code: err.errorCode,
+          details: err.details,
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+    return new Response(
+      JSON.stringify({
+        message: err.message,
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
   }
 }

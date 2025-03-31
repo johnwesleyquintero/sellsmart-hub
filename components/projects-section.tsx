@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExternalLink, Github } from 'lucide-react';
 
-import projectsData from '@/data/projects.json';
+import projectsData from '@/data/portfolio-data/projects.json';
 
 const projects = projectsData.projects;
 

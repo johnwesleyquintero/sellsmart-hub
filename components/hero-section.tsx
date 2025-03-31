@@ -23,18 +23,20 @@ export default function HeroSection() {
           <div className="animate-fadeIn">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               I&apos;m{' '}
-              <span className="bg-gradient-to-r from-primary via-purple-500 to-purple-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none duration-5000">
+              {/* Improved contrast with darker gradient colors and text shadow */}
+              <span className="bg-gradient-to-r from-primary via-purple-600 to-purple-700 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none drop-shadow-sm">
                 Wesley Quintero
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
+            {/* Added font-medium and darkened text color for better contrast */}
+            <p className="text-xl font-medium text-gray-700 dark:text-gray-200 md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
               Helping Amazon sellers increase profits by 30-50% through
-              <span className="font-semibold text-primary">
+              <span className="font-semibold text-primary dark:text-primary-foreground">
                 {' '}
                 data-driven automation
               </span>{' '}
               and
-              <span className="font-semibold text-primary">
+              <span className="font-semibold text-primary dark:text-primary-foreground">
                 {' '}
                 AI-powered insights
               </span>

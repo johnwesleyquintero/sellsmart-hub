@@ -8,7 +8,7 @@ export async function GET() {
       process.cwd(),
       'public',
       'profile',
-      'Profile.pdf',
+      'Wesley Quintero - Resume.pdf',
     );
     const fileBuffer = await readFile(filePath);
 

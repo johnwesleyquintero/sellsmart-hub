@@ -2,23 +2,34 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
+// Add utility function for consistent date handling
+function normalizeDate(date: string | Date) {
+  const d = new Date(date);
+  return d.toISOString().split('T')[0]; // YYYY-MM-DD format
+}
+
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
 export async function getAllPosts() {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
-    // If not, return sample data from data/blog.json
-    const blogData = await import('@/data/blog.json');
-    return blogData.posts.map((post) => ({
-      slug: post.id,
-      title: post.title,
-      description: post.description,
-      date: post.date,
-      image: post.image || `/images/blog/${post.id}.svg`,
-      tags: post.tags || [],
-      readingTime: post.readingTime || '5 min read',
-      author: post.author || 'Wesley Quintero',
-    }));
+    // If not, return sample data from data/portfolio-data/blog.json
+    const blogData = await import('@/data/portfolio-data/blog.json');
+    return blogData.posts
+      .map((post) => ({
+        // Remove any dynamic values that could differ between server/client
+        slug: post.id,
+        title: post.title,
+        description: post.description,
+        date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
+        image: post.image || `/images/blog/${post.id}.svg`,
+        tags: post.tags || [],
+        readingTime: post.readingTime || '5 min read',
+        author: post.author || 'Wesley Quintero',
+      }))
+      .sort((a, b) =>
+        normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
+      ); // Sort using normalized dates
   }
 
   const fileNames = fs.readdirSync(postsDirectory);
@@ -35,7 +46,7 @@ export async function getAllPosts() {
           slug,
           title: data.title,
           description: data.description,
-          date: data.date,
+          date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
           image: data.image || `/images/blog/${slug}.svg`,
           tags: data.tags || [],
           readingTime: data.readingTime || '5 min read',
@@ -44,14 +55,16 @@ export async function getAllPosts() {
       }),
   );
 
-  return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
+  return allPostsData.sort((a, b) =>
+    normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
+  );
 }
 
 export async function getPostBySlug(slug: string) {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
-    // If not, return sample data from data/blog.json
-    const blogData = await import('@/data/blog.json');
+    // If not, return sample data from data/portfolio-data/blog.json
+    const blogData = await import('@/data/portfolio-data/blog.json');
     const post = blogData.posts.find((post) => post.id === slug);
 
     if (!post) return null;
@@ -73,7 +86,7 @@ export async function getPostBySlug(slug: string) {
       slug: post.id,
       title: post.title,
       description: post.description,
-      date: post.date,
+      date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
       image: post.image || `/images/blog/${post.id}.svg`,
       tags: post.tags || [],
       readingTime: post.readingTime || '5 min read',
@@ -102,7 +115,7 @@ export async function getPostBySlug(slug: string) {
       slug,
       title: data.title,
       description: data.description,
-      date: data.date,
+      date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
       image: data.image || `/images/blog/${slug}.svg`,
       tags: data.tags || [],
       readingTime: data.readingTime || '5 min read',

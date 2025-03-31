@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getGitHubProjects } from '@/lib/github';
 import { getLinkedInExperience } from '@/lib/linkedin';
-import skills from '@/data/skills.json';
+import skills from '@/data/portfolio-data/skills.json';
 
 export async function GET() {
   try {

@@ -7,6 +7,7 @@ module.exports = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
     '*.{js,ts,jsx,tsx,mdx}',
+    './public/profile/*.html', // Add this line
   ],
   theme: {
     container: {

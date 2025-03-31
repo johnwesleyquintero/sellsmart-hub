@@ -10,17 +10,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import FbaCalculator from './tools/fba-calculator';
-import KeywordAnalyzer from './tools/keyword-analyzer';
-import ListingQualityChecker from './tools/listing-quality-checker';
-import PpcCampaignAuditor from './tools/ppc-campaign-auditor';
-import DescriptionEditor from './tools/description-editor';
-import KeywordDeduplicator from './tools/keyword-deduplicator';
-import AcosCalculator from './tools/acos-calculator';
-import SalesEstimator from './tools/sales-estimator';
-import CompetitorAnalyzer from './tools/competitor-analyzer';
-import KeywordTrendAnalyzer from './tools/keyword-trend-analyzer';
-import ProfitMarginCalculator from './tools/profit-margin-calculator';
+import FbaCalculator from '@/components/amazon-seller-tools/fba-calculator';
+import KeywordAnalyzer from '@/components/amazon-seller-tools/keyword-analyzer';
+import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
+import PpcCampaignAuditor from '@/components/amazon-seller-tools/ppc-campaign-auditor';
+import DescriptionEditor from '@/components/amazon-seller-tools/description-editor';
+import KeywordDeduplicator from '@/components/amazon-seller-tools/keyword-deduplicator';
+import AcosCalculator from '@/components/amazon-seller-tools/acos-calculator';
+import SalesEstimator from '@/components/amazon-seller-tools/sales-estimator';
+import CompetitorAnalyzer from '@/components/amazon-seller-tools/competitor-analyzer';
+import KeywordTrendAnalyzer from '@/components/amazon-seller-tools/keyword-trend-analyzer';
+import ProfitMarginCalculator from './amazon-seller-tools/profit-margin-calculator';
 import {
   Calculator,
   Search,

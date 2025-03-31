@@ -3,9 +3,9 @@
 import type React from 'react';
 
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button'; // Reusable Button component
+import { Input } from '@/components/ui/input'; // Reusable Input component
+import { Label } from '@/components/ui/label'; // Reusable Label component
 import {
   Table,
   TableBody,
@@ -13,9 +13,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+} from '@/components/ui/table'; // Reusable Table components
+import { Card, CardContent } from '@/components/ui/card'; // Reusable Card components
+import { Progress } from '@/components/ui/progress'; // Reusable Progress component
 import { Upload, FileUp, AlertCircle, Download, Info } from 'lucide-react';
 import Papa from 'papaparse';
 

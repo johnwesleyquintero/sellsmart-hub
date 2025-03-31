@@ -13,7 +13,6 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -213,9 +212,6 @@ export default function Header() {
                                 href={`/blog/${item.slug}`}
                                 className={cn(
                                   'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                  selectedIndex === index
-                                    ? 'bg-accent text-accent-foreground'
-                                    : '',
                                 )}
                                 onClick={() => {
                                   setQuery('');
@@ -240,10 +236,6 @@ export default function Header() {
                                 href={`#${item.id}`}
                                 className={cn(
                                   'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                  selectedIndex ===
-                                    index + (data.blog?.length || 0)
-                                    ? 'bg-accent text-accent-foreground'
-                                    : '',
                                 )}
                                 onClick={() => {
                                   setQuery('');
