@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { loadStaticData } from '@/lib/load-static-data';
-import { BlogPost } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
