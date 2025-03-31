@@ -19,13 +19,13 @@ import { TooltipProvider, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import Papa from 'papaparse';
 
 export default function KeywordTrendAnalyzer() {
-  const [keywords, setKeywords] = useState('');
-  const [timeRange, setTimeRange] = useState('30');
-  const [chartData, setChartData] = useState(null);
-  const [csvData, setCsvData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [keywords, setKeywords] = useState<string>('');
+  const [timeRange, setTimeRange] = useState<string>('30');
+  const [chartData, setChartData] = useState<any[] | null>(null);
+  const [csvData, setCsvData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleFileUpload = useCallback((event) => {
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
       toast({

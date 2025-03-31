@@ -25,6 +25,15 @@ import { useIsMobile } from '../../hooks/use-mobile';
 import Papa from 'papaparse';
 import { ProcessedRow, MetricType, ChartDataPoint } from '@/lib/amazon-types';
 
+interface CsvRow {
+  asin: string;
+  price: string;
+  reviews: string;
+  rating: string;
+  conversion_rate: string;
+  click_through_rate: string;
+}
+
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
   const [metrics, setMetrics] = useState<MetricType[]>([
@@ -37,9 +46,7 @@ export default function CompetitorAnalyzer() {
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (
-    csvData: Record<string, string>[],
-  ): ProcessedRow[] => {
+  const processCsvData = (csvData: CsvRow[]): ProcessedRow[] => {
     return csvData.map((row) => ({
       asin: row.asin,
       price: parseFloat(row.price),
@@ -59,7 +66,7 @@ export default function CompetitorAnalyzer() {
   const handleFileUpload = useCallback(
     (
       event: React.ChangeEvent<HTMLInputElement>,
-      setData: (data: ProcessedRow[] | ProcessedRow) => void,
+      setData: (data: ProcessedRow | ProcessedRow[]) => void,
       type: 'seller' | 'competitor',
     ) => {
       const file = event.target.files?.[0];
@@ -82,14 +89,14 @@ export default function CompetitorAnalyzer() {
       }
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
         try {
           const content = e.target?.result;
           if (typeof content !== 'string') {
             throw new Error('Invalid file content - file must be text-based');
           }
 
-          Papa.parse(content, {
+          Papa.parse<CsvRow>(content, {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
@@ -115,17 +122,8 @@ export default function CompetitorAnalyzer() {
                   `Missing required columns: ${missingHeaders.join(', ')}`,
                 );
               }
-
-              interface ProcessedRow {
-                asin: string;
-                price: number;
-                reviews: number;
-                rating: number;
-                conversion_rate: number;
-                click_through_rate: number;
-              }
               
-              const processedData = processCsvData(results.data) as ProcessedRow[];
+              const processedData = processCsvData(results.data);
               if (type === 'seller') {
                 setData(processedData[0]);
               } else {
