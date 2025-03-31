@@ -18,6 +18,7 @@ export default function Logo({ className, ...props }: LogoProps) {
       className={cn(className, styles.logo)}
       viewBox="0 0 40 40"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
       {...props}
     >
       <defs>
@@ -54,6 +55,8 @@ export default function Logo({ className, ...props }: LogoProps) {
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         d="M25 15l10 15-15-10-10 15"
         className={styles.dynamicLine}
       />

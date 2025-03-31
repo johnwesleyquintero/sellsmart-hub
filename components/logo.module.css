@@ -3,6 +3,7 @@
   --logo-color-2: #bc52ee;
   display: inline-block;
   vertical-align: middle;
+  color: inherit;
 }
 
 .logoMark {
@@ -16,6 +17,7 @@
 
 .dynamicLine {
   opacity: 0.8;
+  stroke: currentColor;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
   animation: draw 2s linear infinite;
