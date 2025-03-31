@@ -99,11 +99,12 @@ export default function BlogSection() {
             >
               <div className="aspect-video overflow-hidden relative">
                 <Image
-                  src={post.image || '/placeholder.svg'}
-                  alt={post.title}
-                  width={600}
+                  src={post.image || '/default-fallback.svg'}
+                  width={800}
                   height={400}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  quality={75}
+                  loading="lazy"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>

@@ -124,11 +124,12 @@ export default function HeroSection() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 blur-3xl animate-gradient bg-[length:200%_200%] hover:animate-none"></div>
           <div className="relative h-full overflow-hidden rounded-3xl border bg-background/50 shadow-xl backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
             <Image
+            priority
+            quality={90}
+            className="rounded-lg shadow-xl transition-transform duration-300 hover:scale-105 object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3 hover:animate-none"
               src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3 hover:animate-none"
-              priority
             />
           </div>
         </div>
