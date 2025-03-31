@@ -1,28 +1,3 @@
 {
-  "posts": [
-    {
-      "id": "getting-started-with-amazon-fba",
-      "title": "Getting Started with Amazon FBA",
-      "description": "A comprehensive guide for beginners starting their Amazon FBA journey",
-      "date": "2024-01-15T00:00:00.000Z",
-      "author": "Wesley Quintero",
-      "tags": ["amazon fba", "ecommerce", "beginners"],
-      "image": "/blog/getting-started-fba.svg",
-      "readingTime": "8 min",
-      "category": "Amazon FBA",
-      "content": "# Getting Started with Amazon FBA\n\n## Understanding the Basics\n\n- Comprehensive overview of FBA program benefits\n- Step-by-step guide to account setup\n- Product selection criteria and validation\n- Initial investment considerations\n\n## Inventory Management\n\n- Optimal inventory levels calculation\n- Storage fee optimization strategies\n- Seasonal inventory planning\n- Reorder point determination"
-    },
-    {
-      "id": "next-js-metadata-api-guide",
-      "title": "A Complete Guide to Next.js Metadata API",
-      "description": "Learn how to leverage Next.js Metadata API for better SEO and social sharing with practical examples and best practices.",
-      "date": "2024-01-10T00:00:00.000Z",
-      "author": "Wesley Quintero",
-      "tags": ["Next.js", "SEO", "Web Development", "React"],
-      "image": "/images/blog/next-js-metadata-api-guide.svg",
-      "readingTime": "10 min",
-      "category": "Web Development",
-      "content": "# A Complete Guide to Next.js Metadata API\n\nNext.js provides a powerful Metadata API that allows you to define metadata for your application in a declarative way. This guide will walk you through the essential concepts and show you how to implement metadata effectively in your Next.js applications."
-    }
-  ]
+  "posts": []
 }
