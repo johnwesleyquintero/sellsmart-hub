@@ -65,23 +65,23 @@ export default function ProfitMarginCalculator() {
     }
 
     interface ProductData {
-  product: string;
-  cost: number;
-  price: number;
-  fees: number;
-  margin?: number;
-  roi?: number;
-}
+      product: string;
+      cost: number;
+      price: number;
+      fees: number;
+      margin?: number;
+      roi?: number;
+    }
 
-interface ProductData {
-  product: string;
-  cost: number;
-  price: number;
-  fees: number;
-  [key: string]: unknown;
-}
+    interface ProductData {
+      product: string;
+      cost: number;
+      price: number;
+      fees: number;
+      [key: string]: unknown;
+    }
 
-Papa.parse<ProductData>(file, {
+    Papa.parse<ProductData>(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,

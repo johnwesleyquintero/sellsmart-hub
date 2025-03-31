@@ -436,7 +436,9 @@ return (
         </TableHeader>
         <TableBody>
           {campaigns.map((campaign) => (
-            <TableRow key={`${campaign.identifier.asin}-${campaign.identifier.sku}`}>
+            <TableRow
+              key={`${campaign.identifier.asin}-${campaign.identifier.sku}`}
+            >
               <TableCell>{campaign.identifier.asin}</TableCell>
               <TableCell>{campaign.identifier.sku}</TableCell>
               <TableCell>{campaign.identifier.upc}</TableCell>

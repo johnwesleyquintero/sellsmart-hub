@@ -34,15 +34,30 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           price: 49.99,
           fees: 7.25,
         },
-        { productName: 'Premium Phone Case', cost: 5.75, price: 19.99, fees: 4.5 },
+        {
+          productName: 'Premium Phone Case',
+          cost: 5.75,
+          price: 19.99,
+          fees: 4.5,
+        },
         {
           productName: 'Fast Charging Cable',
           cost: 3.25,
           price: 12.99,
           fees: 3.75,
         },
-        { productName: 'Bluetooth Speaker', cost: 18.5, price: 39.99, fees: 6.8 },
-        { productName: 'Fitness Tracker', cost: 15.75, price: 34.99, fees: 5.25 },
+        {
+          productName: 'Bluetooth Speaker',
+          cost: 18.5,
+          price: 39.99,
+          fees: 6.8,
+        },
+        {
+          productName: 'Fitness Tracker',
+          cost: 15.75,
+          price: 34.99,
+          fees: 5.25,
+        },
       ];
       break;
     case 'keyword':

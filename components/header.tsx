@@ -13,7 +13,7 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -204,7 +204,10 @@ const [selectedIndex, setSelectedIndex] = useState<number>(0);
                             Blog Posts
                           </div>
                           {data.blog.map(
-                            (item: { slug: string; title: string }, index: number) => (
+                            (
+                              item: { slug: string; title: string },
+                              index: number,
+                            ) => (
                               <Link
                                 key={item.slug}
                                 href={`/blog/${item.slug}`}
