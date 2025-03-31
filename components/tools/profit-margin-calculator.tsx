@@ -73,6 +73,14 @@ export default function ProfitMarginCalculator() {
   roi?: number;
 }
 
+interface ProductData {
+  product: string;
+  cost: number;
+  price: number;
+  fees: number;
+  [key: string]: unknown;
+}
+
 Papa.parse<ProductData>(file, {
       header: true,
       dynamicTyping: true,
@@ -91,7 +99,7 @@ Papa.parse<ProductData>(file, {
             );
           }
 
-          const processedData = (result.data as ProductData[]).map((item) => ({
+          const processedData = result.data.map((item: ProductData) => ({
             product: item.product || '',
             cost: Number(item.cost) || 0,
             price: Number(item.price) || 0,

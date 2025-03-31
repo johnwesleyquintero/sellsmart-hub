@@ -18,6 +18,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     spend?: number;
     acos?: number;
     campaign?: string;
+    [key: string]: unknown;
     adSpend?: number;
     sales?: number;
   }
