@@ -5,7 +5,7 @@ import './globals.css';
 import ClientProviders from '@/components/client-providers';
 import { cn } from '@/lib/styling-utils';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
@@ -17,7 +17,7 @@ export const metadata: Metadata = metadataConfig;
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -31,17 +31,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html 
-      lang="en" 
+    <html
+      lang="en"
       suppressHydrationWarning
       className={cn(
         inter.variable,
         'scroll-smooth',
         'motion-safe:scroll-smooth',
-        '[color-scheme:dark_light]'
+        '[color-scheme:dark_light]',
       )}
     >
-      <body 
+      <body
         suppressHydrationWarning
         className={cn(
           'min-h-screen',
@@ -52,7 +52,7 @@ export default function RootLayout({
           'flex',
           'flex-col',
           'selection:bg-primary/10',
-          'selection:text-primary'
+          'selection:text-primary',
         )}
       >
         <ClientProviders>

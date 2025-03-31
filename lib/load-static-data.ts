@@ -1,6 +1,6 @@
 // Utility function to load static data from JSON files
 export async function loadStaticData<T extends Record<string, any>>(
-  file: 'projects' | 'blog' | 'case-studies' | 'changelog' | 'experience'
+  file: 'projects' | 'blog' | 'case-studies' | 'changelog' | 'experience',
 ): Promise<T> {
   if (file === 'projects') {
     return (await import('../../data/projects.json')).default as T;

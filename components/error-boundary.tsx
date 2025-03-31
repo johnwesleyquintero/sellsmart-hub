@@ -37,7 +37,11 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
         </h2>
         {/* New error documentation note */}
         <p className="mb-4 text-sm text-muted-foreground">
-          Please refer to the <a href="/docs/error-guide.md" className="underline">error guide</a> for further details.
+          Please refer to the{' '}
+          <a href="/docs/error-guide.md" className="underline">
+            error guide
+          </a>{' '}
+          for further details.
         </p>
         <p className="mb-6 max-w-md text-red-700 dark:text-red-300">
           We apologize for the inconvenience. An unexpected error has occurred.

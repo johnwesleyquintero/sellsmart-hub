@@ -62,10 +62,10 @@
 
 ## Submitting Changes
 
-1. Commit changes with descriptive messages  
-2. Push your branch to GitHub  
-3. Open a Pull Request against the main branch  
-4. Fill out the PR template completely  
+1. Commit changes with descriptive messages
+2. Push your branch to GitHub
+3. Open a Pull Request against the main branch
+4. Fill out the PR template completely
 5. Request review from maintainers
 
 Please adhere to the [GitHub Flow](https://guides.github.com/introduction/flow/) and maintain a respectful, collaborative environment.

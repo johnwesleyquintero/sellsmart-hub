@@ -23,13 +23,10 @@ function processCSVData(data: string[]): CompetitorData[] {
   const rows = data.slice(1);
   return rows.map((row) => {
     const values = row.split(',');
-    return headers.reduce<CompetitorData>(
-      (obj, header, i) => {
-        obj[header] = isNaN(Number(values[i])) ? values[i] : Number(values[i]);
-        return obj;
-      },
-      {}
-    );
+    return headers.reduce<CompetitorData>((obj, header, i) => {
+      obj[header] = isNaN(Number(values[i])) ? values[i] : Number(values[i]);
+      return obj;
+    }, {});
   });
 }
 
@@ -95,7 +92,8 @@ export async function POST(request: Request) {
     }
     return new Response(
       JSON.stringify({
-        message: err instanceof Error ? err.message : 'An unexpected error occurred',
+        message:
+          err instanceof Error ? err.message : 'An unexpected error occurred',
       }),
       {
         status: 500,

@@ -4,14 +4,33 @@
   display: inline-block;
   vertical-align: middle;
   color: inherit;
+  outline: none;
+  transform-origin: center;
+  will-change: transform;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo:focus-visible {
+  outline: 2px solid var(--logo-color-1);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.logo.hovered {
+  transform: scale(1.05);
 }
 
 .logoMark {
   transform-origin: center;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .logo:hover .logoMark {
+  transform: scale(1.1);
+}
+
+.hovered .logoMark {
   transform: scale(1.1);
 }
 
@@ -20,7 +39,21 @@
   stroke: currentColor;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: draw 2s linear infinite;
+  animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: stroke-dashoffset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo,
+  .logoMark {
+    transition: none;
+  }
+
+  .dynamicLine {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes draw {
@@ -31,4 +64,8 @@
 
 :global(.dark) .dynamicLine {
   stroke: #fff;
+}
+
+:global(.dark) .logo:focus-visible {
+  outline-color: var(--logo-color-2);
 }
