@@ -108,7 +108,7 @@ export default function CompetitorAnalyzer() {
                 'click_through_rate',
               ];
               const missingHeaders = requiredHeaders.filter(
-                (h) => !results.meta.fields.includes(h),
+                (h) => results.meta.fields ? !results.meta.fields.includes(h) : true,
               );
               if (missingHeaders.length > 0) {
                 throw new Error(
@@ -116,8 +116,21 @@ export default function CompetitorAnalyzer() {
                 );
               }
 
-              const processedData = processCsvData(results.data);
-              setData(type === 'seller' ? processedData[0] : processedData);
+              interface ProcessedRow {
+                asin: string;
+                price: number;
+                reviews: number;
+                rating: number;
+                conversion_rate: number;
+                click_through_rate: number;
+              }
+              
+              const processedData = processCsvData(results.data) as ProcessedRow[];
+              if (type === 'seller') {
+                setData(processedData[0]);
+              } else {
+                setData(processedData);
+              }
               toast({
                 title: 'Success',
                 description: `${type} data (${file.name}) processed successfully`,

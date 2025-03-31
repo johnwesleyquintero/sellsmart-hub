@@ -46,9 +46,15 @@ export default function DescriptionEditor() {
       skipEmptyLines: true,
       complete: (results) => {
         try {
+          interface ProductData {
+            product: string;
+            asin?: string;
+            description: string;
+          }
+          
           const requiredColumns = ['product', 'description'];
           const missingColumns = requiredColumns.filter(
-            (col) => !results.meta.fields.includes(col),
+            (col) => results.meta.fields ? !results.meta.fields.includes(col) : true,
           );
           if (missingColumns.length > 0) {
             throw new Error(
@@ -56,13 +62,16 @@ export default function DescriptionEditor() {
             );
           }
 
-          const processedData = results.data.map((row) => ({
-            product: row.product,
-            asin: row.asin || '',
-            description: row.description,
-            characterCount: row.description?.length || 0,
-            keywordCount: (row.description?.match(/\b\w+\b/g) || []).length,
-          }));
+          const processedData = results.data.map((row: unknown) => {
+            const productRow = row as ProductData;
+            return {
+              product: productRow.product,
+              asin: productRow.asin || '',
+              description: productRow.description,
+              characterCount: productRow.description?.length || 0,
+              keywordCount: (productRow.description?.match(/\b\w+\b/g) || []).length,
+            };
+          });
 
           setProducts(processedData);
           setError(null);

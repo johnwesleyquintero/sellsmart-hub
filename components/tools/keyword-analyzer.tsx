@@ -69,16 +69,23 @@ export default function KeywordAnalyzer() {
             .filter((item) => item.product && item.keywords)
             .map((item) => {
               // Split keywords by comma if it's a string
+              interface KeywordItem {
+                product: string;
+                keywords?: string | string[];
+                searchVolume?: string | number;
+                competition?: string;
+              }
+              
               const keywordArray =
-                typeof item.keywords === 'string'
-                  ? item.keywords.split(',').map((k) => k.trim())
-                  : Array.isArray(item.keywords)
-                    ? item.keywords
+                typeof (item as KeywordItem).keywords === 'string'
+                  ? (item as KeywordItem).keywords.split(',').map((k: string) => k.trim())
+                  : Array.isArray((item as KeywordItem).keywords)
+                    ? (item as KeywordItem).keywords
                     : [];
 
               // Parse search volume if available
-              const searchVolume = item.searchVolume
-                ? Number.parseInt(item.searchVolume)
+              const searchVolume = (item as KeywordItem).searchVolume
+                ? Number.parseInt(String((item as KeywordItem).searchVolume))
                 : undefined;
 
               // Get competition level if available

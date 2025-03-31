@@ -22,6 +22,12 @@ export async function GET(request: Request) {
       await loadStaticData<{ name: string; description: string }[]>('tools');
 
     // Search blog posts
+    interface BlogPost {
+      title: string;
+      description: string;
+      content: string;
+    }
+
     const blogResults = blogPosts.filter(
       (post) =>
         post.title.toLowerCase().includes(query) ||

@@ -14,6 +14,7 @@ export default function Header() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -202,7 +203,7 @@ export default function Header() {
                           <div className="mb-2 text-sm font-medium text-muted-foreground">
                             Blog Posts
                           </div>
-                          {data.blog.map((item, index) => (
+                          {data.blog.map((item: { slug: string }, index: number) => (
                             <Link
                               key={item.slug}
                               href={`/blog/${item.slug}`}
@@ -227,7 +228,7 @@ export default function Header() {
                           <div className="mb-2 text-sm font-medium text-muted-foreground">
                             Tools
                           </div>
-                          {data.tools.map((item, index) => (
+                          {data.tools.map((item: { id: string }, index: number) => (
                             <Link
                               key={item.id}
                               href={`#${item.id}`}
