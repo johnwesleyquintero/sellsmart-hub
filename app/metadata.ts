@@ -69,9 +69,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/favicon.ico',       // Main favicon for browsers
-    shortcut: '/favicon.ico',   // Shortcut icon
-    apple: '/favicon.svg',      // Apple touch icon (if available)
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
     other: [
       {
         rel: 'mask-icon',

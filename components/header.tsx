@@ -123,7 +123,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/favicon.ico" alt="Site Logo" className="h-8 w-8" />
+            <img src="/favicon.svg" alt="Site Logo" className="h-8 w-8" />
             <span className="text-xl font-bold">Wesley Quintero</span>
           </Link>
 

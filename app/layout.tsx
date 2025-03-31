@@ -1,13 +1,29 @@
-'use client';
-import type React from 'react';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import { metadata as metadataConfig } from './metadata';
 import './globals.css';
-import { ThemeProvider } from '@/components/theme-provider';
+import ClientProviders from '@/components/client-providers';
 import { cn } from '@/lib/styling-utils';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+});
+
+export const metadata: Metadata = metadataConfig;
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' }
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
 export default function RootLayout({
   children,
@@ -15,13 +31,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className, 'antialiased')}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <html 
+      lang="en" 
+      suppressHydrationWarning
+      className={cn(
+        inter.variable,
+        'scroll-smooth',
+        'motion-safe:scroll-smooth',
+        '[color-scheme:dark_light]'
+      )}
+    >
+      <body 
+        suppressHydrationWarning
+        className={cn(
+          'min-h-screen',
+          'font-sans',
+          'antialiased',
+          'bg-background',
+          'text-foreground',
+          'flex',
+          'flex-col',
+          'selection:bg-primary/10',
+          'selection:text-primary'
+        )}
+      >
+        <ClientProviders>
+          <main id="main" className="flex-1">
             {children}
-          </ThemeProvider>
-        </QueryClientProvider>
+          </main>
+        </ClientProviders>
       </body>
     </html>
   );

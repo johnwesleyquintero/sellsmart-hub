@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
+import Logo from '@/components/Logo';
 import Image from 'next/image';
 
 export default function Footer() {
@@ -11,13 +12,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2">
-              <Image
-                src="/logo.svg"
-                alt="Logo"
-                className="h-8 w-8"
-                width={32}
-                height={32}
-              />
+              <Logo className="h-8 w-8" />
               <h3 className="text-lg font-semibold">Wesley Quintero</h3>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">

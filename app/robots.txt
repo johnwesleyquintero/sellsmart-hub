@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wesleyquintero.vercel.app/sitemap.xml
