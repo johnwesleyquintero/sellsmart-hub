@@ -94,7 +94,7 @@ export async function getPostBySlug(slug: string) {
       .filter(
         (post) =>
           post.slug !== slug &&
-          post.tags.some((tag) => data.tags.includes(tag)),
+          post.tags.some((tag: string) => data.tags.includes(tag)),
       )
       .slice(0, 2);
 
