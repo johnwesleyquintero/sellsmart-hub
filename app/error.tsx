@@ -26,6 +26,10 @@ export default function Error({
         <p className="mb-8 text-muted-foreground">
           We apologize for the inconvenience. An unexpected error has occurred.
         </p>
+        {/* New error documentation note */}
+        <p className="mb-8 text-sm text-muted-foreground">
+          For more details see the <a href="/docs/error-guide.md" className="underline">error guide</a>.
+        </p>
         <div className="flex flex-col gap-4 sm:flex-row">
           <Button
             onClick={reset}

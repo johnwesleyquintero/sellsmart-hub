@@ -2,17 +2,29 @@ import { InventoryOptimizationError } from '@/lib/amazon-errors';
 import { loadStaticData } from '@/lib/load-static-data';
 import { z } from 'zod';
 
+// Define stricter types for CSV data
 interface CompetitorData {
   [key: string]: string | number;
+  asin?: string;
+  price?: number;
+  reviews?: number;
+  rating?: number;
+  conversion_rate?: number;
+  click_through_rate?: number;
 }
 
-function processCSVData(data: string[]): Record<string, string | number>[] {
+// Type for processed metrics data
+interface MetricsData {
+  [metric: string]: number[];
+}
+
+function processCSVData(data: string[]): CompetitorData[] {
   const headers = data[0].split(',').map((h) => h.trim());
   const rows = data.slice(1);
   return rows.map((row) => {
     const values = row.split(',');
-    return headers.reduce<Record<string, string | number>>(
-      (obj: Record<string, string | number>, header: string, i: number) => {
+    return headers.reduce<CompetitorData>(
+      (obj, header, i) => {
         obj[header] = isNaN(Number(values[i])) ? values[i] : Number(values[i]);
         return obj;
       },
@@ -40,7 +52,7 @@ export async function POST(request: Request) {
     const { asin, metrics, sellerData, competitorData } = parsedBody.data;
 
     // Process uploaded CSV data
-    const metricsData: Record<string, number[]> = {};
+    const metricsData: MetricsData = {};
 
     if (sellerData && competitorData) {
       const sellerRows = processCSVData(sellerData);

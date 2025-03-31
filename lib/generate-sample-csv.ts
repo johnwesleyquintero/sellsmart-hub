@@ -130,6 +130,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'acos':
       data = [
         {
+          productName: 'Sample Product', // Added to satisfy SampleData
           campaign: 'Auto Campaign - Wireless Earbuds',
           adSpend: 245.67,
           sales: 1245.89,
@@ -137,6 +138,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 320,
         },
         {
+          productName: 'Sample Product', // Added to satisfy SampleData
           campaign: 'Sponsored Products - Phone Cases',
           adSpend: 178.34,
           sales: 567.21,
@@ -144,6 +146,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 245,
         },
         {
+          productName: 'Sample Product', // Added to satisfy SampleData
           campaign: 'Sponsored Brands - Charging Cables',
           adSpend: 89.45,
           sales: 156.78,
