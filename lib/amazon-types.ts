@@ -1,3 +1,13 @@
+export interface Identifier {
+  asin: string;
+  sku: string;
+  upc: string;
+  keyword: string;
+  niche: string;
+  brand: string;
+  category: string;
+}
+
 export interface ProcessedRow {
   asin: string;
   price: number;
