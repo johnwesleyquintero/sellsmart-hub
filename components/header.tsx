@@ -203,7 +203,7 @@ export default function Header() {
                             Blog Posts
                           </div>
                           {data.blog.map(
-                            (item: { slug: string }, index: number) => (
+                            (item: { slug: string; title: string }, index: number) => (
                               <Link
                                 key={item.slug}
                                 href={`/blog/${item.slug}`}

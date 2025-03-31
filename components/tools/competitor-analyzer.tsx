@@ -177,8 +177,8 @@ export default function CompetitorAnalyzer() {
 
       // If no API call needed (using uploaded CSV data)
       if (processedSellerData && processedCompetitorData) {
-        const formattedData = processedCompetitorData.map((row) => {
-          const competitor = row.asin;
+        const formattedData = processedCompetitorData.map((row: { asin?: string; sales_rank?: number }) => {
+          const competitor = row.asin ?? 'N/A';
           const dataPoint: ChartDataPoint = {
             name: competitor,
           };

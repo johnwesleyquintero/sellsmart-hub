@@ -74,6 +74,7 @@ export default function KeywordAnalyzer() {
                 keywords?: string | string[];
                 searchVolume?: string | number;
                 competition?: string;
+                [key: string]: unknown; // Allow additional properties
               }
 
               const keywordArray =

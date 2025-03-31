@@ -13,9 +13,9 @@ export async function POST(request: Request) {
     }
 
     const optimalPrice = AmazonAlgorithms.calculateOptimalPrice(
-      basePrice,
-      competition,
-      demandFactor,
+      Number(basePrice),
+      Number(competition),
+      Number(demandFactor),
       [...Array(30).fill(95)],
       0.8,
       1.2,

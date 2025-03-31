@@ -27,7 +27,13 @@ export async function GET(request: Request) {
       content: string;
     }
 
-    const blogResults = blogPosts.filter(
+    interface BlogPost {
+      title: string;
+      description: string;
+      content: string;
+    }
+
+    const blogResults = (blogPosts as BlogPost[]).filter(
       (post) =>
         post.title.toLowerCase().includes(query) ||
         post.description.toLowerCase().includes(query) ||

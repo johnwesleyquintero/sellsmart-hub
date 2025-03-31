@@ -4,7 +4,7 @@ type SampleDataType = 'fba' | 'keyword' | 'ppc' | 'keyword-dedup' | 'acos';
 
 export function generateSampleCsv(dataType: SampleDataType): string {
   interface SampleData {
-    product: string;
+    productName: string;
     cost?: number;
     price?: number;
     fees?: number;
@@ -28,40 +28,40 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'fba':
       data = [
         {
-          product: 'Wireless Earbuds Pro',
+          productName: 'Wireless Earbuds Pro',
           cost: 22.5,
           price: 49.99,
           fees: 7.25,
         },
-        { product: 'Premium Phone Case', cost: 5.75, price: 19.99, fees: 4.5 },
+        { productName: 'Premium Phone Case', cost: 5.75, price: 19.99, fees: 4.5 },
         {
-          product: 'Fast Charging Cable',
+          productName: 'Fast Charging Cable',
           cost: 3.25,
           price: 12.99,
           fees: 3.75,
         },
-        { product: 'Bluetooth Speaker', cost: 18.5, price: 39.99, fees: 6.8 },
-        { product: 'Fitness Tracker', cost: 15.75, price: 34.99, fees: 5.25 },
+        { productName: 'Bluetooth Speaker', cost: 18.5, price: 39.99, fees: 6.8 },
+        { productName: 'Fitness Tracker', cost: 15.75, price: 34.99, fees: 5.25 },
       ];
       break;
     case 'keyword':
       data = [
         {
-          product: 'Wireless Earbuds',
+          productName: 'Wireless Earbuds',
           keywords:
             'bluetooth earbuds, wireless headphones, earphones, noise cancelling earbuds',
           searchVolume: 135000,
           competition: 'High',
         },
         {
-          product: 'Phone Case',
+          productName: 'Phone Case',
           keywords:
             'protective case, phone cover, slim case, iphone 13 case, samsung case',
           searchVolume: 74500,
           competition: 'Medium',
         },
         {
-          product: 'Charging Cable',
+          productName: 'Charging Cable',
           keywords:
             'fast charging, usb cable, phone charger, type c cable, lightning cable',
           searchVolume: 52000,
@@ -100,12 +100,12 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'keyword-dedup':
       data = [
         {
-          product: 'Wireless Earbuds',
+          productName: 'Wireless Earbuds',
           keywords:
             'bluetooth earbuds, wireless earbuds, earbuds bluetooth, wireless headphones, bluetooth earbuds, earphones, wireless earphones, earbuds',
         },
         {
-          product: 'Phone Case',
+          productName: 'Phone Case',
           keywords:
             'phone case, protective case, phone cover, slim case, phone case, iphone case, protective cover, phone case',
         },
