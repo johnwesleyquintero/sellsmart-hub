@@ -59,7 +59,9 @@ export function KeywordTable<TData, TValue>({
       <div className="flex items-center justify-between">
         <Input
           placeholder="Filter keywords..."
-          value={(table.getColumn('keywords')?.getFilterValue() as string) ?? ''}
+          value={
+            (table.getColumn('keywords')?.getFilterValue() as string) ?? ''
+          }
           onChange={(event) =>
             table.getColumn('keywords')?.setFilterValue(event.target.value)
           }
@@ -101,7 +103,7 @@ export function KeywordTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.column.getCanSort() ? (
                         <button
@@ -115,7 +117,7 @@ export function KeywordTable<TData, TValue>({
                                       desc: false,
                                     },
                                   ]
-                                : []
+                                : [],
                             )
                           }
                         >
@@ -148,7 +150,10 @@ export function KeywordTable<TData, TValue>({
         >
           Previous
         </button>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        <button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
           Next
         </button>
       </div>

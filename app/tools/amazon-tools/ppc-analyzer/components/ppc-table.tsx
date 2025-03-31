@@ -101,7 +101,7 @@ export function PpcTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.column.getCanSort() ? (
                         <button
@@ -115,7 +115,7 @@ export function PpcTable<TData, TValue>({
                                       desc: false,
                                     },
                                   ]
-                                : []
+                                : [],
                             )
                           }
                         >
@@ -148,7 +148,10 @@ export function PpcTable<TData, TValue>({
         >
           Previous
         </button>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        <button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
           Next
         </button>
       </div>

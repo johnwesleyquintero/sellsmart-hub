@@ -70,7 +70,9 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between">
         <Input
           placeholder="Filter products..."
-          value={(table.getColumn('productName')?.getFilterValue() as string) ?? ''}
+          value={
+            (table.getColumn('productName')?.getFilterValue() as string) ?? ''
+          }
           onChange={(event) =>
             table.getColumn('productName')?.setFilterValue(event.target.value)
           }
@@ -85,7 +87,7 @@ export function DataTable<TData, TValue>({
               {table
                 .getAllColumns()
                 .filter(
-                  (column) => column.getCanHide()
+                  (column) => column.getCanHide(),
                   // && column.id !== 'actions'
                 )
                 .map((column) => {
@@ -115,7 +117,7 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.column.getCanSort() ? (
                         <button
@@ -129,7 +131,7 @@ export function DataTable<TData, TValue>({
                                       desc: false,
                                     },
                                   ]
-                                : []
+                                : [],
                             )
                           }
                         >
@@ -162,7 +164,10 @@ export function DataTable<TData, TValue>({
         >
           Previous
         </button>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        <button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
           Next
         </button>
       </div>

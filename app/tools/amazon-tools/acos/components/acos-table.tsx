@@ -59,7 +59,9 @@ export function AcosTable<TData, TValue>({
       <div className="flex items-center justify-between">
         <Input
           placeholder="Filter campaigns..."
-          value={(table.getColumn('campaign')?.getFilterValue() as string) ?? ''}
+          value={
+            (table.getColumn('campaign')?.getFilterValue() as string) ?? ''
+          }
           onChange={(event) =>
             table.getColumn('campaign')?.setFilterValue(event.target.value)
           }
@@ -101,7 +103,7 @@ export function AcosTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.column.getCanSort() ? (
                         <button
@@ -115,7 +117,7 @@ export function AcosTable<TData, TValue>({
                                       desc: false,
                                     },
                                   ]
-                                : []
+                                : [],
                             )
                           }
                         >
@@ -148,7 +150,10 @@ export function AcosTable<TData, TValue>({
         >
           Previous
         </button>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        <button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
           Next
         </button>
       </div>
