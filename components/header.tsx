@@ -13,6 +13,7 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -137,7 +138,7 @@ export default function Header() {
             {navItems.map((item) =>
               item.external ? (
                 <a
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
                   className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                   target="_blank"
@@ -147,7 +148,7 @@ export default function Header() {
                 </a>
               ) : (
                 <Link
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
                   className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                 >
@@ -246,7 +247,7 @@ export default function Header() {
                                   setIsSearchOpen(false);
                                 }}
                               >
-                                {item.name}
+                                {item.id}
                               </Link>
                             ),
                           )}
@@ -316,23 +317,23 @@ export default function Header() {
                 {navItems.map((item) =>
                   item.external ? (
                     <a
-                      key={item.name}
+                      key={item.id}
                       href={item.href}
                       className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {item.name}
+                      {item.id}
                     </a>
                   ) : (
                     <Link
-                      key={item.name}
+                      key={item.id}
                       href={item.href}
                       className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {item.name}
+                      {item.id}
                     </Link>
                   ),
                 )}
