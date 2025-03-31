@@ -12,7 +12,6 @@ import {
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-
 import { toast } from '../ui/use-toast';
 import {
   Tooltip,
@@ -32,6 +31,7 @@ interface CsvRow {
   rating: string;
   conversion_rate: string;
   click_through_rate: string;
+  niche?: string;
 }
 
 export default function CompetitorAnalyzer() {
@@ -179,7 +179,7 @@ export default function CompetitorAnalyzer() {
       if (processedSellerData && processedCompetitorData) {
         const formattedData = processedCompetitorData.map(
           (row: { asin?: string; sales_rank?: number }) => {
-            const competitor = row.asin ?? 'N/A';
+            const competitor = row.asin ?? row.niche ?? 'N/A';
             const dataPoint: ChartDataPoint = {
               name: competitor,
             };
@@ -337,7 +337,7 @@ export default function CompetitorAnalyzer() {
             id="asin"
             value={asin}
             onChange={(e) => setAsin(e.target.value)}
-            placeholder="Enter competitor ASIN"
+            placeholder="Enter competitor ASIN or niche"
           />
         </div>
 

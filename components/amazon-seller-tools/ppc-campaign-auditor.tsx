@@ -439,10 +439,10 @@ return (
             <TableRow
               key={`${campaign.identifier.asin}-${campaign.identifier.sku}`}
             >
-              <TableCell>{campaign.identifier.asin}</TableCell>
-              <TableCell>{campaign.identifier.sku}</TableCell>
-              <TableCell>{campaign.identifier.upc}</TableCell>
-              <TableCell>{campaign.identifier.keyword}</TableCell>
+              <TableCell>{campaign.identifier.asin || campaign.identifier.niche}</TableCell>
+              <TableCell>{campaign.identifier.sku || campaign.identifier.niche}</TableCell>
+              <TableCell>{campaign.identifier.upc || campaign.identifier.niche}</TableCell>
+              <TableCell>{campaign.identifier.keyword || campaign.identifier.niche}</TableCell>
             </TableRow>
           ))}
         </TableBody>
