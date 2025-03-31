@@ -3,9 +3,9 @@ import { Metadata } from 'next';
 const defaultImage = '/default-fallback.svg';
 
 export const metadata: Metadata = {
-  title: 'Wesley Quintero | Data Analytics Innovator',
+  title: 'Wesley Quintero - Professional Portfolio',
   description:
-    'Data Analytics Innovator and Founder of Nebula Singularity, building tools that streamline workflows and provide valuable insights for Amazon sellers and e-commerce businesses.',
+    'Data-Driven Amazon & E-commerce Specialist portfolio website.',
   keywords: [
     'Wesley Quintero',
     'Amazon Specialist',
@@ -69,9 +69,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: '/favicon.ico',       // Main favicon for browsers
+    shortcut: '/favicon.ico',   // Shortcut icon
+    apple: '/favicon.svg',      // Apple touch icon (if available)
     other: [
       {
         rel: 'mask-icon',

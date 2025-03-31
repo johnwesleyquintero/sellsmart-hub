@@ -6,13 +6,16 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 
 ## Features
 
-- 🎨 Modern UI with dark/light mode and seamless theme switching
-- 📱 Fully responsive design optimized for all devices
-- 🛠️ Interactive Amazon seller tools with CSV data processing
-- 📊 Project showcase with dynamic filtering and sorting
-- 📝 Blog section with MDX content and rich typography
-- 📜 Certifications display with downloadable resume
-- 📫 Contact form with validation and error handling
+- Modern, responsive UI with dark/light mode support.
+- Advanced Amazon Seller Tools suite including:
+  - ACoS Calculator with historical trend analysis.
+  - Competitor Analyzer for pricing and listing performance.
+  - Description Editor with real-time preview, keyword optimization, and CSV export.
+  - FBA Calculator with robust CSV upload and error validation.
+  - Keyword Analyzer and Deduplicator with smart duplicate removal.
+  - PPC Campaign Auditor generating detailed campaign CSV reports.
+  - Profit Margin Calculator and Sales Estimator with dynamic market data analysis.
+- Integrated blog with MDX support, rich typography, and related posts suggestions.
 
 ### Enhanced Resume Download
 
@@ -24,7 +27,7 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 ### Blog Structure
 
 - MDX-powered content with code highlighting
-- Custom SVG illustrations per post
+- Custom SVG illustrations for each post
 - Rich typography with Tailwind Typography
 - Responsive images and media
 - Category-based filtering
@@ -65,22 +68,22 @@ The portfolio includes a fully-featured blog with MDX support:
 
 1. Clone the repository
 
-```bash
-git clone https://github.com/johnwesleyquintero/portfolio.git
-cd portfolio
-```
+   ```bash
+   git clone https://github.com/johnwesleyquintero/portfolio.git
+   cd portfolio
+   ```
 
 2. Install dependencies
 
-```bash
-pnpm install
-```
+   ```bash
+   pnpm install
+   ```
 
 3. Start development server
 
-```bash
-pnpm dev
-```
+   ```bash
+   pnpm dev
+   ```
 
 4. Open http://localhost:3000 in your browser
 
@@ -100,15 +103,15 @@ This project is automatically deployed to Vercel when pushing to the main branch
 
 1. Install Vercel CLI
 
-```bash
-pnpm add -g vercel
-```
+   ```bash
+   pnpm add -g vercel
+   ```
 
 2. Run deployment
 
-```bash
-vercel
-```
+   ```bash
+   vercel
+   ```
 
 ## Environment Variables
 

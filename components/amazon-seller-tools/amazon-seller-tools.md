@@ -336,3 +336,7 @@ All components follow modern React patterns and best practices:
    - Utilize trend analysis
 
 </details>
+
+## Tool Features Update
+
+This suite now includes enhanced error handling, improved CSV sample generation (see generate-sample-csv.ts), and updates to UI components for an improved user experience. Please refer to each tool’s documentation section for detailed usage instructions.
