@@ -202,24 +202,26 @@ export default function Header() {
                           <div className="mb-2 text-sm font-medium text-muted-foreground">
                             Blog Posts
                           </div>
-                          {data.blog.map((item: { slug: string }, index: number) => (
-                            <Link
-                              key={item.slug}
-                              href={`/blog/${item.slug}`}
-                              className={cn(
-                                'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                selectedIndex === index
-                                  ? 'bg-accent text-accent-foreground'
-                                  : '',
-                              )}
-                              onClick={() => {
-                                setQuery('');
-                                setIsSearchOpen(false);
-                              }}
-                            >
-                              {item.title}
-                            </Link>
-                          ))}
+                          {data.blog.map(
+                            (item: { slug: string }, index: number) => (
+                              <Link
+                                key={item.slug}
+                                href={`/blog/${item.slug}`}
+                                className={cn(
+                                  'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                                  selectedIndex === index
+                                    ? 'bg-accent text-accent-foreground'
+                                    : '',
+                                )}
+                                onClick={() => {
+                                  setQuery('');
+                                  setIsSearchOpen(false);
+                                }}
+                              >
+                                {item.title}
+                              </Link>
+                            ),
+                          )}
                         </div>
                       )}
                       {data.tools && data.tools.length > 0 && (
@@ -227,25 +229,27 @@ export default function Header() {
                           <div className="mb-2 text-sm font-medium text-muted-foreground">
                             Tools
                           </div>
-                          {data.tools.map((item: { id: string }, index: number) => (
-                            <Link
-                              key={item.id}
-                              href={`#${item.id}`}
-                              className={cn(
-                                'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                selectedIndex ===
-                                  index + (data.blog?.length || 0)
-                                  ? 'bg-accent text-accent-foreground'
-                                  : '',
-                              )}
-                              onClick={() => {
-                                setQuery('');
-                                setIsSearchOpen(false);
-                              }}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                          {data.tools.map(
+                            (item: { id: string }, index: number) => (
+                              <Link
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={cn(
+                                  'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                                  selectedIndex ===
+                                    index + (data.blog?.length || 0)
+                                    ? 'bg-accent text-accent-foreground'
+                                    : '',
+                                )}
+                                onClick={() => {
+                                  setQuery('');
+                                  setIsSearchOpen(false);
+                                }}
+                              >
+                                {item.name}
+                              </Link>
+                            ),
+                          )}
                         </div>
                       )}
                       {!data.blog?.length && !data.tools?.length && (

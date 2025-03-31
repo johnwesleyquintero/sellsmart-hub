@@ -75,10 +75,12 @@ export default function KeywordAnalyzer() {
                 searchVolume?: string | number;
                 competition?: string;
               }
-              
+
               const keywordArray =
                 typeof (item as KeywordItem).keywords === 'string'
-                  ? (item as KeywordItem).keywords.split(',').map((k: string) => k.trim())
+                  ? (item as KeywordItem).keywords
+                      .split(',')
+                      .map((k: string) => k.trim())
                   : Array.isArray((item as KeywordItem).keywords)
                     ? (item as KeywordItem).keywords
                     : [];

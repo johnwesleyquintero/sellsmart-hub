@@ -51,10 +51,10 @@ export default function DescriptionEditor() {
             asin?: string;
             description: string;
           }
-          
+
           const requiredColumns = ['product', 'description'];
-          const missingColumns = requiredColumns.filter(
-            (col) => results.meta.fields ? !results.meta.fields.includes(col) : true,
+          const missingColumns = requiredColumns.filter((col) =>
+            results.meta.fields ? !results.meta.fields.includes(col) : true,
           );
           if (missingColumns.length > 0) {
             throw new Error(
@@ -69,7 +69,8 @@ export default function DescriptionEditor() {
               asin: productRow.asin || '',
               description: productRow.description,
               characterCount: productRow.description?.length || 0,
-              keywordCount: (productRow.description?.match(/\b\w+\b/g) || []).length,
+              keywordCount: (productRow.description?.match(/\b\w+\b/g) || [])
+                .length,
             };
           });
 

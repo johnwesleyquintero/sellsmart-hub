@@ -3,7 +3,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest) {
   try {
     return NextResponse.json(
-      { message: 'Static files are now being used instead of dynamic generation' },
+      {
+        message:
+          'Static files are now being used instead of dynamic generation',
+      },
       { status: 200 },
     );
   } catch (error) {

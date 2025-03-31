@@ -25,82 +25,85 @@ export default function KeywordTrendAnalyzer() {
   const [csvData, setCsvData] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      toast({
-        title: 'Error',
-        description: 'No file selected',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!file.name.endsWith('.csv')) {
-      toast({
-        title: 'Error',
-        description: 'Only CSV files are supported',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result;
-        if (typeof content !== 'string') {
-          throw new Error('Invalid file content');
-        }
-
-        Papa.parse(content, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            if (results.errors.length > 0) {
-              throw new Error(
-                `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
-              );
-            }
-
-            const requiredFields = [
-              'keyword',
-              'date',
-              'search_volume',
-              'ranking',
-            ];
-            const missingFields = requiredFields.filter(
-              (f) => !results.meta.fields.includes(f),
-            );
-            if (missingFields.length > 0) {
-              throw new Error(`Missing columns: ${missingFields.join(', ')}`);
-            }
-
-            const processedData = results.data.map((row) => ({
-              keyword: row.keyword,
-              date: new Date(row.date),
-              search_volume: Number(row.search_volume),
-              ranking: Number(row.ranking),
-            }));
-
-            setCsvData(processedData);
-            toast({
-              title: 'Success',
-              description: `${file.name} processed successfully`,
-              variant: 'default',
-            });
-          },
-        });
-      } catch (error) {
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) {
         toast({
           title: 'Error',
-          description: `CSV processing failed: ${error.message}`,
+          description: 'No file selected',
           variant: 'destructive',
         });
+        return;
       }
-    };
-    reader.readAsText(file);
-  }, []);
+
+      if (!file.name.endsWith('.csv')) {
+        toast({
+          title: 'Error',
+          description: 'Only CSV files are supported',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result;
+          if (typeof content !== 'string') {
+            throw new Error('Invalid file content');
+          }
+
+          Papa.parse(content, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              if (results.errors.length > 0) {
+                throw new Error(
+                  `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
+                );
+              }
+
+              const requiredFields = [
+                'keyword',
+                'date',
+                'search_volume',
+                'ranking',
+              ];
+              const missingFields = requiredFields.filter(
+                (f) => !results.meta.fields.includes(f),
+              );
+              if (missingFields.length > 0) {
+                throw new Error(`Missing columns: ${missingFields.join(', ')}`);
+              }
+
+              const processedData = results.data.map((row) => ({
+                keyword: row.keyword,
+                date: new Date(row.date),
+                search_volume: Number(row.search_volume),
+                ranking: Number(row.ranking),
+              }));
+
+              setCsvData(processedData);
+              toast({
+                title: 'Success',
+                description: `${file.name} processed successfully`,
+                variant: 'default',
+              });
+            },
+          });
+        } catch (error) {
+          toast({
+            title: 'Error',
+            description: `CSV processing failed: ${error.message}`,
+            variant: 'destructive',
+          });
+        }
+      };
+      reader.readAsText(file);
+    },
+    [],
+  );
 
   const analyzeTrends = useCallback(async () => {
     setIsLoading(true);

@@ -114,15 +114,15 @@ export default function CompetitorAnalyzer() {
                 'conversion_rate',
                 'click_through_rate',
               ];
-              const missingHeaders = requiredHeaders.filter(
-                (h) => results.meta.fields ? !results.meta.fields.includes(h) : true,
+              const missingHeaders = requiredHeaders.filter((h) =>
+                results.meta.fields ? !results.meta.fields.includes(h) : true,
               );
               if (missingHeaders.length > 0) {
                 throw new Error(
                   `Missing required columns: ${missingHeaders.join(', ')}`,
                 );
               }
-              
+
               const processedData = processCsvData(results.data);
               if (type === 'seller') {
                 setData(processedData[0]);
