@@ -19,7 +19,7 @@ interface ChartDataPoint {
 const KeywordTrendAnalyzer: React.FC = () => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
-  const handleFileUpload = useCallback(async (data: any[]) => {
+  const handleFileUpload = useCallback(async (data: string | number[]) => {
     try {
       const response = await fetch('/api/amazon/keyword-trends', {
         method: 'POST',
@@ -35,7 +35,7 @@ const KeywordTrendAnalyzer: React.FC = () => {
 
       const trendData: ChartDataPoint[] = await response.json();
       setChartData(trendData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to process CSV data:', error);
     }
   }, []);

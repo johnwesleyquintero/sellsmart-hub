@@ -8,16 +8,20 @@ import { FileText, Info } from 'lucide-react';
 import SampleCsvButton from './sample-csv-button';
 
 type UploaderProps = {
-  onUploadSuccess: (data: any[]) => void;
-  onError: (message: string) => void;
+  onUploadSuccess: (data: CsvRow[]) => void;
   isLoading: boolean;
   onClear: () => void;
   hasData: boolean;
 };
 
+interface CsvRow {
+  id: string;
+  impressions: number;
+  clicks: number;
+}
+
 export default function CsvUploader({
   onUploadSuccess,
-  onError,
   isLoading,
   onClear,
   hasData,
@@ -29,14 +33,17 @@ export default function CsvUploader({
 
         reader.onabort = () => console.log('file reading was aborted');
         reader.onerror = () => console.log('file reading has failed');
+
         reader.onload = () => {
           Papa.parse(file, {
             header: true,
-            complete: (results) => {
-              onUploadSuccess(results.data as any[]);
+            skipEmptyLines: true,
+            complete: (results: Papa.ParseResult<CsvRow>) => {
+              onUploadSuccess(results.data);
             },
           });
         };
+
         reader.readAsText(file);
       });
     },
@@ -52,8 +59,7 @@ export default function CsvUploader({
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
           <p>
-            Required columns: <code>name</code>, <code>type</code>,{' '}
-            <code>spend</code>, <code>sales</code>, <code>impressions</code>,{' '}
+            Required columns: <code>id</code>, <code>impressions</code>,
             <code>clicks</code>
           </p>
         </div>
@@ -69,7 +75,9 @@ export default function CsvUploader({
         {isDragActive ? (
           <p>Drop the files here ...</p>
         ) : (
-          <p>Drag 'n' drop some files here, or click to select files</p>
+          <p>
+            Drag &apos;n&apos; drop some files here, or click to select files
+          </p>
         )}
         <SampleCsvButton
           dataType="ppc"
@@ -77,7 +85,6 @@ export default function CsvUploader({
           className="mt-4"
         />
       </div>
-
       {hasData && (
         <Button variant="outline" onClick={onClear}>
           Clear Data

@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
     return NextResponse.json({ success: true });
-  } catch (_) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update keywords' },
       { status: 500 },

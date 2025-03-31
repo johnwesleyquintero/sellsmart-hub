@@ -10,7 +10,7 @@ interface CsvRow {
 const PpcCampaignAuditor: React.FC = () => {
   const [csvData, setCsvData] = useState<CsvRow[]>([]);
 
-  const handleFileUpload = useCallback((data: any[]) => {
+  const handleFileUpload = useCallback((data: CsvRow[]) => {
     setCsvData(data);
   }, []);
 

@@ -32,7 +32,7 @@ function processCSVData(data: string[]) {
 export async function POST(request: Request) {
   try {
     const { csvData } = (await request.json()) as { csvData: string[] };
-    let trendData: { name: string; [key: string]: any }[] = [];
+    let trendData: { name: string;[key: string]: number | string }[] = [];
 
     if (csvData) {
       const processedData = processCSVData(csvData);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       ].sort();
 
       trendData = dates.map((date) => {
-        const dataPoint: { name: string; [key: string]: number | string } = {
+        const dataPoint: { name: string;[key: string]: number | string } = {
           name: date,
         };
         Object.keys(processedData).forEach((keyword) => {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(trendData);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error processing keyword trends:', error);
     return NextResponse.json(
       {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
             ? error.message
             : 'Failed to process keyword trends',
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -203,10 +203,7 @@ export default function Header() {
                             Blog Posts
                           </div>
                           {data.blog.map(
-                            (
-                              item: { slug: string; title: string },
-                              index: number,
-                            ) => (
+                            (item: { slug: string; title: string }) => (
                               <Link
                                 key={item.slug}
                                 href={`/blog/${item.slug}`}
@@ -229,23 +226,21 @@ export default function Header() {
                           <div className="mb-2 text-sm font-medium text-muted-foreground">
                             Tools
                           </div>
-                          {data.tools.map(
-                            (item: { id: string }, index: number) => (
-                              <Link
-                                key={item.id}
-                                href={`#${item.id}`}
-                                className={cn(
-                                  'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
-                                )}
-                                onClick={() => {
-                                  setQuery('');
-                                  setIsSearchOpen(false);
-                                }}
-                              >
-                                {item.id}
-                              </Link>
-                            ),
-                          )}
+                          {data.tools.map((item: { id: string }) => (
+                            <Link
+                              key={item.id}
+                              href={`#${item.id}`}
+                              className={cn(
+                                'block px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground',
+                              )}
+                              onClick={() => {
+                                setQuery('');
+                                setIsSearchOpen(false);
+                              }}
+                            >
+                              {item.id}
+                            </Link>
+                          ))}
                         </div>
                       )}
                       {!data.blog?.length && !data.tools?.length && (

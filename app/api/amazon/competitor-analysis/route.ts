@@ -6,17 +6,17 @@ interface CompetitorData {
   [key: string]: string | number;
 }
 
-function processCSVData(data: string[]) {
+function processCSVData(data: string[]): Record<string, string | number>[] {
   const headers = data[0].split(',').map((h) => h.trim());
   const rows = data.slice(1);
   return rows.map((row) => {
     const values = row.split(',');
-    return headers.reduce(
-      (obj, header, i) => {
+    return headers.reduce<Record<string, string | number>>(
+      (obj: Record<string, string | number>, header: string, i: number) => {
         obj[header] = isNaN(Number(values[i])) ? values[i] : Number(values[i]);
         return obj;
       },
-      {} as Record<string, string | number>,
+      {}
     );
   });
 }
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
     });
-  } catch (err: any) {
+  } catch (err) {
     if (err instanceof InventoryOptimizationError) {
       return new Response(
         JSON.stringify({
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     }
     return new Response(
       JSON.stringify({
-        message: err.message,
+        message: err instanceof Error ? err.message : 'An unexpected error occurred',
       }),
       {
         status: 500,
