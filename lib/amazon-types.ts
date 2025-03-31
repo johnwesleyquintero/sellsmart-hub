@@ -77,3 +77,52 @@ export interface ChartDataPoint {
 export interface CompetitorDataRow extends ProcessedRow {
   name?: string;
 }
+
+export interface AmazonProduct {
+  asin: string;
+  title: string;
+  price: number;
+  cost: number;
+  fbaFees: number;
+  referralFee: number;
+  category: string;
+  dimensions?: ProductDimensions;
+}
+
+export interface ProductDimensions {
+  length: number;
+  width: number;
+  height: number;
+  weight: number;
+  unit: 'in' | 'cm';
+  weightUnit: 'lb' | 'kg';
+}
+
+export interface SalesData {
+  asin: string;
+  date: string;
+  units: number;
+  revenue: number;
+  ppcSpend?: number;
+  organicSales?: number;
+}
+
+export interface KeywordData {
+  keyword: string;
+  searchVolume: number;
+  difficulty: number;
+  relevancy: number;
+  currentRank?: number;
+}
+
+export interface CompetitorData {
+  asin: string;
+  title: string;
+  price: number;
+  bsr?: number;
+  rating: number;
+  reviewCount: number;
+  sellerType: 'FBA' | 'FBM' | 'AMZ';
+}
+
+export type ReportTimeframe = 'last7' | 'last30' | 'last90' | 'custom';

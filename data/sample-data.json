@@ -1,0 +1,41 @@
+{
+  "products": [
+    {
+      "asin": "B00EXAMPLE",
+      "title": "Sample Product",
+      "price": 29.99,
+      "cost": 12.50,
+      "fbaFees": 5.42,
+      "referralFee": 4.49,
+      "category": "Home & Kitchen",
+      "dimensions": {
+        "length": 10,
+        "width": 8,
+        "height": 2,
+        "weight": 1.2,
+        "unit": "in",
+        "weightUnit": "lb"
+      }
+    }
+  ],
+  "keywords": [
+    {
+      "keyword": "best selling product",
+      "searchVolume": 12500,
+      "difficulty": 85,
+      "relevancy": 95,
+      "currentRank": 12
+    }
+  ],
+  "competitors": [
+    {
+      "asin": "B01EXAMPLE",
+      "title": "Competitor Product",
+      "price": 27.99,
+      "bsr": 1250,
+      "rating": 4.5,
+      "reviewCount": 1250,
+      "sellerType": "FBA"
+    }
+  ]
+}
