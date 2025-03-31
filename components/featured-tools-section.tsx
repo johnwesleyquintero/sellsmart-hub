@@ -20,7 +20,7 @@ import AcosCalculator from '@/components/amazon-seller-tools/acos-calculator';
 import SalesEstimator from '@/components/amazon-seller-tools/sales-estimator';
 import CompetitorAnalyzer from '@/components/amazon-seller-tools/competitor-analyzer';
 import KeywordTrendAnalyzer from '@/components/amazon-seller-tools/keyword-trend-analyzer';
-import ProfitMarginCalculator from './amazon-seller-tools/profit-margin-calculator';
+import ProfitMarginCalculator from '@/components/amazon-seller-tools/profit-margin-calculator';
 import {
   Calculator,
   Search,
