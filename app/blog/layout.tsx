@@ -1,12 +1,18 @@
 import type React from 'react';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
   title: 'Blog | Wesley Quintero',
-  description:
-    'Insights and strategies for Amazon sellers and e-commerce businesses.',
+  description: 'Insights and strategies for Amazon sellers and e-commerce businesses.',
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' }
+  ],
 };
 
 export default function BlogLayout({
