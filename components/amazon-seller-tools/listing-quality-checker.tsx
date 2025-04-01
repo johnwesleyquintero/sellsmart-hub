@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import Papa from 'papaparse';
 
+import { useToast } from '@/hooks/use-toast';
+
 type ListingData = {
   product: string;
   title?: string;
@@ -30,6 +32,7 @@ type ListingData = {
 };
 
 export default function ListingQualityChecker() {
+  const { toast } = useToast();
   const [listings, setListings] = useState<ListingData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
