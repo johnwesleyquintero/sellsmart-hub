@@ -63,7 +63,9 @@ export class AmazonAlgorithms {
 }
 
 // Remove unused daysOfStock declaration
-return {
-  suggestedBid,
-  recommendedBudget
-};
+function getSuggestedBidAndBudget() {
+  return {
+    suggestedBid,
+    recommendedBudget
+  };
+}
