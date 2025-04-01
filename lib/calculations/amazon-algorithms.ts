@@ -46,7 +46,6 @@ export class AmazonAlgorithms {
         avgDailySales: number,
         leadTime: number
     ): InventoryHealthStatus {
-        const daysOfStock = currentStock / avgDailySales;
         const safetyStock = avgDailySales * leadTime * 1.5; // 50% buffer
 
         if (currentStock === 0) return InventoryHealthStatus.CRITICAL;

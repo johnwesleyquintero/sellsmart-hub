@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Menu, X, FileText, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/styling-utils';
+import Image from 'next/image';
 
 export default function Header() {
   const [query, setQuery] = useState('');

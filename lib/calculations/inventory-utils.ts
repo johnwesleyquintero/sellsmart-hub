@@ -26,6 +26,7 @@ export class InventoryUtils {
         status: InventoryHealthStatus;
         daysUntilStockout: number;
         reorderQuantity: number;
+        reorderPoint: number;
     } {
         const daysUntilStockout = data.currentInventory / data.averageDailySales;
         const reorderPoint = this.calculateReorderPoint(data.averageDailySales, data.leadTime);
@@ -39,6 +40,7 @@ export class InventoryUtils {
             status: data.status,
             daysUntilStockout: Math.floor(daysUntilStockout),
             reorderQuantity: Math.ceil(reorderQuantity),
+            reorderPoint: reorderPoint
         };
     }
 }
