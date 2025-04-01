@@ -112,7 +112,7 @@ export default function KeywordAnalyzer() {
                   keywords: string[];
                   searchVolume?: number;
                   competition?: string;
-                  analysis: any[];
+                  analysis: {keyword: string; score: number}[];
                   suggestions: string[];
                 };
               }),

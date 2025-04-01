@@ -64,13 +64,7 @@ export default function ProfitMarginCalculator() {
       return;
     }
 
-    interface CSVProductData {
-      product: string;
-      cost: string | number;
-      price: string | number;
-      fees: string | number;
-      [key: string]: unknown;
-    }
+
 
     Papa.parse<ProductData>(file, {
       header: true,
