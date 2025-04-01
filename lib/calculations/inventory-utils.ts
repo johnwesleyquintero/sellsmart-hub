@@ -37,6 +37,8 @@ export class InventoryUtils {
       data.averageDailySales,
       data.leadTime,
     );
+    const reorderPoint = safetyStock + leadTimeDemand;
+    // Remove unused reorderPoint assignment
     const reorderQuantity = this.calculateOptimalOrderQuantity(
       data.averageDailySales * 365,
       50, // Default order cost
