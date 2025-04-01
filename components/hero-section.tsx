@@ -6,16 +6,19 @@ import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <section className="container relative mx-auto px-4 py-32 md:py-48">
+    <section className="container relative mx-auto px-4 py-24 md:py-32">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-blue-100/30 dark:from-purple-950/30 dark:via-transparent dark:to-blue-950/30 blur-3xl"></div>
+      </div>
       <div className="grid items-center gap-12 md:grid-cols-2">
         <div className="space-y-8">
           <Badge
             variant="secondary"
-            className="inline-flex items-center gap-1 rounded-full px-4 py-1.5"
+            className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 bg-purple-100 dark:bg-purple-900/50 text-purple-900 dark:text-purple-100"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75 duration-3000"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75 duration-3000"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-purple-500"></span>
             </span>
             Available for projects
           </Badge>
@@ -24,21 +27,20 @@ export default function HeroSection() {
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               I&apos;m{' '}
               {/* Improved contrast with darker gradient colors and text shadow */}
-              <span className="bg-gradient-to-r from-primary via-purple-600 to-purple-700 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none drop-shadow-sm">
+              <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none drop-shadow-sm">
                 Wesley Quintero
               </span>
             </h1>
-            {/* Added font-medium and darkened text color for better contrast */}
             <p className="text-xl font-medium text-gray-700 dark:text-gray-200 md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
-              Helping Amazon Brands and Sellers Scale By Leveraging 
-              <span className="font-semibold text-primary dark:text-primary-foreground">
+              Empowering Amazon Sellers with
+              <span className="font-semibold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
                 {' '}
-                Data-driven Insights, Automation Solutions
+                Data-driven Solutions
               </span>{' '}
               and
-              <span className="font-semibold text-primary dark:text-primary-foreground">
+              <span className="font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
                 {' '}
-              AI-powered Recommendations
+                AI-powered Tools
               </span>
               .
             </p>
@@ -48,10 +50,10 @@ export default function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="group hover:scale-105 transition-transform duration-300 animate-pulse hover:animate-none bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg hover:shadow-xl hover:from-primary/90 hover:to-purple-600/90"
+              className="group hover:scale-105 transition-transform duration-300 bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-purple-500"
             >
               <Link href="#projects">
-                View Case Studies
+                View Projects
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
                   →
                 </span>
@@ -61,17 +63,17 @@ export default function HeroSection() {
               asChild
               variant="outline"
               size="lg"
-              className="hover:scale-105 transition-transform duration-300 hover:bg-primary hover:text-primary-foreground border-2 border-primary/20 hover:border-primary/50"
+              className="hover:scale-105 transition-transform duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700"
             >
-              <Link href="#tools">Explore Tools</Link>
+              <Link href="#tools">Amazon Tools</Link>
             </Button>
             <Button
               asChild
               variant="ghost"
               size="lg"
-              className="hover:scale-105 transition-transform duration-300 hover:bg-primary/10 hover:text-primary border border-primary/20 hover:border-primary/50"
+              className="hover:scale-105 transition-transform duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300"
             >
-              <Link href="#contact">Get Free Consultation</Link>
+              <Link href="#contact">Contact Me</Link>
             </Button>
           </div>
 

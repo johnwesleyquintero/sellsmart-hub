@@ -1,0 +1,26 @@
+{
+  "name": "Wesley Quintero",
+  "email": "johnwesleyquintero@gmail.com",
+  "location": "Tagum, Davao Region, Philippines",
+  "phone": "+63 950 446 9156",
+  "amazonProfile": {
+    "sellerCentral": {
+      "role": "Certified Developer",
+      "link": "https://sellercentral.amazon.com/"
+    },
+    "developerCentral": {
+      "role": "API Integration Specialist",
+      "link": "https://developer.amazon.com/"
+    }
+  },
+  "professionalSummary": {
+    "title": "Data-Driven Amazon & E-commerce Specialist",
+    "tagline": "Helping Brands Scale with Insights, Automation & AI",
+    "description": "Building AI-Powered Tools via Nebula-Singularity Platform"
+  },
+  "expertise": {
+    "technicalExpert": ["Data Analytics", "Programming", "ML", "DB Management"],
+    "technicalAdvanced": ["Python/R/JS", "AI Automation", "SQL/Supabase"],
+    "softSkills": ["Leadership", "Client Relations", "Problem Solving"]
+  }
+}
