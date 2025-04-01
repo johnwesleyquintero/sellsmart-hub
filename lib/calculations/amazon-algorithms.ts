@@ -61,11 +61,3 @@ export class AmazonAlgorithms {
     return InventoryHealthStatus.HEALTHY;
   }
 }
-
-// Remove unused daysOfStock declaration
-function getSuggestedBidAndBudget() {
-  return {
-    suggestedBid,
-    recommendedBudget
-  };
-}
