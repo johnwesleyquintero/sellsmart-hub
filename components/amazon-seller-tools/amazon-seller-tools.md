@@ -90,22 +90,44 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 ### 2. Keyword Analyzer
 
 **Status**: ✅ Active  
-**Version**: 2.0.0
+**Version**: 2.1.0
 
-🔍 **Description**: Advanced keyword research and optimization tool with AI-powered suggestions.
+🔍 **Description**: Comprehensive keyword research tool with real-time analysis and AI-powered optimization suggestions.
+
+**CSV Requirements**:
+
+```
+product,keywords,searchVolume,competition
+"Wireless Earbuds","bluetooth earbuds, wireless headphones",135000,High
+```
 
 **Features**:
 
-- Bulk keyword analysis via CSV
-- AI-powered search volume metrics
-- Advanced competition analysis
-- Smart keyword suggestions
-- Enhanced export functionality
-- Product-specific keyword tracking
-- Performance badges with trend indicators
-- Historical data comparison
-- Interactive charts and graphs for data analysis
-- Responsive design and accessibility compliance
+- **CSV Processing**:
+
+  - Required columns: `product` (string), `keywords` (comma-separated)
+  - Optional columns: `searchVolume` (number), `competition` (Low/Medium/High)
+  - Auto-trimming and validation of keyword lists
+  - Support for both manual entry and file upload
+
+- **Analysis Engine**:
+
+  - Async processing via `KeywordIntelligence` utilities
+  - Search volume visualization using Recharts
+  - Competition level analysis with color-coded badges
+  - AI-powered keyword suggestions
+
+- **Data Management**:
+
+  - Bulk export (CSV/JSON)
+  - Temporary browser storage
+  - Data validation with error highlighting
+
+- **Visualization**:
+  - Interactive bar charts for search volume
+  - Keyword distribution graphs
+  - Historical performance tracking
+  - Mobile-responsive layouts
 
 ### 3. Listing Quality Checker
 
