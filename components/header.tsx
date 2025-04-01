@@ -118,7 +118,7 @@ export default function Header() {
     },
     {
       name: 'Resume',
-      href: 'https://wesley-quintero-resume.netlify.app/',
+      href: 'https://wq-resume.netlify.app/',
       external: true,
     },
   ];
