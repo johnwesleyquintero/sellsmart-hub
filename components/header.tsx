@@ -116,6 +116,11 @@ export default function Header() {
       href: 'https://sellsmart-pro.vercel.app/',
       external: true,
     },
+    {
+      name: 'Resume',
+      href: 'https://wesley-quintero-resume.netlify.app/',
+      external: true,
+    },
   ];
 
   return (

@@ -30,15 +30,15 @@ export default function HeroSection() {
             </h1>
             {/* Added font-medium and darkened text color for better contrast */}
             <p className="text-xl font-medium text-gray-700 dark:text-gray-200 md:text-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_0.3s_forwards]">
-              Helping Amazon sellers increase profits by 30-50% through
+              Helping Amazon Brands and Sellers Scale By Leveraging 
               <span className="font-semibold text-primary dark:text-primary-foreground">
                 {' '}
-                data-driven automation
+                Data-driven Insights, Automation Solutions
               </span>{' '}
               and
               <span className="font-semibold text-primary dark:text-primary-foreground">
                 {' '}
-                AI-powered insights
+              AI-powered Recommendations
               </span>
               .
             </p>
