@@ -2,7 +2,11 @@
 type StaticDataTypes = {
   projects: { title: string; description: string; [key: string]: unknown };
   blog: { title: string; content: string; [key: string]: unknown };
-  'case-studies': { title: string; description: string; [key: string]: unknown };
+  'case-studies': {
+    title: string;
+    description: string;
+    [key: string]: unknown;
+  };
   changelog: { version: string; changes: string[]; [key: string]: unknown };
   experience: { company: string; role: string; [key: string]: unknown };
 };

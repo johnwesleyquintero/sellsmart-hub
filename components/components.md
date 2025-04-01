@@ -28,12 +28,14 @@ Specialized tools for Amazon sellers located in `/components/amazon-seller-tools
 - `profit-margin-calculator.tsx` - Calculate profit margins
 - `sales-estimator.tsx` - Estimate sales volumes
 
-**Common Issues**: 
+**Common Issues**:
+
 - Data validation
 - Error handling
 - CSV parsing edge cases
 
 **Improvements**:
+
 - Add more tooltips
 - Enhance error messages
 - Improve data visualization

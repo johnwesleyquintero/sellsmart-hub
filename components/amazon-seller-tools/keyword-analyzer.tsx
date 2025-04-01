@@ -44,7 +44,9 @@ export default function KeywordAnalyzer() {
   const [searchTerm, setSearchTerm] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -54,7 +56,7 @@ export default function KeywordAnalyzer() {
     Papa.parse<KeywordData>(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (result) => {
+      complete: async (result) => {
         if (result.errors.length > 0) {
           setError(
             `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
@@ -65,54 +67,56 @@ export default function KeywordAnalyzer() {
 
         try {
           // Process the parsed data
-          const processedData: KeywordData[] = result.data
-            .filter((item) => item.product && item.keywords)
-            .map((item) => {
-              // Split keywords by comma if it's a string
-              interface KeywordItem {
-                product: string;
-                keywords?: string | string[];
-                searchVolume?: string | number;
-                competition?: string;
-                [key: string]: unknown; // Allow additional properties
-              }
+          const processedData: KeywordData[] = await Promise.all(
+            result.data
+              .filter((item) => item.product && item.keywords)
+              .map(async (item) => {
+                // Split keywords by comma if it's a string
+                interface KeywordItem {
+                  product: string;
+                  keywords?: string | string[];
+                  searchVolume?: string | number;
+                  competition?: string;
+                  [key: string]: unknown; // Allow additional properties
+                }
 
-              const keywordArray =
-                typeof (item as KeywordItem).keywords === 'string'
-                  ? (item as KeywordItem).keywords
-                      .split(',')
-                      .map((k: string) => k.trim())
-                  : Array.isArray((item as KeywordItem).keywords)
+                const keywordArray =
+                  typeof (item as KeywordItem).keywords === 'string'
                     ? (item as KeywordItem).keywords
-                    : [];
+                        .split(',')
+                        .map((k: string) => k.trim())
+                    : Array.isArray((item as KeywordItem).keywords)
+                      ? (item as KeywordItem).keywords
+                      : [];
 
-              // Parse search volume if available
-              const searchVolume = (item as KeywordItem).searchVolume
-                ? Number.parseInt(String((item as KeywordItem).searchVolume))
-                : undefined;
+                // Parse search volume if available
+                const searchVolume = (item as KeywordItem).searchVolume
+                  ? Number.parseInt(String((item as KeywordItem).searchVolume))
+                  : undefined;
 
-              // Get competition level if available
-              const competition = item.competition || undefined;
+                // Get competition level if available
+                const competition = item.competition || undefined;
 
-              return {
-                product: String(item.product),
-                keywords: keywordArray,
-                searchVolume,
-                competition,
-                // Generate suggestions based on keywords
-                suggestions: keywordArray.map((kw) => {
-                  const variations = [
-                    `best ${kw}`,
-                    `${kw} for amazon`,
-                    `premium ${kw}`,
-                    `affordable ${kw}`,
-                  ];
-                  return variations[
-                    Math.floor(Math.random() * variations.length)
-                  ];
-                }),
-              };
-            });
+                const analysis = await KeywordIntelligence.analyzeBatch(
+                  keywordArray || [],
+                );
+                return {
+                  product: String(item.product),
+                  keywords: keywordArray || [],
+                  searchVolume,
+                  competition,
+                  analysis,
+                  suggestions: analysis.map((a) => a.keyword),
+                } as {
+                  product: string;
+                  keywords: string[];
+                  searchVolume?: number;
+                  competition?: string;
+                  analysis: any[];
+                  suggestions: string[];
+                };
+              }),
+          );
 
           if (processedData.length === 0) {
             setError(
@@ -302,7 +306,9 @@ export default function KeywordAnalyzer() {
                   <div className="flex gap-2">
                     <Input
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSearchTerm(e.target.value)
+                      }
                       placeholder="Enter product or keyword"
                     />
                     <Button onClick={handleSearch} disabled={isLoading}>

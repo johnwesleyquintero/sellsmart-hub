@@ -20,12 +20,10 @@ export interface MarketPosition {
 export class CompetitorUtils {
   static analyzePricing({
     competitorPrices,
-    productCost,
     targetMargin,
-    marketTrend
+    marketTrend,
   }: {
     competitorPrices: number[];
-    productCost?: number;
     targetMargin?: number;
     marketTrend?: 'rising' | 'stable' | 'declining';
   }): PricingStrategy {
@@ -35,7 +33,8 @@ export class CompetitorUtils {
     const q3Index = Math.floor(sortedPrices.length * 0.75);
     const validPrices = sortedPrices.slice(q1Index, q3Index + 1);
 
-    const avgPrice = validPrices.reduce((a, b) => a + b, 0) / validPrices.length;
+    const avgPrice =
+      validPrices.reduce((a, b) => a + b, 0) / validPrices.length;
     const minPrice = Math.min(...validPrices);
     const maxPrice = Math.max(...validPrices);
 
@@ -46,7 +45,10 @@ export class CompetitorUtils {
     if (marketTrend === 'rising' && targetMargin && targetMargin > 0.3) {
       strategy = 'premium';
       priceMultiplier = 1.1;
-    } else if (marketTrend === 'declining' || (targetMargin && targetMargin < 0.2)) {
+    } else if (
+      marketTrend === 'declining' ||
+      (targetMargin && targetMargin < 0.2)
+    ) {
       strategy = 'economy';
       priceMultiplier = 0.9;
     }
@@ -57,9 +59,10 @@ export class CompetitorUtils {
     // Calculate confidence based on price spread and sample size
     const priceSpread = maxPrice - minPrice;
     const confidence = Math.min(
-      ((validPrices.length / competitorPrices.length) * 100) *
+      (validPrices.length / competitorPrices.length) *
+        100 *
         (1 - priceSpread / maxPrice),
-      100
+      100,
     );
 
     return {
@@ -67,19 +70,23 @@ export class CompetitorUtils {
       suggestedPrice,
       priceRange: {
         min: minPrice,
-        max: maxPrice
+        max: maxPrice,
       },
-      confidence
+      confidence,
     };
   }
 
   static analyzeMarketPosition(metrics: CompetitorMetrics[]): MarketPosition {
-    const avgPrice = metrics.reduce((sum, m) => sum + m.price, 0) / metrics.length;
-    const avgRating = metrics.reduce((sum, m) => sum + m.rating, 0) / metrics.length;
-    const avgReviews = metrics.reduce((sum, m) => sum + m.reviews, 0) / metrics.length;
+    const avgPrice =
+      metrics.reduce((sum, m) => sum + m.price, 0) / metrics.length;
+    const avgRating =
+      metrics.reduce((sum, m) => sum + m.rating, 0) / metrics.length;
+    const avgReviews =
+      metrics.reduce((sum, m) => sum + m.reviews, 0) / metrics.length;
 
     // Determine market segment
-    const segment = avgPrice > 100 ? 'premium' : avgPrice > 50 ? 'midrange' : 'budget';
+    const segment =
+      avgPrice > 100 ? 'premium' : avgPrice > 50 ? 'midrange' : 'budget';
 
     // Analyze competitive advantages
     const competitiveAdvantage = [];
@@ -103,7 +110,7 @@ export class CompetitorUtils {
       segment,
       competitiveAdvantage,
       threats,
-      opportunities
+      opportunities,
     };
   }
 }

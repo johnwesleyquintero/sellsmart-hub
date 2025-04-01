@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
+import { KeywordIntelligence } from '@/lib/keyword-intelligence';
 
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,6 +27,14 @@ type ListingData = {
   bulletPoints?: string[];
   images?: number;
   keywords?: string[];
+  keywordAnalysis?: {
+    keyword: string;
+    isProhibited: boolean;
+    score: number;
+    confidence: number;
+    matchType: 'exact' | 'fuzzy' | 'pattern';
+    reason?: string;
+  }[];
   score?: number;
   issues?: string[];
   suggestions?: string[];
@@ -56,7 +65,7 @@ export default function ListingQualityChecker() {
         Papa.parse(content, {
           header: true,
           skipEmptyLines: true,
-          complete: (results) => {
+          complete: async (results) => {
             if (results.errors.length > 0) {
               throw new Error(
                 `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
@@ -80,17 +89,37 @@ export default function ListingQualityChecker() {
               );
             }
 
-            const processedData = results.data.map((row) => ({
-              product: row.product,
-              title: row.title,
-              description: row.description,
-              bulletPoints: row.bullet_points?.split(';').filter(Boolean),
-              images: Number(row.images) || 0,
-              keywords: row.keywords
-                ?.split(',')
-                .map((k) => k.trim())
-                .filter(Boolean),
-            }));
+            interface CSVRow {
+              product: string;
+              title: string;
+              description: string;
+              bullet_points: string;
+              images: string;
+              keywords: string;
+            }
+
+            const processedData = await Promise.all(
+              results.data.map(async (row: CSVRow) => {
+                const keywords =
+                  row.keywords
+                    ?.split(',')
+                    .map((k) => k.trim())
+                    .filter(Boolean) || [];
+
+                const keywordAnalysis =
+                  await KeywordIntelligence.analyzeBatch(keywords);
+
+                return {
+                  product: row.product,
+                  title: row.title,
+                  description: row.description,
+                  bulletPoints: row.bullet_points?.split(';').filter(Boolean),
+                  images: Number(row.images) || 0,
+                  keywords,
+                  keywordAnalysis,
+                };
+              }),
+            );
 
             setListings(processedData);
             setError(null);
@@ -102,7 +131,7 @@ export default function ListingQualityChecker() {
           },
         });
       } catch (error) {
-        setError(error.message);
+        setError(error instanceof Error ? error.message : 'An error occurred');
         toast({
           title: 'Error',
           description: error.message,

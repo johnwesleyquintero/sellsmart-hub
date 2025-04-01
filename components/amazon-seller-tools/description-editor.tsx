@@ -3,6 +3,8 @@
 import type React from 'react';
 
 import { useState } from 'react';
+import Papa from 'papaparse';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +23,7 @@ type ProductDescription = {
 };
 
 export default function DescriptionEditor() {
+  const { toast } = useToast();
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,17 +65,19 @@ export default function DescriptionEditor() {
             );
           }
 
-          const processedData = results.data.map((row: unknown) => {
-            const productRow = row as ProductData;
-            return {
-              product: productRow.product,
-              asin: productRow.asin || '',
-              description: productRow.description,
-              characterCount: productRow.description?.length || 0,
-              keywordCount: (productRow.description?.match(/\b\w+\b/g) || [])
-                .length,
-            };
-          });
+          const processedData: ProductDescription[] = results.data.map(
+            (row: unknown) => {
+              const productRow = row as ProductData;
+              return {
+                product: productRow.product,
+                asin: productRow.asin || '',
+                description: productRow.description,
+                characterCount: productRow.description?.length || 0,
+                keywordCount: (productRow.description?.match(/\b\w+\b/g) || [])
+                  .length,
+              };
+            },
+          );
 
           setProducts(processedData);
           setError(null);
@@ -82,7 +87,9 @@ export default function DescriptionEditor() {
             variant: 'default',
           });
         } catch (error) {
-          setError(error.message);
+          setError(
+            error instanceof Error ? error.message : 'An error occurred',
+          );
           toast({
             title: 'Processing Failed',
             description: error.message,

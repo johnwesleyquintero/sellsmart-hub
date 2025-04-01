@@ -25,7 +25,7 @@ export interface TrendData {
 
 export const calculateMetrics = (
   data: Pick<CampaignData, 'adSpend' | 'sales' | 'impressions' | 'clicks'>,
-  trendData?: TrendData
+  trendData?: TrendData,
 ): Omit<CampaignData, 'campaign' | 'adSpend' | 'sales'> => {
   const { adSpend, sales, impressions, clicks } = data;
 
@@ -43,7 +43,7 @@ export const calculateMetrics = (
     if (trendData?.industryAverageCTR) {
       // Adjust CTR score based on industry performance
       const ctrPerformanceRatio = rawCTR / trendData.industryAverageCTR;
-      metrics.ctr = rawCTR * (0.7 + (ctrPerformanceRatio * 0.3));
+      metrics.ctr = rawCTR * (0.7 + ctrPerformanceRatio * 0.3);
     }
   }
 
@@ -54,8 +54,10 @@ export const calculateMetrics = (
 
     if (trendData?.industryAverageConversion) {
       // Adjust conversion score based on industry performance
-      const conversionPerformanceRatio = rawConversionRate / trendData.industryAverageConversion;
-      metrics.conversionRate = rawConversionRate * (0.7 + (conversionPerformanceRatio * 0.3));
+      const conversionPerformanceRatio =
+        rawConversionRate / trendData.industryAverageConversion;
+      metrics.conversionRate =
+        rawConversionRate * (0.7 + conversionPerformanceRatio * 0.3);
     }
 
     metrics.cpc = adSpend / clicks;
@@ -63,46 +65,54 @@ export const calculateMetrics = (
 
   // Calculate trend-based metrics with advanced analysis
   if (trendData) {
-    const salesGrowth = ((sales - trendData.previousPeriodSales) / trendData.previousPeriodSales) * 100;
-    const adSpendGrowth = ((adSpend - trendData.previousPeriodAdSpend) / trendData.previousPeriodAdSpend) * 100;
-    
+    const salesGrowth =
+      ((sales - trendData.previousPeriodSales) /
+        trendData.previousPeriodSales) *
+      100;
+    const adSpendGrowth =
+      ((adSpend - trendData.previousPeriodAdSpend) /
+        trendData.previousPeriodAdSpend) *
+      100;
+
     // Calculate weighted performance score
     const performanceWeight = 0.6; // Base performance weight
     const seasonalityWeight = 0.2; // Seasonality impact weight
     const marketTrendWeight = 0.2; // Market trend impact weight
-    
+
     // Calculate base trend factor
-    let trendFactor = 1 + ((salesGrowth - adSpendGrowth) / 100);
-    
+    let trendFactor = 1 + (salesGrowth - adSpendGrowth) / 100;
+
     // Apply seasonality adjustment if available
     if (trendData.seasonalityFactor) {
-      trendFactor *= (1 + (trendData.seasonalityFactor - 1) * seasonalityWeight);
+      trendFactor *= 1 + (trendData.seasonalityFactor - 1) * seasonalityWeight;
     }
-    
+
     // Apply market trend adjustment
     if (trendData.marketTrend) {
       const marketTrendImpact = {
         rising: 1.1,
         stable: 1.0,
-        declining: 0.9
+        declining: 0.9,
       }[trendData.marketTrend];
-      trendFactor *= (1 + (marketTrendImpact - 1) * marketTrendWeight);
+      trendFactor *= 1 + (marketTrendImpact - 1) * marketTrendWeight;
     }
-    
+
     // Apply competition level adjustment
     if (trendData.competitionLevel) {
       const competitionImpact = {
         low: 0.95,
         medium: 1.0,
-        high: 1.05
+        high: 1.05,
       }[trendData.competitionLevel];
       trendFactor *= competitionImpact;
     }
-    
+
     // Calculate final ACOS with weighted performance score
     const baseAcos = metrics.acos;
-    const adjustedAcos = baseAcos * (1 / Math.max(0.8, Math.min(1.2, trendFactor)));
-    metrics.acos = (baseAcos * (1 - performanceWeight)) + (adjustedAcos * performanceWeight);
+    const adjustedAcos =
+      baseAcos * (1 / Math.max(0.8, Math.min(1.2, trendFactor)));
+    metrics.acos =
+      baseAcos * (1 - performanceWeight) + adjustedAcos * performanceWeight;
   }
 
   return metrics;

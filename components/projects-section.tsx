@@ -78,8 +78,12 @@ export default function ProjectsSection() {
                     />
                   </div>
                   <CardHeader>
-                    <CardTitle className="text-xl font-bold">{project.title}</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">{project.description}</CardDescription>
+                    <CardTitle className="text-xl font-bold">
+                      {project.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground">
+                      {project.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">

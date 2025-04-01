@@ -64,20 +64,11 @@ export default function ProfitMarginCalculator() {
       return;
     }
 
-    interface ProductData {
+    interface CSVProductData {
       product: string;
-      cost: number;
-      price: number;
-      fees: number;
-      margin?: number;
-      roi?: number;
-    }
-
-    interface ProductData {
-      product: string;
-      cost: number;
-      price: number;
-      fees: number;
+      cost: string | number;
+      price: string | number;
+      fees: string | number;
       [key: string]: unknown;
     }
 

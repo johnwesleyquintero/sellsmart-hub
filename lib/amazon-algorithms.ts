@@ -15,7 +15,7 @@ export function calculateOptimalPrice(
     cost,
     targetMargin,
     seasonalityFactor = 1,
-    marketStrategy = 'competitive'
+    marketStrategy = 'competitive',
   } = productData;
 
   // Filter out outliers from competitor prices
