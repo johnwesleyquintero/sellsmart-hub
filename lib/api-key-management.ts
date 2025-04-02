@@ -25,10 +25,7 @@ export function generateApiKey(): string {
 export function validateApiKey(key: string): boolean {
   const now = new Date();
   return API_KEYS.some(
-    (record) => 
-      record.key === key && 
-      record.isActive && 
-      record.expiresAt > now
+    (record) => record.key === key && record.isActive && record.expiresAt > now,
   );
 }
 
@@ -37,14 +34,14 @@ export function validateApiKey(key: string): boolean {
  */
 export function apiKeyMiddleware(request: Request) {
   const apiKey = request.headers.get('x-api-key') || '';
-  
+
   if (!validateApiKey(apiKey)) {
     return NextResponse.json(
       { error: 'Invalid or expired API key' },
-      { status: 401 }
+      { status: 401 },
     );
   }
-  
+
   return null;
 }
 
@@ -59,15 +56,15 @@ export function rotateApiKeys() {
       key.isActive = false;
     }
   });
-  
+
   // Generate new key
   const newKey = {
     key: generateApiKey(),
     createdAt: new Date(),
     expiresAt: new Date(Date.now() + KEY_EXPIRATION),
-    isActive: true
+    isActive: true,
   };
-  
+
   API_KEYS.push(newKey);
   return newKey;
 }

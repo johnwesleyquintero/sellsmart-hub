@@ -1,6 +1,14 @@
 'use client';
 
-import { Badge, Button, Card, CardContent, ChartContainer, Input, Progress } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  ChartContainer,
+  Input,
+  Progress,
+} from '@/components/ui';
 import {
   acosRatingGuide,
   calculateMetrics,
@@ -143,34 +151,34 @@ export default function AcosCalculator() {
       setError('Ad Spend must be a valid positive number');
       return;
     }
-    
+
     const newCampaign = {
       campaign: manualCampaign.campaign,
       adSpend,
       sales,
-      ...calculateMetrics({ adSpend, sales })
+      ...calculateMetrics({ adSpend, sales }),
     };
-    
+
     setCampaigns([...campaigns, newCampaign]);
     setManualCampaign({
       campaign: '',
       adSpend: '',
-      sales: ''
+      sales: '',
     });
     setError(null);
-    
+
     const newCampaign = {
       campaign: manualCampaign.campaign,
       adSpend,
       sales,
-      ...calculateMetrics({ adSpend, sales })
+      ...calculateMetrics({ adSpend, sales }),
     };
-    
+
     setCampaigns([...campaigns, newCampaign]);
     setManualCampaign({
       campaign: '',
       adSpend: '',
-      sales: ''
+      sales: '',
     });
     setError(null);
     if (isNaN(sales) || sales < 0) {
