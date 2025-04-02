@@ -7,7 +7,7 @@ const { execSync } = require('child_process');
 // Get list of staged files
 const getStagedFiles = () => {
   const output = execSync('git diff --cached --name-only').toString();
-  return output.split('\n').filter(file => file.endsWith('.md'));
+  return output.split('\n').filter((file) => file.endsWith('.md'));
 };
 
 // Update timestamp in markdown file
@@ -19,11 +19,12 @@ const updateTimestamp = (filePath) => {
     year: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    hour12: true
+    hour12: true,
   });
 
   // Check if file already has a timestamp section
-  const timestampRegex = /\n---\n(?:Last Updated|\[//\]: # \(Documentation last updated).*$/s;
+  const timestampRegex =
+    /\n---\n(?:Last Updated|\[\/\/\]: # \(Documentation last updated).*$/s;
   const newTimestamp = `\n---\nLast Updated: ${timestamp}\n`;
 
   const updatedContent = content.match(timestampRegex)
@@ -37,7 +38,7 @@ const updateTimestamp = (filePath) => {
 // Main execution
 try {
   const stagedFiles = getStagedFiles();
-  stagedFiles.forEach(file => {
+  stagedFiles.forEach((file) => {
     if (file) {
       const fullPath = path.join(process.cwd(), file);
       updateTimestamp(fullPath);

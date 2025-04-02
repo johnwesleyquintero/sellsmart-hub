@@ -64,8 +64,6 @@ export default function ProfitMarginCalculator() {
       return;
     }
 
-
-
     Papa.parse<ProductData>(file, {
       header: true,
       dynamicTyping: true,

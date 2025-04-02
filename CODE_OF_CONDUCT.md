@@ -39,5 +39,5 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.0.
 
 ---
-Last Updated: 4/2/2025 - 12:00 PM
 
+Last Updated: 4/2/2025 - 12:00 PM
