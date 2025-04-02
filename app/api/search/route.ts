@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server';
+import { apiKeyMiddleware } from '@/lib/api-key-management';
 import { loadStaticData } from '@/lib/load-static-data';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
+  const authResponse = apiKeyMiddleware(request);
+  if (authResponse) return authResponse;
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q')?.toLowerCase() || '';
 

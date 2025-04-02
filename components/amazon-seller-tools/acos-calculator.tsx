@@ -1,42 +1,37 @@
 'use client';
 
-import type React from 'react';
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Card, CardContent } from '@/components/ui';
-import { Badge } from '@/components/ui';
-import { Progress } from '@/components/ui';
+import { Badge, Button, Card, CardContent, ChartContainer, Input, Progress } from '@/components/ui';
 import {
-  Upload,
-  FileText,
+  acosRatingGuide,
+  calculateMetrics,
+  chartConfig,
+  getAcosColor,
+  getAcosRating,
+  type CampaignData,
+} from '@/lib/acos-utils';
+import {
   AlertCircle,
-  Download,
   Calculator,
+  Download,
+  FileText,
   Info,
+  Upload,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import SampleCsvButton from './sample-csv-button';
+import type React from 'react';
+import { useRef, useState } from 'react';
 import {
+  Bar,
   BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
   LineChart,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Bar,
-  Line,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui';
-import {
-  type CampaignData,
-  calculateMetrics,
-  getAcosRating,
-  getAcosColor,
-  chartConfig,
-  acosRatingGuide,
-} from '@/lib/acos-utils';
+import SampleCsvButton from './sample-csv-button';
 
 export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
@@ -148,6 +143,36 @@ export default function AcosCalculator() {
       setError('Ad Spend must be a valid positive number');
       return;
     }
+    
+    const newCampaign = {
+      campaign: manualCampaign.campaign,
+      adSpend,
+      sales,
+      ...calculateMetrics({ adSpend, sales })
+    };
+    
+    setCampaigns([...campaigns, newCampaign]);
+    setManualCampaign({
+      campaign: '',
+      adSpend: '',
+      sales: ''
+    });
+    setError(null);
+    
+    const newCampaign = {
+      campaign: manualCampaign.campaign,
+      adSpend,
+      sales,
+      ...calculateMetrics({ adSpend, sales })
+    };
+    
+    setCampaigns([...campaigns, newCampaign]);
+    setManualCampaign({
+      campaign: '',
+      adSpend: '',
+      sales: ''
+    });
+    setError(null);
     if (isNaN(sales) || sales < 0) {
       setError('Sales amount must be a valid positive number');
       return;
