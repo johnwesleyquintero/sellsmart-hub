@@ -48,8 +48,8 @@ export default function AcosCalculator() {
   const [selectedMetric, setSelectedMetric] = useState<
     'acos' | 'roas' | 'ctr' | 'cpc'
   >('acos');
-  const [manualCampaign, setManualCampaign] = useState({
-    campaign: '',
+  const [manualCampaignData, setManualCampaignData] = useState({
+    campaignName: '',
     adSpend: '',
     sales: '',
   });
@@ -152,31 +152,31 @@ export default function AcosCalculator() {
       return;
     }
 
-    const newCampaign = {
-      campaign: manualCampaign.campaign,
+    const newACOSCampaign = {
+      campaign: manualCampaignData.campaign,
       adSpend,
       sales,
       ...calculateMetrics({ adSpend, sales }),
     };
 
-    setCampaigns([...campaigns, newCampaign]);
-    setManualCampaign({
-      campaign: '',
+    setCampaigns([...campaigns, newACOSCampaign]);
+    setManualCampaignData({
+      campaignName: '',
       adSpend: '',
       sales: '',
     });
     setError(null);
 
-    const newCampaign = {
+    const manualCampaignData = {
       campaign: manualCampaign.campaign,
       adSpend,
       sales,
       ...calculateMetrics({ adSpend, sales }),
     };
 
-    setCampaigns([...campaigns, newCampaign]);
-    setManualCampaign({
-      campaign: '',
+    setCampaigns([...campaigns, newACOSCampaign]);
+    setManualCampaignData({
+      campaignName: '',
       adSpend: '',
       sales: '',
     });
@@ -193,8 +193,8 @@ export default function AcosCalculator() {
     }
 
     const metrics = calculateMetrics({ adSpend, sales });
-    const newCampaign: CampaignData = {
-      campaign: manualCampaign.campaign,
+    const newACOSCampaign: CampaignData = {
+      campaign: manualCampaignData.campaign,
       adSpend,
       sales,
       ...metrics,

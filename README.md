@@ -76,13 +76,13 @@ The portfolio includes a fully-featured blog with MDX support:
 2. Install dependencies
 
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. Start development server
 
    ```bash
-   pnpm dev
+   npm run dev
    ```
 
 4. Open http://localhost:3000 in your browser
@@ -123,11 +123,11 @@ cp .env.example .env
 
 ## Available Scripts
 
-- `pnpm dev`: Starts development server
-- `pnpm build`: Creates production build
-- `pnpm start`: Runs production server
-- `pnpm lint`: Runs ESLint
-- `pnpm format`: Formats code with Prettier
+- `npm run dev`: Starts development server
+- `npm run build`: Creates production build
+- `npm start`: Runs production server
+- `npm run lint`: Runs ESLint
+- `npm run format`: Formats code with Prettier
 
 ## Tech Stack Details
 

@@ -1,0 +1,41 @@
+{
+  "parallel": true,
+  "stopOnFail": false,
+  "commandTimeout": 300000,
+  "checks": [
+    {
+      "id": "format",
+      "name": "Formatting (Prettier)",
+      "command": "npm run format"
+    },
+    {
+      "id": "lint",
+      "name": "Linting (ESLint)",
+      "command": "npm run lint"
+    },
+    {
+      "id": "typecheck",
+      "name": "Type Checking",
+      "command": "npx tsc --noEmit"
+    },
+    {
+      "id": "build",
+      "name": "Build Project",
+      "command": "npm run build"
+    }
+  ],
+  "errorCategories": {
+    "style": {
+      "patterns": ["ESLint", "prettier", "\\[wW\\]arning\\s+-"],
+      "suggestion": "Run formatting/linting tools and review style guidelines"
+    },
+    "types": {
+      "patterns": ["TS\\d+", "[Tt]ype.*error"],
+      "suggestion": "Check type annotations and interface definitions"
+    },
+    "build": {
+      "patterns": ["build.*failed", "vite", "Module not found"],
+      "suggestion": "Verify dependencies and build configuration"
+    }
+  }
+}
