@@ -2,7 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import { z } from 'zod';
-import { ConfigSchema, DEFAULT_COMMANDS_CONFIG, DEFAULT_COMMAND_TIMEOUT_MS } from './schema.js';
+import {
+  ConfigSchema,
+  DEFAULT_COMMANDS_CONFIG,
+  DEFAULT_COMMAND_TIMEOUT_MS,
+} from './schema.js';
 
 const CONFIG_FILE_PATH = path.resolve('.code-quality.json');
 
@@ -25,7 +29,7 @@ export async function loadConfig() {
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error(chalk.red.bold('Configuration validation failed:'));
-      error.errors.forEach(err => {
+      error.errors.forEach((err) => {
         console.error(chalk.red(`  - ${err.path.join('.')}: ${err.message}`));
       });
     }

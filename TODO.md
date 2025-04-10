@@ -1,8 +1,9 @@
 # Project Tasks Status
 
-******
+---
 
 ## Overview
+
 This document provides an overview of the current status of the project tasks. It outlines the tasks that have been completed, new tasks that are pending, and ongoing tasks that are currently in progress.
 
 ## Status Legend
@@ -51,7 +52,7 @@ This document provides an overview of the current status of the project tasks. I
 - **Security**: Tasks related to security and privacy.
 - **Testing**: Tasks related to testing and QA.
 
-******
+---
 
 ## Completed Tasks
 

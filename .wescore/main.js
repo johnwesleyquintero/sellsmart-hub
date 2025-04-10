@@ -12,10 +12,10 @@ async function main() {
 
     if (config.runInParallel) {
       const results = await Promise.all(
-        config.checks.map(check =>
+        config.checks.map((check) =>
           runCommand(check, config.commandTimeout)
-            .then(result => ({ check, result }))
-            .catch(error => ({
+            .then((result) => ({ check, result }))
+            .catch((error) => ({
               check,
               result: {
                 success: false,
@@ -25,8 +25,8 @@ async function main() {
                 signal: null,
                 timedOut: false,
               },
-            }))
-        )
+            })),
+        ),
       );
 
       results.forEach(({ check, result }) => {
