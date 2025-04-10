@@ -22,7 +22,27 @@ import {
 import { Info } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
 import Papa from 'papaparse';
-import { ProcessedRow, MetricType, ChartDataPoint } from '@/lib/amazon-types';
+type ProcessedRow = {
+  asin: string;
+  price: number;
+  reviews: number;
+  rating: number;
+  conversion_rate: number;
+  click_through_rate: number;
+  niche?: string;
+};
+
+type MetricType =
+  | 'price'
+  | 'reviews'
+  | 'rating'
+  | 'conversion_rate'
+  | 'click_through_rate';
+
+type ChartDataPoint = {
+  name: string;
+  [key: string]: string | number;
+};
 
 interface CsvRow {
   asin: string;
@@ -47,14 +67,26 @@ export default function CompetitorAnalyzer() {
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
   const processCsvData = (csvData: CsvRow[]): ProcessedRow[] => {
-    return csvData.map((row) => ({
-      asin: row.asin,
-      price: parseFloat(row.price),
-      reviews: parseInt(row.reviews),
-      rating: parseFloat(row.rating),
-      conversion_rate: parseFloat(row.conversion_rate),
-      click_through_rate: parseFloat(row.click_through_rate),
-    }));
+    return csvData
+      .filter((row) => {
+        return (
+          row.asin &&
+          !isNaN(parseFloat(row.price)) &&
+          !isNaN(parseInt(row.reviews)) &&
+          !isNaN(parseFloat(row.rating)) &&
+          !isNaN(parseFloat(row.conversion_rate)) &&
+          !isNaN(parseFloat(row.click_through_rate))
+        );
+      })
+      .map((row) => ({
+        asin: row.asin,
+        price: parseFloat(row.price),
+        reviews: parseInt(row.reviews),
+        rating: parseFloat(row.rating),
+        conversion_rate: parseFloat(row.conversion_rate),
+        click_through_rate: parseFloat(row.click_through_rate),
+        niche: row.niche,
+      }));
   };
 
   useEffect(() => {
@@ -167,19 +199,21 @@ export default function CompetitorAnalyzer() {
       let processedSellerData = sellerData;
       let processedCompetitorData = competitorData;
 
-      if (Array.isArray(sellerData)) {
-        processedSellerData = processCsvData(sellerData);
+      // Process seller data if needed
+      if (!processedSellerData && sellerData) {
+        processedSellerData = sellerData;
       }
 
-      if (Array.isArray(competitorData)) {
-        processedCompetitorData = processCsvData(competitorData);
+      // Process competitor data if needed
+      if (!processedCompetitorData.length && competitorData.length) {
+        processedCompetitorData = competitorData;
       }
 
       // If no API call needed (using uploaded CSV data)
       if (processedSellerData && processedCompetitorData) {
         const formattedData = processedCompetitorData.map(
-          (row: { asin?: string; sales_rank?: number }) => {
-            const competitor = row.asin ?? row.niche ?? 'N/A';
+          (row: ProcessedRow) => {
+            const competitor = row.asin || row.niche || 'N/A';
             const dataPoint: ChartDataPoint = {
               name: competitor,
             };

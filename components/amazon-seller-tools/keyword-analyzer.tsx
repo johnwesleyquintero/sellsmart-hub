@@ -2,32 +2,50 @@
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import {
-  Upload,
-  FileText,
   AlertCircle,
   Download,
-  Search,
+  FileText,
   Info,
+  Search,
+  Upload,
 } from 'lucide-react';
+import Papa from 'papaparse';
+import { useRef, useState } from 'react';
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  ResponsiveContainer,
-  CartesianGrid,
-  Tooltip,
-  Legend,
 } from 'recharts';
-import Papa from 'papaparse';
 import SampleCsvButton from './sample-csv-button';
+
+interface KeywordIntelligence {
+  analyzeBatch(
+    keywords: string[],
+  ): Promise<{ keyword: string; score: number }[]>;
+}
+
+const KeywordIntelligence = {
+  async analyzeBatch(
+    keywords: string[],
+  ): Promise<{ keyword: string; score: number }[]> {
+    // Simulate API response
+    return keywords.map((keyword) => ({
+      keyword,
+      score: Math.random() * 100,
+    }));
+  },
+};
 
 type KeywordData = {
   product: string;
@@ -332,7 +350,7 @@ export default function KeywordAnalyzer() {
 
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={45} className="h-2" />
+          <Progress className="h-2" />
           <p className="text-sm text-muted-foreground">Analyzing keywords...</p>
         </div>
       )}

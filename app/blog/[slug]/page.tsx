@@ -1,18 +1,19 @@
+import { mdxComponents } from '@/components/blog/mdx-components';
+import { Badge } from '@/components/ui/badge';
+import { getAllPosts, getPostBySlug } from '@/lib/mdx';
+import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { getPostBySlug, getAllPosts } from '@/lib/mdx';
-import { MDXRemote } from 'next-mdx-remote/rsc';
-import { mdxComponents } from '@/components/blog/mdx-components';
+import { notFound } from 'next/navigation';
 
-export async function generateMetadata({
-  params,
-}: {
+type Props = {
   params: { slug: string };
-}): Promise<Metadata> {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = await getPostBySlug(params.slug);
 
@@ -92,7 +93,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function BlogPost({ params }: Props) {
   const post = await getPostBySlug(params.slug);
 
   if (!post) {

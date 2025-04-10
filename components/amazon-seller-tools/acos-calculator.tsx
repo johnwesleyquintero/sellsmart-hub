@@ -98,7 +98,9 @@ export default function AcosCalculator() {
         const adSpend = Number(item.adSpend);
         const sales = Number(item.sales);
         // Safely parse optional fields
-        const impressions = item.impressions ? Number(item.impressions) : undefined;
+        const impressions = item.impressions
+          ? Number(item.impressions)
+          : undefined;
         const clicks = item.clicks ? Number(item.clicks) : undefined;
 
         // Handle zero sales case explicitly for metrics calculation
@@ -107,7 +109,10 @@ export default function AcosCalculator() {
             `Campaign "${item.campaign}" has zero sales. ACoS will be infinite, ROAS will be 0.`,
           );
           // Calculate CTR/CPC if possible, even with zero sales
-          const ctr = clicks && impressions && impressions > 0 ? (clicks / impressions) * 100 : 0;
+          const ctr =
+            clicks && impressions && impressions > 0
+              ? (clicks / impressions) * 100
+              : 0;
           const cpc = clicks && clicks > 0 ? adSpend / clicks : 0;
           const conversionRate = 0; // Conversion rate is 0 if sales are 0
 
@@ -150,55 +155,58 @@ export default function AcosCalculator() {
   }, []);
 
   // Centralized file processing logic for react-dropzone
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0]; // Process only the first file
-    if (!file) return;
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0]; // Process only the first file
+      if (!file) return;
 
-    setIsLoading(true);
-    setError(null); // Clear previous errors
+      setIsLoading(true);
+      setError(null); // Clear previous errors
 
-    Papa.parse<CampaignData>(file, {
-      header: true,
-      dynamicTyping: true, // Automatically convert numbers
-      skipEmptyLines: true,
-      complete: (result) => {
-        setIsLoading(false); // Ensure loading stops
-        if (result.errors.length > 0) {
-          setError(
-            `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
+      Papa.parse<CampaignData>(file, {
+        header: true,
+        dynamicTyping: true, // Automatically convert numbers
+        skipEmptyLines: true,
+        complete: (result) => {
+          setIsLoading(false); // Ensure loading stops
+          if (result.errors.length > 0) {
+            setError(
+              `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
+            );
+            return;
+          }
+
+          // Validate required headers
+          const requiredHeaders = ['campaign', 'adSpend', 'sales'];
+          const actualHeaders = result.meta.fields || [];
+          const missingHeaders = requiredHeaders.filter(
+            (header) => !actualHeaders.includes(header),
           );
-          return;
-        }
 
-        // Validate required headers
-        const requiredHeaders = ['campaign', 'adSpend', 'sales'];
-        const actualHeaders = result.meta.fields || [];
-        const missingHeaders = requiredHeaders.filter(
-          (header) => !actualHeaders.includes(header),
-        );
+          if (missingHeaders.length > 0) {
+            setError(
+              `Missing required columns in CSV: ${missingHeaders.join(', ')}. Please include campaign, adSpend, and sales.`,
+            );
+            return;
+          }
 
-        if (missingHeaders.length > 0) {
-          setError(
-            `Missing required columns in CSV: ${missingHeaders.join(', ')}. Please include campaign, adSpend, and sales.`,
-          );
-          return;
-        }
-
-        try {
-          const processedData = processParsedCsvData(result.data);
-          setCampaigns(processedData);
-        } catch (err) {
-          setError(
-            `Failed to process CSV data: ${err instanceof Error ? err.message : String(err)}.`,
-          );
-        }
-      },
-      error: (error) => {
-        setIsLoading(false); // Ensure loading stops
-        setError(`Error parsing CSV file: ${error.message}`);
-      },
-    });
-  }, [processParsedCsvData]); // Add dependency
+          try {
+            const processedData = processParsedCsvData(result.data);
+            setCampaigns(processedData);
+          } catch (err) {
+            setError(
+              `Failed to process CSV data: ${err instanceof Error ? err.message : String(err)}.`,
+            );
+          }
+        },
+        error: (error) => {
+          setIsLoading(false); // Ensure loading stops
+          setError(`Error parsing CSV file: ${error.message}`);
+        },
+      });
+    },
+    [processParsedCsvData],
+  ); // Add dependency
 
   // Setup react-dropzone
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -215,10 +223,18 @@ export default function AcosCalculator() {
       // Determine specific error message
       if (!manualCampaign.campaign.trim()) {
         setError('Please enter a campaign name.');
-      } else if (isNaN(Number.parseFloat(manualCampaign.adSpend)) || Number.parseFloat(manualCampaign.adSpend) < 0) {
+      } else if (
+        isNaN(Number.parseFloat(manualCampaign.adSpend)) ||
+        Number.parseFloat(manualCampaign.adSpend) < 0
+      ) {
         setError('Ad Spend must be a valid non-negative number.');
-      } else if (isNaN(Number.parseFloat(manualCampaign.sales)) || Number.parseFloat(manualCampaign.sales) <= 0) {
-        setError('Sales amount must be a valid positive number (cannot be zero or negative).');
+      } else if (
+        isNaN(Number.parseFloat(manualCampaign.sales)) ||
+        Number.parseFloat(manualCampaign.sales) <= 0
+      ) {
+        setError(
+          'Sales amount must be a valid positive number (cannot be zero or negative).',
+        );
       } else {
         setError('Please ensure all fields are filled correctly.');
       }
@@ -241,7 +257,6 @@ export default function AcosCalculator() {
     setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
     // Reset the form
     setManualCampaign({ campaign: '', adSpend: '', sales: '' });
-
   }, [manualCampaign, isManualInputValid]); // Add dependencies
 
   const handleExport = useCallback(() => {
@@ -255,7 +270,10 @@ export default function AcosCalculator() {
       campaign: campaign.campaign,
       adSpend: campaign.adSpend.toFixed(2),
       sales: campaign.sales.toFixed(2),
-      acos: campaign.acos === Infinity ? 'Infinity' : campaign.acos?.toFixed(2) ?? '',
+      acos:
+        campaign.acos === Infinity
+          ? 'Infinity'
+          : (campaign.acos?.toFixed(2) ?? ''),
       roas: campaign.roas?.toFixed(2) ?? '',
       impressions: campaign.impressions ?? '',
       clicks: campaign.clicks ?? '',
@@ -276,7 +294,9 @@ export default function AcosCalculator() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // Clean up blob URL
     } catch (err) {
-      setError(`Failed to generate CSV: ${err instanceof Error ? err.message : String(err)}`);
+      setError(
+        `Failed to generate CSV: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }, [campaigns]); // Add dependency
 
@@ -288,17 +308,20 @@ export default function AcosCalculator() {
   }, []); // No dependencies needed
 
   // Handle manual input changes
-  const handleManualInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    // Allow only numbers and a single decimal for numeric fields
-    if (name === 'adSpend' || name === 'sales') {
-      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-        setManualCampaign(prev => ({ ...prev, [name]: value }));
+  const handleManualInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      // Allow only numbers and a single decimal for numeric fields
+      if (name === 'adSpend' || name === 'sales') {
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+          setManualCampaign((prev) => ({ ...prev, [name]: value }));
+        }
+      } else {
+        setManualCampaign((prev) => ({ ...prev, [name]: value }));
       }
-    } else {
-      setManualCampaign(prev => ({ ...prev, [name]: value }));
-    }
-  }, []);
+    },
+    [],
+  );
 
   return (
     <div className="space-y-6">
@@ -327,7 +350,9 @@ export default function AcosCalculator() {
 
       {/* Metric Selection Buttons */}
       <div className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="text-sm font-medium mr-2 self-center">View Metric:</span>
+        <span className="text-sm font-medium mr-2 self-center">
+          View Metric:
+        </span>
         {Object.entries(chartConfig).map(([key, config]) => (
           <Button
             key={key}
@@ -347,10 +372,15 @@ export default function AcosCalculator() {
           {/* Bar Chart */}
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-4 text-center">{chartConfig[selectedMetric].label} Distribution</h3>
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                {chartConfig[selectedMetric].label} Distribution
+              </h3>
               <ChartContainer config={chartConfig} className="h-[400px] w-full">
                 <ResponsiveContainer>
-                  <BarChart data={campaigns} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                  <BarChart
+                    data={campaigns}
+                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis
                       dataKey="campaign"
@@ -361,18 +391,38 @@ export default function AcosCalculator() {
                       interval={0} // Show all ticks
                     />
                     <YAxis
-                      label={{ value: chartConfig[selectedMetric].label, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
-                      tickFormatter={(value) => typeof value === 'number' ? value.toFixed(chartConfig[selectedMetric].label.includes('%') ? 1 : 0) : value}
+                      label={{
+                        value: chartConfig[selectedMetric].label,
+                        angle: -90,
+                        position: 'insideLeft',
+                        style: { textAnchor: 'middle' },
+                      }}
+                      tickFormatter={(value) =>
+                        typeof value === 'number'
+                          ? value.toFixed(
+                              chartConfig[selectedMetric].label.includes('%')
+                                ? 1
+                                : 0,
+                            )
+                          : value
+                      }
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
-                      formatter={(value: number | string, name: string, props) => {
+                      formatter={(
+                        value: number | string,
+                        name: string,
+                        props,
+                      ) => {
                         // Handle Infinity ACoS in tooltip
                         if (props.dataKey === 'acos' && value === Infinity) {
                           return ['Infinite', chartConfig.acos.label];
                         }
                         if (typeof value === 'number') {
-                          return [`${value.toFixed(2)}${chartConfig[selectedMetric].label.includes('%') ? '%' : ''}`, chartConfig[selectedMetric].label];
+                          return [
+                            `${value.toFixed(2)}${chartConfig[selectedMetric].label.includes('%') ? '%' : ''}`,
+                            chartConfig[selectedMetric].label,
+                          ];
                         }
                         return [value, chartConfig[selectedMetric].label];
                       }}
@@ -393,10 +443,22 @@ export default function AcosCalculator() {
           {/* Line Chart */}
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-4 text-center">ACoS vs ROAS Trend</h3>
-              <ChartContainer config={{ /* Config specific to this chart if needed */ }} className="h-[400px] w-full">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                ACoS vs ROAS Trend
+              </h3>
+              <ChartContainer
+                config={
+                  {
+                    /* Config specific to this chart if needed */
+                  }
+                }
+                className="h-[400px] w-full"
+              >
                 <ResponsiveContainer>
-                  <LineChart data={campaigns} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                  <LineChart
+                    data={campaigns}
+                    margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis
                       dataKey="campaign"
@@ -411,8 +473,18 @@ export default function AcosCalculator() {
                       yAxisId="left"
                       orientation="left"
                       stroke={chartConfig.acos.theme.light}
-                      label={{ value: 'ACoS (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: chartConfig.acos.theme.light } }}
-                      tickFormatter={(value) => typeof value === 'number' ? value.toFixed(0) : value}
+                      label={{
+                        value: 'ACoS (%)',
+                        angle: -90,
+                        position: 'insideLeft',
+                        style: {
+                          textAnchor: 'middle',
+                          fill: chartConfig.acos.theme.light,
+                        },
+                      }}
+                      tickFormatter={(value) =>
+                        typeof value === 'number' ? value.toFixed(0) : value
+                      }
                       domain={[0, 'auto']} // Start ACoS from 0
                     />
                     {/* Right Y-Axis for ROAS */}
@@ -420,8 +492,18 @@ export default function AcosCalculator() {
                       yAxisId="right"
                       orientation="right"
                       stroke={chartConfig.roas.theme.light}
-                      label={{ value: 'ROAS', angle: -90, position: 'insideRight', style: { textAnchor: 'middle', fill: chartConfig.roas.theme.light } }}
-                      tickFormatter={(value) => typeof value === 'number' ? value.toFixed(1) : value}
+                      label={{
+                        value: 'ROAS',
+                        angle: -90,
+                        position: 'insideRight',
+                        style: {
+                          textAnchor: 'middle',
+                          fill: chartConfig.roas.theme.light,
+                        },
+                      }}
+                      tickFormatter={(value) =>
+                        typeof value === 'number' ? value.toFixed(1) : value
+                      }
                       domain={[0, 'auto']} // Start ROAS from 0
                     />
                     <Tooltip
@@ -431,7 +513,10 @@ export default function AcosCalculator() {
                           return ['Infinite', name];
                         }
                         if (typeof value === 'number') {
-                          return [`${value.toFixed(2)}${name.includes('ACoS') ? '%' : 'x'}`, name];
+                          return [
+                            `${value.toFixed(2)}${name.includes('ACoS') ? '%' : 'x'}`,
+                            name,
+                          ];
                         }
                         return [value, name];
                       }}
@@ -473,10 +558,23 @@ export default function AcosCalculator() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Required columns: <code>campaign</code>, <code>adSpend</code>, <code>sales</code></li>
-            <li>Optional columns: <code>impressions</code>, <code>clicks</code></li>
-            <li>Ensure <code>adSpend</code> and <code>sales</code> are numeric (>= 0).</li>
-            <li>Example Row: <code>My Campaign,150.50,750.25,10000,200</code></li>
+            <li>
+              Required columns: <code>campaign</code>, <code>adSpend</code>,{' '}
+              <code>sales</code>
+            </li>
+            <li>
+              Optional columns: <code>impressions</code>, <code>clicks</code>
+            </li>
+            <li>
+              Ensure <code>adSpend</code> and <code>sales</code> are numeric
+              (&gt;= 0).
+            </li>
+            <li>
+              Example Row:{' '}
+              <code>
+                My Campaign&comma;150.50&comma;750.25&comma;10000&comma;200
+              </code>
+            </li>
           </ul>
         </div>
       </div>
@@ -504,7 +602,9 @@ export default function AcosCalculator() {
                 <input {...getInputProps()} ref={fileInputRef} />
                 <FileText className="mb-2 h-8 w-8 text-primary/60" />
                 <span className="text-sm font-medium">
-                  {isDragActive ? 'Drop CSV file here...' : 'Click or drag CSV file here'}
+                  {isDragActive
+                    ? 'Drop CSV file here...'
+                    : 'Click or drag CSV file here'}
                 </span>
                 <span className="text-xs text-muted-foreground mt-1">
                   (Requires: campaign, adSpend, sales)
@@ -524,48 +624,60 @@ export default function AcosCalculator() {
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-medium mb-4">Manual Calculator</h3>
-            <form onSubmit={(e) => { e.preventDefault(); handleManualCalculate(); }} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleManualCalculate();
+              }}
+              className="space-y-4"
+            >
               <div>
-                <Label htmlFor="manual-campaign" className="text-sm font-medium">Campaign Name</Label>
+                <Label
+                  htmlFor="manual-campaign"
+                  className="text-sm font-medium"
+                >
+                  Campaign Name
+                </Label>
                 <Input
                   id="manual-campaign"
-                  name="campaign" // Match state key
                   value={manualCampaign.campaign}
                   onChange={handleManualInputChange}
                   placeholder="Enter campaign name"
                   disabled={isLoading}
-                  required // Basic HTML validation
+                  required
                 />
               </div>
               <div>
-                <Label htmlFor="manual-adSpend" className="text-sm font-medium">Ad Spend ($)</Label>
+                <Label htmlFor="manual-adSpend" className="text-sm font-medium">
+                  Ad Spend ($)
+                </Label>
                 <Input
                   id="manual-adSpend"
-                  name="adSpend" // Match state key
-                  type="text" // Use text to allow better control over input format
-                  inputMode="decimal" // Hint for mobile keyboards
+                  type="text"
+                  inputMode="decimal"
                   value={manualCampaign.adSpend}
                   onChange={handleManualInputChange}
                   placeholder="e.g., 150.50"
                   disabled={isLoading}
                   required
-                  min="0" // HTML validation
-                  step="0.01" // HTML validation
+                  min="0"
+                  step="0.01"
                 />
               </div>
               <div>
-                <Label htmlFor="manual-sales" className="text-sm font-medium">Sales ($)</Label>
+                <Label htmlFor="manual-sales" className="text-sm font-medium">
+                  Sales ($)
+                </Label>
                 <Input
                   id="manual-sales"
-                  name="sales" // Match state key
-                  type="text" // Use text for better control
+                  type="text"
                   inputMode="decimal"
                   value={manualCampaign.sales}
                   onChange={handleManualInputChange}
                   placeholder="e.g., 750.25"
                   disabled={isLoading}
                   required
-                  min="0.01" // HTML validation (must be > 0 for ACoS)
+                  min="0.01"
                   step="0.01"
                 />
               </div>
@@ -586,8 +698,14 @@ export default function AcosCalculator() {
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span> {/* Allow error message to wrap */}
-          <Button variant="ghost" size="icon" onClick={() => setError(null)} className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0">
+          <span className="flex-grow break-words">{error}</span>{' '}
+          {/* Allow error message to wrap */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setError(null)}
+            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
+          >
             <X className="h-4 w-4" />
             <span className="sr-only">Dismiss error</span>
           </Button>
@@ -597,40 +715,65 @@ export default function AcosCalculator() {
       {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
-          <p className="text-sm text-muted-foreground">
-            Processing data...
-          </p>
+          <Progress className="h-2 w-1/2 mx-auto" />
+          <p className="text-sm text-muted-foreground">Processing data...</p>
         </div>
       )}
 
       {/* Results Table */}
       {campaigns.length > 0 && !isLoading && (
         <Card>
-          <CardContent className="p-0"> {/* Remove padding for full-width table */}
-            <h3 className="text-lg font-semibold p-4 border-b">Calculation Results ({campaigns.length} Campaigns)</h3>
+          <CardContent className="p-0">
+            {' '}
+            {/* Remove padding for full-width table */}
+            <h3 className="text-lg font-semibold p-4 border-b">
+              Calculation Results ({campaigns.length} Campaigns)
+            </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr className="border-b">
-                    <th className="px-4 py-3 text-left font-medium whitespace-nowrap">Campaign</th>
-                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">Ad Spend</th>
-                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">Sales</th>
-                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">ACoS</th>
-                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">ROAS</th>
-                    <th className="px-4 py-3 text-center font-medium whitespace-nowrap">Rating</th>
+                    <th className="px-4 py-3 text-left font-medium whitespace-nowrap">
+                      Campaign
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Ad Spend
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Sales
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      ACoS
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      ROAS
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium whitespace-nowrap">
+                      Rating
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {campaigns.map((campaign, index) => (
-                    <tr key={`${campaign.campaign}-${index}`} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                      <td className="px-4 py-3 font-medium">{campaign.campaign}</td>
-                      <td className="px-4 py-3 text-right">${campaign.adSpend.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right">${campaign.sales.toFixed(2)}</td>
+                    <tr
+                      key={`${campaign.campaign}-${index}`}
+                      className="border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium">
+                        {campaign.campaign}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        ${campaign.adSpend.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        ${campaign.sales.toFixed(2)}
+                      </td>
                       <td
                         className={`px-4 py-3 text-right font-medium ${getAcosColor(campaign.acos)}`}
                       >
-                        {campaign.acos === Infinity ? '∞' : campaign.acos?.toFixed(2) + '%' ?? 'N/A'}
+                        {campaign.acos === Infinity
+                          ? '∞'
+                          : (campaign.acos?.toFixed(2) + '%' ?? 'N/A')}
                       </td>
                       <td className="px-4 py-3 text-right font-medium">
                         {campaign.roas?.toFixed(2)}x
@@ -638,10 +781,15 @@ export default function AcosCalculator() {
                       <td className="px-4 py-3 text-center">
                         <Badge
                           variant={
-                            campaign.acos === Infinity ? 'destructive' :
-                            campaign.acos === undefined ? 'outline' :
-                            campaign.acos < 25 ? 'default' :
-                            campaign.acos < 35 ? 'secondary' : 'destructive'
+                            campaign.acos === Infinity
+                              ? 'destructive'
+                              : campaign.acos === undefined
+                                ? 'outline'
+                                : campaign.acos < 25
+                                  ? 'default'
+                                  : campaign.acos < 35
+                                    ? 'secondary'
+                                    : 'destructive'
                           }
                           className="whitespace-nowrap"
                         >
@@ -661,7 +809,9 @@ export default function AcosCalculator() {
       {campaigns.length > 0 && !isLoading && (
         <Card className="bg-muted/20">
           <CardContent className="p-4">
-            <h3 className="mb-2 text-sm font-medium">ACoS Interpretation Guide</h3>
+            <h3 className="mb-2 text-sm font-medium">
+              ACoS Interpretation Guide
+            </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               {acosRatingGuide.map((rating) => (
                 <div
@@ -671,7 +821,9 @@ export default function AcosCalculator() {
                   <div className={`text-xs font-semibold ${rating.color}`}>
                     {rating.label}
                   </div>
-                  <div className="text-xs text-muted-foreground">{rating.range}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {rating.range}
+                  </div>
                 </div>
               ))}
             </div>

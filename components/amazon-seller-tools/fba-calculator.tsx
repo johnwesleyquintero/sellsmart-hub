@@ -2,10 +2,11 @@
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button'; // Reusable Button component
+import { Card, CardContent } from '@/components/ui/card'; // Reusable Card components
 import { Input } from '@/components/ui/input'; // Reusable Input component
 import { Label } from '@/components/ui/label'; // Reusable Label component
+import { Progress } from '@/components/ui/progress'; // Reusable Progress component
 import {
   Table,
   TableBody,
@@ -14,10 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'; // Reusable Table components
-import { Card, CardContent } from '@/components/ui/card'; // Reusable Card components
-import { Progress } from '@/components/ui/progress'; // Reusable Progress component
-import { Upload, FileUp, AlertCircle, Download, Info } from 'lucide-react';
+import { AlertCircle, Download, FileUp, Info, Upload } from 'lucide-react';
 import Papa from 'papaparse';
+import { useRef, useState } from 'react';
 
 type ProductData = {
   product: string;
@@ -254,9 +254,9 @@ export default function FbaCalculator() {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={manualProduct.cost || ''}
+                  value={manualProduct.cost}
                   onChange={handleInputChange}
-                  placeholder="0.00"
+                  placeholder="Enter product cost"
                 />
               </div>
               <div className="grid gap-2">
@@ -267,9 +267,9 @@ export default function FbaCalculator() {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={manualProduct.price || ''}
+                  value={manualProduct.price}
                   onChange={handleInputChange}
-                  placeholder="0.00"
+                  placeholder="Enter selling price"
                 />
               </div>
               <div className="grid gap-2">
@@ -280,9 +280,9 @@ export default function FbaCalculator() {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={manualProduct.fees || ''}
+                  value={manualProduct.fees}
                   onChange={handleInputChange}
-                  placeholder="0.00"
+                  placeholder="Enter FBA fees"
                 />
               </div>
               <Button onClick={handleManualCalculation} className="w-full">
