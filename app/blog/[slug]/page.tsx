@@ -9,9 +9,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 type Props = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: { slug: string } & Promise<any>;
+  searchParams?: { [key: string]: string | string[] | undefined };
 };
+
+// Ensure compatibility with Next.js PageProps
+export type PageProps = Props;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {

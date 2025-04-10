@@ -1,0 +1,16 @@
+.git
+.github
+.husky
+.vscode
+.lighthouseci
+.wescore
+lighthouse-reports
+docs
+scripts
+*.log
+*.md
+!README.md
+.env.example
+.eslintrc.json
+.prettierrc.json
+.lintstagedrc.json
