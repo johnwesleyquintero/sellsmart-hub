@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 export const DEFAULT_COMMAND_TIMEOUT_MS = 300000;
 export const DEFAULT_COMMANDS_CONFIG = [
-  { id: 'format', name: 'Formatting (Prettier)', command: 'npm run format' },
-  { id: 'lint', name: 'Linting (ESLint)', command: 'npm run lint' },
+  { id: 'format', name: 'Formatting (Prettier)', command: 'bun run format' },
+  { id: 'lint', name: 'Linting (ESLint)', command: 'bun run lint' },
   { id: 'typecheck', name: 'Type Checking (TSC)', command: 'npx tsc --noEmit' },
-  { id: 'build', name: 'Build Project', command: 'npm run build' },
+  { id: 'build', name: 'Build Project', command: 'bun run build' },
 ];
 
 const CommandCheckSchema = z.object({
