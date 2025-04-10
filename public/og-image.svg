@@ -1,40 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ogTitle ogDesc">
+  <title id="ogTitle">John Wesley Quintero - Amazon Specialist</title>
+  <desc id="ogDesc">Open Graph image for John Wesley Quintero, showcasing his role as an Amazon Specialist with expertise in E-commerce and Data Analytics.</desc>
+
   <defs>
-    <linearGradient id="bg-gradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2563EB"/>
-      <stop offset="100%" stop-color="#bc52ee"/>
+    <!-- Updated Gradient using cover.svg colors -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14213D"/> <!-- Dark Blue from cover -->
+      <stop offset="100%" stop-color="#00C39A"/> <!-- Teal Accent from cover -->
     </linearGradient>
+
+    <!-- Slightly softer shadow -->
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/> <!-- Increased blur -->
+      <feOffset dx="0" dy="4" result="offsetblur"/> <!-- Adjusted offset -->
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.3"/>
+        <feFuncA type="linear" slope="0.25"/> <!-- Slightly lighter shadow -->
       </feComponentTransfer>
       <feMerge>
         <feMergeNode/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-  </defs>
-  
-  <!-- Background with gradient -->
-  <rect width="1200" height="630" fill="url(#bg-gradient)"/>
-  
-  <!-- Decorative circles -->
-  <circle cx="100" cy="100" r="160" fill="#60A5FA" opacity="0.1"/>
-  <circle cx="1100" cy="530" r="160" fill="#60A5FA" opacity="0.1"/>
-  
-  <!-- Main content card -->
-  <rect x="100" y="100" width="1000" height="430" rx="16" fill="white" filter="url(#shadow)"/>
-  
-  <!-- Content -->
-  <text x="600" y="280" font-family="Arial, sans-serif" font-size="56" font-weight="bold" text-anchor="middle" fill="#1E40AF">Wesley Quintero</text>
-  <text x="600" y="350" font-family="Arial, sans-serif" font-size="32" text-anchor="middle" fill="#64748B">Data Analytics Innovator</text>
-  
-  <!-- Decorative line -->
-  <line x1="400" y1="380" x2="800" y2="380" stroke="#E2E8F0" stroke-width="2"/>
-  
-  <!-- Additional text -->
-  <text x="600" y="440" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#64748B">Amazon &amp; E-commerce Specialist</text>
-</svg>
 
+    <!-- Styles -->
+    <style type="text/css"><![CDATA[
+      /* Optional: Import a font like Inter */
+      /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap'); */
+
+      .card-text {
+        font-family: 'Inter', 'Arial', sans-serif; /* Use Inter if available */
+        text-anchor: middle;
+      }
+    ]]></style>
+  </defs>
+
+  <!-- Background with updated gradient -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)"/>
+
+  <!-- More subtle decorative elements -->
+  <circle cx="80" cy="120" r="150" fill="#FFFFFF" opacity="0.05"/>
+  <circle cx="1150" cy="550" r="100" fill="#FFFFFF" opacity="0.05"/>
+  <circle cx="1000" cy="80" r="80" fill="#FFFFFF" opacity="0.04"/>
+   <circle cx="200" cy="500" r="60" fill="#FFFFFF" opacity="0.04"/>
+
+  <!-- Main content card with softer shadow and slightly more rounded corners -->
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="white" filter="url(#shadow)"/>
+
+  <!-- Content - Refined hierarchy, spacing, and colors -->
+  <text x="600" y="260" class="card-text" font-size="64" font-weight="700" fill="#14213D"> <!-- Dark Blue Name -->
+    John Wesley Quintero
+  </text>
+
+  <text x="600" y="340" class="card-text" font-size="48" font-weight="500" fill="#00C39A"> <!-- Teal Title -->
+    Amazon Specialist
+  </text>
+
+  <!-- Removed decorative line, using spacing instead -->
+
+  <text x="600" y="410" class="card-text" font-size="28" font-weight="400" fill="#64748B"> <!-- Grey secondary text -->
+    E-commerce &amp; Data Analytics Expertise
+  </text>
+
+</svg>

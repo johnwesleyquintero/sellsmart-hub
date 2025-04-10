@@ -1,5 +1,8 @@
 # Wesley Quintero - Professional Portfolio
 
+**[View Live Portfolio](https://wesleyquintero.vercel.app/)**
+
+
 A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Data-Driven Amazon & E-commerce Specialist.
 
 ![Portfolio Preview](public/portfolio-preview.svg)
@@ -76,13 +79,13 @@ The portfolio includes a fully-featured blog with MDX support:
 2. Install dependencies
 
    ```bash
-   npm install
+   bun install
    ```
 
 3. Start development server
 
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 4. Open http://localhost:3000 in your browser
@@ -123,8 +126,8 @@ cp .env.example .env
 
 ## Available Scripts
 
-- `npm run dev`: Starts development server
-- `npm run build`: Creates production build
+- `bun run dev`: Starts development server
+- `bun run build`: Creates production build
 - `npm start`: Runs production server
 - `npm run lint`: Runs ESLint
 - `npm run format`: Formats code with Prettier
