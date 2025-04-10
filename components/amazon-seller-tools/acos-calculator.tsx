@@ -109,9 +109,9 @@ export default function AcosCalculator() {
             clicks,
             acos: Infinity, // Represent infinite ACoS
             roas: 0,
-            ctr: clicks && impressions ? (clicks / impressions) * 100 : undefined,
-            cpc: clicks ? adSpend / clicks : undefined,
-            conversionRate: clicks ? (sales / clicks) * 100 : undefined, // Or based on orders if available
+            ctr: clicks && impressions ? (clicks / impressions) * 100 : 0,
+            cpc: clicks ? adSpend / clicks : 0,
+            conversionRate: clicks ? (sales / clicks) * 100 : 0, // Or based on orders if available
           };
         }
 
@@ -282,12 +282,11 @@ export default function AcosCalculator() {
           {isLoading ? 'Uploading...' : 'Upload CSV'}
         </Button>
         <input
-          type="file"
-          accept=".csv, text/csv" // Be more specific with accept types
-          onChange={handleFileUpload}
-          ref={fileInputRef}
-          className="hidden"
-          disabled={isLoading}
+          id="upload-csv"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
         />
         <SampleCsvButton
           dataType="acos"
@@ -521,7 +520,7 @@ export default function AcosCalculator() {
       {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
+          <Progress className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
           <p className="text-sm text-muted-foreground">
             Processing data...
           </p>
