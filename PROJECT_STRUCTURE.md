@@ -7,7 +7,7 @@
 
 ## 1. Overview
 
-This document provides a high-level overview of the project's directory structure and key file organization principles. It reflects the setup for a Next.js 14 application using the App Router, TypeScript, Tailwind CSS, and Bun.
+This document provides a high-level overview of the project's directory structure and key file organization principles. It reflects the setup for a Next.js 14 application using the App Router, TypeScript, Tailwind CSS, and npm.
 
 ---
 
@@ -86,7 +86,7 @@ portfolio/
 ├── .env # Local environment variables (Ignored by Git)
 ├── .env.example # Template for environment variables (Committed)
 ├── .gitignore # Specifies intentionally untracked files by Git
-├── bun.lockb # Bun lockfile (deterministic dependencies)
+├── npm.lockb # npm lockfile (deterministic dependencies)
 ├── next.config.mjs # Next.js configuration file
 ├── package.json # Project metadata, dependencies, and scripts
 ├── postcss.config.js # PostCSS configuration (often for Tailwind)
@@ -106,7 +106,7 @@ portfolio/
 
 - **Framework:** Next.js 14 (App Router) is used, leveraging Server Components by default. Client Components (`'use client'`) are used where interactivity or browser APIs are needed.
 - **Language:** TypeScript (Strict Mode) is enforced for type safety. Shared types are often located in `lib/`.
-- **Package Manager:** Bun is the primary package manager and runtime. Use `bun install`, `bun add`, `npm run`.
+- **Package Manager:** npm is the primary package manager and runtime. Use `npm install`, `npm add`, `npm run`.
 - **Styling:** Tailwind CSS is used for utility-first styling. Configuration is in `tailwind.config.ts`. `shadcn/ui` components form the base UI library, located in `components/ui/`. Dark mode is supported.
 - **Components:** Reusable components are organized into `components/ui` (primitives), `components/shared` (cross-feature), and feature-specific directories like `components/amazon-seller-tools`.
 - **Utilities:** Shared logic, hooks, types, and constants reside in the `lib/` directory.
@@ -149,7 +149,7 @@ Specified data/: Included blog/ for potential MDX files and sample-data/.
 Clarified public/: Added common subdirectories like images/, fonts/.
 Listed Core Config Files: Ensured all essential config files (next.config.mjs, tailwind.config.ts, etc.) are present.
 Included Project Docs: Added CHANGELOG.md, TODO.md, .rules.md, and PROJECT_STRUCTURE.md itself.
-Expanded "Key Implementation Details": Summarized the core technologies and conventions based on your other documents (Bun, App Router, shadcn, MDX, etc.). Added Naming Conventions.
+Expanded "Key Implementation Details": Summarized the core technologies and conventions based on your other documents (npm, App Router, shadcn, MDX, etc.). Added Naming Conventions.
 Improved "File Type Legend": Made it more conceptual and representative of the file types actually present.
 Versioning: Added a version number and last updated timestamp.
 This updated structure should provide a much clearer and more accurate picture of your project's organization.

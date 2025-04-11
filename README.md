@@ -78,7 +78,7 @@ The portfolio includes a fully-featured blog with MDX support:
 2. Install dependencies
 
    ```bash
-   bun install
+   npm install
    ```
 
 3. Start development server

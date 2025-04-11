@@ -23,7 +23,7 @@ The framework automates essential code quality checks within your project, ensur
 Before implementing the framework, ensure your development environment meets these requirements:
 
 - **Node.js:** Required to run the script and associated tools
-- **Package Manager:** npm, yarn, pnpm, or bun
+- **Package Manager:** npm, yarn, pnpm, or npm
 - **Project-Specific Tools:** Your project must have its own chosen tools installed and configured for:
   - Formatting (e.g., Prettier)
   - Linting (e.g., ESLint)
@@ -41,7 +41,7 @@ yarn add --dev chalk zod
 # or
 pnpm add --save-dev chalk zod
 # or
-bun add --dev chalk zod
+npm add --dev chalk zod
 ```
 
 2. Ensure your project's formatter, linter, type checker, and build tool are installed as development dependencies.
@@ -137,7 +137,7 @@ yarn cq
 # or
 pnpm cq
 # or
-bun cq
+npm cq
 ```
 
 ## CI Integration
@@ -151,7 +151,7 @@ on: [push, pull_request]
 
 jobs:
   quality-checks:
-    runs-on: ubuntu-latest
+    runs-on: unpmtu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Node.js
