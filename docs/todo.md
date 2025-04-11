@@ -1,4 +1,5 @@
 # Project Roadmap Creation - React Component with TypeScript and Zod
+
 This guide will walk you through the process of creating a React component using TypeScript and Zod to display your roadmap data from a todo.json file.
 
 ---
@@ -16,6 +17,7 @@ npm install zod
 # or
 yarn add zod
 ```
+
 ### 2. Define the Zod Schema (src/schemas/roadmapSchema.ts):
 
 This schema will define the expected structure of your todo.json data and provide type inference.
@@ -157,7 +159,7 @@ Place this file in your project's public directory so it can be fetched easily. 
     "category": "UI",
     "phase": "Phase 2"
   },
-    {
+  {
     "id": 16,
     "description": "Enhance error handling and user feedback",
     "status": "⏳ Pending",
@@ -362,7 +364,6 @@ Create this CSS file in the same directory as the component for basic table styl
   padding: 15px;
 }
 
-
 .roadmap-legends {
   margin-bottom: 20px;
   font-size: 0.9em;
@@ -426,13 +427,13 @@ Create this CSS file in the same directory as the component for basic table styl
 }
 
 .status-done {
- color: #5cb85c; /* Green */
+  color: #5cb85c; /* Green */
 }
 .status-progress {
- color: #5bc0de; /* Blue */
+  color: #5bc0de; /* Blue */
 }
 .status-pending {
- color: #777; /* Gray */
+  color: #777; /* Gray */
 }
 
 .roadmap-timestamp {
@@ -442,6 +443,7 @@ Create this CSS file in the same directory as the component for basic table styl
   margin-top: 20px;
 }
 ```
+
 ### 6. Use the Component:
 
 Import and use the RoadmapDisplay component in your application (e.g., in App.tsx or another page component).

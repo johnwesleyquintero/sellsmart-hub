@@ -2,14 +2,14 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "bun@1.0.34",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit",
+    "format": "npx prettier --write .",
+    "typecheck": "npx tsc --noEmit",
     "cq": "node .wescore/main.js",
     "prepare": "husky install"
   },

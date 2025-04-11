@@ -31,11 +31,13 @@ This document outlines the development roadmap for the Portfolio project. It tra
 ## Development Roadmap by Category
 
 ### Setup
-| ID  | Description                          | Status | Priority | Phase   |
-| --- | ------------------------------------ | ------ | -------- | ------- |
-| 1   | Project structure & base config      | ✅ Done | Critical | Phase 1 |
+
+| ID  | Description                     | Status  | Priority | Phase   |
+| --- | ------------------------------- | ------- | -------- | ------- |
+| 1   | Project structure & base config | ✅ Done | Critical | Phase 1 |
 
 ### UI (User Interface)
+
 | ID  | Description                                                | Status     | Priority | Phase   |
 | --- | ---------------------------------------------------------- | ---------- | -------- | ------- |
 | 2   | Basic component library setup                              | ✅ Done    | Critical | Phase 1 |
@@ -49,58 +51,67 @@ This document outlines the development roadmap for the Portfolio project. It tra
 | 29  | Add robust data export functionality for seller tools      | ⏳ Pending | High     | Phase 2 |
 
 ### Core
-| ID  | Description                         | Status     | Priority | Phase   |
-| --- | ----------------------------------- | ---------- | -------- | ------- |
-| 3   | Next.js app router implementation | ✅ Done    | Critical | Phase 1 |
+
+| ID  | Description                              | Status     | Priority | Phase   |
+| --- | ---------------------------------------- | ---------- | -------- | ------- |
+| 3   | Next.js app router implementation        | ✅ Done    | Critical | Phase 1 |
 | 9   | Implement authentication & authorization | ⏳ Pending | Critical | Phase 2 |
 
 ### Amazon Tools
-| ID  | Description                                           | Status     | Priority | Phase   |
-| --- | ----------------------------------------------------- | ---------- | -------- | ------- |
-| 4   | Complete ACOS Calculator implementation               | ✅ Done    | Critical | Phase 1 |
-| 5   | Implement PPC Campaign Auditor                        | ⏳ Pending | High     | Phase 2 |
-| 6   | Enhance Keyword Analyzer with trend data              | ⏳ Pending | High     | Phase 2 |
-| 18  | Add bulk processing for keyword analysis              | ⏳ Pending | Medium   | Phase 3 |
-| 24  | Improve calculation algorithms for keyword analysis   | ⏳ Pending | Critical | Phase 2 |
-| 25  | Add validation for input data in seller tools         | ⏳ Pending | Critical | Phase 3 |
-| 31  | Add support for multiple languages in seller tools    | ⏳ Pending | Critical | Backlog |
-| 32  | Add support for multiple currencies in seller tools   | ⏳ Pending | Critical | Backlog |
+
+| ID  | Description                                         | Status     | Priority | Phase   |
+| --- | --------------------------------------------------- | ---------- | -------- | ------- |
+| 4   | Complete ACOS Calculator implementation             | ✅ Done    | Critical | Phase 1 |
+| 5   | Implement PPC Campaign Auditor                      | ⏳ Pending | High     | Phase 2 |
+| 6   | Enhance Keyword Analyzer with trend data            | ⏳ Pending | High     | Phase 2 |
+| 18  | Add bulk processing for keyword analysis            | ⏳ Pending | Medium   | Phase 3 |
+| 24  | Improve calculation algorithms for keyword analysis | ⏳ Pending | Critical | Phase 2 |
+| 25  | Add validation for input data in seller tools       | ⏳ Pending | Critical | Phase 3 |
+| 31  | Add support for multiple languages in seller tools  | ⏳ Pending | Critical | Backlog |
+| 32  | Add support for multiple currencies in seller tools | ⏳ Pending | Critical | Backlog |
 
 ### Documentation
+
 | ID  | Description                                | Status     | Priority | Phase   |
 | --- | ------------------------------------------ | ---------- | -------- | ------- |
 | 11  | Create API documentation for all endpoints | ⏳ Pending | High     | Phase 2 |
 | 19  | Add user guides for Amazon seller tools    | ⏳ Pending | High     | Phase 2 |
 
 ### Analytics
+
 | ID  | Description                        | Status     | Priority | Phase   |
 | --- | ---------------------------------- | ---------- | -------- | ------- |
 | 13  | Implement usage tracking for tools | ⏳ Pending | Medium   | Phase 3 |
 
 ### Monitoring
+
 | ID  | Description                            | Status     | Priority | Phase   |
 | --- | -------------------------------------- | ---------- | -------- | ------- |
 | 20  | Implement error tracking and reporting | ⏳ Pending | High     | Phase 3 |
 
 ### Code Quality
+
 | ID  | Description                                             | Status     | Priority | Phase   |
 | --- | ------------------------------------------------------- | ---------- | -------- | ------- |
 | 27  | Remove unused utility functions from lib directory      | ⏳ Pending | Critical | Phase 2 |
 | 30  | Improve readability and maintainability of seller tools | ⏳ Pending | Critical | Phase 2 |
 
 ### Performance
+
 | ID  | Description                          | Status     | Priority | Phase   |
 | --- | ------------------------------------ | ---------- | -------- | ------- |
 | 10  | Optimize image loading and rendering | ⏳ Pending | Critical | Phase 2 |
 | 15  | Add Redis caching for API responses  | ⏳ Pending | High     | Phase 3 |
 
 ### Security
+
 | ID  | Description                               | Status     | Priority | Phase   |
 | --- | ----------------------------------------- | ---------- | -------- | ------- |
 | 14  | Implement API key rotation and management | ✅ Done    | Critical | Phase 1 |
 | 23  | Add rate limiting for API endpoints       | ⏳ Pending | Critical | Phase 3 |
 
 ### Testing
+
 | ID  | Description                            | Status     | Priority | Phase   |
 | --- | -------------------------------------- | ---------- | -------- | ------- |
 | 8   | Add unit tests for Amazon seller tools | ⏳ Pending | High     | Phase 2 |
@@ -110,8 +121,8 @@ This document outlines the development roadmap for the Portfolio project. It tra
 
 ## Completed Tasks Summary
 
-| ID  | Category     | Description                               | Status | Priority | Phase   |
-| --- | ------------ | ----------------------------------------- | ------ | -------- | ------- |
+| ID  | Category     | Description                               | Status  | Priority | Phase   |
+| --- | ------------ | ----------------------------------------- | ------- | -------- | ------- |
 | 1   | Setup        | Project structure and base configuration  | ✅ Done | Critical | Phase 1 |
 | 2   | UI           | Basic component library setup             | ✅ Done | Critical | Phase 1 |
 | 3   | Core         | Next.js app router implementation         | ✅ Done | Critical | Phase 1 |

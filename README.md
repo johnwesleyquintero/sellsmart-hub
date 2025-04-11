@@ -84,7 +84,7 @@ The portfolio includes a fully-featured blog with MDX support:
 3. Start development server
 
    ```bash
-   bun run dev
+   npm run dev
    ```
 
 4. Open http://localhost:3000 in your browser
@@ -125,8 +125,8 @@ cp .env.example .env
 
 ## Available Scripts
 
-- `bun run dev`: Starts development server
-- `bun run build`: Creates production build
+- `npm run dev`: Starts development server
+- `npm run build`: Creates production build
 - `npm start`: Runs production server
 - `npm run lint`: Runs ESLint
 - `npm run format`: Formats code with Prettier
