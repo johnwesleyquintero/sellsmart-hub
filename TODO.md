@@ -1,276 +1,124 @@
-# Project Tasks Status
+# Portfolio - Development Roadmap
 
 ---
 
 ## Overview
 
-This document provides an overview of the current status of the project tasks. It outlines the tasks that have been completed, new tasks that are pending, and ongoing tasks that are currently in progress.
+This document outlines the development roadmap for the Portfolio project. It tracks tasks across different phases, categories, and priorities, providing a clear view of completed, ongoing, and planned work.
 
 ## Status Legend
 
-- ✅ **Done**: Task completed
-- 🔄 **In Progress**: Currently being worked on
-- ⏳ **Pending**: Not yet started
+- ✅ **Done**: Task completed and verified.
+- 🔄 **In Progress**: Actively being worked on.
+- ⏳ **Pending**: Planned but not yet started.
 
 ## Priority Levels
 
-- **Critical**: Must be addressed immediately
-- **High**: Important for next release
-- **Medium**: Should be completed when possible
-- **Low**: Nice to have, not urgent
+- **Critical**: Must be addressed immediately; blocks progress or critical functionality.
+- **High**: Important for the current or next development cycle/release.
+- **Medium**: Important but can be scheduled flexibly.
+- **Low**: Desirable improvement, but not essential.
 
-## Notes
+## Development Phases
 
-- Tasks are listed in order of priority.
-- Tasks are updated as they are completed or moved to a different status.
-
-## Tasks by Status
-
-- **Completed**: Tasks that have been completed and closed.
-- **New**: Tasks that have been created but not yet started.
-- **In Progress**: Tasks that are currently being worked on.
-- **Pending**: Tasks that are not yet started but are planned for future work.
-
-## Tasks by Priority
-
-- **Critical**: Tasks that must be addressed immediately.
-- **High**: Tasks that are important for the next release.
-- **Medium**: Tasks that should be completed when possible.
-- **Low**: Tasks that are nice to have, but not urgent.
-
-## Tasks by Category
-
-- **Setup**: Tasks related to project setup and configuration.
-- **UI**: Tasks related to user interface design and implementation.
-- **Core**: Tasks related to core functionality and architecture.
-- **Amazon Tools**: Tasks related to specific Amazon seller tools.
-- **Documentation**: Tasks related to project documentation.
-- **Analytics**: Tasks related to analytics and tracking.
-- **Monitoring**: Tasks related to monitoring and error handling.
-- **Code Quality**: Tasks related to code quality and maintainability.
-- **Performance**: Tasks related to performance optimization.
-- **Security**: Tasks related to security and privacy.
-- **Testing**: Tasks related to testing and QA.
+- **Phase 1: Foundation & Core Tools:** Initial setup, critical UI/Core features, and essential Amazon tools.
+- **Phase 2: Feature Expansion & Refinement:** Implementing remaining tools, enhancing UI/UX, adding documentation, and initial optimizations.
+- **Phase 3: Optimization & Advanced Features:** Focus on performance, security hardening, advanced tool features, analytics, and monitoring.
+- **Backlog:** Tasks identified but not yet assigned to a specific phase.
 
 ---
 
-## Completed Tasks
-
-| ID  | Category     | Description                               | Status  | Priority |
-| --- | ------------ | ----------------------------------------- | ------- | -------- |
-| 1   | Setup        | Project structure and base configuration  | ✅ Done | Critical |
-| 2   | UI           | Basic component library setup             | ✅ Done | Critical |
-| 3   | Core         | Next.js app router implementation         | ✅ Done | Critical |
-| 4   | Amazon Tools | Complete ACOS Calculator implementation   | ✅ Done | Critical |
-| 7   | UI           | Implement responsive design for all tools | ✅ Done | Critical |
-| 14  | Security     | Implement API key rotation and management | ✅ Done | Critical |
-
-## New Tasks
-
-### Critical Priority
-
-#### Security
-
-| ID  | Description                                | Status     |
-| --- | ------------------------------------------ | ---------- |
-| 9   | Implement authentication and authorization | ⏳ Pending |
-| 23  | Add rate limiting for API endpoints        | ⏳ Pending |
-
-#### Performance
-
-| ID  | Description                          | Status     |
-| --- | ------------------------------------ | ---------- |
-| 10  | Optimize image loading and rendering | ⏳ Pending |
-
-#### Amazon Tools
-
-| ID  | Description                                         | Status     |
-| --- | --------------------------------------------------- | ---------- |
-| 24  | Improve calculation algorithms for keyword analysis | ⏳ Pending |
-| 25  | Add validation for input data in seller tools       | ⏳ Pending |
-| 31  | Add support for multiple languages in seller tools  | ⏳ Pending |
-| 32  | Add support for multiple currencies in seller tools | ⏳ Pending |
-
-#### UI
-
-| ID  | Description                                                | Status     |
-| --- | ---------------------------------------------------------- | ---------- |
-| 26  | Consolidate duplicate UI components in amazon-seller-tools | ⏳ Pending |
-
-#### Code Quality
-
-| ID  | Description                                             | Status     |
-| --- | ------------------------------------------------------- | ---------- |
-| 27  | Remove unused utility functions from lib directory      | ⏳ Pending |
-| 30  | Improve readability and maintainability of seller tools | ⏳ Pending |
-
-### High Priority
-
-#### Amazon Tools
-
-| ID  | Description                                           | Status     |
-| --- | ----------------------------------------------------- | ---------- |
-| 5   | Implement PPC Campaign Auditor                        | ⏳ Pending |
-| 6   | Enhance Keyword Analyzer with trend data              | ⏳ Pending |
-| 18  | Add bulk processing for keyword analysis              | ⏳ Pending |
-| 29  | Add robust data export functionality for seller tools | ⏳ Pending |
-
-#### Documentation
-
-| ID  | Description                                | Status     |
-| --- | ------------------------------------------ | ---------- |
-| 11  | Create API documentation for all endpoints | ⏳ Pending |
-| 19  | Add user guides for Amazon seller tools    | ⏳ Pending |
-
-#### UI
-
-| ID  | Description                             | Status     |
-| --- | --------------------------------------- | ---------- |
-| 21  | Add data export functionality for tools | ⏳ Pending |
-
-### Medium Priority
-
-#### UI
-
-| ID  | Description                         | Status     |
-| --- | ----------------------------------- | ---------- |
-| 12  | Add dark mode support               | ⏳ Pending |
-| 22  | Implement progressive image loading | ⏳ Pending |
-
-#### Analytics
-
-| ID  | Description                        | Status     |
-| --- | ---------------------------------- | ---------- |
-| 13  | Implement usage tracking for tools | ⏳ Pending |
-
-#### Monitoring
-
-| ID  | Description                            | Status     |
-| --- | -------------------------------------- | ---------- |
-| 20  | Implement error tracking and reporting | ⏳ Pending |
-
-## Ongoing Tasks
-
-### Core (High Priority)
-
-| ID  | Description                                | Status     |
-| --- | ------------------------------------------ | ---------- |
-| 9   | Implement authentication and authorization | ⏳ Pending |
-| 3   | Next.js app router implementation          | ⏳ Pending |
-
-### Security (High Priority)
-
-| ID  | Description                               | Status     |
-| --- | ----------------------------------------- | ---------- |
-| 14  | Implement API key rotation and management | ⏳ Pending |
-
-### UI (High Priority)
-
-| ID  | Description                               | Status     |
-| --- | ----------------------------------------- | ---------- |
-| 1   | Project structure and base configuration  | ⏳ Pending |
-| 2   | Basic component library setup             | ⏳ Pending |
-| 7   | Implement responsive design for all tools | ⏳ Pending |
-
-### Amazon Tools (High Priority)
-
-| ID  | Description                                         | Status     |
-| --- | --------------------------------------------------- | ---------- |
-| 5   | Implement PPC Campaign Auditor                      | ⏳ Pending |
-| 6   | Enhance Keyword Analyzer with trend data            | ⏳ Pending |
-| 24  | Improve calculation algorithms for keyword analysis | ⏳ Pending |
-
-### UI (High Priority)
-
-| ID  | Description                                            | Status     |
-| --- | ------------------------------------------------------ | ---------- |
-| 16  | Enhance error handling and user feedback               | ⏳ Pending |
-| 28  | Implement enhanced data visualization for seller tools | ⏳ Pending |
-
-### Testing (High Priority)
-
-| ID  | Description                            | Status     |
-| --- | -------------------------------------- | ---------- |
-| 8   | Add unit tests for Amazon seller tools | ⏳ Pending |
-| 17  | Add E2E tests for critical user flows  | ⏳ Pending |
-
-### Performance (High Priority)
-
-| ID  | Description                         | Status     |
-| --- | ----------------------------------- | ---------- |
-| 15  | Add Redis caching for API responses | ⏳ Pending |
-
-### Security (High Priority)
-
-| ID  | Description                         | Status     |
-| --- | ----------------------------------- | ---------- |
-| 23  | Add rate limiting for API endpoints | ⏳ Pending |
-
-### Refactoring (High Priority)
-
-| ID  | Description                                                | Status     |
-| --- | ---------------------------------------------------------- | ---------- |
-| 26  | Consolidate duplicate UI components in amazon-seller-tools | ⏳ Pending |
-
-### Code Quality (High Priority)
-
-| ID  | Description                                             | Status     |
-| --- | ------------------------------------------------------- | ---------- |
-| 30  | Improve readability and maintainability of seller tools | ⏳ Pending |
-
-### Amazon Tools (Medium Priority)
-
-| ID  | Description                                   | Status     |
-| --- | --------------------------------------------- | ---------- |
-| 18  | Add bulk processing for keyword analysis      | ⏳ Pending |
-| 25  | Add validation for input data in seller tools | ⏳ Pending |
-
-### Performance (Medium Priority)
-
-| ID  | Description                          | Status     |
-| --- | ------------------------------------ | ---------- |
-| 10  | Optimize image loading and rendering | ⏳ Pending |
-
-### Documentation (Medium Priority)
-
-| ID  | Description                                | Status     |
-| --- | ------------------------------------------ | ---------- |
-| 11  | Create API documentation for all endpoints | ⏳ Pending |
-| 19  | Add user guides for Amazon seller tools    | ⏳ Pending |
-
-### Analytics (Medium Priority)
-
-| ID  | Description                        | Status     |
-| --- | ---------------------------------- | ---------- |
-| 13  | Implement usage tracking for tools | ⏳ Pending |
-
-### UI (Medium Priority)
-
-| ID  | Description                                           | Status     |
-| --- | ----------------------------------------------------- | ---------- |
-| 21  | Add data export functionality for tools               | ⏳ Pending |
-| 29  | Add robust data export functionality for seller tools | ⏳ Pending |
-
-### Monitoring (High Priority)
-
-| ID  | Description                            | Status     |
-| --- | -------------------------------------- | ---------- |
-| 20  | Implement error tracking and reporting | ⏳ Pending |
-
-### Refactoring (Medium Priority)
-
-| ID  | Description                                        | Status     |
-| --- | -------------------------------------------------- | ---------- |
-| 27  | Remove unused utility functions from lib directory | ⏳ Pending |
-
-### UI (Low Priority)
-
-| ID  | Description           | Status     |
-| --- | --------------------- | ---------- |
-| 12  | Add dark mode support | ⏳ Pending |
-
-### Performance (Low Priority)
-
-| ID  | Description                         | Status     |
-| --- | ----------------------------------- | ---------- |
-| 22  | Implement progressive image loading | ⏳ Pending |
+## Development Roadmap by Category
+
+### Setup
+| ID  | Description                          | Status | Priority | Phase   |
+| --- | ------------------------------------ | ------ | -------- | ------- |
+| 1   | Project structure & base config      | ✅ Done | Critical | Phase 1 |
+
+### UI (User Interface)
+| ID  | Description                                                | Status     | Priority | Phase   |
+| --- | ---------------------------------------------------------- | ---------- | -------- | ------- |
+| 2   | Basic component library setup                              | ✅ Done    | Critical | Phase 1 |
+| 7   | Implement responsive design for all tools                  | ✅ Done    | Critical | Phase 1 |
+| 12  | Add dark mode support                                      | ⏳ Pending | Medium   | Phase 2 |
+| 16  | Enhance error handling and user feedback                   | ⏳ Pending | High     | Phase 2 |
+| 21  | Add data export functionality for tools                    | ⏳ Pending | High     | Phase 2 |
+| 22  | Implement progressive image loading                        | ⏳ Pending | Low      | Phase 3 |
+| 26  | Consolidate duplicate UI components in amazon-seller-tools | ⏳ Pending | Critical | Phase 2 |
+| 28  | Implement enhanced data visualization for seller tools     | ⏳ Pending | High     | Phase 2 |
+| 29  | Add robust data export functionality for seller tools      | ⏳ Pending | High     | Phase 2 |
+
+### Core
+| ID  | Description                         | Status     | Priority | Phase   |
+| --- | ----------------------------------- | ---------- | -------- | ------- |
+| 3   | Next.js app router implementation | ✅ Done    | Critical | Phase 1 |
+| 9   | Implement authentication & authorization | ⏳ Pending | Critical | Phase 2 |
+
+### Amazon Tools
+| ID  | Description                                           | Status     | Priority | Phase   |
+| --- | ----------------------------------------------------- | ---------- | -------- | ------- |
+| 4   | Complete ACOS Calculator implementation               | ✅ Done    | Critical | Phase 1 |
+| 5   | Implement PPC Campaign Auditor                        | ⏳ Pending | High     | Phase 2 |
+| 6   | Enhance Keyword Analyzer with trend data              | ⏳ Pending | High     | Phase 2 |
+| 18  | Add bulk processing for keyword analysis              | ⏳ Pending | Medium   | Phase 3 |
+| 24  | Improve calculation algorithms for keyword analysis   | ⏳ Pending | Critical | Phase 2 |
+| 25  | Add validation for input data in seller tools         | ⏳ Pending | Critical | Phase 3 |
+| 31  | Add support for multiple languages in seller tools    | ⏳ Pending | Critical | Backlog |
+| 32  | Add support for multiple currencies in seller tools   | ⏳ Pending | Critical | Backlog |
+
+### Documentation
+| ID  | Description                                | Status     | Priority | Phase   |
+| --- | ------------------------------------------ | ---------- | -------- | ------- |
+| 11  | Create API documentation for all endpoints | ⏳ Pending | High     | Phase 2 |
+| 19  | Add user guides for Amazon seller tools    | ⏳ Pending | High     | Phase 2 |
+
+### Analytics
+| ID  | Description                        | Status     | Priority | Phase   |
+| --- | ---------------------------------- | ---------- | -------- | ------- |
+| 13  | Implement usage tracking for tools | ⏳ Pending | Medium   | Phase 3 |
+
+### Monitoring
+| ID  | Description                            | Status     | Priority | Phase   |
+| --- | -------------------------------------- | ---------- | -------- | ------- |
+| 20  | Implement error tracking and reporting | ⏳ Pending | High     | Phase 3 |
+
+### Code Quality
+| ID  | Description                                             | Status     | Priority | Phase   |
+| --- | ------------------------------------------------------- | ---------- | -------- | ------- |
+| 27  | Remove unused utility functions from lib directory      | ⏳ Pending | Critical | Phase 2 |
+| 30  | Improve readability and maintainability of seller tools | ⏳ Pending | Critical | Phase 2 |
+
+### Performance
+| ID  | Description                          | Status     | Priority | Phase   |
+| --- | ------------------------------------ | ---------- | -------- | ------- |
+| 10  | Optimize image loading and rendering | ⏳ Pending | Critical | Phase 2 |
+| 15  | Add Redis caching for API responses  | ⏳ Pending | High     | Phase 3 |
+
+### Security
+| ID  | Description                               | Status     | Priority | Phase   |
+| --- | ----------------------------------------- | ---------- | -------- | ------- |
+| 14  | Implement API key rotation and management | ✅ Done    | Critical | Phase 1 |
+| 23  | Add rate limiting for API endpoints       | ⏳ Pending | Critical | Phase 3 |
+
+### Testing
+| ID  | Description                            | Status     | Priority | Phase   |
+| --- | -------------------------------------- | ---------- | -------- | ------- |
+| 8   | Add unit tests for Amazon seller tools | ⏳ Pending | High     | Phase 2 |
+| 17  | Add E2E tests for critical user flows  | ⏳ Pending | High     | Phase 2 |
+
+---
+
+## Completed Tasks Summary
+
+| ID  | Category     | Description                               | Status | Priority | Phase   |
+| --- | ------------ | ----------------------------------------- | ------ | -------- | ------- |
+| 1   | Setup        | Project structure and base configuration  | ✅ Done | Critical | Phase 1 |
+| 2   | UI           | Basic component library setup             | ✅ Done | Critical | Phase 1 |
+| 3   | Core         | Next.js app router implementation         | ✅ Done | Critical | Phase 1 |
+| 4   | Amazon Tools | Complete ACOS Calculator implementation   | ✅ Done | Critical | Phase 1 |
+| 7   | UI           | Implement responsive design for all tools | ✅ Done | Critical | Phase 1 |
+| 14  | Security     | Implement API key rotation and management | ✅ Done | Critical | Phase 1 |
+
+---
+
+[//]: # (Roadmap last updated: ${new Date().toISOString()})
