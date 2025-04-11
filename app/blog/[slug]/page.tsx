@@ -8,13 +8,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-type Props = {
-  params: { slug: string } & Promise<any>;
+type PageParams = {
+  params: { slug: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-// Ensure compatibility with Next.js PageProps
-export type PageProps = Props;
+type Props = PageParams;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
