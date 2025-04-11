@@ -99,4 +99,4 @@ coverage/
 .personal-files/  # Assuming this might be a directory, add '/'
 # .personal-files   # Use this if it's definitely a file
 .portfolio-data.md
-
+.personal-files/
