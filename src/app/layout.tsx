@@ -1,9 +1,9 @@
+import ClientProviders from '@/app/components/client-providers';
+import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { metadata as metadataConfig } from './metadata';
 import './globals.css';
-import ClientProviders from '@/components/client-providers';
-import { cn } from '@/lib/styling-utils';
+import { metadata as metadataConfig } from './metadata';
 
 const inter = Inter({
   subsets: ['latin'],

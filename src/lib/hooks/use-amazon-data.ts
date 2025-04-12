@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
 import sampleData from '@/data/sample-data.json';
+import { useEffect, useState } from 'react';
 import type {
   AmazonProduct,
-  KeywordData,
   CompetitorData,
-} from '../amazon-types';
+  KeywordData,
+} from '../amazon-tools/types';
 
 export function useAmazonData() {
   const [products, setProducts] = useState<AmazonProduct[]>([]);

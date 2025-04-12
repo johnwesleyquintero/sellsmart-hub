@@ -2,20 +2,19 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import {} from '@/lib/core-utils';
 import {
-  Upload,
-  FileText,
   AlertCircle,
   Download,
+  FileText,
   TrendingUp,
+  Upload,
 } from 'lucide-react';
+import { useState } from 'react';
 
 type ProductData = {
   product: string;

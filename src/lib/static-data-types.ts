@@ -1,4 +1,4 @@
-import { CompetitorDataRow } from './amazon-types';
+import { CompetitorDataRow } from './amazon-tools/types';
 
 export interface StaticDataTypes {
   'case-studies': CaseStudy[];

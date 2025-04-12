@@ -1,3 +1,5 @@
+@import '../styles/premium.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,12 +26,8 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
-    /* Premium design system colors */
-    --premium-accent-1: 230 85% 95%;
-    --premium-accent-2: 260 85% 95%;
-    --premium-gradient-1: 221.2 83.2% 53.3%;
-    --premium-gradient-2: 265 84% 61%;
-    --premium-shadow: 220 60% 50%;
+    /* Import premium design system */
+    @import '../styles/premium.css';
   }
 
   .dark {
@@ -52,12 +50,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
-    /* Premium design system colors - dark mode */
-    --premium-accent-1: 230 50% 15%;
-    --premium-accent-2: 260 50% 15%;
-    --premium-gradient-1: 221.2 83.2% 53.3%;
-    --premium-gradient-2: 265 84% 61%;
-    --premium-shadow: 220 40% 2%;
+    /* Dark mode overrides handled in premium.css */
   }
 }
 
@@ -104,28 +97,4 @@
   animation: blink 1.2s ease-in-out infinite;
 }
 
-/* Premium background utilities */
-.bg-premium-light {
-  @apply bg-gradient-to-br from-[hsl(var(--premium-accent-1))] via-white to-[hsl(var(--premium-accent-2))];
-}
-
-.bg-premium-dark {
-  @apply bg-gradient-to-br from-[hsl(var(--premium-accent-1))] via-[hsl(var(--background))] to-[hsl(var(--premium-accent-2))];
-}
-
-.bg-accent-overlay {
-  @apply bg-gradient-to-r from-[hsl(var(--premium-gradient-1))] to-[hsl(var(--premium-gradient-2))] bg-clip-text text-transparent;
-}
-
-.premium-shadow {
-  box-shadow: 0 8px 32px -8px hsla(var(--premium-shadow) / 0.24);
-}
-
-.premium-pattern {
-  background-image: linear-gradient(45deg, hsla(var(--premium-gradient-1) / 0.05) 25%, transparent 25%),
-    linear-gradient(-45deg, hsla(var(--premium-gradient-2) / 0.05) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, hsla(var(--premium-gradient-1) / 0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, hsla(var(--premium-gradient-2) / 0.05) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-}
+/* Premium utilities moved to premium.css */
