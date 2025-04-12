@@ -4,7 +4,11 @@
 
 1. Fork the repository on GitHub
 2. Clone your forked repository locally
-3. Create a new branch for your changes:
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a new branch for your changes:
    ```bash
    git checkout -b feat/my-feature
    ```
