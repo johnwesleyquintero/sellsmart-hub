@@ -22,7 +22,7 @@ If applicable, add screenshots to help explain your problem.
 - OS: [e.g., Windows, macOS, Linux]
 - Browser: [e.g., Chrome, Firefox, Safari]
 - Node version:
-- npm version:
+- pnpm version:
 
 **Additional context**
 Add any other context about the problem here.

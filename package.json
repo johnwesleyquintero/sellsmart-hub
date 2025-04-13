@@ -8,10 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "npx prettier --write .",
-    "typecheck": "npx tsc --noEmit",
-    "cq": "node .wescore/main.js",
-    "prepare": "husky install"
+    "format": "pnpm prettier --write .",
+    "typecheck": "pnpm tsc --noEmit",
+    "cq": "node .wescore/main.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

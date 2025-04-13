@@ -78,13 +78,13 @@ The portfolio includes a fully-featured blog with MDX support:
 2. Install dependencies
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Start development server
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 4. Open http://localhost:3000 in your browser
@@ -106,7 +106,7 @@ This project is automatically deployed to Vercel when pushing to the main branch
 1. Install Vercel CLI
 
    ```bash
-   pnpm add -g vercel
+   pnpm install -g vercel
    ```
 
 2. Run deployment
@@ -125,11 +125,11 @@ cp .env.example .env
 
 ## Available Scripts
 
-- `npm run dev`: Starts development server
-- `npm run build`: Creates production build
-- `npm start`: Runs production server
-- `npm run lint`: Runs ESLint
-- `npm run format`: Formats code with Prettier
+- `pnpm dev`: Starts development server
+- `pnpm build`: Creates production build
+- `pnpm start`: Runs production server
+- `pnpm lint`: Runs ESLint
+- `pnpm format`: Formats code with Prettier
 
 ## Tech Stack Details
 
@@ -141,20 +141,20 @@ cp .env.example .env
 
 ## Tools Documentation
 
-| Tool Name                | Status     | Description                                                                                   |
-| ------------------------ | ---------- | --------------------------------------------------------------------------------------------- |
-| ACoS Calculator          | Functional | Advanced ACoS calculator with historical trend analysis and campaign optimization suggestions |
-| Competitor Analyzer      | Functional | Analyzes competitor listings, pricing, and performance metrics                                |
-| Description Editor       | Functional | Rich text editor with A+ content support and keyword optimization                             |
-| FBA Calculator           | Functional | Calculates FBA fees, profit margins, and storage costs                                        |
-| Keyword Analyzer         | Functional | Analyzes keyword performance, search volume, and competition                                  |
-| Keyword Deduplicator     | Functional | Identifies and removes duplicate keywords with smart matching                                 |
-| Keyword Trend Analyzer   | Functional | Tracks keyword trends and seasonal patterns over time                                         |
-| Listing Quality Checker  | Functional | Evaluates listing quality and suggests improvements                                           |
-| PPC Campaign Auditor     | Functional | Comprehensive PPC campaign analysis and optimization                                          |
-| Profit Margin Calculator | Functional | Calculates profit margins with dynamic cost factors                                           |
-| Sales Estimator          | Functional | Estimates sales potential with market data analysis                                           |
-| Sample CSV Button        | Functional | Generates sample CSV data for testing tools                                                   |
+| Tool Name                | Status         | Description                                                                                   |
+| ------------------------ | -------------- | --------------------------------------------------------------------------------------------- |
+| ACoS Calculator          | Functional     | Advanced ACoS calculator with historical trend analysis and campaign optimization suggestions |
+| Competitor Analyzer      | In Development | Core metrics implemented, pricing analysis improvements pending (#ID24)                       |
+| Description Editor       | Functional     | Rich text editor with A+ content support and keyword optimization                             |
+| FBA Calculator           | Functional     | Calculates FBA fees, profit margins, and storage costs                                        |
+| Keyword Analyzer         | Functional     | Analyzes keyword performance, search volume, and competition                                  |
+| Keyword Deduplicator     | Functional     | Identifies and removes duplicate keywords with smart matching                                 |
+| Keyword Trend Analyzer   | In Development | Basic trend tracking implemented, seasonal analysis pending (#ID6)                            |
+| Listing Quality Checker  | Functional     | Evaluates listing quality and suggests improvements                                           |
+| PPC Campaign Auditor     | In Development | Core analysis implemented, optimization features pending (#ID5)                               |
+| Profit Margin Calculator | Functional     | Calculates profit margins with dynamic cost factors                                           |
+| Sales Estimator          | Functional     | Estimates sales potential with market data analysis                                           |
+| Sample CSV Button        | Functional     | Generates sample CSV data for testing tools                                                   |
 
 ---
 

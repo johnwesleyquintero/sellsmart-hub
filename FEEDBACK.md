@@ -12,12 +12,12 @@ Actionable Recommendations:
 
 CRITICAL: Resolve Package Manager Inconsistency:
 
-Issue: .rules.md (Section 2.1, 6) and README.md (Scripts, Getting Started) specify/imply npm and npm.lockb (likely typo for package-lock.json). However, CONTRIBUTING.md explicitly mandates pnpm. This is a major contradiction that will confuse contributors and potentially break workflows.
+Issue: .rules.md (Section 2.1, 6) and README.md (Scripts, Getting Started) had inconsistencies between npm and pnpm usage. CONTRIBUTING.md explicitly mandates pnpm. This is a major contradiction that will confuse contributors and potentially break workflows.
 Recommendation:
-Decide: Choose definitively between npm or pnpm as the single package manager for this project. (pnpm is often preferred for performance and disk space efficiency, especially if you plan monorepos later).
+Decision: pnpm has been selected as the single package manager for this project.
 Update ALL Documentation: Thoroughly update .rules.md, README.md, and CONTRIBUTING.md to reflect the chosen package manager. Ensure all commands (install, add, run, etc.) and lockfile names (package-lock.json or pnpm-lock.yaml) are consistent everywhere.
 Verify Lockfile: Ensure the correct lockfile is committed to Git and .rules.md references the correct filename.
-Update Scripts: Ensure package.json scripts work correctly with the chosen manager (though npm run script often works even if pnpm is used for installs).
+Update Scripts: Ensure package.json scripts work correctly with pnpm (though pnpm run script maintains compatibility).
 Documentation Accuracy & Maintenance:
 
 Issue: The README.md lists all Seller Tools as "Functional," but TODO.md shows several key enhancements (visualization, export, algorithms) and even core implementations (PPC Auditor) as Pending. The README might be giving an inaccurate impression of the current state.

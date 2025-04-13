@@ -4,7 +4,7 @@
 
 The Code Quality Framework provides a comprehensive solution for maintaining high standards in your codebase through automated checks and reporting. It's designed to be flexible enough to adapt to various project types while providing consistent quality enforcement.
 
-The framework automates essential code quality checks within your project, ensuring adherence to formatting standards, linting rules, type safety, and successful builds. It provides a unified script (`npm run cq`) to run these checks either sequentially or in parallel. The framework intelligently captures output from failed checks, categorizes errors based on configurable patterns, and presents a consolidated summary for easier debugging and resolution.
+The framework automates essential code quality checks within your project, ensuring adherence to formatting standards, linting rules, type safety, and successful builds. It provides a unified script (`pnpm run cq`) to run these checks either sequentially or in parallel. The framework intelligently captures output from failed checks, categorizes errors based on configurable patterns, and presents a consolidated summary for easier debugging and resolution.
 
 ## Key Features
 
@@ -35,7 +35,7 @@ Before implementing the framework, ensure your development environment meets the
 1. Install required dependencies:
 
 ```bash
-npm install --save-dev chalk zod
+pnpm install --save-dev chalk zod
 # or
 yarn add --dev chalk zod
 # or
@@ -131,7 +131,7 @@ Create a `.wescore.json` file in your project root for customization:
 2. Run the quality checks:
 
 ```bash
-npm run cq
+pnpm run cq
 # or
 yarn cq
 # or
@@ -161,10 +161,10 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run Code Quality Checks
-        run: npm run cq
+        run: pnpm run cq
 ```
 
 ## Best Practices
@@ -282,8 +282,8 @@ pipeline {
   stages {
     stage('Quality Check') {
       steps {
-        sh 'npm install'
-        sh 'npm run cq'
+        sh 'pnpm install'
+        sh 'pnpm run cq'
       }
     }
   }
@@ -295,8 +295,8 @@ pipeline {
 ```yaml
 quality_check:
   script:
-    - npm install
-    - npm run cq
+    - pnpm install
+    - pnpm run cq
   artifacts:
     reports:
       junit: test-results.xml
@@ -310,8 +310,8 @@ steps:
     inputs:
       versionSpec: '18.x'
   - script: |
-      npm install
-      npm run cq
+      pnpm install
+      pnpm run cq
     displayName: 'Run Quality Checks'
 ```
 

@@ -6,7 +6,7 @@
 2. Clone your forked repository locally
 3. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
 4. Create a new branch for your changes:
    ```bash
@@ -79,7 +79,7 @@ Please adhere to the [GitHub Flow](https://guides.github.com/introduction/flow/)
 - Please use pnpm for managing dependencies
 - Install pnpm if you haven't already:
   ```bash
-  npm install -g pnpm
+  pnpm install -g pnpm
   ```
 - Use pnpm commands for installing and managing packages:
   ```bash

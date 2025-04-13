@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
 import chalk from 'chalk';
+import { spawn } from 'child_process';
 
 export function runCommand(check, defaultTimeout) {
   return new Promise((resolve) => {
@@ -41,6 +41,8 @@ export function runCommand(check, defaultTimeout) {
 
     child.on('close', (code, signal) => {
       clearTimeout(timer);
+      console.log(chalk.blue(`✅ ${check.name} finished with code ${code}`));
+      console.log(chalk.gray(output.trim()));
       resolve({
         success: code === 0 && !spawnError,
         output: output.trim(),
