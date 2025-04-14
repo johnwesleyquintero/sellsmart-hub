@@ -1,4 +1,4 @@
-import type { InventoryData } from '@/lib/amazon-tools/types';
+import type { InventoryData } from '@/lib/amazon-types';
 import { AmazonAlgorithms } from '@/lib/calculations/amazon-algorithms';
 import { NextResponse } from 'next/server';
 
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const inventoryData: InventoryData = await request.json();
 
     // Validate required fields
-    if (!inventoryData?.salesLast30Days || !inventoryData.leadTime) {
+    if (!inventoryData?.salesLast30Days || !inventoryData?.leadTime) {
       return NextResponse.json(
         { error: 'Missing required inventory parameters' },
         { status: 400 },

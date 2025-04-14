@@ -1,4 +1,4 @@
-import { InventoryHealthStatus, ProductCategory } from '@/types/amazon';
+import { InventoryHealthStatus, ProductCategory } from '@/lib/amazon-types';
 import { INVENTORY_METRICS } from '../config/inventory-config';
 
 export class AmazonAlgorithms {
