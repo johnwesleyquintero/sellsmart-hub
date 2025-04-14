@@ -1,8 +1,8 @@
 'use client';
 
-import { HTMLAttributes, useId, useCallback, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { HTMLAttributes, useCallback, useId, useState } from 'react';
 import styles from './logo.module.css';
-import { cn } from '@/lib/styling-utils';
 
 interface LogoProps extends HTMLAttributes<SVGElement> {
   className?: string;

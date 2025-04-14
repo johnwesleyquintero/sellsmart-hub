@@ -4,7 +4,7 @@
 
 The Code Quality Framework provides a comprehensive solution for maintaining high standards in your codebase through automated checks and reporting. It's designed to be flexible enough to adapt to various project types while providing consistent quality enforcement.
 
-The framework automates essential code quality checks within your project, ensuring adherence to formatting standards, linting rules, type safety, and successful builds. It provides a unified script (`pnpm run cq`) to run these checks either sequentially or in parallel. The framework intelligently captures output from failed checks, categorizes errors based on configurable patterns, and presents a consolidated summary for easier debugging and resolution.
+The framework automates essential code quality checks within your project, ensuring adherence to formatting standards, linting rules, type safety, and successful builds. It provides a unified script (`npm run cq`) to run these checks either sequentially or in parallel. The framework intelligently captures output from failed checks, categorizes errors based on configurable patterns, and presents a consolidated summary for easier debugging and resolution.
 
 ## Key Features
 
@@ -23,7 +23,7 @@ The framework automates essential code quality checks within your project, ensur
 Before implementing the framework, ensure your development environment meets these requirements:
 
 - **Node.js:** Required to run the script and associated tools
-- **Package Manager:** npm, yarn, pnpm, or npm
+- **Package Manager:** npm, yarn, npm, or npm
 - **Project-Specific Tools:** Your project must have its own chosen tools installed and configured for:
   - Formatting (e.g., Prettier)
   - Linting (e.g., ESLint)
@@ -35,11 +35,11 @@ Before implementing the framework, ensure your development environment meets the
 1. Install required dependencies:
 
 ```bash
-pnpm install --save-dev chalk zod
+npm install --save-dev chalk zod
 # or
 yarn add --dev chalk zod
 # or
-pnpm add --save-dev chalk zod
+npm add --save-dev chalk zod
 # or
 npm add --dev chalk zod
 ```
@@ -131,11 +131,11 @@ Create a `.wescore.json` file in your project root for customization:
 2. Run the quality checks:
 
 ```bash
-pnpm run cq
+npm run cq
 # or
 yarn cq
 # or
-pnpm cq
+npm cq
 # or
 npm cq
 ```
@@ -161,10 +161,10 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Run Code Quality Checks
-        run: pnpm run cq
+        run: npm run cq
 ```
 
 ## Best Practices
@@ -282,8 +282,8 @@ pipeline {
   stages {
     stage('Quality Check') {
       steps {
-        sh 'pnpm install'
-        sh 'pnpm run cq'
+        sh 'npm install'
+        sh 'npm run cq'
       }
     }
   }
@@ -295,8 +295,8 @@ pipeline {
 ```yaml
 quality_check:
   script:
-    - pnpm install
-    - pnpm run cq
+    - npm install
+    - npm run cq
   artifacts:
     reports:
       junit: test-results.xml
@@ -310,8 +310,8 @@ steps:
     inputs:
       versionSpec: '18.x'
   - script: |
-      pnpm install
-      pnpm run cq
+      npm install
+      npm run cq
     displayName: 'Run Quality Checks'
 ```
 

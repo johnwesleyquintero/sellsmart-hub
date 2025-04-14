@@ -1,4 +1,4 @@
-import { InventoryOptimizationError } from '@/lib/amazon-tools/errors';
+import { InventoryOptimizationError } from '@/lib/amazon-tools/errors/errors';
 import { loadStaticData } from '@/lib/load-static-data';
 import { z } from 'zod';
 // Define stricter types for CSV data

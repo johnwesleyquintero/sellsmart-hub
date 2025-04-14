@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Badge, Card, CardContent, Progress } from '@/components/ui';
+import type { Experience, Skill } from '@/lib/types';
 import {
-  Sparkles,
-  LineChart,
-  Code,
   Brain,
+  Code,
   Database,
-  Workflow,
+  LineChart,
   Loader2,
+  Sparkles,
+  Workflow,
 } from 'lucide-react';
-import type { Skill, Experience } from '@/lib/types';
+import { useEffect, useState } from 'react';
 
 // Update the fallback skills to match your expertise areas
 const fallbackSkills: Skill[] = [

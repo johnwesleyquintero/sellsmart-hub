@@ -23,7 +23,7 @@
       "typescript",
       "typescriptreact",
     ],
-    "eslint.packageManager": "pnpm",
+    "eslint.packageManager": "npm run",
     "prettier.semi": true,
     "prettier.singleQuote": true,
     "prettier.trailingComma": "all",

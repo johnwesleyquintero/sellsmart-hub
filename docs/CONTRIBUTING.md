@@ -6,7 +6,7 @@
 2. Clone your forked repository locally
 3. Install dependencies:
    ```bash
-   pnpm install
+   npm install
    ```
 4. Create a new branch for your changes:
    ```bash
@@ -59,7 +59,7 @@
 ## Making Changes
 
 - Follow existing code style and patterns.
-- Use pnpm for dependency management (e.g., `pnpm install`, `pnpm add <package>`).
+- Use npm for dependency management (e.g., `npm install`, `npm add <package>`).
 - Add or update tests for new features and bug fixes.
 - Update documentation—including README, error guides, and tool-specific docs—to reflect any code changes.
 - Ensure all CI checks (linting, type-checks, tests) pass before submitting a pull request.
@@ -76,15 +76,15 @@ Please adhere to the [GitHub Flow](https://guides.github.com/introduction/flow/)
 
 ## Package Manager
 
-- Please use pnpm for managing dependencies
-- Install pnpm if you haven't already:
+- Please use npm for managing dependencies
+- Install npm if you haven't already:
   ```bash
-  pnpm install -g pnpm
+  npm install -g npm
   ```
-- Use pnpm commands for installing and managing packages:
+- Use npm commands for installing and managing packages:
   ```bash
-  pnpm install
-  pnpm add <package>
+  npm install
+  npm add <package>
   ```
 
 ## Version Control

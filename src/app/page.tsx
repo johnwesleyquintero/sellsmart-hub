@@ -1,13 +1,13 @@
-import AboutSection from '@/app/components/about-section';
-import BlogSection from '@/app/components/blog-section';
-import CertificationsSection from '@/app/components/certifications-section';
-import ContactSection from '@/app/components/contact-section';
-import ErrorBoundary from '@/app/components/error-boundary';
-import FeaturedToolsSection from '@/app/components/featured-tools-section';
-import Footer from '@/app/components/footer';
-import Header from '@/app/components/header';
-import HeroSection from '@/app/components/hero-section';
-import ProjectsSection from '@/app/components/projects-section';
+import AboutSection from '@/components/about-section';
+import BlogSection from '@/components/blog-section';
+import CertificationsSection from '@/components/certifications-section';
+import ContactSection from '@/components/contact-section';
+import ErrorBoundary from '@/components/error-boundary';
+import FeaturedToolsSection from '@/components/featured-tools-section';
+import Footer from '@/components/footer';
+import Header from '@/components/header';
+import HeroSection from '@/components/hero-section';
+import ProjectsSection from '@/components/projects-section';
 
 export default function Home() {
   return (

@@ -2,21 +2,11 @@
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Upload,
-  FileText,
-  AlertCircle,
-  Download,
-  TrendingUp,
-  TrendingDown,
-  Info,
-} from 'lucide-react';
+import { AlertCircle, Download, FileText, Info, Upload } from 'lucide-react';
 import Papa from 'papaparse';
+import { useRef, useState } from 'react';
 import SampleCsvButton from './sample-csv-button';
 
 type CampaignData = {
@@ -32,6 +22,10 @@ type CampaignData = {
   issues?: string[];
   recommendations?: string[];
 };
+
+import CampaignCard from './CampaignCard';
+
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function PpcCampaignAuditor() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
@@ -307,108 +301,7 @@ export default function PpcCampaignAuditor() {
 
           <div className="space-y-4">
             {campaigns.map((campaign, index) => (
-              <Card key={index}>
-                <CardContent className="p-4">
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium">{campaign.name}</h3>
-                      <Badge variant="outline">{campaign.type}</Badge>
-                    </div>
-                    <div className="mt-1 text-sm text-muted-foreground">
-                      ACoS: {campaign.acos?.toFixed(2)}% • CTR:{' '}
-                      {campaign.ctr?.toFixed(2)}% • Conversion Rate:{' '}
-                      {campaign.conversionRate?.toFixed(2)}%
-                    </div>
-                  </div>
-
-                  <div className="mb-4 grid gap-4 md:grid-cols-2">
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">
-                        Performance Metrics
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-lg border p-3">
-                          <div className="text-sm text-muted-foreground">
-                            Spend
-                          </div>
-                          <div className="text-xl font-semibold">
-                            ${campaign.spend.toFixed(2)}
-                          </div>
-                        </div>
-                        <div className="rounded-lg border p-3">
-                          <div className="text-sm text-muted-foreground">
-                            Sales
-                          </div>
-                          <div className="text-xl font-semibold">
-                            ${campaign.sales.toFixed(2)}
-                          </div>
-                        </div>
-                        <div className="rounded-lg border p-3">
-                          <div className="text-sm text-muted-foreground">
-                            Impressions
-                          </div>
-                          <div className="text-xl font-semibold">
-                            {campaign.impressions.toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="rounded-lg border p-3">
-                          <div className="text-sm text-muted-foreground">
-                            Clicks
-                          </div>
-                          <div className="text-xl font-semibold">
-                            {campaign.clicks.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 text-sm font-medium">
-                        Audit Results
-                      </h4>
-                      <div className="space-y-3">
-                        {campaign.issues && campaign.issues.length > 0 && (
-                          <div className="space-y-1">
-                            <h5 className="text-xs font-medium text-red-600 dark:text-red-400">
-                              Issues Identified:
-                            </h5>
-                            <ul className="list-inside list-disc space-y-1 text-sm">
-                              {campaign.issues.map((issue, i) => (
-                                <li key={i} className="flex items-start gap-1">
-                                  <TrendingDown className="mt-0.5 h-3 w-3 flex-shrink-0 text-red-500" />
-                                  <span>{issue}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {campaign.recommendations &&
-                          campaign.recommendations.length > 0 && (
-                            <div className="space-y-1">
-                              <h5 className="text-xs font-medium text-green-600 dark:text-green-400">
-                                Recommendations:
-                              </h5>
-                              <ul className="list-inside list-disc space-y-1 text-sm">
-                                {campaign.recommendations.map(
-                                  (recommendation, i) => (
-                                    <li
-                                      key={i}
-                                      className="flex items-start gap-1"
-                                    >
-                                      <TrendingUp className="mt-0.5 h-3 w-3 flex-shrink-0 text-green-500" />
-                                      <span>{recommendation}</span>
-                                    </li>
-                                  ),
-                                )}
-                              </ul>
-                            </div>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <CampaignCard key={index} campaign={campaign} />
             ))}
           </div>
         </>

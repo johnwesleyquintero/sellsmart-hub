@@ -1,8 +1,7 @@
 'use client';
 
-import type React from 'react';
-
-import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -13,9 +12,10 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
+import type React from 'react';
+
+import { Loader2, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -1,4 +1,4 @@
-import ClientProviders from '@/app/components/client-providers';
+import ClientProviders from '@/components/client-providers';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';

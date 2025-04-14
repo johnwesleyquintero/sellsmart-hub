@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Menu, X, FileText, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { cn } from '@/lib/styling-utils';
+import { FileText, Loader2, Menu, Moon, Sun, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Header() {
   const [query, setQuery] = useState('');

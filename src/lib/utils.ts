@@ -7,9 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Styling utilities
-export const generateStyles = (baseStyles: string, conditionalStyles: Record<string, boolean>) => {
+export const generateStyles = (
+  baseStyles: string,
+  conditionalStyles: Record<string, boolean>,
+) => {
   return Object.entries(conditionalStyles)
-    .filter(([_, condition]) => condition)
+    .filter(([, condition]) => condition)
     .map(([style]) => style)
     .concat(baseStyles)
     .join(' ');
@@ -45,9 +48,9 @@ export const pick = <T extends object, K extends keyof T>(
   keys: K[],
 ): Pick<T, K> => {
   return keys.reduce(
-    (acc, key) => {
-      if (obj && Object.prototype.hasOwnProperty.call(obj, key)) {
-        acc[key] = obj[key];
+    (acc, currentKey) => {
+      if (obj && Object.prototype.hasOwnProperty.call(obj, currentKey)) {
+        acc[currentKey] = obj[currentKey];
       }
       return acc;
     },

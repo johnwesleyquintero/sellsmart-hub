@@ -13,7 +13,7 @@ Create a React component using TypeScript to display your roadmap data from a to
 If you haven't already, install Zod:
 
 ```bash
-pnpm install zod
+npm install zod
 # or
 yarn add zod
 ```

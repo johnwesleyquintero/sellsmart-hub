@@ -6,12 +6,12 @@
     {
       "id": "format",
       "name": "Formatting (Prettier)",
-      "command": "pnpm format"
+      "command": "npm run format"
     },
     {
       "id": "lint",
       "name": "Linting (ESLint)",
-      "command": "pnpm lint"
+      "command": "npm run lint"
     },
     {
       "id": "typecheck",
@@ -21,7 +21,7 @@
     {
       "id": "build",
       "name": "Build Project",
-      "command": "pnpm run build"
+      "command": "npm run build"
     }
   ],
   "errorCategories": {
