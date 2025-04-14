@@ -1,6 +1,6 @@
 'use client';
 
-import { ThemeProvider } from '@/app/components/ui/theme-provider';
+import { ThemeProvider } from '@/components/ui/theme-provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 
