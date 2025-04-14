@@ -1,14 +1,17 @@
 import { CompetitorDataRow } from './amazon-tools/types';
 
 export interface StaticDataTypes {
-  'case-studies': CaseStudy[];
-  blog: BlogPost[];
+-  'case-studies': CaseStudy[];
+  BlogPost: BlogPost[];
   projects: Project[];
   experience: Experience[];
   education: Education[];
   skills: Skill[];
   personal: PersonalInfo;
+  ProductMetric: { name: string; value: number }[];
 }
+
+export type MetricType = 'price' | 'rating' | 'reviews' | 'sales_volume' | 'market_share';
 
 export interface CaseStudy {
   id: string;

@@ -66,17 +66,33 @@ export default function CompetitorAnalyzer() {
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
 
-  const processCsvData = (csvData: CsvRow[]): ProcessedRow[] => {
-    return csvData
-      .filter((row) => {
-        return (
-          row.asin &&
-          !isNaN(parseFloat(row.price)) &&
-          !isNaN(parseInt(row.reviews)) &&
-          !isNaN(parseFloat(row.rating)) &&
-          !isNaN(parseFloat(row.conversion_rate)) &&
-          !isNaN(parseFloat(row.click_through_rate))
-        );
+  const processCsvData = (
+    csvData: CsvRow[],
+  ): { validData: ProcessedRow[]; errors: string[] } => {
+    const errors: string[] = [];
+    const validData = csvData
+      .filter((row, index) => {
+        const rowErrors: string[] = [];
+
+        if (!row.asin || row.asin.length !== 10) {
+          rowErrors.push(`Row ${index + 1}: Invalid ASIN format`);
+        }
+        if (isNaN(parseFloat(row.price)))
+          rowErrors.push(`Row ${index + 1}: Invalid price`);
+        if (isNaN(parseInt(row.reviews)))
+          rowErrors.push(`Row ${index + 1}: Invalid reviews`);
+        if (isNaN(parseFloat(row.rating)))
+          rowErrors.push(`Row ${index + 1}: Invalid rating`);
+        if (isNaN(parseFloat(row.conversion_rate)))
+          rowErrors.push(`Row ${index + 1}: Invalid conversion rate`);
+        if (isNaN(parseFloat(row.click_through_rate)))
+          rowErrors.push(`Row ${index + 1}: Invalid CTR`);
+
+        if (rowErrors.length > 0) {
+          errors.push(...rowErrors);
+          return false;
+        }
+        return true;
       })
       .map((row) => ({
         asin: row.asin,
@@ -87,6 +103,8 @@ export default function CompetitorAnalyzer() {
         click_through_rate: parseFloat(row.click_through_rate),
         niche: row.niche,
       }));
+
+    return { validData, errors };
   };
 
   useEffect(() => {
@@ -95,6 +113,11 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string[]>>(
+    {},
+  );
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleFileUpload = useCallback(
     (
       event: React.ChangeEvent<HTMLInputElement>,
@@ -102,12 +125,16 @@ export default function CompetitorAnalyzer() {
       type: 'seller' | 'competitor',
     ) => {
       const file = event.target.files?.[0];
+      setUploadErrors((prev) => ({ ...prev, [type]: [] }));
+      setIsUploading(true);
+
       if (!file) {
         toast({
           title: 'Error',
           description: 'No file selected',
           variant: 'destructive',
         });
+        setIsUploading(false);
         return;
       }
 
@@ -155,11 +182,23 @@ export default function CompetitorAnalyzer() {
                 );
               }
 
-              const processedData = processCsvData(results.data);
-              if (type === 'seller') {
-                setData(processedData[0]);
-              } else {
-                setData(processedData);
+              const { validData, errors } = processCsvData(results.data);
+              setUploadErrors((prev) => ({ ...prev, [type]: errors }));
+
+              if (errors.length > 0) {
+                toast({
+                  title: 'Validation Issues',
+                  description: `Found ${errors.length} issues in ${file.name}`,
+                  variant: 'destructive',
+                });
+              }
+
+              if (validData.length > 0) {
+                if (type === 'seller') {
+                  setData(validData[0]);
+                } else {
+                  setData(validData);
+                }
               }
               toast({
                 title: 'Success',
@@ -293,6 +332,10 @@ export default function CompetitorAnalyzer() {
 
       setIsLoading(false);
     } catch (error) {
+      console.error(
+        'Error processing file:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
       toast({
         title: 'Error',
         description: error.message,
@@ -330,12 +373,12 @@ export default function CompetitorAnalyzer() {
             </div>
             <Input
               id="seller-csv"
-              type="file"
-              accept=".csv"
+              className="cursor-pointer"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleFileUpload(e, setSellerData, 'seller')
               }
-              className="cursor-pointer"
+              accept=".csv"
+              type="file"
             />
           </div>
           <div>
@@ -357,26 +400,33 @@ export default function CompetitorAnalyzer() {
             </div>
             <Input
               id="competitor-csv"
-              type="file"
-              accept=".csv"
+              className="cursor-pointer"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleFileUpload(e, setCompetitorData, 'competitor')
               }
-              className="cursor-pointer"
+              accept=".csv"
+              type="file"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="asin">Or Enter Competitor ASIN</Label>
-          <Input
-            id="asin"
-            value={asin}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setAsin(e.target.value)
-            }
-            placeholder="Enter competitor ASIN or niche"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="asin">Or Enter Competitor ASIN</Label>
+            <Input
+              id="asin"
+              value={asin}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setAsin(e.target.value)
+              }
+              placeholder="B0XXXXXXXX"
+              pattern="^[A-Z0-9]{10}$"
+              title="Must be a 10-character ASIN (letters/numbers)"
+            />
+            <p className="text-sm text-muted-foreground">
+              ASIN format: 10 characters (letters/numbers)
+            </p>
+          </div>
         </div>
 
         <div>
@@ -471,6 +521,17 @@ export default function CompetitorAnalyzer() {
                   tick={{ fontSize: isMobile ? 10 : 14 }}
                 />
                 <YAxis />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #ddd',
+                    borderRadius: 8,
+                  }}
+                  formatter={(value, name) => [
+                    value,
+                    name.toString().replace('_', ' ').toUpperCase(),
+                  ]}
+                />
                 <Legend wrapperStyle={{ paddingTop: 20 }} />
                 {selectedMetrics.map((metric) => (
                   <Line

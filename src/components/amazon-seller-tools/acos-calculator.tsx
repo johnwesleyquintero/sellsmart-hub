@@ -674,8 +674,7 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-campaign"
-                  name="campaign" // Added name
-                  value={manualCampaign.campaign} // Added value
+                  value={manualCampaign.campaign}
                   onChange={handleManualInputChange}
                   required
                   placeholder="Enter campaign name"
@@ -687,15 +686,14 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-adSpend"
-                  name="adSpend" // Added name
-                  type="text" // Use text type with inputMode for better control
+                  type="number"
                   inputMode="decimal"
-                  value={manualCampaign.adSpend} // Added value
+                  value={manualCampaign.adSpend}
                   onChange={handleManualInputChange}
                   required
                   min="0"
                   step="0.01"
-                  placeholder="e.g., 150.50"
+                  placeholder="Enter ad spend"
                 />
               </div>
               <div>
@@ -704,7 +702,6 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-sales"
-                  name="sales" // Added name
                   type="text" // Use text type with inputMode
                   inputMode="decimal"
                   value={manualCampaign.sales} // Added value

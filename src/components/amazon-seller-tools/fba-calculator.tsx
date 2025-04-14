@@ -1,6 +1,7 @@
 'use client';
 
-import type React from 'react';
+import React from 'react';
+import { FBAData } from '../../lib/amazon-types';
 
 import { Button } from '@/components/ui/button'; // Reusable Button component
 import { Card, CardContent } from '@/components/ui/card'; // Reusable Card components
@@ -240,9 +241,8 @@ export default function FbaCalculator() {
                 <Label htmlFor="product">Product Name</Label>
                 <Input
                   id="product"
-                  name="product"
                   value={manualProduct.product}
-                  onChange={handleInputChange}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
                   placeholder="Enter product name"
                 />
               </div>
@@ -250,12 +250,11 @@ export default function FbaCalculator() {
                 <Label htmlFor="cost">Product Cost ($)</Label>
                 <Input
                   id="cost"
-                  name="cost"
                   type="number"
                   min="0"
                   step="0.01"
                   value={manualProduct.cost}
-                  onChange={handleInputChange}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
                   placeholder="Enter product cost"
                 />
               </div>
@@ -263,12 +262,11 @@ export default function FbaCalculator() {
                 <Label htmlFor="price">Selling Price ($)</Label>
                 <Input
                   id="price"
-                  name="price"
                   type="number"
                   min="0"
                   step="0.01"
                   value={manualProduct.price}
-                  onChange={handleInputChange}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
                   placeholder="Enter selling price"
                 />
               </div>
