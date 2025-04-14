@@ -1,21 +1,22 @@
 # TODO ISSUES List - Project Improvements and Fixes
 
-This list tracks tasks based on the analysis of `run_tasks.log` (Timestamp: 2025-04-14T10:31:21.228Z) and subsequent updates. Tasks are prioritized based on severity, starting with build-blocking issues.
+This list tracks tasks based on the analysis of `run_tasks.log` (Timestamp: 2025-04-14T10:31:21.228Z) and subsequent build logs (e.g., `npm run build` output). Tasks are prioritized based on severity, starting with build-blocking issues or critical warnings.
 
 ## Command Used
 
-`.\run_tasks.bat`
+`.\run_tasks.bat`, `npm run build`
 
 ## 🚨 Critical Build Failures & Core Issues
 
--   [ ] **Verify & Finalize `cn` Utility Function Integration:**
-    -   **Issue:** Multiple UI components were failing to import/use `cn`, causing build warnings and a fatal runtime error (`TypeError: (0 , o.cn) is not a function`) during prerendering, breaking the `build` task.
+-   [ ] **Fix `cn` Utility Function Import Path Warning:**
+    -   **Issue:** While the previous fatal `TypeError: (0 , o.cn) is not a function` seems resolved (build completes), numerous warnings (`Attempted import error: 'cn' is not exported from '@/lib/styling-utils'`) appear during `npm run build`. This indicates `src/components/ui/chart.tsx` is importing `cn` from the incorrect path (`@/lib/styling-utils`).
     -   **Progress:**
         -   ✅ `cn` utility function (using `clsx` and `tailwind-merge`) added to `src/lib/core-utils.ts`.
-        -   ✅ Imports standardized to use `@/lib/core-utils` in 15+ known affected UI components.
+        -   ✅ Imports standardized to use `@/lib/core-utils` in 15+ previously known affected UI components.
         -   ✅ Path alias configuration (`@/`) in `tsconfig.json` verified.
-    -   **Impact:** If not fully resolved across *all* components, this breaks the build.
-    -   **Action:** **Confirm that *all remaining* UI components correctly import and use `cn` from `@/lib/core-utils`. Most importantly, verify that the `npm run build` command completes successfully without the `TypeError` related to `cn`.**
+        -   ✅ Build now completes successfully, avoiding the previous fatal runtime error.
+    -   **Impact:** Although not breaking the build currently, incorrect imports can lead to unexpected styling issues or breakages if `styling-utils` changes. It pollutes the build log with warnings.
+    -   **Action:** **Correct the import path for `cn` within `src/components/ui/chart.tsx` from `'@/lib/styling-utils'` to `'@/lib/core-utils'`. Verify that `npm run build` completes successfully *without these warnings*.**
 -   [ ] **Resolve Module Not Found Errors (TS2307):**
     -   `@/app/components/ui/theme-provider` in `src/components/ui/client-providers.tsx` (Hint: Check if path should be `@/components/ui/...`)
     -   `./sidebar-nav` in `src/components/ui/dashboard-sidebar.tsx`
@@ -114,7 +115,7 @@ This list tracks tasks based on the analysis of `run_tasks.log` (Timestamp: 2025
 ## 🟡 Lower Priority & Best Practices
 
 -   [ ] **Update Next.js Metadata Viewport Configuration:**
-    -   **Issue:** Build warnings indicate `viewport` is configured in metadata exports (`/_not-found`, `/`).
+    -   **Issue:** Build warnings indicate `viewport` is configured in metadata exports (`/_not-found`, `/`, `/blog`).
     -   **Action:** Move viewport configuration from `metadata` export to a separate `generateViewport` export as recommended by Next.js docs.
 
 ## ✅ Post-Fix Tasks

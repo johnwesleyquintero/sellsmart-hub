@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button'; // Import Button
 import {
   Sheet,
   SheetContent,
@@ -9,10 +10,9 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
-import { SidebarNav } from './sidebar-nav';
-import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button'; // Import Button
+import { useEffect, useState } from 'react';
+import { SidebarNav } from './sidebar';
 
 interface DashboardSidebarProps {
   isDashboardPage?: boolean;
