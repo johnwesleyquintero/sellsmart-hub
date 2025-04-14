@@ -1,4 +1,5 @@
-import { InventoryHealthStatus, ProductCategory } from '../../amazon-types';
+import type { ProductCategory } from '../amazon-types';
+import { InventoryHealthStatus } from '../amazon-types';
 import { INVENTORY_METRICS } from '../config/inventory-config';
 
 export class AmazonAlgorithms {
@@ -46,7 +47,23 @@ export class AmazonAlgorithms {
     marketPosition: number,
     elasticity: number,
   ): number {
-    // Implementation here
+    const basePrice = productionCost * 1.5;
+    const competitorWeight = 0.3;
+    const demandFactor =
+      demandCurve.reduce((a, b) => a + b, 0) / demandCurve.length;
+    const salesTrend =
+      historicalSales.length > 0
+        ? (historicalSales[historicalSales.length - 1] - historicalSales[0]) /
+          historicalSales.length
+        : 0;
+
+    return (
+      basePrice *
+      (1 + (competitorWeight * (competitorPrice - basePrice)) / basePrice) *
+      (1 + marketPosition * elasticity) *
+      demandFactor *
+      (1 + salesTrend)
+    );
   }
 
   static calculateInventoryRecommendation(

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
+import { Card, CardContent, ChartContainer, Progress } from '@/components/ui';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,23 +14,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, Progress } from '@/components/ui';
-import { Upload, AlertCircle, Download, Percent } from 'lucide-react';
+import { AmazonAlgorithms, ProductCategory } from '@/lib/amazon-types';
+import { AlertCircle, Download, Percent, Upload } from 'lucide-react';
 import Papa from 'papaparse';
-import SampleCsvButton from './sample-csv-button';
+import { useRef, useState } from 'react';
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
 } from 'recharts';
-import { ChartContainer } from '@/components/ui';
+import SampleCsvButton from './sample-csv-button';
 
 type ProductData = {
   product: string;
@@ -40,6 +40,15 @@ type ProductData = {
   profit?: number;
   roi?: number;
   margin?: number;
+  conversionRate?: number;
+  sessions?: number;
+  reviewRating?: number;
+  reviewCount?: number;
+  priceCompetitiveness?: number;
+  inventoryHealth?: number;
+  weight?: number;
+  volume?: number;
+  competitorPrices?: number[];
 };
 
 export default function ProfitMarginCalculator() {
@@ -55,7 +64,9 @@ export default function ProfitMarginCalculator() {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement> & { target: { value: string } },
+  ) => {
     setError(null);
     setIsLoading(true);
     const file = event.target.files?.[0];
@@ -152,7 +163,7 @@ export default function ProfitMarginCalculator() {
     setResults(calculated);
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
@@ -333,7 +344,7 @@ export default function ProfitMarginCalculator() {
             </div>
 
             <div className="space-y-4">
-              {isLoading && <Progress value={33} className="h-2" />}
+              {isLoading && <Progress value={33} className="h-2" max={100} />}
               {error && (
                 <div className="flex items-center gap-2 text-red-500">
                   <AlertCircle className="h-4 w-4" />

@@ -20,8 +20,9 @@ export async function GET(request: Request) {
     const blogPosts = await loadStaticData<BlogPost[]>('blog');
 
     // Load tools data
-    const tools =
-      await loadStaticData<{ name: string; description: string }[]>('tools');
+    const tools = (await loadStaticData<
+      { name: string; description: string }[]
+    >('tools')) as { name: string; description: string }[];
 
     // Search blog posts
     interface BlogPost {

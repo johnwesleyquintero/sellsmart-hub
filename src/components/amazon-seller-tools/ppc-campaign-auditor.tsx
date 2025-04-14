@@ -9,7 +9,7 @@ import Papa from 'papaparse';
 import { useRef, useState } from 'react';
 import SampleCsvButton from './sample-csv-button';
 
-type CampaignData = {
+export type CampaignData = {
   name: string;
   type: string;
   spend: number;

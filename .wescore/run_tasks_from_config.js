@@ -95,7 +95,9 @@ const headerMessage = `
 𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗯𝘆: 𝗦𝗰𝗮𝗹𝗲𝗪𝗶𝘁𝗵𝗪𝗲𝘀𝗹𝗲𝘆 𝗫 𝗪𝗘𝗦𝗖𝗢𝗥𝗘|𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗺𝗲𝗻𝘁 𝗧𝗮𝘀𝗸 𝗥𝘂𝗻𝗻𝗲𝗿
 
 Objective:
-I need your assistance in implementing improvements and fixes systematically while ensuring that the existing functionality remains intact.
+- I need your assistance in implementing improvements and fixes systematically.
+- Update the incorrect import path to reference the correct file location.
+- Fix any syntax issues and type mismatches while ensuring that the existing functionality remains intact.
 
 Details:
 1. Log File: Please refer to the full log trace provided in \`run_tasks.log\` for any relevant information.

@@ -443,8 +443,7 @@ export default function AcosCalculator() {
                     <Tooltip
                       formatter={(
                         value: number | string,
-
-                        props,
+                        props: { dataKey: string },
                       ) => {
                         // Handle Infinity ACoS in tooltip
                         if (props.dataKey === 'acos' && value === Infinity) {
@@ -456,7 +455,10 @@ export default function AcosCalculator() {
                             chartConfig[selectedMetric].label,
                           ];
                         }
-                        return [value, chartConfig[selectedMetric].label];
+                        return [
+                          value.toString(),
+                          chartConfig[selectedMetric].label,
+                        ];
                       }}
                     />
                     <Legend />
