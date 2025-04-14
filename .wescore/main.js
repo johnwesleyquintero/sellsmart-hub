@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { loadConfig } from './config/loader.js';
-import { runCommand } from './runner/commandRunner.js';
 import { Reporter } from './reporting/reporter.js';
+import { runCommand } from './runner/commandRunner.js';
 
 async function main() {
   try {
@@ -13,7 +13,7 @@ async function main() {
     if (config.runInParallel) {
       const results = await Promise.all(
         config.checks.map((check) =>
-          runCommand(check, config.commandTimeout)
+          runCommand(check, config.commandTimeout, reporter.effectiveLogLevel)
             .then((result) => ({ check, result }))
             .catch((error) => ({
               check,
@@ -37,7 +37,11 @@ async function main() {
     } else {
       for (const [index, check] of config.checks.entries()) {
         reporter.startCommand(check, index);
-        const result = await runCommand(check, config.commandTimeout);
+        const result = await runCommand(
+          check,
+          config.commandTimeout,
+          reporter.effectiveLogLevel,
+        );
         result.success
           ? reporter.commandSuccess(check, result)
           : reporter.commandFailure(check, result);

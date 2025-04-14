@@ -1,11 +1,22 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process';
 
-export function runCommand(check, defaultTimeout) {
+// Define log levels locally for comparison if needed, or rely on passed level number
+const LOG_LEVELS = {
+  error: 0,
+  warn: 1,
+  info: 2,
+};
+
+// --- MODIFIED: Added effectiveLogLevel parameter ---
+export function runCommand(check, defaultTimeout, effectiveLogLevel) {
   return new Promise((resolve) => {
     const startTime = Date.now();
     const timeoutMs = check.timeout ?? defaultTimeout;
-    let output = '';
+    // --- MODIFIED: Separate stdout and stderr ---
+    let stdoutData = '';
+    let stderrData = '';
+    // --- END MODIFIED ---
     let timedOut = false;
 
     const shell = process.platform === 'win32' ? 'cmd' : '/bin/sh';
@@ -15,37 +26,55 @@ export function runCommand(check, defaultTimeout) {
         : ['-c', check.command];
 
     const child = spawn(shell, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe'], // stdin, stdout, stderr
       encoding: 'utf8',
       windowsHide: true,
     });
 
-    child.stdout.on('data', (data) => (output += data));
-    child.stderr.on('data', (data) => (output += data));
+    // --- MODIFIED: Capture streams separately ---
+    child.stdout.on('data', (data) => (stdoutData += data));
+    child.stderr.on('data', (data) => (stderrData += data));
+    // --- END MODIFIED ---
 
     const timer = setTimeout(() => {
       timedOut = true;
-      console.warn(
-        chalk.yellow(`⏳ ${check.name} timeout after ${timeoutMs / 1000}s`),
-      );
+      // --- MODIFIED: Check log level for timeout warning (treat as warn) ---
+      if (effectiveLogLevel >= LOG_LEVELS.warn) {
+        console.warn(
+          chalk.yellow(`⏳ ${check.name} timeout after ${timeoutMs / 1000}s`),
+        );
+      }
+      // --- END MODIFIED ---
       child.kill('SIGTERM');
+      // Force kill after a grace period if SIGTERM didn't work
       setTimeout(() => !child.killed && child.kill('SIGKILL'), 2000);
     }, timeoutMs);
 
     let spawnError = null;
     child.on('error', (err) => {
       spawnError = err;
-      output += `\nSpawn Error: ${err.message}`;
+      // Always add spawn errors to stderr
+      stderrData += `\nSpawn Error: ${err.message}`;
       clearTimeout(timer);
     });
 
     child.on('close', (code, signal) => {
       clearTimeout(timer);
-      console.log(chalk.blue(`✅ ${check.name} finished with code ${code}`));
-      console.log(chalk.gray(output.trim()));
+      const success = code === 0 && !spawnError;
+
+      // --- MODIFIED: Removed direct logging of output ---
+      // console.log(chalk.blue(`✅ ${check.name} finished with code ${code}`)); // Reporter handles success/fail messages
+      // console.log(chalk.gray(output.trim())); // Reporter will handle logging output based on level
+      // --- END MODIFIED ---
+
       resolve({
-        success: code === 0 && !spawnError,
-        output: output.trim(),
+        success: success,
+        // --- MODIFIED: Return separated streams ---
+        stdout: stdoutData.trim(),
+        stderr: stderrData.trim(),
+        // Keep combined output for potential use by errorCategorizer
+        output: (stdoutData + stderrData).trim(),
+        // --- END MODIFIED ---
         exitCode: code,
         signal,
         timedOut: timedOut || ['SIGTERM', 'SIGKILL'].includes(signal),

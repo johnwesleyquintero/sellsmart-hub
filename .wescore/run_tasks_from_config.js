@@ -5,6 +5,73 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import util from 'util';
 
+// --- Helper Functions ---
+/**
+ * Analyzes log data (stdout/stderr) to categorize messages.
+ * @param {string} logData - The combined stdout and stderr output of a task.
+ * @returns {{errors: number, warnings: number, others: number, errorLines: string[], warningLines: string[]}} - Counts and specific lines for each category.
+ */
+function categorizeLogOutput(logData) {
+  const lines = logData.split('\n');
+  let errors = 0;
+  let warnings = 0;
+  let others = 0;
+  const errorLines = [];
+  const warningLines = [];
+
+  // Define patterns (case-insensitive)
+  // Prioritize error patterns over warning patterns
+  const errorPatterns = [
+    /failed to compile/i, // Build errors
+    /module not found/i, // Build errors
+    /error TS\d+:/i, // TypeScript errors
+    /\berror\b/i, // General 'error' word
+    /\[error\]/i, // [error] tag
+    /\bfail(ed)?\b/i, // 'fail' or 'failed'
+    /exception/i, // 'exception'
+    // Add more specific error patterns relevant to your tools
+  ];
+
+  const warningPatterns = [
+    /\bwarn(ing)?\b/i, // 'warn' or 'warning'
+    /\[warn\]/i, // [warn] tag
+    /deprecated/i, // 'deprecated'
+    /⚠/, // Warning symbol
+    // Add more specific warning patterns
+  ];
+
+  lines.forEach((line) => {
+    if (!line.trim()) return; // Skip empty lines
+
+    let isError = false;
+    for (const pattern of errorPatterns) {
+      if (pattern.test(line)) {
+        errors++;
+        errorLines.push(line);
+        isError = true;
+        break; // Categorized as error, stop checking patterns for this line
+      }
+    }
+
+    if (!isError) {
+      let isWarning = false;
+      for (const pattern of warningPatterns) {
+        if (pattern.test(line)) {
+          warnings++;
+          warningLines.push(line);
+          isWarning = true;
+          break; // Categorized as warning, stop checking
+        }
+      }
+      if (!isWarning) {
+        others++; // Count lines that are neither error nor warning
+      }
+    }
+  });
+
+  return { errors, warnings, others, errorLines, warningLines };
+}
+
 // Promisify exec for easier async/await usage
 const execPromise = util.promisify(exec);
 
@@ -22,25 +89,25 @@ const logfilePath = path.join(
 
 const headerMessage = `
 
-======================================================================
-#  Request for Systematic Implementation of Improvements and Fixes   #
-======================================================================
-Powered by: 𝗦𝗰𝗮𝗹𝗲𝗪𝗶𝘁𝗵𝗪𝗲𝘀𝗹𝗲𝘆 𝗫 𝗪𝗘𝗦𝗖𝗢𝗥𝗘 | 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗺𝗲𝗻𝘁 𝗧𝗮𝘀𝗸 𝗥𝘂𝗻𝗻𝗲𝗿
+===========================================================
+𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐟𝐨𝐫 𝐒𝐲𝐬𝐭𝐞𝐦𝐚𝐭𝐢𝐜 𝐈𝐦𝐩𝐥𝐞𝐦𝐞𝐧𝐭𝐚𝐭𝐢𝐨𝐧 𝐨𝐟 𝐈𝐦𝐩𝐫𝐨𝐯𝐞𝐦𝐞𝐧𝐭𝐬 𝐚𝐧𝐝 𝐅𝐢𝐱𝐞𝐬
+===========================================================
+𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗯𝘆: 𝗦𝗰𝗮𝗹𝗲𝗪𝗶𝘁𝗵𝗪𝗲𝘀𝗹𝗲𝘆 𝗫 𝗪𝗘𝗦𝗖𝗢𝗥𝗘|𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗺𝗲𝗻𝘁 𝗧𝗮𝘀𝗸 𝗥𝘂𝗻𝗻𝗲𝗿
 
-**Objective:**
+Objective:
 I need your assistance in implementing improvements and fixes systematically while ensuring that the existing functionality remains intact.
 
-**Details:**
-1. **Log File:** Please refer to the full log trace provided in \`run_tasks.log\` for any relevant information.
-2. **Command Used:** The command executed was \`.\\\\run_tasks.bat\`.
+Details:
+1. Log File: Please refer to the full log trace provided in \`run_tasks.log\` for any relevant information.
+2. Command Used: The command executed was \`.\\\\run_tasks.bat\`.
 
-**Tasks:**
-1. **Review Logs:** Analyze the \`run_tasks.log\` file to identify any errors, warnings, or areas that need improvement.
-2. **Implement Fixes:** Address the identified issues systematically, ensuring that each fix is thoroughly tested.
-3. **Maintain Functionality:** Ensure that all existing functionality remains operational and unaffected by the changes.
-4. **Documentation:** Document all changes made, including the rationale behind each fix and any testing procedures used.
+Tasks:
+1. Review Logs: Analyze the \`run_tasks.log\` file to identify any errors, warnings, or areas that need improvement.
+2. Implement Fixes: Address the identified issues systematically, ensuring that each fix is thoroughly tested.
+3. Maintain Functionality: Ensure that all existing functionality remains operational and unaffected by the changes.
+4. Documentation: Document all changes made, including the rationale behind each fix and any testing procedures used.
 
-**Expected Outcome:**
+Expected Outcome:
 - A stable system with improved performance and fixed issues.
 - Detailed documentation of all changes and testing results.
 
@@ -158,6 +225,89 @@ async function main() {
   let overallSuccess = true;
   let stoppedEarly = false;
 
+  async function runCheckWrapper(check) {
+    const startTime = Date.now();
+    appendToLog(`\n[START] ${check.name} (${check.id})`);
+    appendToLog(`  > ${check.command}`);
+    try {
+      // Execute the command. Timeout is in milliseconds.
+      const { stdout, stderr } = await execPromise(check.command, {
+        timeout: commandTimeout,
+      });
+      const duration = Date.now() - startTime;
+
+      // --- NEW: Call categorization ---
+      const combinedOutput = `${stdout}\n${stderr}`; // Combine outputs for analysis
+      const categorizedLogs = categorizeLogOutput(combinedOutput);
+      // --- END NEW ---
+
+      if (stdout) appendToLog(`  [stdout]\\n---\\n${stdout.trim()}\\n---`);
+      if (stderr) appendToLog(`  [stderr]\\n---\\n${stderr.trim()}\\n---`); // Log stderr even on success (for warnings)
+
+      // --- NEW: Optionally log categorization summary ---
+      if (categorizedLogs.errors > 0 || categorizedLogs.warnings > 0) {
+        appendToLog(
+          `  [Analysis] Errors: ${categorizedLogs.errors}, Warnings: ${categorizedLogs.warnings}`,
+        );
+      }
+      // --- END NEW ---
+
+      appendToLog(
+        `[END] ${check.name} - SUCCESS (Exit Code: 0, Duration: ${duration}ms)`,
+      );
+      return {
+        ...check,
+        success: true,
+        exitCode: 0,
+        stdout,
+        stderr,
+        duration,
+        categorizedLogs,
+      };
+    } catch (error) {
+      // execPromise rejects on non-zero exit code or other errors (like timeout)
+      const duration = Date.now() - startTime;
+      const exitCode = error.code ?? 1; // Default to 1 if code is null/undefined
+      const wasTimeout = error.signal === 'SIGTERM' && error.killed; // exec uses SIGTERM for timeout
+
+      // --- NEW: Analyze output even if runCommand threw an error (e.g., timeout) ---
+      const outputSoFar = `${error.stdout || ''}\n${error.stderr || ''}`;
+      const categorizedLogs = categorizeLogOutput(outputSoFar);
+      // --- END NEW ---
+
+      appendToLog(`  [stdout]\\n---\\n${error.stdout?.trim() ?? ''}\\n---`);
+      appendToLog(`  [stderr]\\n---\\n${error.stderr?.trim() ?? ''}\\n---`);
+
+      // --- NEW: Log categorization summary on catch ---
+      appendToLog(
+        `  [Analysis] Errors: ${categorizedLogs.errors}, Warnings: ${categorizedLogs.warnings}`,
+      );
+      // --- END NEW ---
+
+      if (wasTimeout) {
+        appendToLog(
+          `[END] ${check.name} - FAILED (Timeout after ${commandTimeout}ms, Exit Code: ${exitCode}, Signal: ${error.signal})`,
+        );
+      } else {
+        appendToLog(
+          `[END] ${check.name} - FAILED (Exit Code: ${exitCode}, Duration: ${duration}ms)`,
+        );
+      }
+      // Include the error object itself for more details if needed later
+      return {
+        ...check,
+        success: false,
+        exitCode,
+        stdout: error.stdout,
+        stderr: error.stderr,
+        error,
+        duration,
+        wasTimeout,
+        categorizedLogs,
+      };
+    }
+  }
+
   if (parallel) {
     appendToLog('\\nRunning checks in parallel...');
     // Note: Simple parallel execution. stopOnFail is harder to implement reliably
@@ -168,7 +318,7 @@ async function main() {
         "Warning: 'stopOnFail: true' is less effective in parallel mode. All checks will start.",
       );
     }
-    const promises = checks.map((check) => runCheck(check, commandTimeout));
+    const promises = checks.map((check) => runCheckWrapper(check));
     // Use allSettled to ensure all promises complete, even if some fail
     const settledResults = await Promise.allSettled(promises);
 
@@ -195,7 +345,7 @@ async function main() {
   } else {
     appendToLog('\\nRunning checks sequentially...');
     for (const check of checks) {
-      const result = await runCheck(check, commandTimeout);
+      const result = await runCheckWrapper(check);
       results.push(result);
 
       if (!result.success) {

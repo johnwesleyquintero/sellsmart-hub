@@ -1,4 +1,4 @@
-import { InventoryData, InventoryHealthStatus } from '../../../types/amazon';
+import { InventoryData, InventoryHealthStatus } from '@/types/amazon';
 import { INVENTORY_METRICS } from '../config/inventory-config';
 
 export class InventoryUtils {

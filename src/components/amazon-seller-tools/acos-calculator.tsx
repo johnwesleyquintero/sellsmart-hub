@@ -10,14 +10,7 @@ import {
   Label,
   Progress,
 } from '@/components/ui';
-import {
-  acosRatingGuide,
-  calculateMetrics,
-  chartConfig,
-  getAcosColor,
-  getAcosRating,
-  type CampaignData,
-} from '@/lib/acos-utils';
+import { calculateMetrics, getAcosRating } from '@/lib/calculations/acos-utils';
 import {
   AlertCircle,
   Calculator,
@@ -28,7 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import type React from 'react';
+import type { ChangeEvent } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Import useDropzone
 import {
@@ -45,12 +38,51 @@ import {
 } from 'recharts';
 import SampleCsvButton from './sample-csv-button';
 
-// Type for the manual input form state
-type ManualCampaignInput = {
+export interface CampaignData {
   campaign: string;
-  adSpend: string;
-  sales: string;
+  adSpend: number;
+  sales: number;
+  impressions?: number;
+  clicks?: number;
+  acos?: number;
+  roas?: number;
+  ctr?: number;
+  cpc?: number;
+  conversionRate?: number;
+}
+
+const acosRatingGuide = [
+  { label: 'Excellent', range: '< 15%', color: 'text-green-500' },
+  { label: 'Good', range: '15-25%', color: 'text-blue-500' },
+  { label: 'Fair', range: '25-35%', color: 'text-yellow-500' },
+  { label: 'Poor', range: '> 35%', color: 'text-red-500' },
+];
+
+const chartConfig = {
+  acos: {
+    label: 'ACoS (%)',
+    theme: { light: '#8884d8', dark: '#8884d8' },
+  },
+  roas: {
+    label: 'ROAS (x)',
+    theme: { light: '#82ca9d', dark: '#82ca9d' },
+  },
+  ctr: {
+    label: 'CTR (%)',
+    theme: { light: '#ffc658', dark: '#ffc658' },
+  },
+  cpc: {
+    label: 'CPC ($)',
+    theme: { light: '#a4de6c', dark: '#a4de6c' },
+  },
 };
+
+function getAcosColor(acos: number): string {
+  if (acos < 15) return 'text-green-500';
+  if (acos < 25) return 'text-blue-500';
+  if (acos < 35) return 'text-yellow-500';
+  return 'text-red-500';
+}
 
 export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
@@ -61,13 +93,13 @@ export default function AcosCalculator() {
   >('acos');
 
   // State for manual input form
-  const [manualCampaign, setManualCampaign] = useState<ManualCampaignInput>({
+  const [manualCampaign, setManualCampaign] = useState({
     campaign: '',
     adSpend: '',
     sales: '',
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null); // Keep ref for potential programmatic trigger if needed elsewhere
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Memoized check for valid manual input
   const isManualInputValid = useMemo(() => {
@@ -137,12 +169,7 @@ export default function AcosCalculator() {
           sales,
           impressions,
           clicks,
-          ...calculateMetrics({
-            adSpend,
-            sales,
-            impressions,
-            clicks,
-          }),
+          ...calculateMetrics(adSpend, sales, impressions, clicks), // Pass parsed numbers
         };
       });
 
@@ -191,7 +218,11 @@ export default function AcosCalculator() {
           }
 
           try {
-            const processedData = processParsedCsvData(result.data);
+            // PapaParse result.data might not perfectly match CampaignData initially
+            // Cast to any[] first or handle potential type mismatches more robustly if needed
+            const processedData = processParsedCsvData(
+              result.data as CampaignData[],
+            );
             setCampaigns(processedData);
           } catch (err) {
             setError(
@@ -199,14 +230,14 @@ export default function AcosCalculator() {
             );
           }
         },
-        error: (error) => {
-          setIsLoading(false); // Ensure loading stops
+        error: (error: Error) => {
+          setIsLoading(false);
           setError(`Error parsing CSV file: ${error.message}`);
         },
       });
     },
     [processParsedCsvData],
-  ); // Add dependency
+  );
 
   // Setup react-dropzone
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -216,7 +247,24 @@ export default function AcosCalculator() {
     disabled: isLoading,
   });
 
-  const handleManualCalculate = useCallback(() => {
+  // Handle manual input changes
+  const handleManualInputChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      // Allow only numbers and a single decimal for numeric fields
+      if (name === 'adSpend' || name === 'sales') {
+        // Updated regex to allow empty string and valid numbers
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+          setManualCampaign((prev) => ({ ...prev, [name]: value }));
+        }
+      } else {
+        setManualCampaign((prev) => ({ ...prev, [name]: value }));
+      }
+    },
+    [],
+  );
+
+  const handleManualCalculate = () => {
     setError(null); // Clear previous errors
 
     if (!isManualInputValid) {
@@ -245,7 +293,7 @@ export default function AcosCalculator() {
     const sales = Number.parseFloat(manualCampaign.sales);
 
     // Calculate metrics using the utility function
-    const metrics = calculateMetrics({ adSpend, sales });
+    const metrics = calculateMetrics(adSpend, sales); // Only pass required args
 
     const newCampaign: CampaignData = {
       campaign: manualCampaign.campaign.trim(),
@@ -257,7 +305,7 @@ export default function AcosCalculator() {
     setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
     // Reset the form
     setManualCampaign({ campaign: '', adSpend: '', sales: '' });
-  }, [manualCampaign, isManualInputValid]); // Add dependencies
+  };
 
   const handleExport = useCallback(() => {
     if (campaigns.length === 0) {
@@ -298,30 +346,14 @@ export default function AcosCalculator() {
         `Failed to generate CSV: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
-  }, [campaigns]); // Add dependency
+  }, [campaigns]);
 
   const clearData = useCallback(() => {
     setCampaigns([]);
     setError(null);
     setManualCampaign({ campaign: '', adSpend: '', sales: '' }); // Also clear manual form
     // Resetting file input value is handled implicitly by react-dropzone not holding the file state
-  }, []); // No dependencies needed
-
-  // Handle manual input changes
-  const handleManualInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      // Allow only numbers and a single decimal for numeric fields
-      if (name === 'adSpend' || name === 'sales') {
-        if (value === '' || /^\d*\.?\d*$/.test(value)) {
-          setManualCampaign((prev) => ({ ...prev, [name]: value }));
-        }
-      } else {
-        setManualCampaign((prev) => ({ ...prev, [name]: value }));
-      }
-    },
-    [],
-  );
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -416,7 +448,7 @@ export default function AcosCalculator() {
                       ) => {
                         // Handle Infinity ACoS in tooltip
                         if (props.dataKey === 'acos' && value === Infinity) {
-                          return ['Infinite', chartConfig.acos.label];
+                          return ['Infinite', name];
                         }
                         if (typeof value === 'number') {
                           return [
@@ -559,7 +591,7 @@ export default function AcosCalculator() {
           <p className="font-medium">CSV Format Requirements:</p>
           <ul className="list-disc list-inside ml-4">
             <li>
-              Required columns: <code>campaign</code>, <code>adSpend</code>,{' '}
+              Required columns: <code>campaign</code>, <code>adSpend</code>,
               <code>sales</code>
             </li>
             <li>
@@ -570,7 +602,7 @@ export default function AcosCalculator() {
               (&gt;= 0).
             </li>
             <li>
-              Example Row:{' '}
+              Example Row:
               <code>
                 My Campaign&comma;150.50&comma;750.25&comma;10000&comma;200
               </code>
@@ -601,6 +633,7 @@ export default function AcosCalculator() {
               >
                 <input {...getInputProps()} ref={fileInputRef} />
                 <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                {/* Corrected: Content inside the dropzone div */}
                 <span className="text-sm font-medium">
                   {isDragActive
                     ? 'Drop CSV file here...'
@@ -609,11 +642,10 @@ export default function AcosCalculator() {
                 <span className="text-xs text-muted-foreground mt-1">
                   (Requires: campaign, adSpend, sales)
                 </span>
-              </div>
-              <div className="flex justify-center mt-4">
                 <SampleCsvButton
                   dataType="acos"
                   fileName="sample-acos-calculator.csv"
+                  className="mt-4" // Add margin if needed
                 />
               </div>
             </div>
@@ -640,11 +672,11 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-campaign"
-                  value={manualCampaign.campaign}
+                  name="campaign" // Added name
+                  value={manualCampaign.campaign} // Added value
                   onChange={handleManualInputChange}
-                  placeholder="Enter campaign name"
-                  disabled={isLoading}
                   required
+                  placeholder="Enter campaign name"
                 />
               </div>
               <div>
@@ -653,15 +685,15 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-adSpend"
-                  type="text"
+                  name="adSpend" // Added name
+                  type="text" // Use text type with inputMode for better control
                   inputMode="decimal"
-                  value={manualCampaign.adSpend}
+                  value={manualCampaign.adSpend} // Added value
                   onChange={handleManualInputChange}
-                  placeholder="e.g., 150.50"
-                  disabled={isLoading}
                   required
                   min="0"
                   step="0.01"
+                  placeholder="e.g., 150.50"
                 />
               </div>
               <div>
@@ -670,15 +702,15 @@ export default function AcosCalculator() {
                 </Label>
                 <Input
                   id="manual-sales"
-                  type="text"
+                  name="sales" // Added name
+                  type="text" // Use text type with inputMode
                   inputMode="decimal"
-                  value={manualCampaign.sales}
+                  value={manualCampaign.sales} // Added value
                   onChange={handleManualInputChange}
-                  placeholder="e.g., 750.25"
-                  disabled={isLoading}
                   required
-                  min="0.01"
+                  min="0.01" // Logical minimum, not enforced by type="text"
                   step="0.01"
+                  placeholder="e.g., 750.25"
                 />
               </div>
               <Button
@@ -698,7 +730,7 @@ export default function AcosCalculator() {
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span>{' '}
+          <span className="flex-grow break-words">{error}</span>
           {/* Allow error message to wrap */}
           <Button
             variant="ghost"
@@ -756,7 +788,7 @@ export default function AcosCalculator() {
                 <tbody>
                   {campaigns.map((campaign, index) => (
                     <tr
-                      key={`${campaign.campaign}-${index}`}
+                      key={`${campaign.campaign}-${index}`} // Use a combination for potential duplicate names
                       className="border-b last:border-b-0 hover:bg-muted/30 transition-colors"
                     >
                       <td className="px-4 py-3 font-medium">
@@ -769,14 +801,18 @@ export default function AcosCalculator() {
                         ${campaign.sales.toFixed(2)}
                       </td>
                       <td
-                        className={`px-4 py-3 text-right font-medium ${getAcosColor(campaign.acos)}`}
+                        className={`px-4 py-3 text-right font-medium ${getAcosColor(campaign.acos ?? Infinity)}`} // Handle undefined acos
                       >
                         {campaign.acos === Infinity
-                          ? '∞'
-                          : (campaign.acos?.toFixed(2) + '%' ?? 'N/A')}
+                          ? '∞' // Display Infinity symbol
+                          : campaign.acos !== undefined
+                            ? campaign.acos.toFixed(2) + '%'
+                            : 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-right font-medium">
-                        {campaign.roas?.toFixed(2)}x
+                        {campaign.roas !== undefined
+                          ? campaign.roas.toFixed(2) + 'x'
+                          : 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <Badge
@@ -785,11 +821,13 @@ export default function AcosCalculator() {
                               ? 'destructive'
                               : campaign.acos === undefined
                                 ? 'outline'
-                                : campaign.acos < 25
-                                  ? 'default'
-                                  : campaign.acos < 35
-                                    ? 'secondary'
-                                    : 'destructive'
+                                : campaign.acos < 15 // Adjusted thresholds for badge variants
+                                  ? 'default' // Excellent (Greenish/Default)
+                                  : campaign.acos < 25
+                                    ? 'secondary' // Good (Blueish/Secondary)
+                                    : campaign.acos < 35
+                                      ? 'outline' // Fair (Yellowish/Outline - adjust if needed)
+                                      : 'destructive' // Poor (Red/Destructive)
                           }
                           className="whitespace-nowrap"
                         >
@@ -814,16 +852,14 @@ export default function AcosCalculator() {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               {acosRatingGuide.map((rating) => (
-                <div
-                  key={rating.label}
-                  className="rounded-lg border bg-background p-2 text-center shadow-sm"
-                >
-                  <div className={`text-xs font-semibold ${rating.color}`}>
+                // Added key prop
+                <div key={rating.label}>
+                  <span className={`font-medium ${rating.color}`}>
                     {rating.label}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
+                  </span>
+                  <span className="text-xs text-muted-foreground block">
                     {rating.range}
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>
@@ -833,3 +869,20 @@ export default function AcosCalculator() {
     </div>
   );
 }
+
+const calculateMetrics = (
+  adSpend: number,
+  sales: number,
+  impressions?: number,
+  clicks?: number,
+) => {
+  if (sales <= 0) return { acos: Infinity, roas: 0 };
+
+  const acos = (adSpend / sales) * 100;
+  const roas = sales / adSpend;
+  const ctr = clicks && impressions ? (clicks / impressions) * 100 : undefined;
+  const cpc = clicks ? adSpend / clicks : undefined;
+  const conversionRate = clicks ? (sales / clicks) * 100 : undefined;
+
+  return { acos, roas, ctr, cpc, conversionRate };
+};

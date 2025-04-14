@@ -46,6 +46,11 @@ export interface InventoryData {
   averageDailySales: number;
   safetyStock: number;
   status: InventoryHealthStatus;
+  calculateInventoryRecommendation: (
+    currentStock: number,
+    averageSales: number,
+    leadTime: number,
+  ) => number;
 }
 
 export enum ProductCategory {
