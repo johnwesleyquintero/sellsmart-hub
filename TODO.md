@@ -1,113 +1,117 @@
-# Portfolio - Development Roadmap (ScaleWithWesley)
+# TODO List - Project Improvements and Fixes
 
----
+This list tracks tasks based on the analysis of `run_tasks.log` (Timestamp: 2025-04-14T10:31:21.228Z). Tasks are prioritized based on severity, starting with build-blocking issues.
 
-## Overview
+## 🚨 Critical Build Failures & Core Issues
 
-This document outlines the development roadmap for the **`ScaleWithWesley`** Portfolio project using a checklist format. It tracks tasks across different phases, categories, and priorities, providing a clear view of completed, ongoing, and planned work, aligned with the project's strategic objectives and branding initiative.
+-   [ ] **Fix `cn` Utility Function Import/Export:**
+    -   **Issue:** Multiple components (`accordion`, `badge`, `chart`, `context-menu`, `drawer`, `dropdown-menu`, `pagination`, `scroll-area`, `select`, `separator`, `switch`) are failing to import `cn` from `@/lib/core-utils` or `@/lib/styling-utils` (TS2305).
+    -   **Impact:** This causes numerous build warnings and a fatal runtime error (`TypeError: (0 , o.cn) is not a function`) during prerendering, breaking the build (`build` task failed).
+    -   **Action:** Investigate `src/lib/core-utils.ts` and `src/lib/styling-utils.ts`. Ensure `cn` (likely classnames utility) is correctly defined, exported, and imported in all affected UI components. Verify path aliases (`@/`) are configured correctly.
+-   [ ] **Resolve Module Not Found Errors (TS2307):**
+    -   `@/app/components/ui/theme-provider` in `src/components/ui/client-providers.tsx`
+    -   `./sidebar-nav` in `src/components/ui/dashboard-sidebar.tsx`
+    -   `@/app/components/ui/dropdown-menu`, `@/app/components/ui/input`, `@/app/components/ui/table` in `src/components/ui/data-table.tsx` and `src/lib/amazon-tools/acos/components/acos-table.tsx`
+    -   `./algorithms` and `./errors` in `src/lib/amazon-tools/types.ts`
+    -   `@/data/sample-data.json` in `src/lib/hooks/use-amazon-data.ts`
+    -   **Action:** Verify file paths, exports, and `tsconfig.json` path aliases. Ensure all necessary files exist and are correctly referenced.
 
-## Status Legend
+## 🔥 High Priority Type Errors (Likely Functionality Impact)
 
-- `[ ]` **Pending / In Progress**: Task planned or actively being worked on.
-- `[x]` **Done**: Task completed and verified.
+-   [ ] **Fix Component Prop Type Mismatches (TS2322, TS2339):**
+    -   **Inputs/Progress:** Many components pass incorrect props (`value`, `name`, `type`, `placeholder`, `onChange` type) to standard HTML elements (`input`, `progress`) or custom components (`NumberInput`). Affected files:
+        -   `about-section.tsx` (`progress`)
+        -   `acos-calculator.tsx` (`input`)
+        -   `competitor-analyzer.tsx` (`input`)
+        -   `description-editor.tsx` (`input`, `progress`)
+        -   `fba-calculator.tsx` (`input`, `progress`)
+        -   `keyword-analyzer.tsx` (`input`)
+        -   `keyword-deduplicator.tsx` (`progress`)
+        -   `listing-quality-checker.tsx` (`input`, `progress`)
+        -   `ppc-campaign-auditor.tsx` (`progress`)
+        -   `profit-margin-calculator.tsx` (`input`, `progress`)
+        -   `sales-estimator.tsx` (`input`, `progress`)
+        -   `contact-section.tsx` (`input`)
+        -   `ui/input.tsx` (`type`)
+        -   `ui/NumberInput.tsx` (`type`)
+        -   `ui/progress.tsx` (`value`, `max`)
+        -   `lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx` (`placeholder`)
+        -   `lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx` (`placeholder`)
+    -   **Links:** `mdx-components.tsx` passes `href: string | undefined` to a component expecting `Url` (TS2322).
+    -   **Custom Components:**
+        -   `keyword-trend-analyzer.tsx`: `onUpload` prop missing on `UploaderProps` (TS2322).
+        -   `profit-margin-calculator.tsx`: `toolName` prop missing on `SampleCsvButtonProps` (TS2322).
+    -   **Action:** Review the props being passed to these components and ensure they match the expected types defined by React, HTML, or the custom component's interface. Use correct event types (`ChangeEvent` vs `FormEvent`) and access event values correctly (e.g., `e.target.value`).
+-   [ ] **Address Missing Properties/Methods on Types (TS2339):**
+    -   `InventoryData` missing `salesLast30Days`, `leadTime` (`api/amazon/inventory/route.ts`).
+    -   `AmazonAlgorithms` missing `calculateInventoryRecommendation` (`api/amazon/inventory/route.ts`).
+    -   `EventTarget` missing `value`, `valueAsNumber` in various components (use `(e.target as HTMLInputElement).value`).
+    -   `KeywordData` missing `keywords` (`keyword-deduplicator.tsx`).
+    -   `ProductData` missing numerous properties (`conversionRate`, `sessions`, `reviewRating`, etc.) in `profit-margin-calculator.tsx`.
+    -   `Column<TData, unknown>` missing `setIsVisible` (Did you mean `getIsVisible`?) in `data-table.tsx`, `acos-table.tsx`, `keyword-table.tsx`, `ppc-table.tsx` (TS2551).
+    -   Link objects missing `id` in `header.tsx`.
+    -   **Action:** Update type definitions (`InventoryData`, `AmazonAlgorithms`, `KeywordData`, `ProductData`, etc.) or fix the code accessing incorrect properties. Use type assertions or correct methods (e.g., `getIsVisible`).
+-   [ ] **Fix Type Mismatches and Constraint Errors (TS2322, TS2345, TS2344, TS2554):**
+    -   `api/amazon/pricing/route.ts`: Incorrect number of arguments passed (TS2554).
+    -   `api/search/route.ts`: Types `BlogPost[]` and `{ name: string; description: string; }[]` do not satisfy `keyof StaticDataTypes` constraint (TS2344).
+    -   `acos-calculator.tsx`: `number | undefined` not assignable to `number` (TS2345).
+    -   `competitor-analyzer.tsx`: `FormEvent` not assignable to `ChangeEvent` (TS2345); `string` not assignable to `MetricType` (TS2345, TS2322).
+    -   `keyword-deduplicator.tsx`: `{...}` not assignable to `KeywordData[]` due to `cleanedKeywords: unknown[]` vs `string[]` (TS2322).
+    -   `listing-quality-checker.tsx`: Callback parameter type mismatch (`unknown` vs `CSVRow`) (TS2345).
+    -   `profit-margin-calculator.tsx`: Function type not assignable to `ReactNode` (TS2322).
+    -   **Action:** Correct function arguments, ensure types satisfy constraints, handle potential `undefined` values, fix event handler types, ensure data structures match their type definitions.
+-   [ ] **Resolve Missing Names/Types (TS2304):**
+    -   `getChartColor` in `competitor-analyzer.tsx`.
+    -   `FBAData` in `fba-calculator.tsx`.
+    -   `AmazonAlgorithms`, `ProductCategory` in `profit-margin-calculator.tsx`.
+    -   **Action:** Define or import these missing types/functions.
+-   [ ] **Fix Missing Exports / Import Suggestions (TS2614, TS2305, TS2724):**
+    -   `CampaignData` from `./ppc-campaign-auditor` (Did you mean default import?) in `CampaignCard.tsx` (TS2614).
+    -   `AmazonProduct`, `KeywordData` from `../amazon-tools/types` in `use-amazon-data.ts` (TS2305).
+    -   `CompetitorData` from `../amazon-tools/types` (Did you mean `CompetitorDataRow`?) in `use-amazon-data.ts` (TS2724).
+    -   **Action:** Correct the imports/exports as suggested or define the missing exports.
+-   [ ] **Add Explicit Types for `unknown` and Implicit `any` (TS18046, TS7006):**
+    -   `tools` (`unknown`), `tool` (`any`) in `api/search/route.ts`.
+    -   `error` (`unknown`) in `competitor-analyzer.tsx`, `description-editor.tsx`, `listing-quality-checker.tsx`.
+    -   `err` (`unknown`) in `profit-margin-calculator.tsx`.
+    -   `width`, `height` (`any`) in `profit-margin-calculator.tsx`.
+    -   `event`, `value` (`any`) in `data-table.tsx`, `acos-table.tsx`.
+    -   `k` (`any`) in `keyword-deduplicator.tsx`.
+    -   `tag` (`any`) in `lib/mdx.ts`.
+    -   **Action:** Provide explicit types for these variables and parameters instead of relying on `unknown` or implicit `any`.
+-   [ ] **Handle Possibly Undefined Objects (TS2532, TS18048):**
+    -   `keyword-analyzer.tsx(103,23)`: Object possibly undefined before access.
+    -   `listing-quality-checker.tsx(84,25)`: `results.meta.fields` possibly undefined.
+    -   `profit-margin-calculator.tsx(76,23)`: `result.meta.fields` possibly undefined.
+    -   **Action:** Add null/undefined checks (e.g., `?.` optional chaining, `if` checks) before accessing properties.
+-   [ ] **Fix Missing Required Properties (TS2741):**
+    -   `productName` missing in objects in `lib/generate-sample-csv.ts`.
+    -   **Action:** Ensure the objects being created include all required properties as defined by the `SampleData` type.
 
-## Priority Levels
+## 🟠 Medium Priority Code Quality & Refactoring
 
-- **Critical**: Must be addressed immediately.
-- **High**: Important for the current or next cycle.
-- **Medium**: Important but can be scheduled flexibly.
-- **Low**: Desirable improvement, not essential.
+-   [ ] **Investigate and Fix MDX Type Errors (TS2339 on `never`):**
+    -   **Issue:** Multiple errors in `src/lib/mdx.ts` indicate properties (`id`, `title`, `description`, `date`, `image`, `tags`, `readingTime`, `author`, `content`) are being accessed on a value typed as `never`.
+    -   **Action:** Review the MDX content processing logic (`getAllPosts`, `getPostBySlug`, etc.) and associated type definitions. Ensure frontmatter and content are correctly parsed and typed.
+-   [ ] **Resolve Duplicate Function Implementations (TS2393):**
+    -   **Issue:** Duplicate function implementations found in `src/lib/keyword-intelligence.ts`.
+    -   **Action:** Consolidate the duplicate functions into a single implementation.
+-   [ ] **Fix Import Declaration Conflict (TS2440):**
+    -   **Issue:** `calculateMetrics` import conflicts with a local declaration in `src/components/amazon-seller-tools/acos-calculator.tsx`.
+    -   **Action:** Rename the imported function using `as` or rename the local declaration.
+-   [ ] **Correct Static Data Loading Types (TS2322):**
+    -   **Issue:** Data loaded in `src/lib/load-static-data.ts` for `projects`, `posts`, `studies`, `changes`, `experience` does not match the expected structure of `StaticDataTypes[T]`.
+    -   **Action:** Update the JSON data structures or the `StaticDataTypes` definition to ensure they align.
 
-## Development Phases (Aligned with NEW IDEA.MD)
+## 🟡 Lower Priority & Best Practices
 
-- **Phase 0: Foundational Fixes (Prerequisites):** Critical cleanup and consistency tasks that MUST be done first.
-- **Phase 1: Core Branding & Foundational Content:** Establishing the `ScaleWithWesley` brand identity, core content channels, and initial functional tools.
-- **Phase 2: Enhance Core Offering & Expand Content:** Building out tool functionality, creating more content, refining UI/UX.
-- **Phase 3: Advanced Integrations & Future Growth:** Adding more sophisticated features, optimizations, and integrations based on clear needs.
-- **Backlog:** Tasks identified but not yet assigned to a specific phase or priority.
+-   [ ] **Update Next.js Metadata Viewport Configuration:**
+    -   **Issue:** Build warnings indicate `viewport` is configured in metadata exports (`/_not-found`, `/`).
+    -   **Action:** Move viewport configuration from `metadata` export to a separate `generateViewport` export as recommended by Next.js docs.
 
----
+## ✅ Post-Fix Tasks
 
-## Phase 0: Foundational Fixes (Prerequisites - Execute FIRST)
+-   [ ] **Run All Checks:** Execute `.\\run_tasks.bat` again (`npm run format`, `npm run lint`, `npm run typecheck`, `npm run build`) and ensure all tasks pass without errors or warnings.
+-   [ ] **Thorough Testing:** Manually test all affected components and pages to ensure functionality remains intact and issues are resolved.
+-   [ ] **Documentation:** Update any relevant documentation regarding the changes made, type definitions, or component usage.
 
-- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_
-- [x] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_
-- [ ] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup_
-- [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup_
-- [ ] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup_
-- [ ] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass). _Foundational performance_
-
----
-
-## Phase 1: Core Branding & Foundational Content
-
-- [ ] **ID 53 (Deps / High):** Update `next-themes` to support React 19 and remove `--legacy-peer-deps` workaround. _Resolve peer dependency conflict documented in WORKAROUND.md_
-- [ ] **ID 35 (Brand / High):** Implement `ScaleWithWesley` Branding (Logo, Favicon, Theme). _Integrate visual identity_
-- [ ] **ID 36 (Config / High):** Configure Domain/Hosting for `scalewithwesley.com`. _Ensure Vercel setup is correct_
-- [ ] **ID 37 (Blog / High):** Rebrand/Enhance existing Blog component & styling. _Align with brand, ensure MDX features robust_
-- [ ] **ID 38 (Newsletter / High):** Setup Newsletter Platform & Frontend Signup Form Component. _Choose provider (Substack, etc.), build UI_
-- [ ] **ID 39 (API / High):** Implement `POST /api/newsletter/subscribe` Endpoint. _Backend for newsletter signup_
-- [ ] **ID 40 (Content / High):** Create initial Blog Posts for _functional_ Seller Tools. _Explain value/usage of ready tools_
-- [ ] **ID 19 (Documentation / High):** Add initial User Guides for functional Amazon seller tools. _Basic "how-to" for users_
-- [ ] **ID 11 (Documentation / High):** Create API documentation for `/api/newsletter/subscribe`. _Document the first API endpoint_
-- [ ] **ID 5 (Amazon Tools / High):** Implement core PPC Campaign Auditor functionality. _Needed for content/core value_
-- [ ] **ID 6 (Amazon Tools / High):** Enhance Keyword Analyzer with trend data (core functionality). _Needed for content/core value_
-- [ ] **ID 24 (Amazon Tools / Critical):** Improve calculation algorithms for keyword analysis. _Ensure core tool logic is sound_
-- [ ] **ID 8 (Testing / High):** Add initial Unit Tests for core Seller Tool logic. _Start building test coverage_
-- [ ] **ID 41 (UI / Medium):** Add Links to Social Media/Newsletter Signup (Footer, etc.). _Promote channels_
-- [ ] **ID 12 (UI / Medium):** Implement consistent Dark Mode support across site. _Part of branding/UI polish_
-- [ ] **ID 42 (Brand / Medium):** Create core `ScaleWithWesley` Social Media Profiles (LinkedIn). _Establish online presence_
-
----
-
-## Phase 2: Enhance Core Offering & Expand Content
-
-- [ ] **ID 28 (UI / High):** Implement enhanced data visualization for seller tools. _Charts, graphs for better insights_
-- [ ] **ID 29 (UI / High):** Add robust data export functionality (CSV/Excel) for tools. _Core feature for tool usability_
-- [ ] **ID 16 (UI / High):** Enhance global error handling and user feedback mechanisms. _Improve UX, especially for tool errors_
-- [ ] **ID 25 (Amazon Tools / Critical):** Add robust input validation for all seller tools. _Prevent errors, ensure data integrity_
-- [ ] **ID 17 (Testing / High):** Add E2E tests for critical user flows (tool usage, signup). _Ensure key paths work reliably_
-- [ ] **ID 43 (Content / High):** Create blog posts for newly completed/enhanced Seller Tools. _Expand content library_
-- [ ] **ID 44 (Engagement / Medium):** Start regular Newsletter/Social Media activity. _Share content, engage audience_
-- [ ] **ID 47 (Deps / Medium):** Install Zod dependency for roadmap validation. _(Roadmap Display Feature)_
-- [ ] **ID 48 (Lib / Medium):** Define Zod schema (roadmapSchema.ts) for roadmap task structure. _(Roadmap Display Feature)_
-- [ ] **ID 49 (Core / Medium):** Adapt TODO.md data or create mechanism to provide roadmap data as JSON for display component. _(Roadmap Display Feature)_
-- [ ] **ID 50 (UI / High):** Create RoadmapDisplay React component (fetches, validates, groups, renders roadmap data). _(Roadmap Display Feature)_
-- [ ] **ID 51 (UI / Medium):** Add CSS styling for the RoadmapDisplay component. _(Roadmap Display Feature)_
-- [ ] **ID 52 (UI / High):** Integrate RoadmapDisplay component into a relevant page (e.g., /roadmap or /about). _(Roadmap Display Feature)_
-
----
-
-## Phase 3: Advanced Integrations & Future Growth
-
-- [ ] **ID 9 (Core / Critical):** Implement Authentication & Authorization (if needed). _Enables user accounts, saved data, etc._
-- [ ] **ID 45 (Integrations / Medium):** Define & Implement LinkedIn Integration (Purpose-Driven). _E.g., Display posts, Login (Requires Auth - ID 9)_
-- [ ] **ID 46 (API / Medium):** Define & Implement other APIs as needed (e.g., Contact Form). _Build APIs based on specific feature requirements_
-- [ ] **ID 13 (Analytics / Medium):** Implement usage tracking for tools. _Understand feature popularity_
-- [ ] **ID 20 (Monitoring / High):** Implement error tracking and reporting (e.g., Sentry). _Proactive issue detection_
-- [ ] **ID 15 (Performance / High):** Add Redis caching for API responses (if needed). _Optimize frequently accessed data_
-- [ ] **ID 23 (Security / Critical):** Add rate limiting for API endpoints. _Protect backend resources_
-- [ ] **ID 18 (Amazon Tools / Medium):** Add bulk processing capabilities for keyword analysis. _Advanced tool feature_
-- [ ] **ID 22 (UI / Low):** Implement progressive image loading / advanced optimizations. _Fine-tune performance_
-
----
-
-## Backlog (Future Considerations)
-
-- [ ] **ID 31 (Amazon Tools / Medium):** Add support for multiple languages in seller tools. _Internationalization (i18n)_
-- [ ] **ID 32 (Amazon Tools / Medium):** Add support for multiple currencies in seller tools. _Localization (l10n)_
-
----
-
-## Completed Tasks Summary
-
-- [x] **ID 1 (Setup / Critical):** Project structure and base configuration.
-- [x] **ID 2 (UI / Critical):** Basic component library setup.
-- [x] **ID 3 (Core / Critical):** Next.js app router implementation.
-- [x] **ID 4 (Amazon Tools / Critical):** Complete ACOS Calculator implementation.
-- [x] **ID 7 (UI / Critical):** Implement responsive design for all tools.
-- [x] **ID 14 (Security / Critical):** Implement API key rotation and management.
-
----
-
-[//]: # (Roadmap last updated: 2024-08-01) <!-- Update Manually -->

@@ -1,5 +1,5 @@
 {
-  "parallel": false,
+  "parallel": true,
   "stopOnFail": false,
   "commandTimeout": 300000,
   "checks": [
@@ -14,15 +14,12 @@
       "command": "npm run lint"
     },
     {
-      "id": "build",
-      "name": "Build Project",
-      "command": "npm run build"
-    },
-    {
       "id": "typecheck",
       "name": "Type Checking",
-      "command": "npx tsc --noEmit"
+      "command": "npm run typecheck"
     },
+    {
+      "id": "build",
       "name": "Build Project",
       "command": "npm run build"
     }
@@ -37,7 +34,7 @@
       "suggestion": "Check type annotations and interface definitions"
     },
     "build": {
-      "patterns": ["build.*failed", "vite", "Module not found"],
+      "patterns": ["build.*failed", "Module not found"],
       "suggestion": "Verify dependencies and build configuration"
     }
   }

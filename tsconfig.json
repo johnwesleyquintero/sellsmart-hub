@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -25,21 +21,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/lib/*": [
-        "./src/lib/*"
-      ],
-      "@/components/*": [
-        "./src/components/*"
-      ],
-      "@/app/components/*": [
-        "./src/app/components/*"
-      ],
-      "@/hooks/*": [
-        "./src/app/hooks/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/app/components/*": ["./src/app/components/*"],
+      "@/hooks/*": ["./src/app/hooks/*"]
     }
   },
   "include": [
@@ -49,12 +35,6 @@
     "src/**/*",
     ".next/types/**/*.ts"
   ],
-  "typeRoots": [
-    "./src/types",
-    "./node_modules/@types"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next"
-  ]
+  "typeRoots": ["./src/types", "./node_modules/@types"],
+  "exclude": ["node_modules", ".next"]
 }
