@@ -39,9 +39,46 @@ export interface FeeStructure {
   categoryFees: Record<ProductCategory, number>;
 }
 
+export interface FBAData {
+  productId: string;
+  dimensions: {
+    length: number;
+    width: number;
+    height: number;
+  };
+  weight: number;
+  storageDuration: number;
+  unitsSold: number;
+  referralFeePercentage: number;
+}
+
+export interface ProductData {
+  productId: string;
+  conversionRate?: number;
+  sessions?: number;
+  reviewRating?: number;
+  reviewCount?: number;
+  priceCompetitiveness?: number;
+  inventoryHealth?: number;
+  weight?: number;
+  salesVelocity?: number;
+}
+
+export class AmazonAlgorithms {
+  static calculateInventoryRecommendation(
+    salesData: number[],
+    leadTime: number,
+    currentInventory: number
+  ): number {
+    // Actual implementation should be moved from route.ts
+    return Math.max(...salesData) * leadTime - currentInventory;
+  }
+}
+
 export interface InventoryData {
-  salesLast30Days: number;
-  leadTime: number;
+  productId: string;
+  salesLast30Days?: number; // Added this property
+  leadTime?: number; // Added this property
   currentInventory: number;
   averageDailySales: number;
   safetyStock: number;

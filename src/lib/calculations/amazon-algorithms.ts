@@ -39,9 +39,12 @@ export class AmazonAlgorithms {
   }
 
   static calculateOptimalPrice(
-    currentPrice: number,
-    competitorPrices: number[],
-    productScore: number,
+    productionCost: number,
+    competitorPrice: number,
+    demandCurve: number[],
+    historicalSales: number[],
+    marketPosition: number,
+    elasticity: number
   ): number {
     const avgCompetitorPrice =
       competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;

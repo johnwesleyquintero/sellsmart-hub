@@ -10,7 +10,7 @@ import {
   Label,
   Progress,
 } from '@/components/ui';
-import { calculateMetrics, getAcosRating } from '@/lib/calculations/acos-utils';
+import { getAcosRating } from '@/lib/calculations/acos-utils';
 import {
   AlertCircle,
   Calculator,
@@ -169,7 +169,7 @@ export default function AcosCalculator() {
           sales,
           impressions,
           clicks,
-          ...calculateMetrics(adSpend, sales, impressions, clicks), // Pass parsed numbers
+          ...calculateLocalMetrics(adSpend, sales, impressions, clicks), // Pass parsed numbers
         };
       });
 
@@ -293,7 +293,7 @@ export default function AcosCalculator() {
     const sales = Number.parseFloat(manualCampaign.sales);
 
     // Calculate metrics using the utility function
-    const metrics = calculateMetrics(adSpend, sales); // Only pass required args
+    const metrics = calculateLocalMetrics(adSpend, sales); // Only pass required args
 
     const newCampaign: CampaignData = {
       campaign: manualCampaign.campaign.trim(),
@@ -870,7 +870,7 @@ export default function AcosCalculator() {
   );
 }
 
-const calculateMetrics = (
+const calculateLocalMetrics = (
   adSpend: number,
   sales: number,
   impressions?: number,
