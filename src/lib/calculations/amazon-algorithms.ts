@@ -1,4 +1,4 @@
-import { InventoryHealthStatus, ProductCategory } from '@/lib/amazon-types';
+import { InventoryHealthStatus, ProductCategory } from '../../amazon-types';
 import { INVENTORY_METRICS } from '../config/inventory-config';
 
 export class AmazonAlgorithms {
@@ -46,13 +46,23 @@ export class AmazonAlgorithms {
     marketPosition: number,
     elasticity: number,
   ): number {
+    // Implementation here
+  }
 
-  static calculateInventoryRecommendation(currentStock: number, salesVelocity: number): number {
+  static calculateInventoryRecommendation(
+    currentStock: number,
+    salesVelocity: number,
+  ): number {
     const safetyStock = Math.round(salesVelocity * 1.5);
     return Math.max(0, safetyStock - currentStock);
   }
-    const avgCompetitorPrice = competitorPrice; // Simplified using direct input value
-    const priceAdjustment = productScore * 0.2; // 20% max adjustment based on score
+
+  static calculateDynamicPricing(
+    competitorPrice: number,
+    productScore: number,
+  ): number {
+    const avgCompetitorPrice = competitorPrice;
+    const priceAdjustment = productScore * 0.2;
     return avgCompetitorPrice * (1 + priceAdjustment);
   }
 

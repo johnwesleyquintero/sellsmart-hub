@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { AmazonAlgorithms } from '@/lib/calculations/amazon-algorithms';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const optimalPrice = AmazonAlgorithms.calculateOptimalPrice(
       Number(basePrice),
       Number(competition),
-      Number(demandFactor),
+      [Number(demandFactor)], // Wrap in array to match number[] parameter type
       [...Array(30).fill(95)],
       0.8,
       1.2,

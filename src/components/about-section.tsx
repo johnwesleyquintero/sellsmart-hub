@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, CardContent, Progress } from '@/components/ui';
+import { Badge, Card, CardContent } from '@/components/ui';
 import type { Experience, Skill } from '@/lib/types';
 import {
   Brain,
@@ -242,7 +242,18 @@ export default function AboutSection() {
                             {skill.level}%
                           </span>
                         </div>
-                        <Progress value={skill.level} className="h-2" />
+                        <div
+                          role="progressbar"
+                          aria-valuenow={skill.level}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          className="h-2 w-full rounded-full bg-gray-200"
+                        >
+                          <div
+                            className="h-full rounded-full bg-blue-500"
+                            style={{ width: `${skill.level}%` }}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

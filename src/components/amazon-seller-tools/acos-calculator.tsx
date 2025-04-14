@@ -443,7 +443,7 @@ export default function AcosCalculator() {
                     <Tooltip
                       formatter={(
                         value: number | string,
-                        name: string,
+
                         props,
                       ) => {
                         // Handle Infinity ACoS in tooltip
