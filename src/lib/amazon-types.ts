@@ -68,7 +68,7 @@ export class AmazonAlgorithms {
   static calculateInventoryRecommendation(
     salesData: number[],
     leadTime: number,
-    currentInventory: number
+    currentInventory: number,
   ): number {
     // Actual implementation should be moved from route.ts
     return Math.max(...salesData) * leadTime - currentInventory;

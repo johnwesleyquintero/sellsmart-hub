@@ -44,10 +44,14 @@ export class AmazonAlgorithms {
     demandCurve: number[],
     historicalSales: number[],
     marketPosition: number,
-    elasticity: number
+    elasticity: number,
   ): number {
-    const avgCompetitorPrice =
-      competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
+
+  static calculateInventoryRecommendation(currentStock: number, salesVelocity: number): number {
+    const safetyStock = Math.round(salesVelocity * 1.5);
+    return Math.max(0, safetyStock - currentStock);
+  }
+    const avgCompetitorPrice = competitorPrice; // Simplified using direct input value
     const priceAdjustment = productScore * 0.2; // 20% max adjustment based on score
     return avgCompetitorPrice * (1 + priceAdjustment);
   }

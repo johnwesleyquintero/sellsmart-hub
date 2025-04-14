@@ -1,125 +1,555 @@
-# TODO ISSUES List - Project Improvements and Fixes
+# Error Report
 
-This list tracks tasks based on the analysis of `run_tasks.log` (Timestamp: 2025-04-14T10:31:21.228Z) and subsequent build logs (e.g., `npm run build` output). Tasks are prioritized based on severity, starting with build-blocking issues or critical warnings.
+## Additional Notes
+🚨 **Request for Systematic Implementation of Improvements and Fixes** 🚨
 
-## Command Used
+**Objective:**
+I need your assistance in implementing improvements and fixes systematically while ensuring that the existing functionality remains intact. Update the incorrect import path to reference the correct file location
 
-`.\run_tasks.bat`, `npm run build`
+**Details:**
+1. **Log File:** Please refer to the full log trace provided in `run_tasks.log` for any relevant information.
+2. **Command Used:** The command executed was `.\run_tasks.bat`.
 
-## 🚨 Critical Build Failures & Core Issues
+**Tasks:**
+1. **Review Logs:** Analyze the `run_tasks.log` file to identify any errors, warnings, or areas that need improvement.
+2. **Implement Fixes:** Address the identified issues systematically, ensuring that each fix is thoroughly tested.
+3. **Maintain Functionality:** Ensure that all existing functionality remains operational and unaffected by the changes.
+4. **Documentation:** Document all changes made, including the rationale behind each fix and any testing procedures used.
 
-- [ ] **Fix `cn` Utility Function Import Path Warning:**
-  - **Issue:** While the previous fatal `TypeError: (0 , o.cn) is not a function` seems resolved (build completes), numerous warnings (`Attempted import error: 'cn' is not exported from '@/lib/styling-utils'`) appear during `npm run build`. This indicates `src/components/ui/chart.tsx` is importing `cn` from the incorrect path (`@/lib/styling-utils`).
-  - **Progress:**
-    - ✅ `cn` utility function (using `clsx` and `tailwind-merge`) added to `src/lib/core-utils.ts`.
-    - ✅ Imports standardized to use `@/lib/core-utils` in 15+ previously known affected UI components.
-    - ✅ Path alias configuration (`@/`) in `tsconfig.json` verified.
-    - ✅ Build now completes successfully, avoiding the previous fatal runtime error.
-  - **Impact:** Although not breaking the build currently, incorrect imports can lead to unexpected styling issues or breakages if `styling-utils` changes. It pollutes the build log with warnings.
-  - **Action:** **Correct the import path for `cn` within `src/components/ui/chart.tsx` from `'@/lib/styling-utils'` to `'@/lib/core-utils'`. Verify that `npm run build` completes successfully _without these warnings_.**
-- [ ] **Resolve Module Not Found Errors (TS2307):**
-  - `@/app/components/ui/theme-provider` in `src/components/ui/client-providers.tsx` (Hint: Check if path should be `@/components/ui/...`)
-  - `./sidebar-nav` in `src/components/ui/dashboard-sidebar.tsx`
-  - `@/app/components/ui/dropdown-menu`, `@/app/components/ui/input`, `@/app/components/ui/table` in `src/components/ui/data-table.tsx` and `src/lib/amazon-tools/acos/components/acos-table.tsx` (Hint: Check if path should be `@/components/ui/...`)
-  - `./algorithms` and `./errors` in `src/lib/amazon-tools/types.ts`
-  - `@/data/sample-data.json` in `src/lib/hooks/use-amazon-data.ts`
-  - **Action:** Verify file paths, exports, and `tsconfig.json` path aliases. Ensure all necessary files exist and are correctly referenced. Correct paths like `@/app/components/ui/...` to `@/components/ui/...` if needed.
+**Expected Outcome:**
+- A stable system with improved performance and fixed issues.
+- Detailed documentation of all changes and testing results.
 
-## 🔥 High Priority Type Errors (Likely Functionality Impact)
+### Error: 1. Review Logs: Analyze the `run_tasks.log` file to identify any errors, warnings, or areas that need improvement.
+- **Fix:** Check the error message "1. Review Logs: Analyze the `run_tasks.log` file to identify any errors, warnings, or areas that need improvement." and refer to the relevant documentation for more details.
 
-- [ ] **Fix Component Prop Type Mismatches (TS2322, TS2339):**
-  - **Inputs/Progress:** Many components pass incorrect props (`value`, `name`, `type`, `placeholder`, `onChange` type) to standard HTML elements (`input`, `progress`) or custom components (`NumberInput`). Affected files:
-    - `about-section.tsx` (`progress`)
-    - `acos-calculator.tsx` (`input`)
-    - `competitor-analyzer.tsx` (`input`)
-    - `description-editor.tsx` (`input`, `progress`)
-    - `fba-calculator.tsx` (`input`, `progress`)
-    - `keyword-analyzer.tsx` (`input`)
-    - `keyword-deduplicator.tsx` (`progress`)
-    - `listing-quality-checker.tsx` (`input`, `progress`)
-    - `ppc-campaign-auditor.tsx` (`progress`)
-    - `profit-margin-calculator.tsx` (`input`, `progress`)
-    - `sales-estimator.tsx` (`input`, `progress`)
-    - `contact-section.tsx` (`input`)
-    - `ui/input.tsx` (`type`)
-    - `ui/NumberInput.tsx` (`type`)
-    - `ui/progress.tsx` (`value`, `max`)
-    - `lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx` (`placeholder`)
-    - `lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx` (`placeholder`)
-  - **Links:** `mdx-components.tsx` passes `href: string | undefined` to a component expecting `Url` (TS2322).
-  - **Custom Components:**
-    - `keyword-trend-analyzer.tsx`: `onUpload` prop missing on `UploaderProps` (TS2322).
-    - `profit-margin-calculator.tsx`: `toolName` prop missing on `SampleCsvButtonProps` (TS2322).
-  - **Action:** Review the props being passed to these components and ensure they match the expected types defined by React, HTML, or the custom component's interface. Use correct event types (`ChangeEvent` vs `FormEvent`) and access event values correctly (e.g., `e.target.value`).
-- [ ] **Address Missing Properties/Methods on Types (TS2339):**
-  - `InventoryData` missing `salesLast30Days`, `leadTime` (`api/amazon/inventory/route.ts`).
-  - `AmazonAlgorithms` missing `calculateInventoryRecommendation` (`api/amazon/inventory/route.ts`).
-  - `EventTarget` missing `value`, `valueAsNumber` in various components (use `(e.target as HTMLInputElement).value`).
-  - `KeywordData` missing `keywords` (`keyword-deduplicator.tsx`).
-  - `ProductData` missing numerous properties (`conversionRate`, `sessions`, `reviewRating`, etc.) in `profit-margin-calculator.tsx`.
-  - `Column<TData, unknown>` missing `setIsVisible` (Did you mean `getIsVisible`?) in `data-table.tsx`, `acos-table.tsx`, `keyword-table.tsx`, `ppc-table.tsx` (TS2551).
-  - Link objects missing `id` in `header.tsx`.
-  - **Action:** Update type definitions (`InventoryData`, `AmazonAlgorithms`, `KeywordData`, `ProductData`, etc.) or fix the code accessing incorrect properties. Use type assertions or correct methods (e.g., `getIsVisible`).
-- [ ] **Fix Type Mismatches and Constraint Errors (TS2322, TS2345, TS2344, TS2554):**
-  - `api/amazon/pricing/route.ts`: Incorrect number of arguments passed (TS2554).
-  - `api/search/route.ts`: Types `BlogPost[]` and `{ name: string; description: string; }[]` do not satisfy `keyof StaticDataTypes` constraint (TS2344).
-  - `acos-calculator.tsx`: `number | undefined` not assignable to `number` (TS2345).
-  - `competitor-analyzer.tsx`: `FormEvent` not assignable to `ChangeEvent` (TS2345); `string` not assignable to `MetricType` (TS2345, TS2322).
-  - `keyword-deduplicator.tsx`: `{...}` not assignable to `KeywordData[]` due to `cleanedKeywords: unknown[]` vs `string[]` (TS2322).
-  - `listing-quality-checker.tsx`: Callback parameter type mismatch (`unknown` vs `CSVRow`) (TS2345).
-  - `profit-margin-calculator.tsx`: Function type not assignable to `ReactNode` (TS2322).
-  - **Action:** Correct function arguments, ensure types satisfy constraints, handle potential `undefined` values, fix event handler types, ensure data structures match their type definitions.
-- [ ] **Resolve Missing Names/Types (TS2304):**
-  - `getChartColor` in `competitor-analyzer.tsx`.
-  - `FBAData` in `fba-calculator.tsx`.
-  - `AmazonAlgorithms`, `ProductCategory` in `profit-margin-calculator.tsx`.
-  - **Action:** Define or import these missing types/functions.
-- [ ] **Fix Missing Exports / Import Suggestions (TS2614, TS2305, TS2724):**
-  - `CampaignData` from `./ppc-campaign-auditor` (Did you mean default import?) in `CampaignCard.tsx` (TS2614).
-  - `AmazonProduct`, `KeywordData` from `../amazon-tools/types` in `use-amazon-data.ts` (TS2305).
-  - `CompetitorData` from `../amazon-tools/types` (Did you mean `CompetitorDataRow`?) in `use-amazon-data.ts` (TS2724).
-  - **Action:** Correct the imports/exports as suggested or define the missing exports.
-- [ ] **Add Explicit Types for `unknown` and Implicit `any` (TS18046, TS7006):**
-  - `tools` (`unknown`), `tool` (`any`) in `api/search/route.ts`.
-  - `error` (`unknown`) in `competitor-analyzer.tsx`, `description-editor.tsx`, `listing-quality-checker.tsx`.
-  - `err` (`unknown`) in `profit-margin-calculator.tsx`.
-  - `width`, `height` (`any`) in `profit-margin-calculator.tsx`.
-  - `event`, `value` (`any`) in `data-table.tsx`, `acos-table.tsx`.
-  - `k` (`any`) in `keyword-deduplicator.tsx`.
-  - `tag` (`any`) in `lib/mdx.ts`.
-  - **Action:** Provide explicit types for these variables and parameters instead of relying on `unknown` or implicit `any`.
-- [ ] **Handle Possibly Undefined Objects (TS2532, TS18048):**
-  - `keyword-analyzer.tsx(103,23)`: Object possibly undefined before access.
-  - `listing-quality-checker.tsx(84,25)`: `results.meta.fields` possibly undefined.
-  - `profit-margin-calculator.tsx(76,23)`: `result.meta.fields` possibly undefined.
-  - **Action:** Add null/undefined checks (e.g., `?.` optional chaining, `if` checks) before accessing properties.
-- [ ] **Fix Missing Required Properties (TS2741):**
-  - `productName` missing in objects in `lib/generate-sample-csv.ts`.
-  - **Action:** Ensure the objects being created include all required properties as defined by the `SampleData` type.
+### Error: $2
+- **Fix:** Check the error message "'productionCost' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-## 🟠 Medium Priority Code Quality & Refactoring
+### Error: $2
+- **Fix:** Check the error message "'competitorPrice' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-- [ ] **Investigate and Fix MDX Type Errors (TS2339 on `never`):**
-  - **Issue:** Multiple errors in `src/lib/mdx.ts` indicate properties (`id`, `title`, `description`, `date`, `image`, `tags`, `readingTime`, `author`, `content`) are being accessed on a value typed as `never`.
-  - **Action:** Review the MDX content processing logic (`getAllPosts`, `getPostBySlug`, etc.) and associated type definitions. Ensure frontmatter and content are correctly parsed and typed.
-- [ ] **Resolve Duplicate Function Implementations (TS2393):**
-  - **Issue:** Duplicate function implementations found in `src/lib/keyword-intelligence.ts`.
-  - **Action:** Consolidate the duplicate functions into a single implementation.
-- [ ] **Fix Import Declaration Conflict (TS2440):**
-  - **Issue:** `calculateMetrics` import conflicts with a local declaration in `src/components/amazon-seller-tools/acos-calculator.tsx`.
-  - **Action:** Rename the imported function using `as` or rename the local declaration.
-- [ ] **Correct Static Data Loading Types (TS2322):**
-  - **Issue:** Data loaded in `src/lib/load-static-data.ts` for `projects`, `posts`, `studies`, `changes`, `experience` does not match the expected structure of `StaticDataTypes[T]`.
-  - **Action:** Update the JSON data structures or the `StaticDataTypes` definition to ensure they align.
+### Error: $2
+- **Fix:** Check the error message "'demandCurve' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-## 🟡 Lower Priority & Best Practices
+### Error: $2
+- **Fix:** Check the error message "'historicalSales' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-- [ ] **Update Next.js Metadata Viewport Configuration:**
-  - **Issue:** Build warnings indicate `viewport` is configured in metadata exports (`/_not-found`, `/`, `/blog`).
-  - **Action:** Move viewport configuration from `metadata` export to a separate `generateViewport` export as recommended by Next.js docs.
+### Error: $2
+- **Fix:** Check the error message "'marketPosition' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-## ✅ Post-Fix Tasks
+### Error: $2
+- **Fix:** Check the error message "'elasticity' is defined but never used.  @typescript-eslint/no-unused-vars" and refer to the relevant documentation for more details.
 
-- [ ] **Run All Checks:** Execute `.\\run_tasks.bat` again (`npm run format`, `npm run lint`, `npm run typecheck`, `npm run build`) and ensure all tasks pass without errors or warnings.
-- [ ] **Thorough Testing:** Manually test all affected components and pages to ensure functionality remains intact and issues are resolved.
-- [ ] **Documentation:** Update any relevant documentation regarding the changes made, type definitions, or component usage.
+### Error:   [Analysis] Errors: 6, Warnings: 0
+- **Fix:** Check the error message "  [Analysis] Errors: 6, Warnings: 0" and refer to the relevant documentation for more details.
+
+### Error: src/app/api/amazon/inventory/route.ts(18,24): error TS2339: Property 'calculateInventoryRecommendation' does not exist on type 'typeof AmazonAlgorithms'.
+- **Fix:** Check the error message "src/app/api/amazon/inventory/route.ts(18,24): error TS2339: Property 'calculateInventoryRecommendation' does not exist on type 'typeof AmazonAlgorithms'." and refer to the relevant documentation for more details.
+
+### Error: src/app/api/amazon/pricing/route.ts(18,7): error TS2345: Argument of type 'number' is not assignable to parameter of type 'number[]'.
+- **Fix:** Check the error message "src/app/api/amazon/pricing/route.ts(18,7): error TS2345: Argument of type 'number' is not assignable to parameter of type 'number[]'." and refer to the relevant documentation for more details.
+
+### Error: src/app/api/search/route.ts(20,44): error TS2344: Type 'BlogPost[]' does not satisfy the constraint 'keyof StaticDataTypes'.
+- **Fix:** Check the error message "src/app/api/search/route.ts(20,44): error TS2344: Type 'BlogPost[]' does not satisfy the constraint 'keyof StaticDataTypes'." and refer to the relevant documentation for more details.
+
+### Error: src/app/api/search/route.ts(24,28): error TS2344: Type '{ name: string; description: string; }[]' does not satisfy the constraint 'keyof StaticDataTypes'.
+- **Fix:** Check the error message "src/app/api/search/route.ts(24,28): error TS2344: Type '{ name: string; description: string; }[]' does not satisfy the constraint 'keyof StaticDataTypes'." and refer to the relevant documentation for more details.
+
+### Error: src/app/api/search/route.ts(47,25): error TS18046: 'tools' is of type 'unknown'.
+- **Fix:** Check the error message "src/app/api/search/route.ts(47,25): error TS18046: 'tools' is of type 'unknown'." and refer to the relevant documentation for more details.
+
+### Error: src/app/api/search/route.ts(48,8): error TS7006: Parameter 'tool' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/app/api/search/route.ts(48,8): error TS7006: Parameter 'tool' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/components/about-section.tsx(245,35): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/about-section.tsx(245,35): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/acos-calculator.tsx(675,19): error TS2322: Type '{ id: string; name: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/acos-calculator.tsx(675,19): error TS2322: Type '{ id: string; name: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/acos-calculator.tsx(688,19): error TS2322: Type '{ id: string; name: string; type: string; inputMode: "decimal"; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; min: string; step: string; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/acos-calculator.tsx(688,19): error TS2322: Type '{ id: string; name: string; type: string; inputMode: "decimal"; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; min: string; step: string; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/acos-calculator.tsx(705,19): error TS2322: Type '{ id: string; name: string; type: string; inputMode: "decimal"; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; min: string; step: string; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/acos-calculator.tsx(705,19): error TS2322: Type '{ id: string; name: string; type: string; inputMode: "decimal"; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; required: true; min: string; step: string; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/acos-calculator.tsx(834,42): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/acos-calculator.tsx(834,42): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/CampaignCard.tsx(3,10): error TS2614: Module '"./ppc-campaign-auditor"' has no exported member 'CampaignData'. Did you mean to use 'import CampaignData from "./ppc-campaign-auditor"' instead?
+- **Fix:** Check the error message "src/components/amazon-seller-tools/CampaignCard.tsx(3,10): error TS2614: Module '"./ppc-campaign-auditor"' has no exported member 'CampaignData'. Did you mean to use 'import CampaignData from "./ppc-campaign-auditor"' instead?" and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(298,22): error TS18046: 'error' is of type 'unknown'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(298,22): error TS18046: 'error' is of type 'unknown'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(333,15): error TS2322: Type '{ id: string; type: string; accept: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(333,15): error TS2322: Type '{ id: string; type: string; accept: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(336,37): error TS2345: Argument of type 'Dispatch<SetStateAction<ProcessedRow | null>>' is not assignable to parameter of type '(data: ProcessedRow | ProcessedRow[]) => void'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(336,37): error TS2345: Argument of type 'Dispatch<SetStateAction<ProcessedRow | null>>' is not assignable to parameter of type '(data: ProcessedRow | ProcessedRow[]) => void'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(360,15): error TS2322: Type '{ id: string; type: string; accept: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(360,15): error TS2322: Type '{ id: string; type: string; accept: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(363,37): error TS2345: Argument of type 'Dispatch<SetStateAction<ProcessedRow[]>>' is not assignable to parameter of type '(data: ProcessedRow | ProcessedRow[]) => void'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(363,37): error TS2345: Argument of type 'Dispatch<SetStateAction<ProcessedRow[]>>' is not assignable to parameter of type '(data: ProcessedRow | ProcessedRow[]) => void'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(374,13): error TS2322: Type '{ id: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(374,13): error TS2322: Type '{ id: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(398,45): error TS2345: Argument of type 'string' is not assignable to parameter of type 'MetricType'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(398,45): error TS2345: Argument of type 'string' is not assignable to parameter of type 'MetricType'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(401,35): error TS2322: Type 'string' is not assignable to type 'MetricType'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(401,35): error TS2322: Type 'string' is not assignable to type 'MetricType'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(401,47): error TS2322: Type 'string' is not assignable to type 'MetricType'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(401,47): error TS2322: Type 'string' is not assignable to type 'MetricType'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/competitor-analyzer.tsx(480,29): error TS2304: Cannot find name 'getChartColor'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/competitor-analyzer.tsx(480,29): error TS2304: Cannot find name 'getChartColor'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(95,26): error TS18046: 'error' is of type 'unknown'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(95,26): error TS18046: 'error' is of type 'unknown'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(238,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(238,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(240,72): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(240,72): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(248,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(248,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(250,69): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(250,69): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/description-editor.tsx(287,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/description-editor.tsx(287,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(54,16): error TS2304: Cannot find name 'FBAData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(54,16): error TS2304: Cannot find name 'FBAData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(69,28): error TS2304: Cannot find name 'FBAData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(69,28): error TS2304: Cannot find name 'FBAData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(77,25): error TS2304: Cannot find name 'FBAData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(77,25): error TS2304: Cannot find name 'FBAData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(243,19): error TS2322: Type '{ id: string; name: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(243,19): error TS2322: Type '{ id: string; name: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(253,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(253,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(266,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(266,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(279,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(279,19): error TS2322: Type '{ id: string; name: string; type: string; min: string; step: string; value: number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(305,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(305,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/fba-calculator.tsx(366,27): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/fba-calculator.tsx(366,27): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-analyzer.tsx(103,23): error TS2532: Object is possibly 'undefined'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-analyzer.tsx(103,23): error TS2532: Object is possibly 'undefined'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-analyzer.tsx(104,26): error TS2339: Property 'split' does not exist on type 'string | string[]'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-analyzer.tsx(104,26): error TS2339: Property 'split' does not exist on type 'string | string[]'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-analyzer.tsx(326,23): error TS2322: Type '{ value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-analyzer.tsx(326,23): error TS2322: Type '{ value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(59,17): error TS2322: Type '{ product: string; originalKeywords: any; cleanedKeywords: unknown[]; duplicatesRemoved: number; }[]' is not assignable to type 'KeywordData[]'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(59,17): error TS2322: Type '{ product: string; originalKeywords: any; cleanedKeywords: unknown[]; duplicatesRemoved: number; }[]' is not assignable to type 'KeywordData[]'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(60,52): error TS2339: Property 'keywords' does not exist on type 'KeywordData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(60,52): error TS2339: Property 'keywords' does not exist on type 'KeywordData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(64,29): error TS2339: Property 'keywords' does not exist on type 'KeywordData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(64,29): error TS2339: Property 'keywords' does not exist on type 'KeywordData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(65,26): error TS2339: Property 'keywords' does not exist on type 'KeywordData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(65,26): error TS2339: Property 'keywords' does not exist on type 'KeywordData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(65,51): error TS7006: Parameter 'k' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(65,51): error TS7006: Parameter 'k' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(66,40): error TS2339: Property 'keywords' does not exist on type 'KeywordData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(66,40): error TS2339: Property 'keywords' does not exist on type 'KeywordData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(67,28): error TS2339: Property 'keywords' does not exist on type 'KeywordData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(67,28): error TS2339: Property 'keywords' does not exist on type 'KeywordData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-deduplicator.tsx(289,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-deduplicator.tsx(289,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/keyword-trend-analyzer.tsx(45,20): error TS2322: Type '{ onUpload: (data: string | number[]) => Promise<void>; }' is not assignable to type 'IntrinsicAttributes & UploaderProps'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/keyword-trend-analyzer.tsx(45,20): error TS2322: Type '{ onUpload: (data: string | number[]) => Promise<void>; }' is not assignable to type 'IntrinsicAttributes & UploaderProps'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(84,25): error TS18048: 'results.meta.fields' is possibly 'undefined'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(84,25): error TS18048: 'results.meta.fields' is possibly 'undefined'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(102,32): error TS2345: Argument of type '(row: CSVRow) => Promise<{ product: string; title: string; description: string; bulletPoints: string[]; images: number; keywords: string[]; keywordAnalysis: KeywordAnalysis[]; }>' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => Promise<{ product: string; title: string; description: string; bulletPoints: string[]; images: number; keywords: string[]; keywordAnalysis: KeywordAnalysis[]; }>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(102,32): error TS2345: Argument of type '(row: CSVRow) => Promise<{ product: string; title: string; description: string; bulletPoints: string[]; images: number; keywords: string[]; keywordAnalysis: KeywordAnalysis[]; }>' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => Promise<{ product: string; title: string; description: string; bulletPoints: string[]; images: number; keywords: string[]; keywordAnalysis: KeywordAnalysis[]; }>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(137,24): error TS18046: 'error' is of type 'unknown'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(137,24): error TS18046: 'error' is of type 'unknown'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(249,23): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(249,23): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(250,57): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(250,57): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/listing-quality-checker.tsx(273,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/listing-quality-checker.tsx(273,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/ppc-campaign-auditor.tsx(286,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/ppc-campaign-auditor.tsx(286,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(76,23): error TS18048: 'result.meta.fields' is possibly 'undefined'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(76,23): error TS18048: 'result.meta.fields' is possibly 'undefined'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(99,50): error TS18046: 'err' is of type 'unknown'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(99,50): error TS18046: 'err' is of type 'unknown'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(118,28): error TS2304: Cannot find name 'AmazonAlgorithms'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(118,28): error TS2304: Cannot find name 'AmazonAlgorithms'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(119,30): error TS2339: Property 'conversionRate' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(119,30): error TS2339: Property 'conversionRate' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(120,24): error TS2339: Property 'sessions' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(120,24): error TS2339: Property 'sessions' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(121,28): error TS2339: Property 'reviewRating' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(121,28): error TS2339: Property 'reviewRating' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(122,27): error TS2339: Property 'reviewCount' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(122,27): error TS2339: Property 'reviewCount' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(123,36): error TS2339: Property 'priceCompetitiveness' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(123,36): error TS2339: Property 'priceCompetitiveness' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(124,31): error TS2339: Property 'inventoryHealth' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(124,31): error TS2339: Property 'inventoryHealth' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(125,22): error TS2339: Property 'weight' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(125,22): error TS2339: Property 'weight' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(126,22): error TS2339: Property 'volume' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(126,22): error TS2339: Property 'volume' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(127,19): error TS2304: Cannot find name 'ProductCategory'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(127,19): error TS2304: Cannot find name 'ProductCategory'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(130,29): error TS2304: Cannot find name 'AmazonAlgorithms'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(130,29): error TS2304: Cannot find name 'AmazonAlgorithms'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(132,14): error TS2339: Property 'competitorPrices' does not exist on type 'ProductData'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(132,14): error TS2339: Property 'competitorPrices' does not exist on type 'ProductData'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,12): error TS2322: Type '(width: any, height: any) => Element' is not assignable to type 'ReactNode & ReactElement<unknown, string | JSXElementConstructor<any>>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,12): error TS2322: Type '(width: any, height: any) => Element' is not assignable to type 'ReactNode & ReactElement<unknown, string | JSXElementConstructor<any>>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,13): error TS7006: Parameter 'width' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,13): error TS7006: Parameter 'width' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,20): error TS7006: Parameter 'height' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(217,20): error TS7006: Parameter 'height' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(243,21): error TS2322: Type '{ id: string; type: string; accept: string; ref: RefObject<HTMLInputElement | null>; onChange: (event: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(243,21): error TS2322: Type '{ id: string; type: string; accept: string; ref: RefObject<HTMLInputElement | null>; onChange: (event: ChangeEvent<HTMLInputElement>) => void; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(256,36): error TS2322: Type '{ toolName: string; }' is not assignable to type 'IntrinsicAttributes & SampleCsvButtonProps'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(256,36): error TS2322: Type '{ toolName: string; }' is not assignable to type 'IntrinsicAttributes & SampleCsvButtonProps'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(270,23): error TS2322: Type '{ id: string; value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(270,23): error TS2322: Type '{ id: string; value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(274,45): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(274,45): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(284,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(284,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(289,42): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(289,42): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(300,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(300,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(305,43): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(305,43): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(316,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(316,23): error TS2322: Type '{ id: string; type: string; value: string | number; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; step: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(321,42): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(321,42): error TS2339: Property 'valueAsNumber' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/profit-margin-calculator.tsx(336,39): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/profit-margin-calculator.tsx(336,39): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(250,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(250,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(254,43): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(254,43): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(263,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(263,21): error TS2322: Type '{ value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(267,44): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(267,44): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(276,21): error TS2322: Type '{ type: string; min: string; step: string; value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(276,21): error TS2322: Type '{ type: string; min: string; step: string; value: string; onChange: (e: FormEvent<HTMLInputElement>) => void; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(283,41): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(283,41): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/amazon-seller-tools/sales-estimator.tsx(330,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/amazon-seller-tools/sales-estimator.tsx(330,21): error TS2322: Type '{ value: number; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLProgressElement> & RefAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/blog/mdx-components.tsx(96,6): error TS2322: Type '{ download?: any; href?: string | undefined; hrefLang?: string | undefined; media?: string | undefined; ping?: string | undefined; target?: HTMLAttributeAnchorTarget | undefined; ... 282 more ...; className: string; }' is not assignable to type 'InternalLinkProps'.
+- **Fix:** Check the error message "src/components/blog/mdx-components.tsx(96,6): error TS2322: Type '{ download?: any; href?: string | undefined; hrefLang?: string | undefined; media?: string | undefined; ping?: string | undefined; target?: HTMLAttributeAnchorTarget | undefined; ... 282 more ...; className: string; }' is not assignable to type 'InternalLinkProps'." and refer to the relevant documentation for more details.
+
+### Error: src/components/contact-section.tsx(137,38): error TS2322: Type '{ id: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/contact-section.tsx(137,38): error TS2322: Type '{ id: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/contact-section.tsx(145,23): error TS2322: Type '{ id: string; type: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/contact-section.tsx(145,23): error TS2322: Type '{ id: string; type: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/contact-section.tsx(157,21): error TS2322: Type '{ id: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/contact-section.tsx(157,21): error TS2322: Type '{ id: string; placeholder: string; required: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/header.tsx(309,33): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external: boolean; }'.
+- **Fix:** Check the error message "src/components/header.tsx(309,33): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external: boolean; }'." and refer to the relevant documentation for more details.
+
+### Error: src/components/header.tsx(316,29): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external: boolean; }'.
+- **Fix:** Check the error message "src/components/header.tsx(316,29): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external: boolean; }'." and refer to the relevant documentation for more details.
+
+### Error: src/components/header.tsx(320,33): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external?: undefined; } | { name: string; href: string; external: boolean; }'.
+- **Fix:** Check the error message "src/components/header.tsx(320,33): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external?: undefined; } | { name: string; href: string; external: boolean; }'." and refer to the relevant documentation for more details.
+
+### Error: src/components/header.tsx(325,29): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external?: undefined; } | { name: string; href: string; external: boolean; }'.
+- **Fix:** Check the error message "src/components/header.tsx(325,29): error TS2339: Property 'id' does not exist on type '{ name: string; href: string; external?: undefined; } | { name: string; href: string; external: boolean; }'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/dashboard-sidebar.tsx(15,10): error TS2724: '"./sidebar"' has no exported member named 'SidebarNav'. Did you mean 'Sidebar'?
+- **Fix:** Check the error message "src/components/ui/dashboard-sidebar.tsx(15,10): error TS2724: '"./sidebar"' has no exported member named 'SidebarNav'. Did you mean 'Sidebar'?" and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/data-table.tsx(72,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/ui/data-table.tsx(72,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/data-table.tsx(77,73): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/components/ui/data-table.tsx(77,73): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/data-table.tsx(98,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?
+- **Fix:** Check the error message "src/components/ui/data-table.tsx(98,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?" and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/input.tsx(8,17): error TS2339: Property 'type' does not exist on type 'HTMLAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/ui/input.tsx(8,17): error TS2339: Property 'type' does not exist on type 'HTMLAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/NumberInput.tsx(34,9): error TS2322: Type '{ type: string; id: string; value: string | number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string | undefined; step: string | undefined; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/components/ui/NumberInput.tsx(34,9): error TS2322: Type '{ type: string; id: string; value: string | number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string | undefined; step: string | undefined; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/progress.tsx(10,17): error TS2339: Property 'value' does not exist on type 'HTMLAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/ui/progress.tsx(10,17): error TS2339: Property 'value' does not exist on type 'HTMLAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/components/ui/progress.tsx(10,24): error TS2339: Property 'max' does not exist on type 'HTMLAttributes<HTMLProgressElement>'.
+- **Fix:** Check the error message "src/components/ui/progress.tsx(10,24): error TS2339: Property 'max' does not exist on type 'HTMLAttributes<HTMLProgressElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/acos/components/acos-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/lib/amazon-tools/acos/components/acos-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/acos/components/acos-table.tsx(66,70): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/lib/amazon-tools/acos/components/acos-table.tsx(66,70): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/acos/components/acos-table.tsx(84,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?
+- **Fix:** Check the error message "src/lib/amazon-tools/acos/components/acos-table.tsx(84,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?" and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(66,70): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(66,70): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(84,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?
+- **Fix:** Check the error message "src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx(84,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?" and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'.
+- **Fix:** Check the error message "src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(61,11): error TS2322: Type '{ placeholder: string; value: string; onChange: (event: FormEvent<HTMLInputElement>) => void | undefined; className: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(64,66): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+- **Fix:** Check the error message "src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(64,66): error TS2339: Property 'value' does not exist on type 'EventTarget'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(82,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?
+- **Fix:** Check the error message "src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx(82,58): error TS2551: Property 'setIsVisible' does not exist on type 'Column<TData, unknown>'. Did you mean 'getIsVisible'?" and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/amazon-algorithms.ts(50,7): error TS2552: Cannot find name 'competitorPrices'. Did you mean 'competitorPrice'?
+- **Fix:** Check the error message "src/lib/calculations/amazon-algorithms.ts(50,7): error TS2552: Cannot find name 'competitorPrices'. Did you mean 'competitorPrice'?" and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/amazon-algorithms.ts(50,32): error TS7006: Parameter 'a' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/lib/calculations/amazon-algorithms.ts(50,32): error TS7006: Parameter 'a' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/amazon-algorithms.ts(50,35): error TS7006: Parameter 'b' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/lib/calculations/amazon-algorithms.ts(50,35): error TS7006: Parameter 'b' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/amazon-algorithms.ts(50,53): error TS2552: Cannot find name 'competitorPrices'. Did you mean 'competitorPrice'?
+- **Fix:** Check the error message "src/lib/calculations/amazon-algorithms.ts(50,53): error TS2552: Cannot find name 'competitorPrices'. Did you mean 'competitorPrice'?" and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/amazon-algorithms.ts(51,29): error TS2304: Cannot find name 'productScore'.
+- **Fix:** Check the error message "src/lib/calculations/amazon-algorithms.ts(51,29): error TS2304: Cannot find name 'productScore'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/inventory-utils.ts(1,54): error TS2307: Cannot find module '@/types/amazon' or its corresponding type declarations.
+- **Fix:** Check the error message "src/lib/calculations/inventory-utils.ts(1,54): error TS2307: Cannot find module '@/types/amazon' or its corresponding type declarations." and refer to the relevant documentation for more details.
+
+### Error: src/lib/calculations/keyword-utils.ts(1,29): error TS2307: Cannot find module '@/types/amazon' or its corresponding type declarations.
+- **Fix:** Check the error message "src/lib/calculations/keyword-utils.ts(1,29): error TS2307: Cannot find module '@/types/amazon' or its corresponding type declarations." and refer to the relevant documentation for more details.
+
+### Error: src/lib/generate-sample-csv.ts(90,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'.
+- **Fix:** Check the error message "src/lib/generate-sample-csv.ts(90,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/generate-sample-csv.ts(98,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'.
+- **Fix:** Check the error message "src/lib/generate-sample-csv.ts(98,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/generate-sample-csv.ts(106,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'.
+- **Fix:** Check the error message "src/lib/generate-sample-csv.ts(106,9): error TS2741: Property 'productName' is missing in type '{ name: string; type: string; spend: number; sales: number; impressions: number; clicks: number; }' but required in type 'SampleData'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/hooks/use-amazon-data.ts(1,24): error TS2307: Cannot find module '@/data/sample-data.json' or its corresponding type declarations.
+- **Fix:** Check the error message "src/lib/hooks/use-amazon-data.ts(1,24): error TS2307: Cannot find module '@/data/sample-data.json' or its corresponding type declarations." and refer to the relevant documentation for more details.
+
+### Error: src/lib/hooks/use-amazon-data.ts(7,8): error TS2307: Cannot find module '../amazon-tools/types' or its corresponding type declarations.
+- **Fix:** Check the error message "src/lib/hooks/use-amazon-data.ts(7,8): error TS2307: Cannot find module '../amazon-tools/types' or its corresponding type declarations." and refer to the relevant documentation for more details.
+
+### Error: src/lib/keyword-intelligence.ts(19,16): error TS2393: Duplicate function implementation.
+- **Fix:** Check the error message "src/lib/keyword-intelligence.ts(19,16): error TS2393: Duplicate function implementation." and refer to the relevant documentation for more details.
+
+### Error: src/lib/keyword-intelligence.ts(127,16): error TS2393: Duplicate function implementation.
+- **Fix:** Check the error message "src/lib/keyword-intelligence.ts(127,16): error TS2393: Duplicate function implementation." and refer to the relevant documentation for more details.
+
+### Error: src/lib/load-static-data.ts(19,5): error TS2322: Type '{ projects: ({ title: string; description: string; focus: string; deliverable: string; impact: string; image: string; docs: string; } | { title: string; description: string; focus: string; deliverable: string; impact: string; image: string; docs?: undefined; })[]; }' is not assignable to type 'StaticDataTypes[T]'.
+- **Fix:** Check the error message "src/lib/load-static-data.ts(19,5): error TS2322: Type '{ projects: ({ title: string; description: string; focus: string; deliverable: string; impact: string; image: string; docs: string; } | { title: string; description: string; focus: string; deliverable: string; impact: string; image: string; docs?: undefined; })[]; }' is not assignable to type 'StaticDataTypes[T]'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/load-static-data.ts(22,5): error TS2322: Type '{ posts: never[]; }' is not assignable to type 'StaticDataTypes[T]'.
+- **Fix:** Check the error message "src/lib/load-static-data.ts(22,5): error TS2322: Type '{ posts: never[]; }' is not assignable to type 'StaticDataTypes[T]'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/load-static-data.ts(25,5): error TS2322: Type '{ studies: { id: string; title: string; summary: string; results: { acos_reduction: number; sales_increase: number; roi: number; }; tools_used: string[]; }[]; cases: never[]; }' is not assignable to type 'StaticDataTypes[T]'.
+- **Fix:** Check the error message "src/lib/load-static-data.ts(25,5): error TS2322: Type '{ studies: { id: string; title: string; summary: string; results: { acos_reduction: number; sales_increase: number; roi: number; }; tools_used: string[]; }[]; cases: never[]; }' is not assignable to type 'StaticDataTypes[T]'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/load-static-data.ts(28,5): error TS2322: Type '{ changes: never[]; }' is not assignable to type 'StaticDataTypes[T]'.
+- **Fix:** Check the error message "src/lib/load-static-data.ts(28,5): error TS2322: Type '{ changes: never[]; }' is not assignable to type 'StaticDataTypes[T]'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/load-static-data.ts(31,5): error TS2322: Type '{ experience: never[]; }' is not assignable to type 'StaticDataTypes[T]'.
+- **Fix:** Check the error message "src/lib/load-static-data.ts(31,5): error TS2322: Type '{ experience: never[]; }' is not assignable to type 'StaticDataTypes[T]'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(21,20): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(21,20): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(22,21): error TS2339: Property 'title' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(22,21): error TS2339: Property 'title' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(23,27): error TS2339: Property 'description' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(23,27): error TS2339: Property 'description' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(24,34): error TS2339: Property 'date' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(24,34): error TS2339: Property 'date' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(25,21): error TS2339: Property 'image' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(25,21): error TS2339: Property 'image' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(25,51): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(25,51): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(26,20): error TS2339: Property 'tags' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(26,20): error TS2339: Property 'tags' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(27,27): error TS2339: Property 'readingTime' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(27,27): error TS2339: Property 'readingTime' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(28,22): error TS2339: Property 'author' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(28,22): error TS2339: Property 'author' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(68,53): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(68,53): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(76,18): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(76,18): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(76,35): error TS2339: Property 'tags' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(76,35): error TS2339: Property 'tags' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(76,46): error TS7006: Parameter 'tag' implicitly has an 'any' type.
+- **Fix:** Check the error message "src/lib/mdx.ts(76,46): error TS7006: Parameter 'tag' implicitly has an 'any' type." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(76,59): error TS2339: Property 'tags' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(76,59): error TS2339: Property 'tags' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(80,17): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(80,17): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(81,18): error TS2339: Property 'title' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(81,18): error TS2339: Property 'title' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(82,24): error TS2339: Property 'description' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(82,24): error TS2339: Property 'description' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(86,18): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(86,18): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(87,19): error TS2339: Property 'title' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(87,19): error TS2339: Property 'title' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(88,25): error TS2339: Property 'description' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(88,25): error TS2339: Property 'description' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(89,32): error TS2339: Property 'date' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(89,32): error TS2339: Property 'date' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(90,19): error TS2339: Property 'image' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(90,19): error TS2339: Property 'image' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(90,49): error TS2339: Property 'id' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(90,49): error TS2339: Property 'id' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(91,18): error TS2339: Property 'tags' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(91,18): error TS2339: Property 'tags' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(92,25): error TS2339: Property 'readingTime' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(92,25): error TS2339: Property 'readingTime' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(93,20): error TS2339: Property 'author' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(93,20): error TS2339: Property 'author' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/mdx.ts(94,21): error TS2339: Property 'content' does not exist on type 'never'.
+- **Fix:** Check the error message "src/lib/mdx.ts(94,21): error TS2339: Property 'content' does not exist on type 'never'." and refer to the relevant documentation for more details.
+
+### Error: src/lib/static-data-types.ts(1,35): error TS2307: Cannot find module './amazon-tools/types' or its corresponding type declarations.\n---
+- **Fix:** Check the error message "src/lib/static-data-types.ts(1,35): error TS2307: Cannot find module './amazon-tools/types' or its corresponding type declarations.\n---" and refer to the relevant documentation for more details.
+
+### Error:   [Analysis] Errors: 163, Warnings: 0
+- **Fix:** Check the error message "  [Analysis] Errors: 163, Warnings: 0" and refer to the relevant documentation for more details.
+
+### Error: .wescore/utils/errorCategorizer.js 5ms (unchanged)
+- **Fix:** Check the error message ".wescore/utils/errorCategorizer.js 5ms (unchanged)" and refer to the relevant documentation for more details.
+
+### Error: docs/error-guide.md 12ms (unchanged)
+- **Fix:** Check the error message "docs/error-guide.md 12ms (unchanged)" and refer to the relevant documentation for more details.
+
+### Error: src/app/error.tsx 23ms (unchanged)
+- **Fix:** Check the error message "src/app/error.tsx 23ms (unchanged)" and refer to the relevant documentation for more details.
+
+### Error: src/components/error-boundary.tsx 16ms (unchanged)
+- **Fix:** Check the error message "src/components/error-boundary.tsx 16ms (unchanged)" and refer to the relevant documentation for more details.
+
+### Error: src/lib/amazon-tools/errors/errors.ts 8ms (unchanged)
+- **Fix:** Check the error message "src/lib/amazon-tools/errors/errors.ts 8ms (unchanged)" and refer to the relevant documentation for more details.
+
+### Error:   [Analysis] Errors: 3, Warnings: 0
+- **Fix:** Check the error message "  [Analysis] Errors: 3, Warnings: 0" and refer to the relevant documentation for more details.

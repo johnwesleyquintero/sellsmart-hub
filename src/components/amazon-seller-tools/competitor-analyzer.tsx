@@ -332,7 +332,9 @@ export default function CompetitorAnalyzer() {
               id="seller-csv"
               type="file"
               accept=".csv"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileUpload(e, setSellerData, 'seller')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleFileUpload(e, setSellerData, 'seller')
+              }
               className="cursor-pointer"
             />
           </div>
@@ -370,7 +372,9 @@ export default function CompetitorAnalyzer() {
           <Input
             id="asin"
             value={asin}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAsin(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setAsin(e.target.value)
+            }
             placeholder="Enter competitor ASIN or niche"
           />
         </div>
