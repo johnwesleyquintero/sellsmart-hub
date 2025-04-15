@@ -1,13 +1,12 @@
 'use client';
 
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -17,13 +16,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { ArrowDownUp, Columns } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 // import { useState, useRef } from 'react';
 // import { SampleCsvButton } from './sample-csv-button';
 // import { Upload } from 'lucide-react';
@@ -61,7 +61,7 @@ export function PpcTable<TData, TValue>({
           placeholder="Filter campaigns..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('name')?.setFilterValue(event.target.value)
+            table.getColumn('name')?.setFilterValue(((event.target as HTMLInputElement) as HTMLInputElement).value)
           }
           className="max-w-sm"
         />
@@ -79,8 +79,8 @@ export function PpcTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.setIsVisible(value)}
-                    >
+                      onCheckedChange={(value) => (column as any).setIsVisible(value)}
+                   >
                       {column.id}
                     </DropdownMenuCheckboxItem>
                   );

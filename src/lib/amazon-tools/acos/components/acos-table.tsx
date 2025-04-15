@@ -63,7 +63,7 @@ export function AcosTable<TData, TValue>({
             (table.getColumn('campaign')?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('campaign')?.setFilterValue(event.target.value)
+            table.getColumn('campaign')?.setFilterValue((event.target as HTMLInputElement).value)
           }
           className="max-w-sm"
         />
@@ -81,7 +81,7 @@ export function AcosTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.setIsVisible(value)}
+                      onCheckedChange={(value) => (column as any).setIsVisible(value)}
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>

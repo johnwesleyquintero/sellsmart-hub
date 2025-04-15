@@ -1,13 +1,13 @@
 'use client';
 
+import { ProductCategory, ProductData } from '@/lib/amazon-tools/types';
 import React from 'react';
-import { FBAData } from '../../lib/amazon-types';
 
-import { Button } from '@/components/ui/button'; // Reusable Button component
-import { Card, CardContent } from '@/components/ui/card'; // Reusable Card components
-import { Input } from '@/components/ui/input'; // Reusable Input component
-import { Label } from '@/components/ui/label'; // Reusable Label component
-import { Progress } from '@/components/ui/progress'; // Reusable Progress component
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
   Table,
   TableBody,
@@ -15,25 +15,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'; // Reusable Table components
+} from '@/components/ui/table';
 import { AlertCircle, Download, FileUp, Info, Upload } from 'lucide-react';
 import Papa from 'papaparse';
 import { useRef, useState } from 'react';
-
 interface FBAData {
   product: string;
   cost: number;
   price: number;
   fees: number;
+  category: ProductCategory;
+}
 }
 
 interface ProductData {
   productId: string;
-  dimensions: {
-    length: number;
-    width: number;
-    height: number;
-  };
+  dimensions: { length: number; width: number; height: number; };
   weight: number;
   storageDuration: number;
   unitsSold: number;
@@ -42,6 +39,7 @@ interface ProductData {
   cost: number;
   price: number;
   fees: number;
+  category: ProductCategory;
   profit?: number;
   roi?: number;
   margin?: number;
@@ -62,6 +60,7 @@ export default function FbaCalculator() {
     cost: 0,
     price: 0,
     fees: 0,
+    category: 'general'
   });
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,7 +109,9 @@ export default function FbaCalculator() {
                 cost: Number(item.cost),
                 price: Number(item.price),
                 fees: Number(item.fees),
-              }),
+                category: 'general' as ProductCategory,
+              })
+            ),
             );
 
           if (validData.length === 0) {
@@ -165,7 +166,7 @@ export default function FbaCalculator() {
     }
 
     setError(null);
-    const newManualProduct = {
+    const newManualProduct: ProductData = {
       productId: Math.random().toString(36).substring(2, 15),
       dimensions: { length: 0, width: 0, height: 0 },
       weight: 0,
@@ -176,6 +177,7 @@ export default function FbaCalculator() {
       cost: manualProduct.cost,
       price: manualProduct.price,
       fees: manualProduct.fees,
+      category: 'unknown' as ProductCategory,
     };
     const newData = [...csvData, newManualProduct];
     setCsvData(newData);
@@ -183,10 +185,17 @@ export default function FbaCalculator() {
 
     // Reset form
     setManualProduct({
+      productId: '',
+      dimensions: { length: 0, width: 0, height: 0 },
+      weight: 0,
+      storageDuration: 0,
+      unitsSold: 0,
+      referralFeePercentage: 0,
       product: '',
       cost: 0,
       price: 0,
       fees: 0,
+      category: 'general' as ProductCategory
     });
   };
 
@@ -293,7 +302,7 @@ export default function FbaCalculator() {
                     handleInputChange(e)
                   }
                   placeholder="Enter product name"
-                  {...e}
+                  name="product"
                 />
               </div>
               <div className="grid gap-2">
@@ -422,7 +431,7 @@ export default function FbaCalculator() {
                               ? Math.min(item.margin, 100)
                               : 0
                           }
-                          className={`h-2 ${item.margin && item.margin < 15 ? 'bg-red-200' : item.margin && item.margin < 30 ? 'bg-yellow-200' : 'bg-green-200'}`}
+                          className="h-2"
                         />
                       </div>
                     </TableCell>

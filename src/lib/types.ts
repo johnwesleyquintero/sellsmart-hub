@@ -31,16 +31,18 @@ export interface Project {
 }
 
 export interface BlogPost {
+  id: string;
   slug: string;
   title: string;
   description: string;
   date: string;
   tags: string[];
-  image: string;
+  image?: string;
   readingTime?: string;
   author?: string;
-  content?: string;
+  content: string;
   relatedPosts?: {
+    id: string;
     slug: string;
     title: string;
     description: string;

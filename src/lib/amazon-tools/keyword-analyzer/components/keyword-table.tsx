@@ -1,13 +1,12 @@
 'use client';
 
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -17,13 +16,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { ArrowDownUp, Columns } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 // import { useState, useRef } from 'react';
 // import { SampleCsvButton } from './sample-csv-button';
 // import { Upload } from 'lucide-react';
@@ -63,7 +63,7 @@ export function KeywordTable<TData, TValue>({
             (table.getColumn('keywords')?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('keywords')?.setFilterValue(event.target.value)
+            table.getColumn('keywords')?.setFilterValue((event.target as HTMLInputElement).value)
           }
           className="max-w-sm"
         />
@@ -81,8 +81,8 @@ export function KeywordTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.setIsVisible(value)}
-                    >
+                      onCheckedChange={(value) => (column as any).setIsVisible(value)}
+                   >
                       {column.id}
                     </DropdownMenuCheckboxItem>
                   );

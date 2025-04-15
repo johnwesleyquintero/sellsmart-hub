@@ -2,16 +2,16 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import Papa from 'papaparse';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, AlertCircle, Save, Eye } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { AlertCircle, Eye, FileText, Save, Upload } from 'lucide-react';
+import Papa from 'papaparse';
+import { useState } from 'react';
 
 type ProductDescription = {
   product: string;
@@ -92,7 +92,8 @@ export default function DescriptionEditor() {
           );
           toast({
             title: 'Processing Failed',
-            description: error.message,
+            description:
+              error instanceof Error ? error.message : 'An error occurred',
             variant: 'destructive',
           });
         }
@@ -105,9 +106,12 @@ export default function DescriptionEditor() {
     });
   };
 
-  const handleDescriptionChange = (value: string) => {
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     if (!activeProduct) return;
 
+    const value = event.target.value;
     const updatedProduct = {
       ...activeProduct,
       description: value,
@@ -118,12 +122,36 @@ export default function DescriptionEditor() {
 
     setActiveProduct(updatedProduct);
 
-    // Update the product in the products array
     setProducts(
       products.map((p) =>
         p.product === activeProduct.product ? updatedProduct : p,
       ),
     );
+  };
+
+  const handleProductNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setNewProduct({
+      ...newProduct,
+      product: event.target.value,
+    });
+  };
+
+  const handleAsinChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewProduct({
+      ...newProduct,
+      asin: event.target.value,
+    });
+  };
+
+  const handleNewDescriptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setNewProduct({
+      ...newProduct,
+      description: event.target.value,
+    });
   };
 
   const handleAddProduct = () => {
@@ -237,7 +265,7 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.product}
                     onChange={(e) =>
-                      setNewProduct({ ...newProduct, product: e.target.value })
+                      setNewProduct({ ...newProduct, product: (e.target as HTMLInputElement).value })
                     }
                     placeholder="Enter product name"
                   />
@@ -247,7 +275,7 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.asin}
                     onChange={(e) =>
-                      setNewProduct({ ...newProduct, asin: e.target.value })
+                      setNewProduct({ ...newProduct, asin: (e.target as HTMLInputElement).value })
                     }
                     placeholder="Enter Amazon ASIN"
                   />
@@ -259,7 +287,7 @@ export default function DescriptionEditor() {
                     onChange={(e) =>
                       setNewProduct({
                         ...newProduct,
-                        description: e.target.value,
+                        description: (e.target as HTMLTextAreaElement).value,
                       })
                     }
                     placeholder="Enter product description"
@@ -389,7 +417,9 @@ export default function DescriptionEditor() {
                   <div>
                     <Textarea
                       value={activeProduct.description}
-                      onChange={(e) => handleDescriptionChange(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        handleDescriptionChange(e)
+                      }
                       placeholder="Enter product description"
                       rows={10}
                       className="font-mono text-sm"

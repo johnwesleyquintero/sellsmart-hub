@@ -101,10 +101,9 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
-  const relatedPosts = await getAllPosts();
-  const filteredPosts = relatedPosts
+  const relatedPosts = (await getAllPosts())
     .filter(
-      (relatedPost: BlogPost) =>
+      (relatedPost) =>
         relatedPost.slug !== params.slug &&
         relatedPost.tags.some((tag) => post.tags.includes(tag)),
     )

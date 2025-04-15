@@ -33,7 +33,23 @@ interface ProcessedRow {
   niche?: string;
 }
 
-type MetricType = keyof Omit<ProcessedRow, 'asin' | 'niche'>;
+type MetricType =
+  | 'price'
+  | 'reviews'
+  | 'rating'
+  | 'conversion_rate'
+  | 'click_through_rate';
+
+const getChartColor = (metric: MetricType): string => {
+  const colors: Record<MetricType, string> = {
+    price: '#2563eb',
+    reviews: '#16a34a',
+    rating: '#eab308',
+    conversion_rate: '#dc2626',
+    click_through_rate: '#9333ea',
+  };
+  return colors[metric];
+};
 
 interface ChartDataPoint {
   name: string;
@@ -49,6 +65,7 @@ interface CsvRow {
   click_through_rate: string;
   niche?: string;
 }
+
 
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
@@ -103,6 +120,52 @@ export default function CompetitorAnalyzer() {
     return { validData, errors };
   };
 
+  const validateAndProcessData = (
+    data: CsvRow[],
+  ): { validData: ProcessedRow[]; errors: string[] } => {
+    const errors: string[] = [];
+    const validData = data
+      .filter((row, index) => {
+        const rowErrors: string[] = [];
+
+        if (!row.asin || row.asin.length !== 10) {
+          rowErrors.push(`Row ${index + 1}: Invalid ASIN format`);
+        }
+        if (isNaN(parseFloat(row.price))) {
+          rowErrors.push(`Row ${index + 1}: Invalid price`);
+        }
+        if (isNaN(parseInt(row.reviews))) {
+          rowErrors.push(`Row ${index + 1}: Invalid reviews`);
+        }
+        if (isNaN(parseFloat(row.rating))) {
+          rowErrors.push(`Row ${index + 1}: Invalid rating`);
+        }
+        if (isNaN(parseFloat(row.conversion_rate))) {
+          rowErrors.push(`Row ${index + 1}: Invalid conversion rate`);
+        }
+        if (isNaN(parseFloat(row.click_through_rate))) {
+          rowErrors.push(`Row ${index + 1}: Invalid CTR`);
+        }
+
+        if (rowErrors.length > 0) {
+          errors.push(...rowErrors);
+          return false;
+        }
+        return true;
+      })
+      .map((row) => ({
+        asin: row.asin,
+        price: parseFloat(row.price),
+        reviews: parseInt(row.reviews),
+        rating: parseFloat(row.rating),
+        conversion_rate: parseFloat(row.conversion_rate),
+        click_through_rate: parseFloat(row.click_through_rate),
+        niche: row.niche,
+      }));
+
+    return { validData, errors };
+  };
+
   useEffect(() => {
     if (chartData) {
       setSelectedMetrics(metrics);
@@ -118,20 +181,16 @@ export default function CompetitorAnalyzer() {
   const handleFileUpload = useCallback(
     (
       event: React.ChangeEvent<HTMLInputElement>,
-      setData: (data: ProcessedRow | ProcessedRow[]) => void,
+      setData: React.Dispatch<React.SetStateAction<ProcessedRow[] | null>>,
       type: 'seller' | 'competitor',
     ) => {
       const file = event.target.files?.[0];
-      setUploadErrors((prev) => ({ ...prev, [type]: [] }));
-      setIsUploading(true);
-
       if (!file) {
         toast({
           title: 'Error',
           description: 'No file selected',
           variant: 'destructive',
         });
-        setIsUploading(false);
         return;
       }
 
@@ -147,69 +206,41 @@ export default function CompetitorAnalyzer() {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         try {
-          const content = e.target?.result;
-          if (typeof content !== 'string') {
-            throw new Error('Invalid file content - file must be text-based');
-          }
-
-          Papa.parse<CsvRow>(content, {
+          const csvData = e.target?.result as string;
+          Papa.parse<CsvRow>(csvData, {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
-              if (results.errors.length > 0) {
-                throw new Error(
-                  `CSV parsing errors: ${results.errors.map((e) => e.message).join(', ')}`,
-                );
-              }
-
-              const requiredHeaders = [
-                'asin',
-                'price',
-                'reviews',
-                'rating',
-                'conversion_rate',
-                'click_through_rate',
-              ];
-              const missingHeaders = requiredHeaders.filter((h) =>
-                results.meta.fields ? !results.meta.fields.includes(h) : true,
+              const { validData, errors } = validateAndProcessData(
+                results.data,
               );
-              if (missingHeaders.length > 0) {
-                throw new Error(
-                  `Missing required columns: ${missingHeaders.join(', ')}`,
-                );
-              }
-
-              const { validData, errors } = processCsvData(results.data);
-              setUploadErrors((prev) => ({ ...prev, [type]: errors }));
-
               if (errors.length > 0) {
                 toast({
-                  title: 'Validation Issues',
-                  description: `Found ${errors.length} issues in ${file.name}`,
+                  title: 'Warning',
+                  description: `Some rows had validation errors: ${errors.join(', ')}`,
                   variant: 'destructive',
                 });
               }
-
-              if (validData.length > 0) {
-                if (type === 'seller') {
-                  setData(validData[0]);
-                } else {
-                  setData(validData);
-                }
-              }
+              setData(validData);
+            },
+            error: (error: Error) => {
+              console.error('CSV parsing error:', error);
               toast({
-                title: 'Success',
-                description: `${type} data (${file.name}) processed successfully`,
-                variant: 'default',
+                title: 'Error',
+                description: 'Failed to parse CSV file',
+                variant: 'destructive',
               });
             },
           });
         } catch (error) {
-          toast({
-            title: 'Error',
-            description: `Failed to process ${type} CSV (${file.name}): ${error instanceof Error ? error.message : 'Unknown error'}`,
-            variant: 'destructive',
-          });
+          if (error instanceof Error) {
+            console.error('File processing error:', error);
+            toast({
+              title: 'Error',
+              description: error.message,
+              variant: 'destructive',
+            });
+          }
         }
       };
       reader.readAsText(file);
@@ -295,11 +326,18 @@ export default function CompetitorAnalyzer() {
         metrics: Record<MetricType, number[]>;
       }
 
-      const data = (await response.json()) as ApiResponse;
-
-      // Ensure data has the expected structure
-      if (!data || !data.competitors || !data.metrics) {
-        throw new Error('Invalid response format from server');
+      let data: ApiResponse;
+      try {
+        data = await response.json();
+        if (!data || !data.competitors || !data.metrics) {
+          throw new Error('Invalid response format from server');
+        }
+      } catch (error) {
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : 'Failed to parse server response',
+        );
       }
 
       const formattedData = data.competitors.map((competitor, index) => {
@@ -329,13 +367,12 @@ export default function CompetitorAnalyzer() {
 
       setIsLoading(false);
     } catch (error) {
-      console.error(
-        'Error processing file:',
-        error instanceof Error ? error.message : 'Unknown error',
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error processing file:', errorMessage);
       toast({
         title: 'Error',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
       setChartData(null);
@@ -371,7 +408,13 @@ export default function CompetitorAnalyzer() {
             <Input
               id="seller-csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleFileUpload(e, setSellerData, 'seller')
+                handleFileUpload(
+                  e,
+                  setSellerData as React.Dispatch<
+                    React.SetStateAction<ProcessedRow[] | null>
+                  >,
+                  'seller',
+                )
               }
             />
           </div>
@@ -395,7 +438,13 @@ export default function CompetitorAnalyzer() {
             <Input
               id="competitor-csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleFileUpload(e, setCompetitorData, 'competitor')
+                handleFileUpload(
+                  e,
+                  setCompetitorData as React.Dispatch<
+                    React.SetStateAction<ProcessedRow[] | null>
+                  >,
+                  'competitor',
+                )
               }
             />
           </div>
@@ -421,25 +470,27 @@ export default function CompetitorAnalyzer() {
         <div>
           <Label htmlFor="metrics">Metrics to Compare</Label>
           <div className="flex flex-col gap-2">
-            {[
-              'price',
-              'reviews',
-              'rating',
-              'sales_velocity',
-              'inventory_levels',
-              'conversion_rate',
-              'click_through_rate',
-            ].map((metric) => (
+            {(
+              [
+                'price',
+                'reviews',
+                'rating',
+                'conversion_rate',
+                'click_through_rate',
+              ] as const
+            ).map((metric) => (
               <div key={metric} className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id={metric}
-                  checked={metrics.includes(metric)}
+                  checked={metrics.includes(metric as MetricType)}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setMetrics([...metrics, metric]);
+                      setMetrics([...metrics, metric as MetricType]);
                     } else {
-                      setMetrics(metrics.filter((m) => m !== metric));
+                      setMetrics(
+                        metrics.filter((m) => m !== (metric as MetricType)),
+                      );
                     }
                   }}
                   className="h-4 w-4 rounded border-gray-300"
@@ -510,17 +561,25 @@ export default function CompetitorAnalyzer() {
                   tick={{ fontSize: isMobile ? 10 : 14 }}
                 />
                 <YAxis />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #ddd',
-                    borderRadius: 8,
-                  }}
-                  formatter={(value, name) => [
-                    value,
-                    name.toString().replace('_', ' ').toUpperCase(),
-                  ]}
-                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" className="w-full">
+                      <Info className="mr-2 h-4 w-4" />
+                      View Analysis
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white border border-gray-300 rounded-md shadow-sm">
+                    {chartData && chartData.length > 0 ? (
+                      chartData.map((entry: any, index: number) => (
+                        <div key={`tooltip-${index}`}>
+                          {entry.name}: {entry.price}
+                        </div>
+                      ))
+                    ) : (
+                      <div>No data available</div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
                 <Legend wrapperStyle={{ paddingTop: 20 }} />
                 {selectedMetrics.map((metric) => (
                   <Line

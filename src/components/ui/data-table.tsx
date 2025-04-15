@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
             (table.getColumn('productName')?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('productName')?.setFilterValue(event.target.value)
+            table.getColumn('productName')?.setFilterValue((event.target as HTMLInputElement).value)
           }
           className="max-w-sm"
         />

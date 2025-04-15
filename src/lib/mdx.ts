@@ -14,34 +14,35 @@ const postsDirectory = path.join(process.cwd(), 'content/blog');
 export async function getAllPosts(): Promise<BlogPost[]> {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
-    // If not, return sample data from data/portfolio-data/blog.json
-    const blogData = await import('@/data/portfolio-data/blog.json');
-    if (!fs.existsSync(postsDirectory)) {
-      // If not, return sample data from data/portfolio-data/blog.json
-      const blogData = await import('@/data/portfolio-data/blog.json');
-      if (!blogData || !blogData.posts) {
-        return [];
-      }
-      return (blogData.posts as any[])
-        .map(
-          (post): BlogPost => ({
-            // Remove any dynamic values that could differ between server/client
-            slug: post.id,
-            title: post.title,
-            description: post.description,
-            date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
-            image: post.image || `/images/blog/${post.id}.svg`,
-            tags: post.tags || [],
-            readingTime: data.readingTime || '5 min read',
-            author: post.author || 'Wesley Quintero',
-          }),
-        )
-        .sort((a, b) =>
-          normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
-        ); // Sort using normalized dates
-    }
-  }
+    const { posts } = await import('@/data/portfolio-data/blog.json');
+    if (!posts) return [];
 
+    return posts
+      .map(
+        (post: {
+          id: string;
+          title: string;
+          description: string;
+          date: string;
+          image?: string;
+          tags?: string[];
+          readingTime?: string;
+          author?: string;
+        }): BlogPost => ({
+          slug: post.id,
+          title: post.title,
+          description: post.description,
+          date: normalizeDate(post.date),
+          image: post.image || `/images/blog/${post.id}.svg`,
+          tags: post.tags || [],
+          readingTime: post.readingTime || '5 min read',
+          author: post.author || 'Wesley Quintero',
+        }),
+      )
+      .sort((a, b) =>
+        normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
+      );
+  }
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = await Promise.all(
     fileNames

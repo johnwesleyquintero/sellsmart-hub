@@ -10,6 +10,7 @@ import {
   Label,
   Progress,
 } from '@/components/ui';
+import { MetricKey } from '@/lib/amazon-tools/types';
 import { getAcosRating } from '@/lib/calculations/acos-utils';
 import {
   AlertCircle,
@@ -58,35 +59,21 @@ const acosRatingGuide = [
   { label: 'Poor', range: '> 35%', color: 'text-red-500' },
 ];
 
-type MetricKey = 'acos' | 'roas' | 'ctr' | 'cpc';
+const chartConfig = {
+  acos: { label: 'ACoS (%)', theme: { light: '#8884d8', dark: '#8884d8' } },
+  roas: { label: 'ROAS (x)', theme: { light: '#82ca9d', dark: '#82ca9d' } },
+  ctr: { label: 'CTR (%)', theme: { light: '#ffc658', dark: '#ffc658' } },
+  cpc: { label: 'CPC ($)', theme: { light: '#ff7300', dark: '#ff7300' } },
+} as const satisfies {
+  [key in MetricKey]: { label: string; theme: { light: string; dark: string } };
+};
 
-interface ChartTheme {
-  light: string;
-  dark: string;
-}
-
-interface MetricConfig {
+type MetricConfig = {
   label: string;
-  theme: ChartTheme;
-}
-
-const chartConfig: Record<MetricKey, MetricConfig> = {
-  acos: {
-    label: 'ACoS (%)',
-    theme: { light: '#8884d8', dark: '#8884d8' },
-  },
-  roas: {
-    label: 'ROAS (x)',
-    theme: { light: '#82ca9d', dark: '#82ca9d' },
-  },
-  ctr: {
-    label: 'CTR (%)',
-    theme: { light: '#ffc658', dark: '#ffc658' },
-  },
-  cpc: {
-    label: 'CPC ($)',
-    theme: { light: '#a4de6c', dark: '#a4de6c' },
-  },
+  theme: {
+    light: string;
+    dark: string;
+  };
 };
 
 function getAcosColor(acos: number): string {
@@ -102,6 +89,7 @@ export default function AcosCalculator() {
   const [error, setError] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>('acos');
 
+    console.log('Selected Metric:', selectedMetric);
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({
     campaign: '',
@@ -451,7 +439,10 @@ export default function AcosCalculator() {
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
-                      formatter={(value: number | string, name: string) => {
+                      formatter={(
+                        value: number | string,
+                        name: MetricKey,
+                      ) => {
                         // Handle Infinity ACoS in tooltip
                         if (name === 'acos' && value === Infinity) {
                           return 'Infinite';

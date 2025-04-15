@@ -1,4 +1,5 @@
 {
   "cline.modelSettings.o3Mini.reasoningEffort": "high",
-  "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5501,
+  "editor.codeActionsOnSave": {}
 }
