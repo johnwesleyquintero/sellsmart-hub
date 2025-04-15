@@ -1,4 +1,4 @@
-import { KeywordData } from '../amazon-types';
+import { KeywordData } from '@/lib/amazon-types';
 
 export class KeywordUtils {
   static readonly THRESHOLDS = {
