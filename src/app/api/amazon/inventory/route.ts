@@ -1,6 +1,6 @@
-import type { InventoryData } from '@/src/lib/amazon-types';
-import { AmazonAlgorithms } from '@/src/lib/calculations/amazon-algorithms';
 import { NextResponse } from 'next/server';
+import type { InventoryData } from '../../../../lib/amazon-types';
+import { AmazonAlgorithms } from '../../../../lib/calculations/amazon-algorithms';
 
 export async function POST(request: Request) {
   try {

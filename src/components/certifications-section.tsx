@@ -1,6 +1,6 @@
 import { Award, Calendar, CheckCircle } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { Card, CardContent } from '../ui/card';
+import { Badge } from './ui/badge';
+import { Card, CardContent } from './ui/card';
 
 const certifications = [
   {

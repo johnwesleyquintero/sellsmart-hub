@@ -1,5 +1,5 @@
-import { AmazonAlgorithms } from '@/src/lib/calculations/amazon-algorithms';
 import { NextResponse } from 'next/server';
+import { AmazonAlgorithms } from '../../../../lib/calculations/amazon-algorithms';
 
 export async function POST(request: Request) {
   try {

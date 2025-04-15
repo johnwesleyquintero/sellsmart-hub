@@ -1,7 +1,7 @@
-import { apiKeyMiddleware } from '@/api-key-management';
-import { loadStaticData } from '@/load-static-data';
-import { BlogPost } from '@/static-data-types';
 import { NextResponse } from 'next/server';
+import { apiKeyMiddleware } from '../../../lib/api-key-management';
+import { loadStaticData } from '../../../lib/load-static-data';
+import type { BlogPost } from '../../../lib/static-data-types';
 
 export async function GET(request: Request) {
   const authResponse = apiKeyMiddleware(request);
