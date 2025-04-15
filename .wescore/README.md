@@ -1,6 +1,14 @@
+
+
+<div align="center">
+  <img src="assets/logo.svg" alt="Wescore Logo" width="200">
+
+  [![Netlify Status](https://api.netlify.com/api/v1/badges/2948d7bc-c617-4620-8b04-c8342ff54b33/deploy-status)](https://app.netlify.com/sites/wescore/deploys)
+
+
 # Wescore | Code Quality Framework
 
-**Version:** (Specify your current version, e.g., 1.0.0)
+**Version:** 1.1.0</div>
 
 ## Overview
 
@@ -45,7 +53,7 @@ The framework executes configured checks sequentially or in parallel. When check
 ## Project Structure
 
 The framework resides within the `.wescore` directory:
-
+ ```
 .wescore/
 ├── config/
 │   ├── loader.js  # Configuration loading and validation logic
@@ -57,6 +65,13 @@ The framework resides within the `.wescore` directory:
 ├── utils/ # (Potentially removed/refactored if errorCategorizer.js is unused)
 │   └── errorCategorizer.js  # (Legacy categorization, main logic now in main.js)
 └── main.js  # Main script: orchestrates checks, logging, and error parsing
+ ```
+## Scripts
+-   **`npm run cq`**: Runs the Wescore script.
+-   **`npm run format`**: Runs Prettier for code formatting.
+-   **`npm run lint`**: Runs ESLint for linting.
+-   **`npm run typecheck`**: Runs TypeScript's type checker.
+-   **`npm run build`**: Runs the project's build command (e.g., Next.js build).
 
 *(Note: Review if `reporting/reporter.js` and `utils/errorCategorizer.js` are still used or if their logic is fully integrated into `main.js`. Update structure if needed.)*
 
