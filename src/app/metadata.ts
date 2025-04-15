@@ -84,12 +84,6 @@ export const metadata: Metadata = {
     process.env.NODE_ENV === 'development'
       ? new URL('http://localhost:3000')
       : new URL('https://wesleyquintero.vercel.app'),
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   verification: {
     google: 'google-site-verification-code', // Replace with actual code
   },
@@ -104,4 +98,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };

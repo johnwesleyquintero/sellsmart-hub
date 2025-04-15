@@ -78,7 +78,7 @@ export const metadata = {
     metadataBase: process.env.NODE_ENV === 'development'
         ? new URL('http://localhost:3000')
         : new URL('https://wesleyquintero.vercel.app'),
-    viewport: {
+    export const viewport = {
         width: 'device-width',
         initialScale: 1,
         maximumScale: 1,
