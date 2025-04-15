@@ -1,5 +1,5 @@
-import { BlogPost } from '@/lib/static-data-types';
-import { cn } from '@/lib/utils';
+import { BlogPost } from '@/static-data-types';
+import { cn } from '@/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import type React from 'react';

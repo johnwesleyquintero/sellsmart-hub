@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { FileText, Info } from 'lucide-react';
+import Papa from 'papaparse';
+import { useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import SampleCsvButton from './sample-csv-button';
 
 type UploaderProps = {

@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
-import CsvUploader from './CsvUploader';
+import React, { useCallback, useState } from 'react';
 import {
-  ResponsiveContainer,
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
 } from 'recharts';
+import CsvUploader from './CsvUploader';
 
 interface ChartDataPoint {
   name: string;

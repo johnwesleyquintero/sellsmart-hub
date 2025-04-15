@@ -7,6 +7,8 @@ import Papa from 'papaparse';
 import type React from 'react';
 import { useRef, useState } from 'react';
 
+// Correct the import paths
+
 export default function ProfitMarginCalculator() {
   interface ProductData {
     product: string;

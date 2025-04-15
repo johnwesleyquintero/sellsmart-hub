@@ -4,12 +4,12 @@ import AboutSection from '@/components/about-section';
 import BlogSection from '@/components/blog-section';
 import CertificationsSection from '@/components/certifications-section';
 import ContactSection from '@/components/contact-section';
-import ErrorBoundary from '@/components/error-boundary';
 import FeaturedToolsSection from '@/components/featured-tools-section';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import HeroSection from '@/components/hero-section';
 import ProjectsSection from '@/components/projects-section';
+import ErrorBoundary from '@/components/ui/error-boundary';
 
 export default function Home() {
   return (

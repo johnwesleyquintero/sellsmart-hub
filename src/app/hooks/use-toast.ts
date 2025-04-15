@@ -3,7 +3,7 @@
 // Inspired by react-hot-toast library
 import * as React from 'react';
 
-import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
+import Toast from '@/components/ui/toast';
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -180,3 +180,5 @@ function useToast() {
 }
 
 export { toast, useToast };
+
+export default useToast;

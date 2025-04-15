@@ -1,7 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AcosCalculator from '@/components/amazon-seller-tools/acos-calculator';
+import CompetitorAnalyzer from '@/components/amazon-seller-tools/competitor-analyzer';
+import DescriptionEditor from '@/components/amazon-seller-tools/description-editor';
+import FbaCalculator from '@/components/amazon-seller-tools/fba-calculator';
+import KeywordAnalyzer from '@/components/amazon-seller-tools/keyword-analyzer';
+import KeywordDeduplicator from '@/components/amazon-seller-tools/keyword-deduplicator';
+import KeywordTrendAnalyzer from '@/components/amazon-seller-tools/keyword-trend-analyzer';
+import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
+import PpcCampaignAuditor from '@/components/amazon-seller-tools/ppc-campaign-auditor';
+import ProfitMarginCalculator from '@/components/amazon-seller-tools/profit-margin-calculator';
+import SalesEstimator from '@/components/amazon-seller-tools/sales-estimator';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -9,31 +19,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import FbaCalculator from '@/components/amazon-seller-tools/fba-calculator';
-import KeywordAnalyzer from '@/components/amazon-seller-tools/keyword-analyzer';
-import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
-import PpcCampaignAuditor from '@/components/amazon-seller-tools/ppc-campaign-auditor';
-import DescriptionEditor from '@/components/amazon-seller-tools/description-editor';
-import KeywordDeduplicator from '@/components/amazon-seller-tools/keyword-deduplicator';
-import AcosCalculator from '@/components/amazon-seller-tools/acos-calculator';
-import SalesEstimator from '@/components/amazon-seller-tools/sales-estimator';
-import CompetitorAnalyzer from '@/components/amazon-seller-tools/competitor-analyzer';
-import KeywordTrendAnalyzer from '@/components/amazon-seller-tools/keyword-trend-analyzer';
-import ProfitMarginCalculator from '@/components/amazon-seller-tools/profit-margin-calculator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  BarChart3,
   Calculator,
-  Search,
   CheckSquare,
-  TrendingUp,
+  DollarSign,
   FileText,
   Filter,
-  DollarSign,
-  BarChart3,
-  Users,
   LineChart,
   Percent,
+  Search,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function FeaturedToolsSection() {
   const [activeTab, setActiveTab] = useState('fba-calculator');
