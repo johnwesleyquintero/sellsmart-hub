@@ -1,7 +1,8 @@
-import Button from '@/src/components/ui/button';
+'use client';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import Button from '../../components/ui/button';
 
 export default function Error({
   error,

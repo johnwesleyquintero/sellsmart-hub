@@ -1,5 +1,4 @@
-import mdxComponents from '@/components/mdxComponents';
-import Badge from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -7,6 +6,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import mdxComponents from '../../../../components/mdxComponents';
 
 interface BlogPost {
   title: string;
