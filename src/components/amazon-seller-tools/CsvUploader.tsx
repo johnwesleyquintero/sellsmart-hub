@@ -1,5 +1,5 @@
 'use client';
-
+import DragDropArea from '@/components/ui/DragDropArea';
 import { Button } from '@/components/ui/button';
 import { FileText, Info } from 'lucide-react';
 import Papa from 'papaparse';
@@ -65,26 +65,17 @@ export default function CsvUploader({
         </div>
       </div>
 
-      <div
-        {...getRootProps()}
-        className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5"
-      >
+      <DragDropArea isDragActive={isDragActive}>
         <FileText className="mb-2 h-8 w-8 text-primary/60" />
         <span className="text-sm font-medium">Click to upload CSV</span>
         <input {...getInputProps()} disabled={isLoading} />
-        {isDragActive ? (
-          <p>Drop the files here ...</p>
-        ) : (
-          <p>
-            Drag &apos;n&apos; drop some files here, or click to select files
-          </p>
-        )}
+        <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
         <SampleCsvButton
           dataType="ppc"
           fileName="sample-ppc-campaign.csv"
           className="mt-4"
         />
-      </div>
+      </DragDropArea>
       {hasData && (
         <Button variant="outline" onClick={onClear}>
           Clear Data

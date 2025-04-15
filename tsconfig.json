@@ -26,7 +26,8 @@
       "@/lib/*": ["lib/*"],
       "@/components/*": ["components/*"],
       "@/app/components/*": ["app/components/*"],
-      "@/hooks/*": ["app/hooks/*"]
+      "@/hooks/*": ["app/hooks/*"],
+      "@/components/blog/*": ["components/blog/*"]
     }
   },
   "include": [

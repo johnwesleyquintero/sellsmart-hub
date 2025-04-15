@@ -1,13 +1,20 @@
-1 | 'use client';
+'use client';
 
 import { AmazonAlgorithms } from '@/lib/amazon-tools/amazon-algorithms';
 
 import { ProductCategory } from '@/lib/amazon-types';
-import Papa from 'papaparse';
 import type React from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 // Correct the import paths
+import CsvUploader from './CsvUploader';
+
+interface ManualProduct {
+  product: string;
+  cost: number;
+  price: number;
+  fees: number;
+}
 
 export default function ProfitMarginCalculator() {
   interface ProductData {
@@ -26,11 +33,18 @@ export default function ProfitMarginCalculator() {
     competitorPrices?: number[];
   }
 
+  interface CsvRow {
+    id: string;
+    impressions: number;
+    clicks: number;
+  }
+
   // Removed duplicate function export
   // Existing implementation kept at line 37
 
   const [results, setResults] = useState<ProductData[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [manualProduct, setManualProduct] = useState<ManualProduct>({
     product: '',
     cost: 0,
@@ -38,65 +52,34 @@ export default function ProfitMarginCalculator() {
     fees: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (
-    event: React.ChangeEvent<HTMLInputElement> & { target: { value: string } },
-  ) => {
+  const handleFileUpload = (data: CsvRow[]) => {
     setError(null);
     setIsLoading(true);
-    const file = event.target.files?.[0];
-    if (!file) {
+    try {
+      if (!data || data.length === 0) {
+        throw new Error('No valid data found in CSV');
+      }
+
+      const productData = data.map((row) => ({
+        product: row.id,
+        cost: 0,
+        price: 0,
+        fees: 0,
+        conversionRate: row.impressions,
+        sessions: row.clicks,
+      }));
+      setCsvData(productData);
+      calculateResults(productData);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(`Error processing CSV file: ${err.message}`);
+      } else {
+        setError(`An unknown error occurred: ${err}`);
+      }
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    Papa.parse<ProductData>(file, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        try {
-          // Validate required columns
-          const requiredColumns = ['product', 'cost', 'price', 'fees'];
-          const missingColumns = requiredColumns.filter(
-            (col) => result.meta.fields && !result.meta.fields.includes(col),
-          );
-
-          if (missingColumns.length > 0) {
-            throw new Error(
-              `Missing required columns: ${missingColumns.join(', ')}`,
-            );
-          }
-
-          const processedData = result.data.map((item: ProductData) => ({
-            product: item.product || '',
-            cost: Number(item.cost) || 0,
-            price: Number(item.price) || 0,
-            fees: Number(item.fees) || 0,
-          }));
-
-          if (processedData.length === 0) {
-            throw new Error('No valid data found in CSV');
-          }
-
-          setCsvData(processedData);
-          calculateResults(processedData);
-        } catch (err) {
-          if (err instanceof Error) {
-            setError(`Error processing CSV file: ${err.message}`);
-          } else {
-            setError(`An unknown error occurred: ${err}`);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      },
-      error: (error) => {
-        setError(`Error parsing CSV: ${error.message}`);
-        setIsLoading(false);
-      },
-    });
   };
 
   const calculateResults = (data: ProductData[]) => {
@@ -196,13 +179,7 @@ export default function ProfitMarginCalculator() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <input
-        type="file"
-        onChange={handleFileUpload}
-        ref={fileInputRef}
-        accept=".csv"
-        className="mb-4"
-      />
+      <CsvUploader onUploadSuccess={handleFileUpload} />
 
       <form onSubmit={handleManualSubmit} className="space-y-4 mb-6">
         {/* Form fields */}

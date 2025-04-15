@@ -9,7 +9,17 @@ import Footer from '@/components/footer';
 import Header from '@/components/header';
 import HeroSection from '@/components/hero-section';
 import ProjectsSection from '@/components/projects-section';
-import ErrorBoundary from '@/components/ui/error-boundary';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
+console.log('AboutSection:', AboutSection);
+console.log('BlogSection:', BlogSection);
+console.log('CertificationsSection:', CertificationsSection);
+console.log('ContactSection:', ContactSection);
+console.log('FeaturedToolsSection:', FeaturedToolsSection);
+console.log('Footer:', Footer);
+console.log('Header:', Header);
+console.log('HeroSection:', HeroSection);
+console.log('ProjectsSection:', ProjectsSection);
+console.log('ErrorBoundary:', ErrorBoundary);
 
 export default function Home() {
   return (

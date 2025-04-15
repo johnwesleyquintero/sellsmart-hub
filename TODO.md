@@ -42,6 +42,7 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 - [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup_
 - [ ] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup_
 - [ ] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass). _Foundational performance_
+- [ ] **ID 55 (UI / Critical):** Standardize drag and drop feature across all tools. _Ensure consistent UX_
 
 ---
 

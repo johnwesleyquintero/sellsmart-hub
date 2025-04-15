@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -8,8 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Button } from '@/src/components/ui/button';
-import { Sidebar } from '@/src/components/ui/sidebar';
+import { Sidebar } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';

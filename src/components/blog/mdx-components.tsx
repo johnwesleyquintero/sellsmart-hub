@@ -1,9 +1,11 @@
-import { BlogPost } from '@/static-data-types';
-import { cn } from '@/utils';
+import { BlogPost } from '@/lib/static-data-types';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import type React from 'react';
+console.log('Import path for utils is incorrect');
 
+console.log('MDXComponents is being imported');
 export const MDXComponents = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
