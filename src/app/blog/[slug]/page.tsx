@@ -8,6 +8,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+interface BlogPost {
+  title: string;
+  description?: string;
+}
+
 interface Props {
   params: { slug: string };
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -125,7 +130,6 @@ export default async function BlogPost({ params }: Props) {
                 </Badge>
               ))}
             </div>
-
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
               {post.title}
             </h1>
@@ -163,18 +167,22 @@ export default async function BlogPost({ params }: Props) {
           <div className="mt-16 pt-8 border-t">
             <h2 className="text-2xl font-bold mb-4">Continue Reading</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {post.relatedPosts?.map((relatedPost) => (
-                <Link
-                  key={relatedPost.slug}
-                  href={`/blog/${relatedPost.slug}`}
-                  className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
-                  <h3 className="font-medium mb-1">{relatedPost.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {relatedPost.description}
-                  </p>
-                </Link>
-              ))}
+              {post.relatedPosts?.map(
+                (relatedPost: { id: string; title: string; slug: string }) => (
+                  <Link
+                    key={relatedPost.slug}
+                    href={`/blog/${relatedPost.slug}`}
+                    className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                  >
+                    <h3 className="font-medium mb-1">
+                      {(relatedPost as BlogPost).title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {(relatedPost as BlogPost).description || ''}
+                    </p>
+                  </Link>
+                ),
+              )}
             </div>
           </div>
         </div>

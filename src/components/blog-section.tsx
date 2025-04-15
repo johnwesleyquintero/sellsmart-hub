@@ -1,16 +1,14 @@
-import { CardFooter } from '@/components/ui/card';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardDescription, CardFooter, CardHeader,
+  CardTitle
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const blogPosts = [
   {
@@ -19,7 +17,7 @@ const blogPosts = [
       'Getting Started with Amazon FBA: A Comprehensive Guide for Beginners',
     summary:
       'Everything you need to know to start your Amazon FBA journey. From account setup to inventory management and pricing strategies.',
-    image: '/images/blog/getting-started-amazon-fba.svg',
+    image: '/src/public/images/blog/getting-started-amazon-fba.svg',
     date: 'January 15, 2025',
     tags: ['Amazon FBA', 'Ecommerce', 'Beginners'],
     url: '/blog/getting-started-with-amazon-fba',
@@ -30,7 +28,7 @@ const blogPosts = [
       'Data Visualization for Amazon Sellers: Turning Numbers into Actionable Insights',
     summary:
       'Learn how to create powerful dashboards that transform your Amazon seller data into clear, actionable insights. Includes step-by-step tutorials and tool recommendations.',
-    image: '/images/blog/data-visualization-for-amazon-sellers.svg',
+    image: '/src/public/images/blog/data-visualization-for-amazon-sellers.svg',
     date: 'February 28, 2025',
     tags: ['Data Visualization', 'Analytics', 'Dashboard Design'],
     url: '/blog/data-visualization-for-amazon-sellers',
@@ -40,7 +38,7 @@ const blogPosts = [
     title: 'Mastering Amazon PPC: Advanced Campaign Structures for 2025',
     summary:
       'Explore cutting-edge PPC campaign structures that maximize ROAS and minimize ACoS. Includes real case studies with before/after results.',
-    image: '/images/blog/mastering-amazon-ppc.svg',
+    image: '/src/public/images/blog/mastering-amazon-ppc.svg',
     date: 'January 20, 2025',
     tags: ['Amazon PPC', 'Advertising', 'ROAS Optimization'],
     url: '/blog/mastering-amazon-ppc',
@@ -51,7 +49,7 @@ const blogPosts = [
     summary:
       'Discover proven strategies to optimize your Amazon listings for maximum visibility and conversion. Learn how to leverage A9 algorithm updates and keyword research tools.',
     image:
-      '/images/blog/10-advanced-amazon-seo-techniques-that-actually-work-in-2025.svg',
+      '/src/public/images/blog/10-advanced-amazon-seo-techniques-that-actually-work-in-2025.svg',
     date: 'March 15, 2025',
     tags: ['Amazon SEO', 'A9 Algorithm', 'Keyword Optimization'],
     url: '/blog/10-advanced-amazon-seo-techniques-that-actually-work-in-2025',
@@ -62,7 +60,7 @@ const blogPosts = [
       'B2B Strategies for Amazon Sellers: Building Profitable Wholesale Relationships',
     summary:
       'A comprehensive guide to establishing and nurturing B2B relationships that fuel your Amazon business growth. Includes negotiation templates and outreach scripts.',
-    image: '/images/blog/b2b-strategies-amazon-sellers.svg',
+    image: '/src/public/images/blog/b2b-strategies-amazon-sellers.svg',
     date: 'November 5, 2024',
     tags: ['B2B', 'Wholesale', 'Supplier Relations'],
     url: '/blog/b2b-amazon-strategies',
@@ -72,7 +70,7 @@ const blogPosts = [
     title: 'Excel Power Tools for Amazon Sellers: Beyond VLOOKUP',
     summary:
       'Advanced Excel techniques that can transform your Amazon business operations. Learn Power Query, DAX formulas, and automation tricks specifically for e-commerce.',
-    image: '/images/blog/excel-power-tools-amazon-sellers.svg',
+    image: '/src/public/images/blog/excel-power-tools-amazon-sellers.svg',
     date: 'October 18, 2024',
     tags: ['Excel', 'Data Analysis', 'Automation'],
     url: '/blog/excel-power-tools',

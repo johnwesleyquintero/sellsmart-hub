@@ -27,23 +27,6 @@ interface FBAData {
   category: ProductCategory;
 }
 
-interface ProductData {
-  productId: string;
-  dimensions: { length: number; width: number; height: number };
-  weight: number;
-  storageDuration: number;
-  unitsSold: number;
-  referralFeePercentage: number;
-  product: string;
-  cost: number;
-  price: number;
-  fees: number;
-  category: ProductCategory;
-  profit?: number;
-  roi?: number;
-  margin?: number;
-}
-
 export default function FbaCalculator() {
   const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [results, setResults] = useState<ProductData[]>([]);

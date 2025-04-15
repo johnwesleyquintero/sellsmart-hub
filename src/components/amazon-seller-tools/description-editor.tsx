@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 type ProductDescription = {
   product: string;
-  asin?: string;
+  asin: string;
   description: string;
   characterCount: number;
   keywordCount: number;
@@ -27,9 +27,7 @@ export default function DescriptionEditor() {
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeProduct, setActiveProduct] = useState<ProductDescription | null>(
-    null,
-  );
+  const [activeProduct, setActiveProduct] = useState<ProductDescription>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [newProduct, setNewProduct] = useState({
     product: '',

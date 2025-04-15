@@ -7,7 +7,7 @@
         "apiModelId": "gemini-2.0-flash-001",
         "ollamaModelId": "mistral:latest",
         "ollamaBaseUrl": "",
-        "geminiApiKey": "AIzaSyD_NA50hjsQ907snk2WRZsTIDF7zoV9f2Y",
+        "geminiApiKey": "AAIzaSyAHCspP18jOja6sym7WWDfLr8MTdWwijrg",
         "googleGeminiBaseUrl": "",
         "mistralApiKey": "",
         "mistralCodestralUrl": "https://codestral.ai/v1/fim/completions",

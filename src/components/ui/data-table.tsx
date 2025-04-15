@@ -97,7 +97,9 @@ export function DataTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.setIsVisible(value)}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(value)
+                      }
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>

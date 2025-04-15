@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { Github, Linkedin, Mail, Triangle, Twitter } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -61,12 +61,12 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
                 >
-                  SellSmart Hub
+                  Platform
                 </Link>
               </li>
               <li>
                 <Link
-                  href="https://sellsmart-pro.vercel.app/"
+                  href="https://amzsync.vercel.app/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"

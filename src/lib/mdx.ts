@@ -28,16 +28,21 @@ export async function getAllPosts(): Promise<BlogPost[]> {
           tags?: string[];
           readingTime?: string;
           author?: string;
-        }): BlogPost => ({
-          slug: post.id,
-          title: post.title,
-          description: post.description,
-          date: normalizeDate(post.date),
-          image: post.image || `/images/blog/${post.id}.svg`,
-          tags: post.tags || [],
-          readingTime: post.readingTime || '5 min read',
-          author: post.author || 'Wesley Quintero',
-        }),
+          content?: string;
+        }): BlogPost => {
+          return {
+            id: post.id,
+            slug: post.id,
+            title: post.title,
+            description: post.description,
+            date: normalizeDate(post.date),
+            image: post.image || `/public/images/blog/${post.id}.svg`,
+            tags: post.tags || [],
+            readingTime: post.readingTime || '5 min read',
+            author: post.author || 'Wesley Quintero',
+            content: '',
+          };
+        },
       )
       .sort((a, b) =>
         normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
@@ -58,7 +63,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
           title: data.title,
           description: data.description,
           date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
-          image: data.image || `/images/blog/${slug}.svg`,
+          image: data.image || `/public/images/blog/${slug}.svg`,
           tags: data.tags || [],
           readingTime: data.readingTime || '5 min read',
           author: data.author || 'Wesley Quintero',
@@ -95,8 +100,16 @@ export async function getPostBySlug(slug: string) {
       )
       .slice(0, 2)
       .map((p) => ({
+        id: p.id,
         slug: p.id,
         title: p.title,
+        description: p.description,
+        date: normalizeDate(p.date),
+        image: p.image || `/public/images/blog/${p.id}.svg`,
+        tags: p.tags || [],
+        readingTime: p.readingTime || '5 min read',
+        author: p.author || 'Wesley Quintero',
+        content: '',
       }));
 
     return {
@@ -125,7 +138,7 @@ export async function getPostBySlug(slug: string) {
       title: data.title,
       description: data.description,
       date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
-      image: data.image || `/images/blog/${slug}.svg`,
+      image: data.image || `/public/images/blog/${slug}.svg`,
       tags: data.tags || [],
       readingTime: data.readingTime || '5 min read',
       author: data.author || 'Wesley Quintero',

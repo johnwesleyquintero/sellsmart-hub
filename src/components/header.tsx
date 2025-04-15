@@ -112,13 +112,13 @@ export default function Header() {
     { name: 'Blog', href: '#blog' },
     { name: 'Contact', href: '#contact' },
     {
-      name: 'SellSmart Pro',
-      href: 'https://sellsmart-pro.vercel.app/',
+      name: 'Platform',
+      href: 'https://amzsync.vercel.app/',
       external: true,
     },
     {
       name: 'Resume',
-      href: 'https://wq-resume.netlify.app/',
+      href: 'https://johnwesleyquintero-resume.netlify.app/',
       external: true,
     },
   ];

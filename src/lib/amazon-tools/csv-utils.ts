@@ -22,9 +22,9 @@ export const safeParseNumber = (value: string, fieldName: string): number => {
   return num;
 };
 
-export const processAmazonCsv = (
-  csvData: (typeof CsvRow)[],
-  requiredColumns: string[],
+export const processAmazonCsv = <T extends Record<string, string | number>>(
+  csvData: T[],
+  requiredColumns: (keyof T)[],
 ) => {
   const missingColumns = validateRequiredColumns(csvData, requiredColumns);
   if (missingColumns.length > 0) {

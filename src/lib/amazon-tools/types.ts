@@ -1,7 +1,17 @@
-import { ProductCategory } from '../amazon-types';
+// Consolidated ChartDataEntry definition
 
 export type MetricKey = 'acos' | 'roas' | 'ctr' | 'cpc';
 
+export type ProductCategory =
+  | 'Books'
+  | 'Electronics'
+  | 'Home'
+  | 'Sports'
+  | 'General';
+
+// Consolidated ChartDataEntry definition
+
+// Consolidated ProductData type moved to amazon-types.ts
 export interface ProductData {
   productId: string;
   dimensions: {
@@ -31,9 +41,18 @@ export interface KeywordData {
   keywords: string[];
 }
 
+// Consolidated ChartDataEntry definition
+
 export interface CsvRow {
-  [key: string]: string;
+  [key: string]: string | number;
 }
+
+export interface ChartDataEntry {
+  price: number;
+  [key: string]: string | number;
+}
+
+// Consolidated ChartDataEntry definition
 
 export interface UploaderProps {
   onUpload: (data: string | number[]) => Promise<void>;

@@ -3,13 +3,30 @@
     {
       "id": "beauty-brand-optimization",
       "title": "Beauty Brand PPC Optimization",
-      "summary": "Reduced ACoS by 40% while increasing sales",
-      "results": {
-        "acos_reduction": 40,
-        "sales_increase": 65,
-        "roi": 350
-      },
-      "tools_used": ["ppc-campaign-auditor", "keyword-analyzer"]
+      "description": "Reduced ACoS by 40% while increasing sales",
+      "metrics": [
+        {
+          "name": "ACoS",
+          "value": 40,
+          "change": -40,
+          "trend": "down"
+        },
+        {
+          "name": "Sales",
+          "value": 65,
+          "change": 65,
+          "trend": "up"
+        },
+        {
+          "name": "ROI",
+          "value": 350,
+          "change": 350,
+          "trend": "up"
+        }
+      ],
+      "competitorData": [],
+      "date": "2025-04-15",
+      "tags": ["ppc", "optimization"]
     }
   ],
   "cases": []
