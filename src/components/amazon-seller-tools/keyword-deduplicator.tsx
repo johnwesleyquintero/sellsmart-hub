@@ -129,7 +129,7 @@ export default function KeywordDeduplicator() {
       product: manualProduct || 'Manual Entry',
       originalKeywords,
       cleanedKeywords,
-      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length
+      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
     };
 
     setProducts([...products, result]);
