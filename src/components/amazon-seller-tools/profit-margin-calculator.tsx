@@ -26,10 +26,10 @@ export default function ProfitMarginCalculator() {
 
   // Removed duplicate function export
   // Existing implementation kept at line 37
-  const [csvData, setCsvData] = useState<ProductData[]>([]);
+  
   const [results, setResults] = useState<ProductData[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [manualProduct, setManualProduct] = useState<ProductData>({
+  const [manualProduct, setManualProduct] = useState<ManualProduct>({
     product: '',
     cost: 0,
     price: 0,

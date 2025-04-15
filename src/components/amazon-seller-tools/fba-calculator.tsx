@@ -42,7 +42,7 @@ export default function FbaCalculator() {
     cost: 0,
     price: 0,
     fees: 0,
-    category: 'general',
+    category: 'General',
   });
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +91,7 @@ export default function FbaCalculator() {
                 cost: Number(item.cost),
                 price: Number(item.price),
                 fees: Number(item.fees),
-                category: 'general' as ProductCategory,
+                category: 'General' as ProductCategory,
               }),
             );
 
@@ -176,7 +176,7 @@ export default function FbaCalculator() {
       cost: 0,
       price: 0,
       fees: 0,
-      category: 'general' as ProductCategory,
+      category: 'General' as ProductCategory,
     });
   };
 

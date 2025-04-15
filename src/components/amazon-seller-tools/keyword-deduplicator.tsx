@@ -2,25 +2,27 @@
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Upload,
-  FileText,
   AlertCircle,
   Download,
+  FileText,
   Filter,
   Info,
+  Upload,
 } from 'lucide-react';
 import Papa from 'papaparse';
+import { useRef, useState } from 'react';
 // Add import for SampleCsvButton
 import SampleCsvButton from './sample-csv-button';
 
-type KeywordData = {
+import type { KeywordData } from '@/lib/amazon-types';
+
+interface ProcessedKeywordData extends KeywordData {
   product: string;
   originalKeywords: string[];
   cleanedKeywords: string[];
@@ -56,7 +58,7 @@ export default function KeywordDeduplicator() {
 
         try {
           // Process the parsed data
-          const processedData: KeywordData[] = result.data
+          const processedData: ProcessedKeywordData[] = result.data
             .filter((item) => item.product && item.keywords)
             .map((item) => {
               // Split keywords by comma if it's a string
@@ -68,7 +70,7 @@ export default function KeywordDeduplicator() {
                     : [];
 
               // Remove duplicates
-              const cleanedKeywords = [...new Set(originalKeywords)];
+              const cleanedKeywords: string[] = [...new Set(keywords)] as string[];
 
               return {
                 product: String(item.product),
