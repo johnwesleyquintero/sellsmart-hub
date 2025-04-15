@@ -134,7 +134,6 @@ export default function CompetitorAnalyzer() {
     (
       event: React.ChangeEvent<HTMLInputElement>,
       setData: React.Dispatch<React.SetStateAction<ProcessedRow[] | null>>,
-      fileType: 'seller' | 'competitor',
     ) => {
       const file = event.target.files?.[0];
       if (!file) {
