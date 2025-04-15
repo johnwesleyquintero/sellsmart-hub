@@ -1,9 +1,9 @@
 'use client';
 
-import { CampaignData } from './ppc-campaign-auditor';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
+import { Card, CardContent } from '@/components/ui/card';
+import { CampaignData } from './ppc-campaign-auditor';
+- - + + 
 export interface Identifier {
   asin: string;
   sku: string;

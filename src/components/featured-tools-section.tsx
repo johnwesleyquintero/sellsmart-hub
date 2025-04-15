@@ -1,25 +1,25 @@
 'use client';
 
-import AcosCalculator from '@/components/amazon-seller-tools/acos-calculator';
-import CompetitorAnalyzer from '@/components/amazon-seller-tools/competitor-analyzer';
-import DescriptionEditor from '@/components/amazon-seller-tools/description-editor';
-import FbaCalculator from '@/components/amazon-seller-tools/fba-calculator';
-import KeywordAnalyzer from '@/components/amazon-seller-tools/keyword-analyzer';
-import KeywordDeduplicator from '@/components/amazon-seller-tools/keyword-deduplicator';
-import KeywordTrendAnalyzer from '@/components/amazon-seller-tools/keyword-trend-analyzer';
-import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
-import PpcCampaignAuditor from '@/components/amazon-seller-tools/ppc-campaign-auditor';
-import ProfitMarginCalculator from '@/components/amazon-seller-tools/profit-margin-calculator';
-import SalesEstimator from '@/components/amazon-seller-tools/sales-estimator';
-import { Badge } from '@/components/ui/badge';
+import AcosCalculator from '@/src/components/amazon-seller-tools/acos-calculator';
+import CompetitorAnalyzer from '@/src/components/amazon-seller-tools/competitor-analyzer';
+import DescriptionEditor from '@/src/components/amazon-seller-tools/description-editor';
+import FbaCalculator from '@/src/components/amazon-seller-tools/fba-calculator';
+import KeywordAnalyzer from '@/src/components/amazon-seller-tools/keyword-analyzer';
+import KeywordDeduplicator from '@/src/components/amazon-seller-tools/keyword-deduplicator';
+import KeywordTrendAnalyzer from '@/src/components/amazon-seller-tools/keyword-trend-analyzer';
+import ListingQualityChecker from '@/src/components/amazon-seller-tools/listing-quality-checker';
+import PpcCampaignAuditor from '@/src/components/amazon-seller-tools/ppc-campaign-auditor';
+import ProfitMarginCalculator from '@/src/components/amazon-seller-tools/profit-margin-calculator';
+import SalesEstimator from '@/src/components/amazon-seller-tools/sales-estimator';
+import { Badge } from '@/src/components/ui/badge';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/src/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/tabs';
 import {
   BarChart3,
   Calculator,
