@@ -1,5 +1,5 @@
-import { InventoryData, InventoryHealthStatus } from '../amazon-types';
-import { INVENTORY_METRICS } from '../config/inventory-config';
+import { InventoryData, InventoryHealthStatus } from '@/lib/amazon-types';
+import { INVENTORY_METRICS } from '@/lib/config/inventory-config';
 
 export class InventoryUtils {
   static calculateReorderPoint(
