@@ -3,16 +3,24 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExternalLink, Github } from 'lucide-react';
 import projectsData from '@/data/portfolio-data/projects.json';
 const projects = projectsData.projects;
 export default function ProjectsSection() {
-    const [activeTab, setActiveTab] = useState('all');
-    const filteredProjects = projects; // Removed filtering since we're showcasing all projects
-    return (<section id="projects" className="container relative mx-auto px-4 py-32">
+  const [activeTab, setActiveTab] = useState('all');
+  const filteredProjects = projects; // Removed filtering since we're showcasing all projects
+  return (
+    <section id="projects" className="container relative mx-auto px-4 py-32">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-950/50 dark:to-blue-950/50 blur-3xl"></div>
       </div>
@@ -34,9 +42,19 @@ export default function ProjectsSection() {
           </TabsList>
           <TabsContent value={activeTab} className="mt-8">
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {filteredProjects.map((project) => (<Card key={project.title} className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:bg-gradient-to-tr hover:from-background hover:to-muted/50 dark:hover:from-background dark:hover:to-muted/10">
+              {filteredProjects.map((project) => (
+                <Card
+                  key={project.title}
+                  className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:bg-gradient-to-tr hover:from-background hover:to-muted/50 dark:hover:from-background dark:hover:to-muted/10"
+                >
                   <div className="aspect-video overflow-hidden bg-muted p-4 group-hover:bg-muted/50 transition-all duration-500 group-hover:translate-y-1">
-                    <Image src={project.image} alt={project.title} width={600} height={400} className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"/>
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      width={600}
+                      height={400}
+                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                   <CardHeader>
                     <CardTitle className="text-xl font-bold">
@@ -63,21 +81,35 @@ export default function ProjectsSection() {
                     </div>
                   </CardContent>
                   <CardFooter className="flex gap-4">
-                    {project.github && (<Button asChild>
-                        <Link href={project.github} target="_blank" rel="noopener noreferrer">
-                          <Github className="mr-2 h-4 w-4"/> GitHub
+                    {project.github && (
+                      <Button asChild>
+                        <Link
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Github className="mr-2 h-4 w-4" /> GitHub
                         </Link>
-                      </Button>)}
-                    {project.demo && (<Button asChild>
-                        <Link href={project.demo} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-2 h-4 w-4"/> Live Demo
+                      </Button>
+                    )}
+                    {project.demo && (
+                      <Button asChild>
+                        <Link
+                          href={project.demo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
                         </Link>
-                      </Button>)}
+                      </Button>
+                    )}
                   </CardFooter>
-                </Card>))}
+                </Card>
+              ))}
             </div>
           </TabsContent>
         </Tabs>
       </div>
-    </section>);
+    </section>
+  );
 }

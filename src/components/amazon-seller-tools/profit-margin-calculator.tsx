@@ -24,8 +24,8 @@ export default function ProfitMarginCalculator() {
     competitorPrices?: number[];
   }
 
-// Removed duplicate function export
-// Existing implementation kept at line 37
+  // Removed duplicate function export
+  // Existing implementation kept at line 37
   const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [results, setResults] = useState<ProductData[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -56,11 +56,9 @@ export default function ProfitMarginCalculator() {
       complete: (result) => {
         try {
           // Validate required columns
-          const requiredColumns = ['product', 'cost', 'price', 'fees'];          
+          const requiredColumns = ['product', 'cost', 'price', 'fees'];
           const missingColumns = requiredColumns.filter(
-            (col) =>
-              result.meta.fields &&
-              !result.meta.fields.includes(col),
+            (col) => result.meta.fields && !result.meta.fields.includes(col),
           );
 
           if (missingColumns.length > 0) {
@@ -88,7 +86,7 @@ export default function ProfitMarginCalculator() {
           } else {
             setError(`An unknown error occurred: ${err}`);
           }
-        } finally {          
+        } finally {
           setIsLoading(false);
         }
       },
@@ -120,8 +118,10 @@ export default function ProfitMarginCalculator() {
 
       const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice({
         currentPrice: item.price,
-        competitorPrices:
-          item.competitorPrices || [item.price * 0.9, item.price * 1.1],
+        competitorPrices: item.competitorPrices || [
+          item.price * 0.9,
+          item.price * 1.1,
+        ],
         productScore: productScore / 100,
       });
 
@@ -188,9 +188,9 @@ export default function ProfitMarginCalculator() {
 
     calculateResults([newProduct]);
   };
-      
-      console.log('ProfitMarginCalculator: Before return statement');
-    console.log('ProfitMarginCalculator: Component end');
+
+  console.log('ProfitMarginCalculator: Before return statement');
+  console.log('ProfitMarginCalculator: Component end');
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -213,11 +213,7 @@ export default function ProfitMarginCalculator() {
         </div>
       )}
 
-      {error && (
-        <div className="text-red-500 mt-4">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 mt-4">{error}</div>}
     </div>
   );
-  }
+}

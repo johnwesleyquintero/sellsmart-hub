@@ -2,8 +2,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 export default function CampaignCard({ campaign }) {
-    var _a, _b, _c;
-    return (<Card>
+  var _a, _b, _c;
+  return (
+    <Card>
       <CardContent className="p-4">
         <div className="mb-4">
           <div className="flex items-center justify-between">
@@ -11,8 +12,19 @@ export default function CampaignCard({ campaign }) {
             <Badge variant="outline">{campaign.type}</Badge>
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            ACoS: {(_a = campaign.acos) === null || _a === void 0 ? void 0 : _a.toFixed(2)}% • CTR: {(_b = campaign.ctr) === null || _b === void 0 ? void 0 : _b.toFixed(2)}
-            % • Conversion Rate: {(_c = campaign.conversionRate) === null || _c === void 0 ? void 0 : _c.toFixed(2)}%
+            ACoS:{' '}
+            {(_a = campaign.acos) === null || _a === void 0
+              ? void 0
+              : _a.toFixed(2)}
+            % • CTR:{' '}
+            {(_b = campaign.ctr) === null || _b === void 0
+              ? void 0
+              : _b.toFixed(2)}
+            % • Conversion Rate:{' '}
+            {(_c = campaign.conversionRate) === null || _c === void 0
+              ? void 0
+              : _c.toFixed(2)}
+            %
           </div>
         </div>
 
@@ -36,5 +48,6 @@ export default function CampaignCard({ campaign }) {
           </div>
         </div>
       </CardContent>
-    </Card>);
+    </Card>
+  );
 }

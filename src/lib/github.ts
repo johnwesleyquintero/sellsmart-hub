@@ -13,7 +13,7 @@ export async function getGitHubProjects() {
     },
     {
       title: 'Portfolio Website',
-      image: '/src/public/portfolio-preview.svg',
+      image: '/public/portfolio-preview.svg',
       description:
         'A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Data-Driven Amazon & E-commerce Specialist with Amazon Free Tools embedded.',
       tags: ['Next.js', 'TypeScript', 'React', 'Tailwind CSS'],
@@ -22,7 +22,7 @@ export async function getGitHubProjects() {
     },
     {
       title: 'DevFlowDB',
-      image: '/src/public/database.svg',
+      image: '/public/database.svg',
       description:
         'Lightweight WASM-powered SQL database with HTTPvfs integration for efficient data fetching. Handles 500+ queries/sec with <200ms latency in demo (1MB database size). Features schema versioning and browser IndexedDB caching.',
       tags: ['sql.js (WASM)', 'TypeScript', 'HTTPvfs', 'IndexedDB'],
