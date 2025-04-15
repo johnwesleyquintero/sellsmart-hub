@@ -1,7 +1,6 @@
 import { mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
-import type { BlogPost } from '@/lib/static-data-types';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
@@ -101,13 +100,7 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
-  const relatedPosts = (await getAllPosts())
-    .filter(
-      (relatedPost) =>
-        relatedPost.slug !== params.slug &&
-        relatedPost.tags.some((tag) => post.tags.includes(tag)),
-    )
-    .slice(0, 3);
+  // Related posts functionality removed as it's currently unused
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 min-h-screen">

@@ -160,19 +160,12 @@ export default function DescriptionEditor() {
       return;
     }
 
-    const productData: ProductDescription = {
-      product: newProduct.product,
-      asin: newProduct.asin || undefined,
-      description: newProduct.description,
-      characterCount: newProduct.description.length,
-      keywordCount: countKeywords(newProduct.description),
-      score: calculateScore(newProduct.description),
-    };
-
-    setProducts([...products, productData]);
-    setActiveProduct(productData);
-    setNewProduct({ product: '', asin: '', description: '' });
-    setError(null);
+    setProducts([...products, newProduct]);
+    setNewProduct({
+      product: '',
+      asin: '',
+      description: '',
+    });
   };
 
   const countKeywords = (text: string): number => {
@@ -265,7 +258,10 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.product}
                     onChange={(e) =>
-                      setNewProduct({ ...newProduct, product: (e.target as HTMLInputElement).value })
+                      setNewProduct({
+                        ...newProduct,
+                        product: (e.target as HTMLInputElement).value,
+                      })
                     }
                     placeholder="Enter product name"
                   />
@@ -275,7 +271,10 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.asin}
                     onChange={(e) =>
-                      setNewProduct({ ...newProduct, asin: (e.target as HTMLInputElement).value })
+                      setNewProduct({
+                        ...newProduct,
+                        asin: (e.target as HTMLInputElement).value,
+                      })
                     }
                     placeholder="Enter Amazon ASIN"
                   />

@@ -66,7 +66,6 @@ interface CsvRow {
   niche?: string;
 }
 
-
 export default function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
   const [metrics, setMetrics] = useState<MetricType[]>([
@@ -78,47 +77,6 @@ export default function CompetitorAnalyzer() {
   const [sellerData, setSellerData] = useState<ProcessedRow | null>(null);
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
-
-  const processCsvData = (
-    csvData: CsvRow[],
-  ): { validData: ProcessedRow[]; errors: string[] } => {
-    const errors: string[] = [];
-    const validData = csvData
-      .filter((row, index) => {
-        const rowErrors: string[] = [];
-
-        if (!row.asin || row.asin.length !== 10) {
-          rowErrors.push(`Row ${index + 1}: Invalid ASIN format`);
-        }
-        if (isNaN(parseFloat(row.price)))
-          rowErrors.push(`Row ${index + 1}: Invalid price`);
-        if (isNaN(parseInt(row.reviews)))
-          rowErrors.push(`Row ${index + 1}: Invalid reviews`);
-        if (isNaN(parseFloat(row.rating)))
-          rowErrors.push(`Row ${index + 1}: Invalid rating`);
-        if (isNaN(parseFloat(row.conversion_rate)))
-          rowErrors.push(`Row ${index + 1}: Invalid conversion rate`);
-        if (isNaN(parseFloat(row.click_through_rate)))
-          rowErrors.push(`Row ${index + 1}: Invalid CTR`);
-
-        if (rowErrors.length > 0) {
-          errors.push(...rowErrors);
-          return false;
-        }
-        return true;
-      })
-      .map((row) => ({
-        asin: row.asin,
-        price: parseFloat(row.price),
-        reviews: parseInt(row.reviews),
-        rating: parseFloat(row.rating),
-        conversion_rate: parseFloat(row.conversion_rate),
-        click_through_rate: parseFloat(row.click_through_rate),
-        niche: row.niche,
-      }));
-
-    return { validData, errors };
-  };
 
   const validateAndProcessData = (
     data: CsvRow[],
@@ -172,17 +130,11 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
-  const [uploadErrors, setUploadErrors] = useState<Record<string, string[]>>(
-    {},
-  );
-  const [isUploading, setIsUploading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-
   const handleFileUpload = useCallback(
     (
       event: React.ChangeEvent<HTMLInputElement>,
       setData: React.Dispatch<React.SetStateAction<ProcessedRow[] | null>>,
-      type: 'seller' | 'competitor',
+      fileType: 'seller' | 'competitor',
     ) => {
       const file = event.target.files?.[0];
       if (!file) {

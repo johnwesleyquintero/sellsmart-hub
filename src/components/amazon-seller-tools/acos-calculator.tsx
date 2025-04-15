@@ -68,13 +68,7 @@ const chartConfig = {
   [key in MetricKey]: { label: string; theme: { light: string; dark: string } };
 };
 
-type MetricConfig = {
-  label: string;
-  theme: {
-    light: string;
-    dark: string;
-  };
-};
+
 
 function getAcosColor(acos: number): string {
   if (acos < 15) return 'text-green-500';
@@ -89,7 +83,7 @@ export default function AcosCalculator() {
   const [error, setError] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>('acos');
 
-    console.log('Selected Metric:', selectedMetric);
+  console.log('Selected Metric:', selectedMetric);
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({
     campaign: '',
@@ -439,10 +433,7 @@ export default function AcosCalculator() {
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
-                      formatter={(
-                        value: number | string,
-                        name: MetricKey,
-                      ) => {
+                      formatter={(value: number | string, name: MetricKey) => {
                         // Handle Infinity ACoS in tooltip
                         if (name === 'acos' && value === Infinity) {
                           return 'Infinite';

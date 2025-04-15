@@ -63,7 +63,9 @@ export function KeywordTable<TData, TValue>({
             (table.getColumn('keywords')?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn('keywords')?.setFilterValue((event.target as HTMLInputElement).value)
+            table
+              .getColumn('keywords')
+              ?.setFilterValue((event.target as HTMLInputElement).value)
           }
           className="max-w-sm"
         />
@@ -81,8 +83,10 @@ export function KeywordTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => (column as any).setIsVisible(value)}
-                   >
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility?.(!!value)
+                      }
+                    >
                       {column.id}
                     </DropdownMenuCheckboxItem>
                   );

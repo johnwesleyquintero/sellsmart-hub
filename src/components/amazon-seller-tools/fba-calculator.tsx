@@ -26,7 +26,6 @@ interface FBAData {
   fees: number;
   category: ProductCategory;
 }
-}
 
 interface ProductData {
   productId: string;
@@ -111,8 +110,7 @@ export default function FbaCalculator() {
                 fees: Number(item.fees),
                 category: 'general' as ProductCategory,
               })
-            ),
-            );
+            ));
 
           if (validData.length === 0) {
             setError(
