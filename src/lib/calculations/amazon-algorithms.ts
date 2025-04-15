@@ -1,5 +1,5 @@
-import { InventoryHealthStatus, ProductCategory } from '../amazon-types';
-import { INVENTORY_METRICS } from '../config/inventory-config';
+import { InventoryHealthStatus, ProductCategory } from '@/lib/amazon-types';
+import { INVENTORY_METRICS } from '@/lib/config/inventory-config';
 
 export class AmazonAlgorithms {
   static readonly FEE_STRUCTURE = {

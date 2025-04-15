@@ -1,5 +1,15 @@
 import { useIsMobile } from '@/app/hooks/use-mobile';
 import { Card } from '@/components/ui';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { toast } from '@/components/ui/use-toast';
 import { Info } from 'lucide-react';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,16 +22,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../ui/tooltip';
-import { toast } from '../ui/use-toast';
 
 interface ProcessedRow {
   asin: string;
