@@ -293,9 +293,26 @@ export default function DescriptionEditor() {
                     rows={3}
                   />
                 </div>
-                <Button onClick={handleAddProduct} className="w-full">
-                  Add Product
-                </Button>
+                <form onSubmit={handleAddProduct}>
+                  <input
+                    type="text"
+                    placeholder="Product Name"
+                    value={newProduct.product}
+                    onChange={handleProductNameChange}
+                  />
+                  <input
+                    type="text"
+                    placeholder="ASIN"
+                    value={newProduct.asin}
+                    onChange={handleAsinChange}
+                  />
+                  <textarea
+                    placeholder="Product Description"
+                    value={newProduct.description}
+                    onChange={handleNewDescriptionChange}
+                  />
+                  <button type="submit">Add Product</button>
+                </form>
               </div>
             </div>
           </CardContent>

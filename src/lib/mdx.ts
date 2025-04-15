@@ -71,41 +71,36 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   );
 }
 
+interface BlogPostData {
+  id: string;
+  title: string;
+  tags?: string[];
+}
+
 export async function getPostBySlug(slug: string) {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
     // If not, return sample data from data/portfolio-data/blog.json
     const blogData = await import('@/data/portfolio-data/blog.json');
-    const post = blogData.posts.find((post: any) => post.id === slug);
+    const post = blogData.posts.find((post: BlogPostData) => post.id === slug);
 
     if (!post) return null;
 
     // Get related posts
     if (!blogData.posts) return null;
     const allPosts = blogData.posts;
-    const relatedPosts =
-      allPosts
-        .filter(
-          (p) =>
-            p.id !== slug && p.tags.some((tag) => post.tags?.includes(tag)),
-        )
-        .slice(0, 2)
-        .map((p) => ({
-          slug: p.id,
-          title: p.title,
-          description: p.description,
-        })) || [];
+    const relatedPosts = allPosts
+      .filter(
+        (p) => p.id !== slug && p.tags?.some((tag) => post.tags?.includes(tag)),
+      )
+      .slice(0, 2)
+      .map((p) => ({
+        slug: p.id,
+        title: p.title,
+      }));
 
     return {
-      slug: post.id,
-      title: post.title,
-      description: post.description,
-      date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
-      image: post.image || `/images/blog/${post.id}.svg`,
-      tags: post.tags || [],
-      readingTime: data.readingTime || '5 min read',
-      author: post.author || 'Wesley Quintero',
-      content: post.content || '',
+      ...post,
       relatedPosts,
     };
   }
