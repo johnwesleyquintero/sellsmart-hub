@@ -88,6 +88,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'ppc':
       data = [
         {
+          productName: 'Sample Product',
           name: 'Auto Campaign - Wireless Earbuds',
           type: 'Auto',
           spend: 245.67,
@@ -96,6 +97,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 320,
         },
         {
+          productName: 'Sample Product',
           name: 'Sponsored Products - Phone Cases',
           type: 'Sponsored Products',
           spend: 178.34,
@@ -104,6 +106,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 245,
         },
         {
+          productName: 'Sample Product',
           name: 'Sponsored Brands - Charging Cables',
           type: 'Sponsored Brands',
           spend: 89.45,

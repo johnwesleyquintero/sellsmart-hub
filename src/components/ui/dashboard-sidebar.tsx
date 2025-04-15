@@ -1,6 +1,7 @@
 'use client';
 
-import { Button } from '@/components/ui/button'; // Import Button
+import { Sidebar } from '@/components/platform-dashboard/sidebar';
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -12,7 +13,6 @@ import {
 import { Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { SidebarNav } from './sidebar';
 
 interface DashboardSidebarProps {
   isDashboardPage?: boolean;
@@ -46,7 +46,7 @@ export function DashboardSidebar({ isDashboardPage }: DashboardSidebarProps) {
           </SheetDescription>
         </SheetHeader>
         {isDashboardPage ? (
-          <SidebarNav className="mt-4" />
+          <Sidebar className="mt-4" />
         ) : (
           <div className="mt-4">
             {/* Add content for non-dashboard pages if needed */}

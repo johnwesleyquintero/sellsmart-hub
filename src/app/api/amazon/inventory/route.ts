@@ -14,8 +14,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const recommendation =
-      AmazonAlgorithms.calculateInventoryRecommendation(inventoryData);
+    const recommendation = AmazonAlgorithms.calculateInventoryRecommendation(
+      inventoryData.currentInventory,
+      inventoryData.averageDailySales,
+    );
 
     return NextResponse.json({
       data: recommendation,

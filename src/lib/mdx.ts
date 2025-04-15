@@ -1,6 +1,7 @@
 import fs from 'fs';
-import path from 'path';
 import matter from 'gray-matter';
+import path from 'path';
+import { BlogPost } from './types';
 
 // Add utility function for consistent date handling
 function normalizeDate(date: string | Date) {
@@ -10,26 +11,35 @@ function normalizeDate(date: string | Date) {
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
-export async function getAllPosts() {
+export async function getAllPosts(): Promise<BlogPost[]> {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
     // If not, return sample data from data/portfolio-data/blog.json
     const blogData = await import('@/data/portfolio-data/blog.json');
-    return blogData.posts
-      .map((post) => ({
-        // Remove any dynamic values that could differ between server/client
-        slug: post.id,
-        title: post.title,
-        description: post.description,
-        date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
-        image: post.image || `/images/blog/${post.id}.svg`,
-        tags: post.tags || [],
-        readingTime: post.readingTime || '5 min read',
-        author: post.author || 'Wesley Quintero',
-      }))
-      .sort((a, b) =>
-        normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
-      ); // Sort using normalized dates
+    if (!fs.existsSync(postsDirectory)) {
+      // If not, return sample data from data/portfolio-data/blog.json
+      const blogData = await import('@/data/portfolio-data/blog.json');
+      if (!blogData || !blogData.posts) {
+        return [];
+      }
+      return (blogData.posts as any[])
+        .map(
+          (post): BlogPost => ({
+            // Remove any dynamic values that could differ between server/client
+            slug: post.id,
+            title: post.title,
+            description: post.description,
+            date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
+            image: post.image || `/images/blog/${post.id}.svg`,
+            tags: post.tags || [],
+            readingTime: data.readingTime || '5 min read',
+            author: post.author || 'Wesley Quintero',
+          }),
+        )
+        .sort((a, b) =>
+          normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
+        ); // Sort using normalized dates
+    }
   }
 
   const fileNames = fs.readdirSync(postsDirectory);
@@ -55,7 +65,7 @@ export async function getAllPosts() {
       }),
   );
 
-  return allPostsData.sort((a, b) =>
+  return allPostsData.sort((a: BlogPost, b: BlogPost) =>
     normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
   );
 }
@@ -65,22 +75,25 @@ export async function getPostBySlug(slug: string) {
   if (!fs.existsSync(postsDirectory)) {
     // If not, return sample data from data/portfolio-data/blog.json
     const blogData = await import('@/data/portfolio-data/blog.json');
-    const post = blogData.posts.find((post) => post.id === slug);
+    const post = blogData.posts.find((post: any) => post.id === slug);
 
     if (!post) return null;
 
     // Get related posts
+    if (!blogData.posts) return null;
     const allPosts = blogData.posts;
-    const relatedPosts = allPosts
-      .filter(
-        (p) => p.id !== slug && p.tags.some((tag) => post.tags.includes(tag)),
-      )
-      .slice(0, 2)
-      .map((p) => ({
-        slug: p.id,
-        title: p.title,
-        description: p.description,
-      }));
+    const relatedPosts =
+      allPosts
+        .filter(
+          (p) =>
+            p.id !== slug && p.tags.some((tag) => post.tags?.includes(tag)),
+        )
+        .slice(0, 2)
+        .map((p) => ({
+          slug: p.id,
+          title: p.title,
+          description: p.description,
+        })) || [];
 
     return {
       slug: post.id,
@@ -89,7 +102,7 @@ export async function getPostBySlug(slug: string) {
       date: normalizeDate(post.date), // Normalize dates to YYYY-MM-DD format
       image: post.image || `/images/blog/${post.id}.svg`,
       tags: post.tags || [],
-      readingTime: post.readingTime || '5 min read',
+      readingTime: data.readingTime || '5 min read',
       author: post.author || 'Wesley Quintero',
       content: post.content || '',
       relatedPosts,
@@ -105,7 +118,7 @@ export async function getPostBySlug(slug: string) {
     const allPosts = await getAllPosts();
     const relatedPosts = allPosts
       .filter(
-        (post) =>
+        (post: BlogPost) =>
           post.slug !== slug &&
           post.tags.some((tag: string) => data.tags.includes(tag)),
       )

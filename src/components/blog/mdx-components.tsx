@@ -1,7 +1,7 @@
-import type React from 'react';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import type React from 'react';
 
 export const mdxComponents = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -91,15 +91,34 @@ export const mdxComponents = {
   ),
   a: ({
     className,
+    href = '#',
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <Link
-      className={cn(
-        'font-medium underline underline-offset-4 text-primary',
-        className,
-      )}
-      {...props}
-    />
-  ),
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    const isInternal = href.startsWith('/');
+    if (isInternal) {
+      return (
+        <Link
+          href={href}
+          className={cn(
+            'font-medium underline underline-offset-4 text-primary',
+            className,
+          )}
+          {...props}
+        />
+      );
+    }
+    return (
+      <a
+        href={href}
+        className={cn(
+          'font-medium underline underline-offset-4 text-primary',
+          className,
+        )}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+      />
+    );
+  },
   Image,
 };

@@ -1,17 +1,31 @@
-import { CompetitorDataRow } from './amazon-tools/types';
+import { CompetitorDataRow } from './amazon-types';
 
 export interface StaticDataTypes {
--  'case-studies': CaseStudy[];
-  BlogPost: BlogPost[];
+  'case-studies': CaseStudy[];
+  blog: BlogPost[];
   projects: Project[];
   experience: Experience[];
-  education: Education[];
-  skills: Skill[];
-  personal: PersonalInfo;
-  ProductMetric: { name: string; value: number }[];
+  tools: Tool[];
+  changelog: ChangelogEntry[];
 }
 
-export type MetricType = 'price' | 'rating' | 'reviews' | 'sales_volume' | 'market_share';
+export interface Tool {
+  name: string;
+  description: string;
+}
+
+export interface ChangelogEntry {
+  version: string;
+  changes: string[];
+  date: string;
+}
+
+export type MetricType =
+  | 'price'
+  | 'rating'
+  | 'reviews'
+  | 'sales_volume'
+  | 'market_share';
 
 export interface CaseStudy {
   id: string;

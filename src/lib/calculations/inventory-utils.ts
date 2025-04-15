@@ -1,4 +1,4 @@
-import { InventoryData, InventoryHealthStatus } from '@/types/amazon';
+import { InventoryData, InventoryHealthStatus } from '../amazon-types';
 import { INVENTORY_METRICS } from '../config/inventory-config';
 
 export class InventoryUtils {
@@ -29,7 +29,7 @@ export class InventoryUtils {
     const daysUntilStockout = data.currentInventory / data.averageDailySales;
     const reorderPoint = this.calculateReorderPoint(
       data.averageDailySales,
-      data.leadTime,
+      data.leadTime ?? 0,
     );
 
     const reorderQuantity = this.calculateOptimalOrderQuantity(

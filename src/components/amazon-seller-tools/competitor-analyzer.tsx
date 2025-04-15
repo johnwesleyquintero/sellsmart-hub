@@ -22,7 +22,8 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 import { toast } from '../ui/use-toast';
-type ProcessedRow = {
+
+interface ProcessedRow {
   asin: string;
   price: number;
   reviews: number;
@@ -30,19 +31,14 @@ type ProcessedRow = {
   conversion_rate: number;
   click_through_rate: number;
   niche?: string;
-};
+}
 
-type MetricType =
-  | 'price'
-  | 'reviews'
-  | 'rating'
-  | 'conversion_rate'
-  | 'click_through_rate';
+type MetricType = keyof Omit<ProcessedRow, 'asin' | 'niche'>;
 
-type ChartDataPoint = {
+interface ChartDataPoint {
   name: string;
   [key: string]: string | number;
-};
+}
 
 interface CsvRow {
   asin: string;
@@ -113,10 +109,8 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
-  const [uploadErrors, setUploadErrors] = useState<Record<string, string[]>>(
-    {},
-  );
-  const [isUploading, setIsUploading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileUpload = useCallback(
     (
@@ -373,12 +367,9 @@ export default function CompetitorAnalyzer() {
             </div>
             <Input
               id="seller-csv"
-              className="cursor-pointer"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleFileUpload(e, setSellerData, 'seller')
               }
-              accept=".csv"
-              type="file"
             />
           </div>
           <div>
@@ -400,12 +391,9 @@ export default function CompetitorAnalyzer() {
             </div>
             <Input
               id="competitor-csv"
-              className="cursor-pointer"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleFileUpload(e, setCompetitorData, 'competitor')
               }
-              accept=".csv"
-              type="file"
             />
           </div>
         </div>
@@ -420,8 +408,6 @@ export default function CompetitorAnalyzer() {
                 setAsin(e.target.value)
               }
               placeholder="B0XXXXXXXX"
-              pattern="^[A-Z0-9]{10}$"
-              title="Must be a 10-character ASIN (letters/numbers)"
             />
             <p className="text-sm text-muted-foreground">
               ASIN format: 10 characters (letters/numbers)

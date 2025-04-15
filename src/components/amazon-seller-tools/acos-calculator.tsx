@@ -58,7 +58,19 @@ const acosRatingGuide = [
   { label: 'Poor', range: '> 35%', color: 'text-red-500' },
 ];
 
-const chartConfig = {
+type MetricKey = 'acos' | 'roas' | 'ctr' | 'cpc';
+
+interface ChartTheme {
+  light: string;
+  dark: string;
+}
+
+interface MetricConfig {
+  label: string;
+  theme: ChartTheme;
+}
+
+const chartConfig: Record<MetricKey, MetricConfig> = {
   acos: {
     label: 'ACoS (%)',
     theme: { light: '#8884d8', dark: '#8884d8' },
@@ -88,9 +100,7 @@ export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMetric, setSelectedMetric] = useState<
-    'acos' | 'roas' | 'ctr' | 'cpc'
-  >('acos');
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('acos');
 
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({
@@ -441,24 +451,15 @@ export default function AcosCalculator() {
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
-                      formatter={(
-                        value: number | string,
-                        props: { dataKey: string },
-                      ) => {
+                      formatter={(value: number | string, name: string) => {
                         // Handle Infinity ACoS in tooltip
-                        if (props.dataKey === 'acos' && value === Infinity) {
-                          return ['Infinite', name];
+                        if (name === 'acos' && value === Infinity) {
+                          return 'Infinite';
                         }
                         if (typeof value === 'number') {
-                          return [
-                            `${value.toFixed(2)}${chartConfig[selectedMetric].label.includes('%') ? '%' : ''}`,
-                            chartConfig[selectedMetric].label,
-                          ];
+                          return `${value.toFixed(2)}${chartConfig[name].label.includes('%') ? '%' : ''}`;
                         }
-                        return [
-                          value.toString(),
-                          chartConfig[selectedMetric].label,
-                        ];
+                        return value.toString();
                       }}
                     />
                     <Legend />
@@ -688,12 +689,12 @@ export default function AcosCalculator() {
                   id="manual-adSpend"
                   type="number"
                   inputMode="decimal"
-                  value={manualCampaign.adSpend}
+                  value={manualCampaign.adSpend || ''}
                   onChange={handleManualInputChange}
+                  placeholder="Enter ad spend"
                   required
                   min="0"
                   step="0.01"
-                  placeholder="Enter ad spend"
                 />
               </div>
               <div>
@@ -704,7 +705,7 @@ export default function AcosCalculator() {
                   id="manual-sales"
                   type="text" // Use text type with inputMode
                   inputMode="decimal"
-                  value={manualCampaign.sales} // Added value
+                  value={manualCampaign.sales || ''} // Added value
                   onChange={handleManualInputChange}
                   required
                   min="0.01" // Logical minimum, not enforced by type="text"
@@ -830,7 +831,7 @@ export default function AcosCalculator() {
                           }
                           className="whitespace-nowrap"
                         >
-                          {getAcosRating(campaign.acos)}
+                          {getAcosRating(campaign.acos ?? Infinity)}
                         </Badge>
                       </td>
                     </tr>

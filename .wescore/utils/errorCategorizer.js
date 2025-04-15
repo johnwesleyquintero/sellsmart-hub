@@ -13,8 +13,9 @@ export function categorizeError(output, errorCategories) {
             suggestion: category.suggestion,
           };
         }
-      } catch (e) {
+      } catch (error) {
         console.warn(chalk.yellow(`Invalid regex pattern: ${pattern}`));
+        console.error('Error details:', error);
       }
     }
   }

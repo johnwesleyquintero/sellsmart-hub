@@ -1,10 +1,10 @@
-import sampleData from '@/data/sample-data.json';
+// import sampleData from '@/data/sample-data.json';
 import { useEffect, useState } from 'react';
 import type {
   AmazonProduct,
   CompetitorData,
   KeywordData,
-} from '../amazon-tools/types';
+} from '../amazon-types';
 
 export function useAmazonData() {
   const [products, setProducts] = useState<AmazonProduct[]>([]);
@@ -13,9 +13,9 @@ export function useAmazonData() {
 
   useEffect(() => {
     // In a real app, this would fetch from an API
-    setProducts(sampleData.products);
-    setKeywords(sampleData.keywords);
-    setCompetitors(sampleData.competitors);
+    setProducts([]);
+    setKeywords([]);
+    setCompetitors([]);
   }, []);
 
   return {

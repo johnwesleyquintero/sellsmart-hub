@@ -44,13 +44,19 @@ function categorizeLogOutput(logData) {
     if (!line.trim()) return; // Skip empty lines
 
     let isError = false;
-    for (const pattern of errorPatterns) {
-      if (pattern.test(line)) {
-        errors++;
-        errorLines.push(line);
-        isError = true;
-        break; // Categorized as error, stop checking patterns for this line
+    try {
+      for (const pattern of errorPatterns) {
+        if (pattern.test(line)) {
+          errors++;
+          errorLines.push(line);
+          isError = true;
+          break; // Categorized as error, stop checking patterns for this line
+        }
       }
+    } catch (error) {
+      console.error('Error processing pattern:', error);
+      // Continue processing other lines even if one fails
+      return;
     }
 
     if (!isError) {
@@ -97,11 +103,11 @@ const headerMessage = `
 Objective:
 - I need your assistance in implementing improvements and fixes systematically.
 - Update the incorrect import path to reference the correct file location.
-- Fix any syntax issues and type mismatches while ensuring that the existing functionality remains intact.
+- Fix any syntax issues, type mismatches, and remove/implement unused variables while ensuring that the existing functionality remains intact.
 
 Details:
 1. Log File: Please refer to the full log trace provided in \`run_tasks.log\` for any relevant information.
-2. Command Used: The command executed was \`.\\\\run_tasks.bat\`.
+2. Command Used: The command executed was \`npm run cq\`.
 
 Tasks:
 1. Review Logs: Analyze the \`run_tasks.log\` file to identify any errors, warnings, or areas that need improvement.
@@ -112,6 +118,7 @@ Tasks:
 Expected Outcome:
 - A stable system with improved performance and fixed issues.
 - Detailed documentation of all changes and testing results.
+- Smooth code-quality check results using \`npm run cq\`.
 
 ========================================
 Starting Task Runner Log from Config

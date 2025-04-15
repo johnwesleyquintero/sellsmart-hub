@@ -1,5 +1,6 @@
 import { apiKeyMiddleware } from '@/lib/api-key-management';
 import { loadStaticData } from '@/lib/load-static-data';
+import { BlogPost } from '@/lib/static-data-types';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -17,30 +18,14 @@ export async function GET(request: Request) {
 
   try {
     // Load blog posts
-    const blogPosts = await loadStaticData<BlogPost[]>('blog');
+    const blogPosts = await loadStaticData('blog');
 
     // Load tools data
-    const tools = (await loadStaticData<
-      { name: string; description: string }[]
-    >('tools')) as { name: string; description: string }[];
+    const tools = await loadStaticData('tools');
 
-    // Search blog posts
-    interface BlogPost {
-      title: string;
-      description: string;
-      content: string;
-    }
-
-    interface BlogPost {
-      title: string;
-      description: string;
-      content: string;
-    }
-
-    const blogResults = (blogPosts as BlogPost[]).filter(
-      (post) =>
+    const blogResults = blogPosts.filter(
+      (post: BlogPost) =>
         post.title.toLowerCase().includes(query) ||
-        post.description.toLowerCase().includes(query) ||
         post.content.toLowerCase().includes(query),
     );
 
@@ -55,7 +40,8 @@ export async function GET(request: Request) {
       blog: blogResults,
       tools: toolResults,
     });
-  } catch {
+  } catch (error) {
+    console.error('Search error:', error);
     return NextResponse.json(
       { error: 'Failed to perform search' },
       { status: 500 },

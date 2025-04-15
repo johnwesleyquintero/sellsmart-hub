@@ -1,5 +1,3 @@
-import { CsvRow } from '@/components/amazon-seller-tools/competitor-analyzer';
-
 export const validateRequiredColumns = <T extends Record<string, unknown>>(
   csvData: T[],
   requiredColumns: (keyof T)[],
@@ -25,7 +23,7 @@ export const safeParseNumber = (value: string, fieldName: string): number => {
 };
 
 export const processAmazonCsv = (
-  csvData: CsvRow[],
+  csvData: (typeof CsvRow)[],
   requiredColumns: string[],
 ) => {
   const missingColumns = validateRequiredColumns(csvData, requiredColumns);

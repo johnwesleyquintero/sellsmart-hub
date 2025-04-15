@@ -1,3 +1,5 @@
+'use client';
+
 import AboutSection from '@/components/about-section';
 import BlogSection from '@/components/blog-section';
 import CertificationsSection from '@/components/certifications-section';

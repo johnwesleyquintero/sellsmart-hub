@@ -20,21 +20,41 @@ import { AlertCircle, Download, FileUp, Info, Upload } from 'lucide-react';
 import Papa from 'papaparse';
 import { useRef, useState } from 'react';
 
-type ProductData = {
+interface FBAData {
   product: string;
   cost: number;
   price: number;
   fees: number;
-  profit?: number;
-  roi?: number;
-  margin?: number;
-};
+}
+
+interface ProductData {
+  productId: string;
+  dimensions: {
+    length: number;
+    width: number;
+    height: number;
+  };
+  weight: number;
+  storageDuration: number;
+  unitsSold: number;
+  referralFeePercentage: number;
+  product: string;
+  cost: number;
+  price: number;
+  fees: number;
+}
 
 export default function FbaCalculator() {
   const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [results, setResults] = useState<ProductData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [manualProduct, setManualProduct] = useState<ProductData>({
+    productId: '',
+    dimensions: { length: 0, width: 0, height: 0 },
+    weight: 0,
+    storageDuration: 0,
+    unitsSold: 0,
+    referralFeePercentage: 0,
     product: '',
     cost: 0,
     price: 0,
@@ -75,7 +95,13 @@ export default function FbaCalculator() {
                 !isNaN(Number(item.fees))
               );
             })
-            .map((item: FBAData) => ({
+            .map((item: FBAData): ProductData => ({
+              productId: Math.random().toString(36).substring(2, 15),
+              dimensions: { length: 0, width: 0, height: 0 },
+              weight: 0,
+              storageDuration: 0,
+              unitsSold: 0,
+              referralFeePercentage: 0,
               product: String(item.product),
               cost: Number(item.cost),
               price: Number(item.price),
@@ -113,7 +139,7 @@ export default function FbaCalculator() {
   };
 
   const calculateProfit = (data: ProductData[]) => {
-    const calculatedResults = data.map((item) => {
+    const calculatedResults = data.map((item: ProductData) => {
       const profit = item.price - item.cost - item.fees;
       const roi = (profit / item.cost) * 100;
       const margin = (profit / item.price) * 100;
@@ -122,7 +148,8 @@ export default function FbaCalculator() {
     setResults(calculatedResults);
   };
 
-  const handleManualCalculation = () => {
+  const handleManualCalculation = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (
       !manualProduct.product ||
       manualProduct.cost <= 0 ||
@@ -133,7 +160,19 @@ export default function FbaCalculator() {
     }
 
     setError(null);
-    const newData = [...csvData, manualProduct];
+    const newManualProduct = {
+      productId: Math.random().toString(36).substring(2, 15),
+      dimensions: { length: 0, width: 0, height: 0 },
+      weight: 0,
+      storageDuration: 0,
+      unitsSold: 0,
+      referralFeePercentage: 0,
+      product: manualProduct.product,
+      cost: manualProduct.cost,
+      price: manualProduct.price,
+      fees: manualProduct.fees,
+    };
+    const newData = [...csvData, newManualProduct];
     setCsvData(newData);
     calculateProfit(newData);
 
@@ -147,7 +186,9 @@ export default function FbaCalculator() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const target = e.target as HTMLInputElement;
+    const name = target.name;
+    const value = target.value;
     setManualProduct({
       ...manualProduct,
       [name]: name === 'product' ? value : Number.parseFloat(value) || 0,
@@ -241,9 +282,13 @@ export default function FbaCalculator() {
                 <Label htmlFor="product">Product Name</Label>
                 <Input
                   id="product"
+                  type="text"
                   value={manualProduct.product}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange(e)
+                  }
                   placeholder="Enter product name"
+                  {...e}
                 />
               </div>
               <div className="grid gap-2">
@@ -254,7 +299,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.cost}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange(e)
+                  }
                   placeholder="Enter product cost"
                 />
               </div>
@@ -266,7 +313,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.price}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange(e)
+                  }
                   placeholder="Enter selling price"
                 />
               </div>
@@ -279,7 +328,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.fees}
-                  onChange={handleInputChange}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange(e)
+                  }
                   placeholder="Enter FBA fees"
                 />
               </div>
