@@ -30,7 +30,7 @@ interface ProcessedKeywordData extends KeywordData {
 }
 
 export default function KeywordDeduplicator() {
-  const [products, setProducts] = useState<KeywordData[]>([]);
+  const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualKeywords, setManualKeywords] = useState('');
@@ -121,11 +121,15 @@ export default function KeywordDeduplicator() {
     const originalKeywords = manualKeywords.split(',').map((k) => k.trim());
     const cleanedKeywords = [...new Set(originalKeywords)];
 
-    const result: KeywordData = {
+    const result: ProcessedKeywordData = {
+      keyword: '',
+      searchVolume: 0,
+      difficulty: 0,
+      relevancy: 0,
       product: manualProduct || 'Manual Entry',
       originalKeywords,
       cleanedKeywords,
-      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length
     };
 
     setProducts([...products, result]);
