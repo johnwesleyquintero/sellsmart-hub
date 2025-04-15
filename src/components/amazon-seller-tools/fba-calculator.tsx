@@ -42,6 +42,9 @@ interface ProductData {
   cost: number;
   price: number;
   fees: number;
+  profit?: number;
+  roi?: number;
+  margin?: number;
 }
 
 export default function FbaCalculator() {
@@ -95,18 +98,20 @@ export default function FbaCalculator() {
                 !isNaN(Number(item.fees))
               );
             })
-            .map((item: FBAData): ProductData => ({
-              productId: Math.random().toString(36).substring(2, 15),
-              dimensions: { length: 0, width: 0, height: 0 },
-              weight: 0,
-              storageDuration: 0,
-              unitsSold: 0,
-              referralFeePercentage: 0,
-              product: String(item.product),
-              cost: Number(item.cost),
-              price: Number(item.price),
-              fees: Number(item.fees),
-            }));
+            .map(
+              (item: FBAData): ProductData => ({
+                productId: Math.random().toString(36).substring(2, 15),
+                dimensions: { length: 0, width: 0, height: 0 },
+                weight: 0,
+                storageDuration: 0,
+                unitsSold: 0,
+                referralFeePercentage: 0,
+                product: String(item.product),
+                cost: Number(item.cost),
+                price: Number(item.price),
+                fees: Number(item.fees),
+              }),
+            );
 
           if (validData.length === 0) {
             setError(

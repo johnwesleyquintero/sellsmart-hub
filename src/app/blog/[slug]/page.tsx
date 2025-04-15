@@ -1,7 +1,7 @@
 import { mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
-import { BlogPost } from '@/lib/static-data-types';
+import type { BlogPost } from '@/lib/static-data-types';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';

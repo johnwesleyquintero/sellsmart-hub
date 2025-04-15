@@ -109,7 +109,10 @@ export default function CompetitorAnalyzer() {
     }
   }, [chartData, metrics]);
 
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string[]>>(
+    {},
+  );
+  const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileUpload = useCallback(
