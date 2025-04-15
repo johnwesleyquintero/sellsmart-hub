@@ -127,13 +127,25 @@ Timestamp: ${new Date().toISOString()}
 `;
 
 // --- Helper Functions ---
-function appendToLog(message) {
-  try {
-    fs.appendFileSync(logfilePath, message + '\n');
-    console.log(message); // Also log to console for real-time feedback
-  } catch (error) {
-    console.error(`Error appending to ${logfilePath}:`, error);
-    console.error('Original message:', message); // Log original message if file write fails
+function appendToLog(message, type = 'info') {
+  // Only log errors, warnings, and essential info
+  const shouldLog =
+    type === 'error' ||
+    type === 'warning' ||
+    message.includes('[START]') ||
+    message.includes('[END]') ||
+    message.includes('Task Execution Summary:');
+
+  if (shouldLog) {
+    try {
+      // Format the message with timestamp and type
+      const timestamp = new Date().toISOString();
+      const formattedMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+      fs.appendFileSync(logfilePath, formattedMessage + '\n');
+      console.log(formattedMessage); // Also log to console for real-time feedback
+    } catch (error) {
+      console.error(`Error appending to ${logfilePath}:`, error);
+    }
   }
 }
 
@@ -250,13 +262,24 @@ async function main() {
       const categorizedLogs = categorizeLogOutput(combinedOutput);
       // --- END NEW ---
 
-      if (stdout) appendToLog(`  [stdout]\\n---\\n${stdout.trim()}\\n---`);
-      if (stderr) appendToLog(`  [stderr]\\n---\\n${stderr.trim()}\\n---`); // Log stderr even on success (for warnings)
+      // Only log stdout/stderr if they contain errors or warnings
+      const { errors, warnings, errorLines, warningLines } =
+        categorizeLogOutput(`${stdout}\n${stderr}`);
 
-      // --- NEW: Optionally log categorization summary ---
-      if (categorizedLogs.errors > 0 || categorizedLogs.warnings > 0) {
+      if (errors > 0) {
+        appendToLog('Error Details:', 'error');
+        errorLines.forEach((line) => appendToLog(`  ${line}`, 'error'));
+      }
+
+      if (warnings > 0) {
+        appendToLog('Warning Details:', 'warning');
+        warningLines.forEach((line) => appendToLog(`  ${line}`, 'warning'));
+      }
+
+      if (errors > 0 || warnings > 0) {
         appendToLog(
-          `  [Analysis] Errors: ${categorizedLogs.errors}, Warnings: ${categorizedLogs.warnings}`,
+          `Analysis Summary - Errors: ${errors}, Warnings: ${warnings}`,
+          errors > 0 ? 'error' : 'warning',
         );
       }
       // --- END NEW ---
