@@ -26,7 +26,7 @@ export default function ProfitMarginCalculator() {
 
   // Removed duplicate function export
   // Existing implementation kept at line 37
-  
+
   const [results, setResults] = useState<ProductData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [manualProduct, setManualProduct] = useState<ManualProduct>({

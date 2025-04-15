@@ -3,7 +3,7 @@ import {
   safeParseNumber,
   validateAsinFormat,
   validateRequiredColumns,
-} from '../csv-utils';
+} from '@/lib/amazon-tools/csv-utils';
 
 describe('CSV Validation Utilities', () => {
   const testData = [

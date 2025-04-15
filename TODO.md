@@ -1,5 +1,11 @@
 # Portfolio - Development Roadmap (ScaleWithWesley)
 
+## Reproduce
+
+`.\run_tasks.bat`
+
+`npm run cq`
+
 ---
 
 ## Overview

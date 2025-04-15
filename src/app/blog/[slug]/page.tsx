@@ -1,4 +1,3 @@
-import { mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';

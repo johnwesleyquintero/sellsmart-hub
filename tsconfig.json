@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
+    "baseUrl": "./src",
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -21,11 +22,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/app/components/*": ["./src/app/components/*"],
-      "@/hooks/*": ["./src/app/hooks/*"]
+      "@/*": ["*"],
+      "@/lib/*": ["lib/*"],
+      "@/components/*": ["components/*"],
+      "@/app/components/*": ["app/components/*"],
+      "@/hooks/*": ["app/hooks/*"]
     }
   },
   "include": [

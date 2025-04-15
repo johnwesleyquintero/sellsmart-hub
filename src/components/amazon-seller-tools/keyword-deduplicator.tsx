@@ -27,7 +27,7 @@ interface ProcessedKeywordData extends KeywordData {
   originalKeywords: string[];
   cleanedKeywords: string[];
   duplicatesRemoved: number;
-};
+}
 
 export default function KeywordDeduplicator() {
   const [products, setProducts] = useState<KeywordData[]>([]);
@@ -70,7 +70,9 @@ export default function KeywordDeduplicator() {
                     : [];
 
               // Remove duplicates
-              const cleanedKeywords: string[] = [...new Set(keywords)] as string[];
+              const cleanedKeywords: string[] = [
+                ...new Set(keywords),
+              ] as string[];
 
               return {
                 product: String(item.product),
