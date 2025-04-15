@@ -1,10 +1,7 @@
-
-
 <div align="center">
   <img src="assets/logo.svg" alt="Wescore Logo" width="200">
 
-  [![Netlify Status](https://api.netlify.com/api/v1/badges/2948d7bc-c617-4620-8b04-c8342ff54b33/deploy-status)](https://app.netlify.com/sites/wescore/deploys)
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2948d7bc-c617-4620-8b04-c8342ff54b33/deploy-status)](https://app.netlify.com/sites/wescore/deploys)
 
 # Wescore | Code Quality Framework
 
@@ -18,26 +15,26 @@ The framework executes configured checks sequentially or in parallel. When check
 
 ## Key Features
 
--   **Automated Checks:** Runs configured commands for formatting, linting, type checking, building, etc.
--   **Flexible Execution:** Supports both sequential (default) and parallel execution of checks.
--   **Detailed File Logging:** Creates a comprehensive `run_tasks.log` file in the project root with timestamps, check status, full command output on failure, and a summarized error report.
--   **Intelligent Error Parsing:** Extracts specific error lines from `stdout`/`stderr` based on configurable regex patterns defined in `.wescore.json`.
--   **Actionable Error Summary:** Presents a clear "Detected Errors" section in the log for failed checks, listing only the relevant error lines.
--   **Configurable Suggestions:** Displays custom troubleshooting suggestions alongside detected errors, configured per error category.
--   **Easy Integration:** Designed for simple setup via `npm scripts` for local development and CI/CD pipelines.
--   **Configurable:** Uses an optional `.wescore.json` file for defining checks, execution behavior, error patterns, and suggestions.
--   **Robust Process Management:** Uses Node.js `spawn` for reliable command execution and output capturing.
--   **Type Safety:** Implements configuration validation using Zod schema.
+- **Automated Checks:** Runs configured commands for formatting, linting, type checking, building, etc.
+- **Flexible Execution:** Supports both sequential (default) and parallel execution of checks.
+- **Detailed File Logging:** Creates a comprehensive `run_tasks.log` file in the project root with timestamps, check status, full command output on failure, and a summarized error report.
+- **Intelligent Error Parsing:** Extracts specific error lines from `stdout`/`stderr` based on configurable regex patterns defined in `.wescore.json`.
+- **Actionable Error Summary:** Presents a clear "Detected Errors" section in the log for failed checks, listing only the relevant error lines.
+- **Configurable Suggestions:** Displays custom troubleshooting suggestions alongside detected errors, configured per error category.
+- **Easy Integration:** Designed for simple setup via `npm scripts` for local development and CI/CD pipelines.
+- **Configurable:** Uses an optional `.wescore.json` file for defining checks, execution behavior, error patterns, and suggestions.
+- **Robust Process Management:** Uses Node.js `spawn` for reliable command execution and output capturing.
+- **Type Safety:** Implements configuration validation using Zod schema.
 
 ## Prerequisites
 
--   **Node.js:** Version 18 or higher recommended.
--   **Package Manager:** `npm` is recommended and used in examples (aligns with project standards).
--   **Project Tools:** Your project must have its own tools installed and configured (via `package.json` scripts or executables) for:
-    -   Formatting (e.g., Prettier)
-    -   Linting (e.g., ESLint)
-    -   Type Checking (e.g., TypeScript's `tsc`)
-    -   Building (e.g., Next.js build, `tsc`, Vite, Webpack)
+- **Node.js:** Version 18 or higher recommended.
+- **Package Manager:** `npm` is recommended and used in examples (aligns with project standards).
+- **Project Tools:** Your project must have its own tools installed and configured (via `package.json` scripts or executables) for:
+  - Formatting (e.g., Prettier)
+  - Linting (e.g., ESLint)
+  - Type Checking (e.g., TypeScript's `tsc`)
+  - Building (e.g., Next.js build, `tsc`, Vite, Webpack)
 
 ## Installation
 
@@ -53,7 +50,8 @@ The framework executes configured checks sequentially or in parallel. When check
 ## Project Structure
 
 The framework resides within the `.wescore` directory:
- ```
+
+```
 .wescore/
 ├── config/
 │   ├── loader.js  # Configuration loading and validation logic
@@ -65,15 +63,17 @@ The framework resides within the `.wescore` directory:
 ├── utils/ # (Potentially removed/refactored if errorCategorizer.js is unused)
 │   └── errorCategorizer.js  # (Legacy categorization, main logic now in main.js)
 └── main.js  # Main script: orchestrates checks, logging, and error parsing
- ```
-## Scripts
--   **`npm run cq`**: Runs the Wescore script.
--   **`npm run format`**: Runs Prettier for code formatting.
--   **`npm run lint`**: Runs ESLint for linting.
--   **`npm run typecheck`**: Runs TypeScript's type checker.
--   **`npm run build`**: Runs the project's build command (e.g., Next.js build).
+```
 
-*(Note: Review if `reporting/reporter.js` and `utils/errorCategorizer.js` are still used or if their logic is fully integrated into `main.js`. Update structure if needed.)*
+## Scripts
+
+- **`npm run cq`**: Runs the Wescore script.
+- **`npm run format`**: Runs Prettier for code formatting.
+- **`npm run lint`**: Runs ESLint for linting.
+- **`npm run typecheck`**: Runs TypeScript's type checker.
+- **`npm run build`**: Runs the project's build command (e.g., Next.js build).
+
+_(Note: Review if `reporting/reporter.js` and `utils/errorCategorizer.js` are still used or if their logic is fully integrated into `main.js`. Update structure if needed.)_
 
 ## Configuration (`.wescore.json`)
 
@@ -81,7 +81,7 @@ Create a `.wescore.json` file in your project root to customize behavior (option
 
 **Example `.wescore.json`:**
 
-```json
+````json
 {
   "commandTimeout": 300000, // Optional: Global timeout for commands in ms (default: 300000)
   "runInParallel": false,  // Optional: Run checks in parallel (default: false)
@@ -175,7 +175,7 @@ Add the main Wescore script to your `package.json`:
     "cq": "node .wescore/main.js"  // cq = Code Quality
   }
 }
-```
+````
 
 Run the quality checks from your terminal:
 
@@ -196,21 +196,21 @@ on: [push, pull_request]
 
 jobs:
   quality-checks:
-    runs-on: ubuntu-latest  # Or your preferred runner
+    runs-on: ubuntu-latest # Or your preferred runner
     steps:
-      - uses: actions/checkout@v4  # Use latest checkout action
+      - uses: actions/checkout@v4 # Use latest checkout action
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4  # Use latest setup-node action
+        uses: actions/setup-node@v4 # Use latest setup-node action
         with:
-          node-version: '18'  # Or your project's required Node version
-          cache: 'npm'  # Enable npm caching
+          node-version: '18' # Or your project's required Node version
+          cache: 'npm' # Enable npm caching
 
       - name: Install Dependencies
-        run: npm ci  # Use 'ci' for faster, deterministic installs in CI
+        run: npm ci # Use 'ci' for faster, deterministic installs in CI
 
       - name: Run Code Quality Checks (Wescore)
-        run: npm run cq  # Execute the Wescore script
+        run: npm run cq # Execute the Wescore script
 
       # Optional: Upload log file as artifact on failure
       - name: Upload Wescore Log on Failure
@@ -223,21 +223,21 @@ jobs:
 
 ## Best Practices
 
--   **Accurate `check.id`:** Ensure the `id` in the `checks` array exactly matches the corresponding key in `errorCategories`.
--   **Effective Regex Patterns:** Write specific regex patterns in `.wescore.json` to accurately capture the error lines you care about for each tool. Test your regex patterns.
--   **Strict Commands:** Configure your underlying tools (ESLint, TSC) to be strict (e.g., `--max-warnings=0`) so they exit with non-zero codes on issues, allowing Wescore to detect failures.
--   **Sequential Locally:** Use sequential mode (`"runInParallel": false`) for local development for clearer, easier-to-read output.
--   **Parallel in CI:** Consider enabling parallel mode (`"runInParallel": true`) in CI for potentially faster feedback, if resource contention is not an issue.
--   **Timeout:** Adjust `commandTimeout` if your checks (especially build) take longer than the default 5 minutes.
+- **Accurate `check.id`:** Ensure the `id` in the `checks` array exactly matches the corresponding key in `errorCategories`.
+- **Effective Regex Patterns:** Write specific regex patterns in `.wescore.json` to accurately capture the error lines you care about for each tool. Test your regex patterns.
+- **Strict Commands:** Configure your underlying tools (ESLint, TSC) to be strict (e.g., `--max-warnings=0`) so they exit with non-zero codes on issues, allowing Wescore to detect failures.
+- **Sequential Locally:** Use sequential mode (`"runInParallel": false`) for local development for clearer, easier-to-read output.
+- **Parallel in CI:** Consider enabling parallel mode (`"runInParallel": true`) in CI for potentially faster feedback, if resource contention is not an issue.
+- **Timeout:** Adjust `commandTimeout` if your checks (especially build) take longer than the default 5 minutes.
 
 ## Troubleshooting
 
--   **"Detected Errors" section is empty or incorrect:**
-    -   Verify that the `id` for the failed check in the `checks` array exactly matches a key in the `errorCategories` object in `.wescore.json`.
-    -   Check the `patterns` array for that category in `.wescore.json`. Are the regex strings correct? Do they accurately match the error lines shown in the raw `stdout`/`stderr` for the failed command? Remember to escape backslashes in the JSON file (e.g., `\\d` for `\d`, `\\[` for `[`).
-    -   Ensure the underlying command (e.g., `npm run lint`) is actually outputting the errors you expect to `stdout` or `stderr`.
--   **Command Not Found:** Ensure the command specified in the `checks` array (e.g., `npm run lint`) exists in your `package.json` scripts or is a globally/locally installed executable accessible via `npx`.
--   **Check Times Out:** Increase the global `commandTimeout` in `.wescore.json` or add a specific `timeout` property to the individual check definition in the `checks` array.
+- **"Detected Errors" section is empty or incorrect:**
+  - Verify that the `id` for the failed check in the `checks` array exactly matches a key in the `errorCategories` object in `.wescore.json`.
+  - Check the `patterns` array for that category in `.wescore.json`. Are the regex strings correct? Do they accurately match the error lines shown in the raw `stdout`/`stderr` for the failed command? Remember to escape backslashes in the JSON file (e.g., `\\d` for `\d`, `\\[` for `[`).
+  - Ensure the underlying command (e.g., `npm run lint`) is actually outputting the errors you expect to `stdout` or `stderr`.
+- **Command Not Found:** Ensure the command specified in the `checks` array (e.g., `npm run lint`) exists in your `package.json` scripts or is a globally/locally installed executable accessible via `npx`.
+- **Check Times Out:** Increase the global `commandTimeout` in `.wescore.json` or add a specific `timeout` property to the individual check definition in the `checks` array.
 
 ## Contributing
 
