@@ -1,14 +1,10 @@
+import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
-import chalk from 'chalk';
 import { z } from 'zod';
-import {
-  ConfigSchema,
-  DEFAULT_COMMANDS_CONFIG,
-  DEFAULT_COMMAND_TIMEOUT_MS,
-} from './schema.js';
+import { ConfigSchema } from './schema.js';
 
-const CONFIG_FILE_PATH = path.resolve('.code-quality.json');
+const CONFIG_FILE_PATH = path.resolve('.wescore.json');
 
 export async function loadConfig() {
   let loadedConfig = {};

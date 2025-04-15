@@ -78,7 +78,7 @@ The portfolio includes a fully-featured blog with MDX support:
 2. Install dependencies
 
    ```bash
-   npm run install
+   npm install
    ```
 
 3. Start development server
@@ -106,7 +106,7 @@ This project is automatically deployed to Vercel when pushing to the main branch
 1. Install Vercel CLI
 
    ```bash
-   npm run install -g vercel
+   npm install -g vercel
    ```
 
 2. Run deployment

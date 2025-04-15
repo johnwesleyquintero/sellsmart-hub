@@ -1,7 +1,8 @@
 {
-  "parallel": true,
+  "runInParallel": false,
   "stopOnFail": false,
   "commandTimeout": 300000,
+  "logLevel": "info",
   "checks": [
     {
       "id": "format",
@@ -15,8 +16,9 @@
     },
     {
       "id": "typecheck",
-      "name": "Type Checking",
-      "command": "npm run typecheck"
+      "name": "Type Checking (TSC)",
+      "command": "npx tsc --noEmit",
+      "description": "Performs static type checking using TypeScript Compiler"
     },
     {
       "id": "build",
@@ -25,17 +27,32 @@
     }
   ],
   "errorCategories": {
-    "style": {
-      "patterns": ["ESLint", "prettier", "\\[wW\\]arning\\s+-"],
-      "suggestion": "Run formatting/linting tools and review style guidelines"
+    "format": {
+      "patterns": ["SyntaxError:", "\\[error\\]", "Parsing error:"],
+      "suggestion": "Run 'npm run format' to fix Prettier formatting issues or check for syntax errors"
     },
-    "types": {
-      "patterns": ["TS\\d+", "[Tt]ype.*error"],
-      "suggestion": "Check type annotations and interface definitions"
+    "lint": {
+      "patterns": [
+        "^\\s*\\d+:\\d+\\s+Error:",
+        "^\\./.*?:$",
+        "Parsing error:",
+        "@typescript-eslint/"
+      ],
+      "suggestion": "Run 'npm run lint -- --fix' to potentially auto-fix ESLint issues or review the reported errors"
+    },
+    "typecheck": {
+      "patterns": ["^.*?\\.tsx?\\(\\d+,\\d+\\): error TS\\d+:.*$"],
+      "suggestion": "Check type annotations and verify TS configurations"
     },
     "build": {
-      "patterns": ["build.*failed", "Module not found"],
-      "suggestion": "Verify dependencies and build configuration"
+      "patterns": [
+        "Failed to compile",
+        "Build failed",
+        "Syntax Error",
+        "Error:.*?Expected",
+        "error TS\\d+:"
+      ],
+      "suggestion": "Check the build output for compilation errors, often related to syntax or type issues"
     }
   }
 }

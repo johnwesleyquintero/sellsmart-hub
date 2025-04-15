@@ -10,7 +10,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "cq": "node .wescore/run_tasks_from_config.js"
+    "cq": "node .wescore/main.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
