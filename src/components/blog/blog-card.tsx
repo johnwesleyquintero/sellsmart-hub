@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -8,22 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { BlogPost } from '@/lib/static-data-types';
+import { ArrowRight, Calendar, Clock } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-interface BlogCardProps {
-  post: {
-    slug: string;
-    title: string;
-    description: string;
-    date: string;
-    image: string;
-    tags: string[];
-    readingTime?: string;
-  };
-}
-
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard({ post }: { post: BlogPost }) {
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="aspect-video overflow-hidden">

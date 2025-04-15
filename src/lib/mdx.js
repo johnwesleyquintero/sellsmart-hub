@@ -39,7 +39,7 @@ function normalizeDate(date) {
   const d = new Date(date);
   return d.toISOString().split('T')[0]; // YYYY-MM-DD format
 }
-const postsDirectory = path.join(process.cwd(), 'content/blog');
+const postsDirectory = path.join(process.cwd(), 'src/content/blog');
 export function getAllPosts() {
   return __awaiter(this, void 0, void 0, function* () {
     // Check if directory exists
@@ -88,9 +88,11 @@ export function getAllPosts() {
           }),
         ),
     );
-    return allPostsData.sort((a, b) =>
-      normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
-    );
+    return allPostsData.sort((a, b) => {
+      const dateA = a.date || '2000-01-01';
+      const dateB = b.date || '2000-01-01';
+      return normalizeDate(dateB).localeCompare(normalizeDate(dateA));
+    });
   });
 }
 export function getPostBySlug(slug) {
@@ -99,10 +101,9 @@ export function getPostBySlug(slug) {
     if (!fs.existsSync(postsDirectory)) {
       // If not, return sample data from data/portfolio-data/blog.json
       const blogData = yield import('@/data/portfolio-data/blog.json');
+      if (!blogData?.posts) return null;
       const post = blogData.posts.find((post) => post.id === slug);
       if (!post) return null;
-      // Get related posts
-      if (!blogData.posts) return null;
       const allPosts = blogData.posts;
       const relatedPosts = allPosts
         .filter((p) => {

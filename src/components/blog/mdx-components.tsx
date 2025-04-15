@@ -1,9 +1,10 @@
+import { BlogPost } from '@/lib/static-data-types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import type React from 'react';
 
-export const mdxComponents = {
+export const MDXComponents = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
       className={cn('mt-8 mb-4 text-3xl font-bold tracking-tight', className)}
@@ -121,4 +122,7 @@ export const mdxComponents = {
     );
   },
   Image,
+  wrapper: ({ children }: { children: React.ReactNode; post: BlogPost }) => (
+    <article className="prose dark:prose-invert">{children}</article>
+  ),
 };

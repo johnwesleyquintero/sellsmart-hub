@@ -1,12 +1,9 @@
-import type React from 'react';
-import Header from '@/components/header';
 import Footer from '@/components/footer';
+import Header from '@/components/header';
+import { BlogPost } from '@/lib/static-data-types';
+import type React from 'react';
 
-interface BlogLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function BlogLayout({ children }: BlogLayoutProps) {
+export default function BlogLayout({ children, post }: { children: React.ReactNode; post: BlogPost }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <Header />

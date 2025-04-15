@@ -2,6 +2,7 @@
   "posts": [
     {
       "id": "sample-blog-post",
+      "slug": "sample-blog-post",
       "title": "Sample Blog Post",
       "description": "This is a sample blog post.",
       "date": "2025-04-15",
@@ -9,7 +10,8 @@
       "tags": ["sample", "blog"],
       "readingTime": "5 min",
       "author": "Roo",
-      "content": "This is the content of the sample blog post."
+      "content": "This is the content of the sample blog post.",
+      "relatedPosts": []
     }
   ]
 }
