@@ -68,8 +68,6 @@ const chartConfig = {
   [key in MetricKey]: { label: string; theme: { light: string; dark: string } };
 };
 
-
-
 function getAcosColor(acos: number): string {
   if (acos < 15) return 'text-green-500';
   if (acos < 25) return 'text-blue-500';

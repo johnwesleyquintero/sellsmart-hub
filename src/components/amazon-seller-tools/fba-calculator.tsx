@@ -108,7 +108,7 @@ export default function FbaCalculator() {
                 cost: Number(item.cost),
                 price: Number(item.price),
                 fees: Number(item.fees),
-                category: 'general' as ProductCategory,
+                category: 'general' as ProductCategory
               })
             ));
 
