@@ -1,25 +1,5 @@
 'use client';
 
-import AcosCalculator from '@/src/components/amazon-seller-tools/acos-calculator';
-import CompetitorAnalyzer from '@/src/components/amazon-seller-tools/competitor-analyzer';
-import DescriptionEditor from '@/src/components/amazon-seller-tools/description-editor';
-import FbaCalculator from '@/src/components/amazon-seller-tools/fba-calculator';
-import KeywordAnalyzer from '@/src/components/amazon-seller-tools/keyword-analyzer';
-import KeywordDeduplicator from '@/src/components/amazon-seller-tools/keyword-deduplicator';
-import KeywordTrendAnalyzer from '@/src/components/amazon-seller-tools/keyword-trend-analyzer';
-import ListingQualityChecker from '@/src/components/amazon-seller-tools/listing-quality-checker';
-import PpcCampaignAuditor from '@/src/components/amazon-seller-tools/ppc-campaign-auditor';
-import ProfitMarginCalculator from '@/src/components/amazon-seller-tools/profit-margin-calculator';
-import SalesEstimator from '@/src/components/amazon-seller-tools/sales-estimator';
-import { Badge } from '@/src/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/src/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/tabs';
 import {
   BarChart3,
   Calculator,
@@ -34,6 +14,26 @@ import {
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
+import AcosCalculator from './amazon-seller-tools/acos-calculator';
+import CompetitorAnalyzer from './amazon-seller-tools/competitor-analyzer';
+import DescriptionEditor from './amazon-seller-tools/description-editor';
+import FbaCalculator from './amazon-seller-tools/fba-calculator';
+import KeywordAnalyzer from './amazon-seller-tools/keyword-analyzer';
+import KeywordDeduplicator from './amazon-seller-tools/keyword-deduplicator';
+import KeywordTrendAnalyzer from './amazon-seller-tools/keyword-trend-analyzer';
+import ListingQualityChecker from './amazon-seller-tools/listing-quality-checker';
+import PpcCampaignAuditor from './amazon-seller-tools/ppc-campaign-auditor';
+import ProfitMarginCalculator from './amazon-seller-tools/profit-margin-calculator';
+import SalesEstimator from './amazon-seller-tools/sales-estimator';
+import { Badge } from './ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 export default function FeaturedToolsSection() {
   const [activeTab, setActiveTab] = useState('fba-calculator');

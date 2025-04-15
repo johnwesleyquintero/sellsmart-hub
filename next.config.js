@@ -1,3 +1,5 @@
+import path from 'path';
+
 let userConfig = undefined;
 try {
   userConfig = await import('./v0-user-next.config');
@@ -27,9 +29,11 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
+    return config;
+  },
 };
-
-mergeConfig(nextConfig, userConfig);
 
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {

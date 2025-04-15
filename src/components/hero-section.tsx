@@ -1,8 +1,10 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Github, Linkedin, Mail, Triangle, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Github, Linkedin, Twitter, Mail, Triangle } from 'lucide-react';
+
+import { ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -134,6 +136,42 @@ export default function HeroSection() {
               src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
               fill
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function HeroSection() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl font-bold tracking-tight mb-4 md:text-5xl">
+              Welcome to My Portfolio
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground text-lg">
+              Discover my projects, skills, and experiences in the world of web
+              development.
+            </p>
+            <div className="mt-8 flex justify-center md:justify-start">
+              <Link href="/projects">
+                <Button variant="primary" size="lg">
+                  View Projects <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <div className="relative w-full max-w-md">
+            <Image
+              src="/images/hero-image.svg"
+              alt="Hero Image"
+              width={400}
+              height={400}
+              className="mx-auto"
             />
           </div>
         </div>
