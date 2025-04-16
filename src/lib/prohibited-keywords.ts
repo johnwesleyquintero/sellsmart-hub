@@ -1,4 +1,4 @@
-const DB_PATH = './data/prohibited-keywords.json';
+const DB_PATH = '/data/prohibited-keywords/db.json';
 
 interface ProhibitedKeywordsDB {
   keywords: string[];
@@ -10,8 +10,12 @@ export async function getAll(): Promise<string[]> {
     const response = await fetch(DB_PATH);
     const data: ProhibitedKeywordsDB = await response.json();
     return data.keywords;
-  } catch (error) {
-    console.error('Failed to fetch prohibited keywords:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Failed to fetch prohibited keywords:', error.message);
+    } else {
+      console.error('Failed to fetch prohibited keywords:', String(error));
+    }
     return [];
   }
 }
@@ -34,4 +38,9 @@ export async function add(keyword: string): Promise<void> {
     console.error('Failed to add prohibited keyword:', error);
     throw error;
   }
+}
+
+export function getProhibitedKeywords(): string[] {
+  const keywords = loadProhibitedKeywords() as string[];
+  return data.keywords;
 }

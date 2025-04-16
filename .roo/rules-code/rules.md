@@ -15,7 +15,9 @@
 3. VERIFY:
 
    - Run `npm run cq` to check fixes.
-   - Identify any remaining issues.
+   - Review `.task_tracker.log` again for errors and warnings.
+   - Identify and fix any remaining issues.
+
 
 4. ITERATE:
    - Repeat steps until all quality checks pass.

@@ -1,6 +1,18 @@
 import { ProhibitedKeywords } from './prohibited-keywords';
 
-interface KeywordAnalysis {
+export interface KeywordAnalysis {
+
+export class KeywordIntelligence {
+  static analyze(keywords: string[]): KeywordAnalysis[] {
+    return keywords.map(keyword => ({
+      keyword,
+      isProhibited: false,
+      score: 0,
+      confidence: 0,
+      matchType: 'exact'
+    }));
+  }
+}
   keyword: string;
   isProhibited: boolean;
   score: number;

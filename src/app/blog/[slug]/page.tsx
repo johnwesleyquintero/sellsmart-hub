@@ -167,7 +167,7 @@ export default async function BlogPost({ params }: Props) {
           <div className="mt-16 pt-8 border-t">
             <h2 className="text-2xl font-bold mb-4">Continue Reading</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {post.relatedPosts.map((relatedPost: BlogPost) => (
+              {post.relatedPosts?.map((relatedPost: BlogPost) => (
                 <Link
                   key={relatedPost.slug}
                   href={`/blog/${relatedPost.slug}`}

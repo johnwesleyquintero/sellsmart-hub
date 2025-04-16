@@ -3,6 +3,16 @@ import matter from 'gray-matter';
 import path from 'path';
 import { BlogPost } from './types';
 
+interface MatterData {
+  title: string;
+  description: string;
+  date: string | Date;
+  image?: string;
+  tags?: string[];
+  readingTime?: string;
+  author?: string;
+}
+
 // Add utility function for consistent date handling
 function normalizeDate(date: string | Date) {
   const d = new Date(date);
@@ -46,16 +56,6 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   return allPostsData.sort((a: BlogPost, b: BlogPost) =>
     normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
   );
-}
-
-interface MatterData {
-  title: string;
-  description: string;
-  date: string | Date;
-  image?: string;
-  tags?: string[];
-  readingTime?: string;
-  author?: string;
 }
 
 interface BlogPostData {
