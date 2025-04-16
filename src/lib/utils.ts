@@ -49,7 +49,7 @@ export const pick = <T extends object, K extends keyof T>(
 ): Pick<T, K> => {
   return keys.reduce(
     (acc, currentKey) => {
-      if (obj && Object.prototype.hasOwnProperty.call(obj, currentKey)) {
+      if (Object.prototype.hasOwnProperty.call(obj, currentKey)) {
         acc[currentKey] = obj[currentKey];
       }
       return acc;
