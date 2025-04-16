@@ -1,17 +1,20 @@
 import fs from 'fs';
 import matter from 'gray-matter';
 import path from 'path';
+import { z } from 'zod';
 import { BlogPost } from './types';
 
-interface MatterData {
-  title: string;
-  description: string;
-  date: string | Date;
-  image?: string;
-  tags?: string[];
-  readingTime?: string;
-  author?: string;
-}
+const matterDataSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.union([z.string(), z.date()]),
+  image: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  readingTime: z.string().optional(),
+  author: z.string().optional(),
+});
+
+// Removing unused type definition
 
 // Add utility function for consistent date handling
 function normalizeDate(date: string | Date) {
@@ -36,7 +39,8 @@ export async function getAllPosts(): Promise<BlogPost[]> {
         const slug = fileName.replace(/\.mdx$/, '');
         const fullPath = path.join(postsDirectory, fileName);
         const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data } = matter(fileContents) as { data: MatterData };
+        const parsed = matter(fileContents);
+        const data = matterDataSchema.parse(parsed.data);
 
         return {
           id: slug,
@@ -98,10 +102,9 @@ export async function getPostBySlug(
   try {
     const fullPath = path.join(postsDirectory, `${slug}.mdx`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents) as {
-      data: MatterData;
-      content: string;
-    };
+    const parsed = matter(fileContents);
+    const data = matterDataSchema.parse(parsed.data);
+    const { content } = parsed;
 
     // Get related posts
     const allPosts = await getAllPosts();

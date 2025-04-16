@@ -8,7 +8,7 @@ interface ProhibitedKeywordsDB {
 export async function getAll(): Promise<string[]> {
   try {
     const response = await fetch(DB_PATH);
-    const data: ProhibitedKeywordsDB = await response.json();
+    const data = (await response.json()) as ProhibitedKeywordsDB;
     return data.keywords;
   } catch (error: unknown) {
     if (error instanceof Error) {
