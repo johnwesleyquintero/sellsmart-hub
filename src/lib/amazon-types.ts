@@ -168,3 +168,11 @@ export interface CompetitorData {
 }
 
 export type ReportTimeframe = 'last7' | 'last30' | 'last90' | 'custom';
+export interface ProcessedKeywordData {
+  keyword: string;
+  searchVolume: number;
+  competition: number;
+  recommendedBid: number;
+  trend: string;
+  cpc: number;
+}

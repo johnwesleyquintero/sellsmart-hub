@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../config/loader.mjs';
-import { errorLogger } from '../src/reporting/error-logger.mjs'; // For internal tool errors
 import { runCommand } from '../src/runner/commandRunner.mjs';
 import { generateHeader } from '../src/utils/header.mjs'; // Use the generator
 
@@ -65,7 +64,7 @@ async function main() {
   try {
     logProcessStats('Start');
 
-    // 1. Load Config - Use try/catch and errorLogger
+    // 1. Load Config - Use try/catch and issueLogger
     bufferLog('info', 'Loading configuration...');
     const configStartTime = Date.now();
     try {
@@ -82,7 +81,7 @@ async function main() {
       bufferLog('debug', `Command Timeout: ${config.commandTimeout}ms`);
     } catch (configError) {
       // Log internal config loading error
-      errorLogger.logError(configError, {
+      issueLogger.logError(configError, {
         script: SCRIPT_NAME,
         phase: 'loadConfig',
       });
@@ -100,7 +99,7 @@ async function main() {
     // 2. Run Checks (Parallel or Sequential)
     //    Modify the logging inside the loops to use `bufferLog`
     //    Keep the .catch() for runCommand to handle *runner* errors,
-    //    but consider logging them with errorLogger too.
+    //    but consider logging them with issueLogger too.
 
     if (config.runInParallel) {
       bufferLog('info', `⚡ Running ${totalChecks} checks in parallel mode`);
@@ -109,7 +108,7 @@ async function main() {
           .then((result) => ({ check, result, index }))
           .catch((runnerError) => {
             // Log internal runner error
-            errorLogger.logError(runnerError, {
+            issueLogger.logError(runnerError, {
               script: SCRIPT_NAME,
               phase: 'runCommandParallel',
               check: check.name,
@@ -175,7 +174,7 @@ async function main() {
             reason instanceof Error
               ? reason
               : new Error(`Critical promise rejection: ${reason}`);
-          errorLogger.logError(errorToLog, {
+          issueLogger.logError(errorToLog, {
             script: SCRIPT_NAME,
             phase: 'promiseSettled',
             checkIndex,
@@ -193,7 +192,7 @@ async function main() {
         }
       });
     } else {
-      // Sequential Execution (similar logic with bufferLog and errorLogger in catch)
+      // Sequential Execution (similar logic with bufferLog and issueLogger in catch)
       bufferLog('info', `⚡ Running ${totalChecks} checks in sequential mode`);
       for (const [index, check] of config.checks.entries()) {
         const checkNum = index + 1;
@@ -228,7 +227,7 @@ async function main() {
           }
         } catch (runnerError) {
           // Log internal runner error
-          errorLogger.logError(runnerError, {
+          issueLogger.logError(runnerError, {
             script: SCRIPT_NAME,
             phase: 'runCommandSequential',
             check: check.name,
@@ -298,7 +297,7 @@ async function main() {
       error,
     );
     // Log the critical internal error
-    errorLogger.logError(error, {
+    issueLogger.logError(error, {
       script: SCRIPT_NAME,
       phase: 'mainExecution',
     });
@@ -420,7 +419,7 @@ function writeLogFile(
       chalk.red.bold(`FATAL: Cannot write final log file ${logfilePath}.`),
       writeError,
     );
-    errorLogger.logError(writeError, {
+    issueLogger.logError(writeError, {
       script: SCRIPT_NAME,
       phase: 'writeLogFile',
     });

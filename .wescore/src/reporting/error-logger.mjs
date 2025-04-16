@@ -1,273 +1,457 @@
+// c:\Users\johnw\OneDrive\Desktop\portfolio\.wescore\src\reporting\error-logger.mjs
 // ===================================================================
-// Wescore Internal Error Logging Module
+// Wescore Issue Logging Module (Enhanced Robustness)
 // ===================================================================
 // Purpose:
-// - Log internal errors encountered *within* the Wescore tooling itself
-//   (e.g., file system issues, config loading errors, command runner failures).
-// - This is distinct from the main '.task_tracker.log' which records the
-//   *results* of the quality checks being run.
-// - Provides structured error logging to 'logs/error-report.log'.
-// - Categorizes errors based on patterns.
-// - Maintains a summary of errors in 'logs/error-summary.json'.
+// - Log internal tool errors and results from quality checks (e.g., ESLint).
+// - Provides structured logging to 'logs/issue-report.log' with rotation.
+// - Categorizes issues.
+// - Maintains a summary in 'logs/issue-summary.json' with atomic writes.
 // ===================================================================
 
 import fs from 'fs';
+import os from 'os'; // <-- Import os module
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-// Place logs directory within the .wescore folder for better organization
 const DEFAULT_LOG_DIR = path.resolve(__filename, '..', '..', 'logs'); // .wescore/logs/
+const DEFAULT_MAX_LOG_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const DEFAULT_MAX_LOG_FILES = 5;
 
-// Error Categories (Keep as is)
-const ERROR_CATEGORIES = {
-  BUILD: 'BUILD', // Errors during Next.js build step if wrapped
-  DEPENDENCY: 'DEPENDENCY', // npm/yarn/pnpm errors if wrapped
-  CONFIGURATION: 'CONFIGURATION', // Errors loading/parsing .wescore.json or other configs
-  EXPORT: 'EXPORT', // Errors during Next.js export step if wrapped
-  FILESYSTEM: 'FILESYSTEM', // fs errors (permissions, not found etc.)
-  PROCESS: 'PROCESS', // Errors related to child process execution (signals, non-zero exits not caught by runner)
-  NETWORK: 'NETWORK', // Network errors if tool makes external calls
-  VALIDATION: 'VALIDATION', // Errors validating config or input
-  INTERNAL: 'INTERNAL', // General unexpected errors within Wescore logic
-  UNKNOWN: 'UNKNOWN', // Errors that don't match other patterns
+// Categories (Added LINTING)
+const ISSUE_CATEGORIES = {
+  BUILD: 'BUILD',
+  DEPENDENCY: 'DEPENDENCY',
+  CONFIGURATION: 'CONFIGURATION',
+  EXPORT: 'EXPORT',
+  FILESYSTEM: 'FILESYSTEM',
+  PROCESS: 'PROCESS',
+  NETWORK: 'NETWORK',
+  VALIDATION: 'VALIDATION',
+  INTERNAL: 'INTERNAL',
+  LINTING: 'LINTING', // For check results like ESLint
+  UNKNOWN: 'UNKNOWN',
 };
 
-// Refined Error Patterns for categorization of *internal* tool errors
+// Patterns for *internal* tool errors
 const ERROR_PATTERNS = [
-  // Dependency/Install Errors
+  // Keep existing patterns, but FS errors might be caught by code first
   {
     pattern:
       /(npm ERR!|yarn error|pnpm error|Cannot find module|Module not found)/i,
-    category: ERROR_CATEGORIES.DEPENDENCY,
+    category: ISSUE_CATEGORIES.DEPENDENCY,
   },
-  // Filesystem Errors
   {
     pattern:
       /(ENOENT|EPERM|EACCES|Failed to read|Failed to write|Cannot write to log file)/i,
-    category: ERROR_CATEGORIES.FILESYSTEM,
-  },
-  // Configuration Errors
+    category: ISSUE_CATEGORIES.FILESYSTEM,
+  }, // Fallback regex
   {
     pattern:
       /(next\.config\.js|wescore\.json|Invalid configuration|Failed to load config)/i,
-    category: ERROR_CATEGORIES.CONFIGURATION,
+    category: ISSUE_CATEGORIES.CONFIGURATION,
   },
-  // Build/Export Errors (if build/export commands are wrapped)
-  { pattern: /(next build|build failed)/i, category: ERROR_CATEGORIES.BUILD },
+  { pattern: /(next build|build failed)/i, category: ISSUE_CATEGORIES.BUILD },
   {
     pattern: /(export failed|static export)/i,
-    category: ERROR_CATEGORIES.EXPORT,
+    category: ISSUE_CATEGORIES.EXPORT,
   },
-  // Process Execution Errors (less common if using runner, but possible)
   {
     pattern: /(SIGTERM|SIGINT|command failed|runner error)/i,
-    category: ERROR_CATEGORIES.PROCESS,
+    category: ISSUE_CATEGORIES.PROCESS,
   },
-  // Network Errors (if applicable)
   {
     pattern: /(ETIMEDOUT|ECONNREFUSED|fetch failed)/i,
-    category: ERROR_CATEGORIES.NETWORK,
+    category: ISSUE_CATEGORIES.NETWORK,
   },
-  // Add more specific internal patterns as needed
 ];
 
-class ErrorLogger {
+class IssueLogger {
+  // <-- Renamed class
   /**
-   * @param {string} [logDir] - Directory to store log files. Defaults to '.wescore/logs'.
+   * @param {object} [options={}]
+   * @param {string} [options.logDir=DEFAULT_LOG_DIR]
+   * @param {number} [options.maxLogSize=DEFAULT_MAX_LOG_SIZE_BYTES]
+   * @param {number} [options.maxLogFiles=DEFAULT_MAX_LOG_FILES]
    */
-  constructor(logDir = DEFAULT_LOG_DIR) {
-    this.logDir = logDir;
-    this.errorLogPath = path.join(this.logDir, 'error-report.log');
-    this.summaryPath = path.join(this.logDir, 'error-summary.json');
-    this.errorStats = {
-      totalErrors: 0,
+  constructor(options = {}) {
+    this.logDir = options.logDir || DEFAULT_LOG_DIR;
+    this.maxLogSize = options.maxLogSize || DEFAULT_MAX_LOG_SIZE_BYTES;
+    this.maxLogFiles = options.maxLogFiles || DEFAULT_MAX_LOG_FILES;
+    this.logFilePath = path.join(this.logDir, 'issue-report.log'); // <-- Renamed log file
+    this.summaryPath = path.join(this.logDir, 'issue-summary.json'); // <-- Renamed summary file
+    this.summaryTmpPath = path.join(this.logDir, 'issue-summary.json.tmp'); // For atomic writes
+
+    this.issueStats = {
+      // <-- Renamed stats object
+      totalIssues: 0,
       categoryCounts: {},
-      recentErrors: [], // Stores { timestamp, category, message, stack, context }
+      recentIssues: [], // Stores { timestamp, category, message, details, context }
     };
     this.isInitialized = false;
-    this._initializeLogger(); // Use underscore convention for internal init method
+    this._initializeLogger();
   }
 
   _initializeLogger() {
-    if (this.isInitialized) return;
+    if (this.isInitialized) return true; // Already initialized
+
     try {
+      // 1. Ensure log directory exists
       if (!fs.existsSync(this.logDir)) {
         fs.mkdirSync(this.logDir, { recursive: true });
-        console.log(`[ErrorLogger] Created log directory: ${this.logDir}`);
+        console.log(`[IssueLogger] Created log directory: ${this.logDir}`);
       }
-      // Initialize error log file with a header if it doesn't exist
-      if (!fs.existsSync(this.errorLogPath)) {
+
+      // 2. Handle Log Rotation
+      this._rotateLogFileIfNeeded();
+
+      // 3. Initialize log file with header if it's new (after potential rotation)
+      if (!fs.existsSync(this.logFilePath)) {
+        const systemInfo = `OS: ${os.platform()} ${os.release()} | Node: ${process.version} | Wescore Logger Init`;
         fs.writeFileSync(
-          this.errorLogPath,
-          `========================================\nWescore Internal Error Log\nStarted: ${new Date().toISOString()}\n========================================\n\n`,
+          this.logFilePath,
+          `========================================\nWescore Issue Log\nStarted: ${new Date().toISOString()}\n${systemInfo}\n========================================\n\n`,
           'utf8',
         );
       }
 
-      // Load existing stats if available
+      // 4. Load existing summary stats if available
       if (fs.existsSync(this.summaryPath)) {
         const statsContent = fs.readFileSync(this.summaryPath, 'utf8');
         if (statsContent) {
-          this.errorStats = JSON.parse(statsContent);
+          this.issueStats = JSON.parse(statsContent);
           // Ensure essential keys exist after loading
-          this.errorStats.totalErrors = this.errorStats.totalErrors || 0;
-          this.errorStats.categoryCounts = this.errorStats.categoryCounts || {};
-          this.errorStats.recentErrors = this.errorStats.recentErrors || [];
+          this.issueStats.totalIssues = this.issueStats.totalIssues || 0;
+          this.issueStats.categoryCounts = this.issueStats.categoryCounts || {};
+          this.issueStats.recentIssues = this.issueStats.recentIssues || [];
+        }
+      } else {
+        // Initialize summary file if it doesn't exist
+        this._writeSummaryFile();
+      }
+
+      this.isInitialized = true;
+      return true; // Initialization successful
+    } catch (initError) {
+      this.isInitialized = false;
+      const errorMsg = `[IssueLogger] CRITICAL: Failed to initialize logger! ${initError.message}\nStack: ${initError.stack}\n`;
+      console.error(errorMsg);
+      try {
+        process.stderr.write(errorMsg);
+      } catch (_) {
+        /* Ignore stderr write errors */
+      }
+      return false; // Initialization failed
+    }
+  }
+
+  _rotateLogFileIfNeeded() {
+    try {
+      if (fs.existsSync(this.logFilePath)) {
+        const stats = fs.statSync(this.logFilePath);
+        if (stats.size >= this.maxLogSize) {
+          console.log(
+            `[IssueLogger] Log file size (${stats.size} bytes) exceeds limit (${this.maxLogSize} bytes). Rotating.`,
+          );
+          // Determine next rotation number
+          let rotationNum = 1;
+          while (
+            rotationNum < this.maxLogFiles &&
+            fs.existsSync(`${this.logFilePath}.${rotationNum}`)
+          ) {
+            rotationNum++;
+          }
+          // If max files reached, delete the oldest before rotating
+          if (rotationNum >= this.maxLogFiles) {
+            const oldestLog = `${this.logFilePath}.${this.maxLogFiles - 1}`;
+            console.log(
+              `[IssueLogger] Max log files reached. Deleting oldest: ${oldestLog}`,
+            );
+            try {
+              fs.unlinkSync(oldestLog);
+            } catch (e) {
+              console.error(
+                `[IssueLogger] Failed to delete oldest log: ${e.message}`,
+              );
+            }
+            rotationNum = this.maxLogFiles - 1; // Overwrite the last one
+          }
+
+          // Shift existing rotated logs
+          for (let i = rotationNum - 1; i >= 1; i--) {
+            try {
+              fs.renameSync(
+                `${this.logFilePath}.${i}`,
+                `${this.logFilePath}.${i + 1}`,
+              );
+            } catch (e) {
+              console.error(
+                `[IssueLogger] Failed to rename log ${i}: ${e.message}`,
+              );
+            }
+          }
+          // Rename current log to .1
+          try {
+            fs.renameSync(this.logFilePath, `${this.logFilePath}.1`);
+          } catch (e) {
+            console.error(
+              `[IssueLogger] Failed to rename current log: ${e.message}`,
+            );
+          }
+          console.log(`[IssueLogger] Log rotated to ${this.logFilePath}.1`);
         }
       }
-      this.isInitialized = true;
-    } catch (initError) {
-      // Log initialization errors to console, as logging to file might fail
-      console.error(
-        '[ErrorLogger] CRITICAL: Failed to initialize error logger!',
-        initError,
-      );
-      this.isInitialized = false; // Ensure it's marked as not ready
+    } catch (rotateError) {
+      const errorMsg = `[IssueLogger] ERROR: Failed during log rotation! ${rotateError.message}\n`;
+      console.error(errorMsg);
+      try {
+        process.stderr.write(errorMsg);
+      } catch (_) {}
+      // Continue even if rotation fails, try logging to the main file
     }
   }
 
   /**
-   * Categorizes an error based on predefined patterns.
+   * Categorizes an *internal tool error*.
    * @param {Error} error - The error object.
-   * @returns {string} The determined error category (from ERROR_CATEGORIES).
+   * @returns {string} The determined issue category.
    */
-  categorizeError(error) {
+  categorizeInternalError(error) {
+    // Keep specific name for internal errors
     const message = error.message || error.toString();
     const stack = error.stack || '';
-    const combined = `${message}\n${stack}`; // Check message and stack
+    const code = error.code; // <-- Get error code
 
+    // Prioritize specific error codes
+    if (code) {
+      switch (code) {
+        case 'ENOENT':
+        case 'EACCES':
+        case 'EPERM':
+        case 'EISDIR':
+        case 'ENOTDIR':
+          return ISSUE_CATEGORIES.FILESYSTEM;
+        // Add more specific codes if needed (e.g., network codes)
+        case 'ECONNREFUSED':
+        case 'ETIMEDOUT':
+        case 'ENOTFOUND':
+          return ISSUE_CATEGORIES.NETWORK;
+      }
+    }
+
+    // Fallback to regex patterns
+    const combined = `${message}\n${stack}`;
     for (const { pattern, category } of ERROR_PATTERNS) {
       if (pattern.test(combined)) {
         return category;
       }
     }
-    return ERROR_CATEGORIES.UNKNOWN;
+
+    // Avoid mis-categorizing Linting summaries if they somehow reach here
+    if (message.includes('ESLint found')) return ISSUE_CATEGORIES.UNKNOWN;
+
+    return ISSUE_CATEGORIES.UNKNOWN;
   }
 
-  /**
-   * Formats an error into a log entry string and a structured detail object.
-   * @param {Error} error - The error object.
-   * @param {string} category - The determined error category.
-   * @param {object} [context={}] - Optional additional context (e.g., { script: 'check-quality.mjs', phase: 'configLoad' }).
-   * @returns {{logEntry: string, errorDetail: object}}
-   */
-  formatErrorEntry(error, category, context = {}) {
+  _formatInternalErrorEntry(error, category, context = {}) {
+    // ... (Formatting logic remains the same as before, using 'details' for stack)
     const timestamp = new Date().toISOString();
-    const errorDetail = {
+    const issueDetail = {
       timestamp,
       category,
       message: error.message || error.toString(),
-      stack: error.stack || 'No stack trace available',
-      context: context || {}, // Store additional context
+      details: error.stack || 'No stack trace available', // Use 'details' field
+      context: { ...(context || {}), errorCode: error.code }, // Add error code to context
+      isInternalError: true,
     };
-
+    // ... (rest of formatting logic generating logEntry string)
     let contextString = '';
-    if (Object.keys(errorDetail.context).length > 0) {
-      contextString = ` | Context: ${JSON.stringify(errorDetail.context)}`;
+    if (Object.keys(issueDetail.context).length > 0) {
+      contextString = ` | Context: ${JSON.stringify(issueDetail.context)}`;
     }
+    const logEntry = `[${timestamp}] [${category}]${contextString}\nMessage: ${issueDetail.message}\nStack:\n${issueDetail.details}\n----------------------------------------\n`;
+    return { logEntry, issueDetail };
+  }
 
-    const logEntry = `[${timestamp}] [${category}]${contextString}\nMessage: ${errorDetail.message}\nStack:\n${errorDetail.stack}\n----------------------------------------\n`;
-
-    return {
-      logEntry,
-      errorDetail,
+  _formatLintResultEntry(result, category, context = {}) {
+    // ... (Formatting logic remains the same as the previous version, generating CLI-like output)
+    const timestamp = new Date().toISOString();
+    let cliFormattedMessages = '';
+    if (result.messages.length > 0) {
+      cliFormattedMessages = result.messages
+        .map(
+          (msg) =>
+            `  ${msg.line}:${msg.column}  ${msg.severity === 2 ? 'Error' : 'Warning'}: ${msg.message}  ${msg.ruleId || 'core'}`,
+        )
+        .join('\n');
+    }
+    const logFileContent = `${result.filePath}\n${cliFormattedMessages}\n`;
+    let contextString = '';
+    if (Object.keys(context).length > 0) {
+      contextString = ` | Context: ${JSON.stringify(context)}`;
+    }
+    const logEntry = `[${timestamp}] [${category}]${contextString}\n${logFileContent}\n----------------------------------------\n`;
+    const summaryMessage = `ESLint: ${result.errorCount} error(s), ${result.warningCount} warning(s) in ${result.filePath}`;
+    const issueDetail = {
+      timestamp,
+      category,
+      message: summaryMessage,
+      details: cliFormattedMessages,
+      context: {
+        ...context,
+        file: result.filePath,
+        errorCount: result.errorCount,
+        warningCount: result.warningCount,
+      },
+      isLintIssue: true,
     };
+    return { logEntry, issueDetail };
   }
 
   /**
-   * Logs an internal error to the dedicated error log file and updates the summary.
+   * Logs an issue (internal error or check result)
+   * @param {string} category - The issue category.
+   * @param {string} logEntry - The pre-formatted string for the log file.
+   * @param {object} issueDetail - The structured object for the summary.
+   */
+  _logIssue(category, logEntry, issueDetail) {
+    if (!this.isInitialized) {
+      // Attempt recovery if not initialized (might happen if constructor failed partially)
+      console.error(
+        '[IssueLogger] Warning: Logger not initialized when trying to log. Attempting recovery.',
+      );
+      if (!this._initializeLogger()) {
+        const criticalMsg =
+          '[IssueLogger] CRITICAL: Cannot log issue, logger failed to initialize.\n';
+        console.error(criticalMsg, issueDetail);
+        try {
+          process.stderr.write(
+            criticalMsg + JSON.stringify(issueDetail) + '\n',
+          );
+        } catch (_) {}
+        return; // Stop if initialization failed
+      }
+    }
+
+    try {
+      // Update stats
+      this.issueStats.totalIssues++;
+      this.issueStats.categoryCounts[category] =
+        (this.issueStats.categoryCounts[category] || 0) + 1;
+      this.issueStats.recentIssues.unshift(issueDetail);
+      this.issueStats.recentIssues = this.issueStats.recentIssues.slice(0, 100); // Keep last 100
+
+      // Write to log file (append) - Check rotation *before* writing
+      this._rotateLogFileIfNeeded();
+      fs.appendFileSync(this.logFilePath, logEntry, 'utf8');
+
+      // Write summary file (atomic)
+      this._writeSummaryFile();
+    } catch (logWriteError) {
+      const errorMsg = `[IssueLogger] CRITICAL: Failed to write to log or summary file! ${logWriteError.message}\n`;
+      console.error(errorMsg);
+      console.error('[IssueLogger] Original Issue Detail:', issueDetail);
+      try {
+        process.stderr.write(errorMsg + JSON.stringify(issueDetail) + '\n');
+      } catch (_) {}
+    }
+  }
+
+  /** Safely writes the summary file using atomic rename */
+  _writeSummaryFile() {
+    try {
+      const summaryJson = JSON.stringify(this.issueStats, null, 2);
+      fs.writeFileSync(this.summaryTmpPath, summaryJson, 'utf8');
+      fs.renameSync(this.summaryTmpPath, this.summaryPath);
+    } catch (summaryWriteError) {
+      // If atomic write fails, log error but don't crash the main process
+      const errorMsg = `[IssueLogger] ERROR: Failed to write summary file! ${summaryWriteError.message}\n`;
+      console.error(errorMsg);
+      try {
+        process.stderr.write(errorMsg);
+      } catch (_) {}
+      // Attempt to clean up temp file if it exists
+      try {
+        if (fs.existsSync(this.summaryTmpPath))
+          fs.unlinkSync(this.summaryTmpPath);
+      } catch (_) {}
+    }
+  }
+
+  /**
+   * Logs an *internal tool error*.
    * @param {Error} error - The error object to log.
    * @param {object} [context={}] - Optional additional context.
    * @returns {string} The category the error was assigned to.
    */
-  logError(error, context = {}) {
-    // Ensure initialization happened, attempt again if not (might fail)
-    if (!this.isInitialized) {
-      console.error(
-        '[ErrorLogger] Warning: Logger not initialized, attempting recovery.',
-      );
-      this._initializeLogger();
-      // If still not initialized, log to console and exit logging
-      if (!this.isInitialized) {
-        console.error(
-          '[ErrorLogger] CRITICAL: Cannot log error, logger failed to initialize.',
-        );
-        console.error('[ErrorLogger] Error Details:', error, context);
-        return ERROR_CATEGORIES.INTERNAL; // Indicate an internal logging failure
-      }
-    }
-
-    const category = this.categorizeError(error);
-    const { logEntry, errorDetail } = this.formatErrorEntry(
+  logInternalError(error, context = {}) {
+    // <-- Renamed method
+    const category = this.categorizeInternalError(error);
+    const { logEntry, issueDetail } = this._formatInternalErrorEntry(
       error,
       category,
       context,
     );
-
-    try {
-      // Update stats
-      this.errorStats.totalErrors++;
-      this.errorStats.categoryCounts[category] =
-        (this.errorStats.categoryCounts[category] || 0) + 1;
-      // Add new error to the beginning and trim the array
-      this.errorStats.recentErrors.unshift(errorDetail);
-      this.errorStats.recentErrors = this.errorStats.recentErrors.slice(0, 100); // Keep last 100 errors
-
-      // Write to log file (append)
-      fs.appendFileSync(this.errorLogPath, logEntry, 'utf8');
-
-      // Write summary file (overwrite)
-      fs.writeFileSync(
-        this.summaryPath,
-        JSON.stringify(this.errorStats, null, 2), // Pretty print JSON
-        'utf8',
-      );
-    } catch (logWriteError) {
-      // If logging itself fails, report to console
-      console.error(
-        '[ErrorLogger] CRITICAL: Failed to write to error log or summary file!',
-      );
-      console.error('[ErrorLogger] Original Error:', error);
-      console.error('[ErrorLogger] Logging Error:', logWriteError);
-      // Optionally attempt to write a minimal crash report?
-    }
-
+    this._logIssue(category, logEntry, issueDetail); // Use the common internal log method
     return category;
   }
 
-  // --- Getter methods ---
-
-  getErrorSummary() {
-    // Ensure stats are loaded if accessed before initialization somehow
-    if (!this.isInitialized) this._initializeLogger();
-    return this.errorStats;
+  /**
+   * Logs ESLint results.
+   * @param {Array<import('eslint').ESLint.LintResult>} eslintResults - Array of results.
+   * @param {object} [context={}] - Optional context.
+   */
+  logLintResults(eslintResults, context = {}) {
+    const category = ISSUE_CATEGORIES.LINTING;
+    let loggedCount = 0;
+    for (const result of eslintResults) {
+      if (result.errorCount > 0 || result.warningCount > 0) {
+        const { logEntry, issueDetail } = this._formatLintResultEntry(
+          result,
+          category,
+          context,
+        );
+        this._logIssue(category, logEntry, issueDetail); // Use the common internal log method
+        loggedCount++;
+      }
+    }
   }
 
-  getRecentErrors(limit = 10) {
+  // --- Getter methods (using 'Issue') ---
+
+  getIssueSummary() {
+    if (!this.isInitialized) this._initializeLogger(); // Ensure initialized before returning stats
+    return this.issueStats;
+  }
+
+  getRecentIssues(limit = 10) {
     if (!this.isInitialized) this._initializeLogger();
-    return this.errorStats.recentErrors.slice(0, limit);
+    return this.issueStats.recentIssues.slice(0, limit);
   }
 
   getCategoryStats() {
     if (!this.isInitialized) this._initializeLogger();
-    return this.errorStats.categoryCounts;
+    return this.issueStats.categoryCounts;
   }
 }
 
-// Export a singleton instance for easy use across the tool
-export const errorLogger = new ErrorLogger();
-export { ERROR_CATEGORIES }; // Export categories for potential use elsewhere
+// Export singleton instance and categories
+export const issueLogger = new IssueLogger(); // <-- Renamed exported instance
+export { ISSUE_CATEGORIES }; // <-- Renamed exported categories
 
 /*
 // --- Example Usage ---
-import { errorLogger } from './error-logger.mjs';
+import { issueLogger } from './issue-logger.mjs'; // <-- Use new name
 
 try {
   // ... some operation that might fail ...
   throw new Error("Something went wrong during file processing");
 } catch (error) {
   console.error("An internal error occurred:", error.message);
-  errorLogger.logError(error, { script: 'my-script.mjs', phase: 'processing' });
+  // Use the specific method for internal errors
+  issueLogger.logInternalError(error, { script: 'my-script.mjs', phase: 'processing' });
 }
+
+// Linting example remains the same, calling issueLogger.logLintResults(...)
 */

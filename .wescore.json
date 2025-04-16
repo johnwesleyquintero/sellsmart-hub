@@ -13,7 +13,7 @@
     {
       "id": "lint",
       "name": "Linting (ESLint)",
-      "command": "npm run lint -- --fix",
+      "command": "npm run lint",
       "description": "Checks for code style and potential errors using ESLint based on .eslintrc.json"
     },
     {

@@ -12,8 +12,9 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
       .posts as StaticDataTypes[T];
   }
   if (file === ('case-studies' as T)) {
-    return (await import('../data/portfolio-data/case-studies.json')).default
-      .studies as StaticDataTypes[T];
+    return (await import('../data/portfolio-data/case-studies.json')).default[
+      'case-studies'
+    ] as StaticDataTypes[T];
   }
   if (file === 'changelog') {
     return (await import('../data/portfolio-data/changelog.json')).default

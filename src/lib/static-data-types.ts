@@ -1,7 +1,7 @@
 import { CompetitorDataRow } from './amazon-types';
 
 export interface StaticDataTypes {
-  casestudies: CaseStudy[];
+  'case-studies': CaseStudy[];
   blog: BlogPost[];
   projects: Project[];
   experience: Experience[];
@@ -53,8 +53,6 @@ export interface BlogPost {
   tags: string[];
   readingTime?: string;
   author?: string;
-  content: string;
-  slug: string;
 }
 
 export interface Project {

@@ -35,8 +35,7 @@ interface KeywordDeduplicatorProps {
   onDeduplicated: (keywords: string[]) => void;
 }
 
-export default function KeywordDeduplicator({
-}: KeywordDeduplicatorProps) {
+export default function KeywordDeduplicator({}: KeywordDeduplicatorProps) {
   const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +77,7 @@ export default function KeywordDeduplicator({
 
               // Remove duplicates
               const cleanedKeywords: string[] = [
-                ...new Set(keywords),
+                ...new Set(originalKeywords),
               ] as string[];
 
               return {
