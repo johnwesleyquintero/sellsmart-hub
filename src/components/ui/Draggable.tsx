@@ -3,7 +3,8 @@ import { DragSourceMonitor, useDrag } from 'react-dnd';
 
 interface DraggableProps {
   id: string;
-  data: Record<string, any>;
+  type: string;
+  data?: Record<string, any>;
   children: React.ReactNode;
 }
 

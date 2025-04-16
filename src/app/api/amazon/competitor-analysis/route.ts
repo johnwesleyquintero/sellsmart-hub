@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = (await loadStaticData('casestudies')) || [];
+    const data = (await loadStaticData('case-studies')) || [];
 
     return new Response(JSON.stringify(data), {
       status: 200,
