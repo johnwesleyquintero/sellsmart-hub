@@ -40,7 +40,8 @@ export async function add(keyword: string): Promise<void> {
   }
 }
 
-export function getProhibitedKeywords(): string[] {
-  const keywords = loadProhibitedKeywords() as string[];
-  return data.keywords;
-}
+export const ProhibitedKeywords = {
+  getAll,
+  add,
+  getKeywords: getAll
+};
