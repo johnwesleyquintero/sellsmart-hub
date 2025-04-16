@@ -24,7 +24,9 @@ export default function Header() {
     const handler = setTimeout(() => {
       setDebouncedQuery(query);
     }, 500);
-    return () => { clearTimeout(handler); };
+    return () => {
+      clearTimeout(handler);
+    };
   }, [query]);
 
   useEffect(() => {
@@ -40,7 +42,9 @@ export default function Header() {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -55,7 +59,9 @@ export default function Header() {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => { window.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const { data, isLoading } = useQuery({
@@ -162,8 +168,12 @@ export default function Header() {
                 type="text"
                 placeholder="Search..."
                 value={query}
-                onChange={(e) => { handleSearch(e.target.value); }}
-                onFocus={() => { setIsSearchOpen(true); }}
+                onChange={(e) => {
+                  handleSearch(e.target.value);
+                }}
+                onFocus={() => {
+                  setIsSearchOpen(true);
+                }}
                 className="h-9 w-48 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
@@ -181,7 +191,9 @@ export default function Header() {
                         <button
                           key={item}
                           className="block w-full text-left px-2 py-1 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground"
-                          onClick={() => { handleSearch(item); }}
+                          onClick={() => {
+                            handleSearch(item);
+                          }}
                         >
                           {item}
                         </button>
@@ -260,7 +272,9 @@ export default function Header() {
                   size="icon"
                   aria-label="Toggle theme"
                   className="mr-2"
-                  onClick={() => { setTheme(theme === 'dark' ? 'light' : 'dark'); }}
+                  onClick={() => {
+                    setTheme(theme === 'dark' ? 'light' : 'dark');
+                  }}
                 >
                   {theme === 'dark' ? (
                     <Sun className="h-5 w-5" />
@@ -311,7 +325,9 @@ export default function Header() {
                       className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => { setIsMenuOpen(false); }}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                      }}
                     >
                       {item.name}
                     </a>
@@ -320,7 +336,9 @@ export default function Header() {
                       key={item.name}
                       href={item.href}
                       className="text-sm font-medium transition-all duration-300 hover:text-primary relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
-                      onClick={() => { setIsMenuOpen(false); }}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                      }}
                     >
                       {item.name}
                     </Link>

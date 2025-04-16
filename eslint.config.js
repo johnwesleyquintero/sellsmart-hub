@@ -50,6 +50,11 @@ export default [
         fetch: 'readonly',
         process: 'readonly',
         FileReader: 'readonly',
+        console: 'readonly',
+        window: 'readonly',
+        localStorage: 'readonly',
+        setTimeout: 'readonly',
+        React: 'readonly',
       },
     },
     plugins: {

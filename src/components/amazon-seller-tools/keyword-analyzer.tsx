@@ -321,9 +321,9 @@ export default function KeywordAnalyzer() {
                   <div className="flex gap-2">
                     <Input
                       value={searchTerm}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        { setSearchTerm(e.target.value); }
-                      }
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setSearchTerm(e.target.value);
+                      }}
                       placeholder="Enter product or keyword"
                     />
                     <Button onClick={handleSearch} disabled={isLoading}>

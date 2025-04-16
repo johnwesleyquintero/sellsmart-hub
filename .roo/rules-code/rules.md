@@ -1,28 +1,21 @@
-
 ### DEVELOPMENT WORKFLOW
 
 ---
 
 1. REVIEW & ANALYZE:
+
    - Review `.task_tracker.log` for errors and warnings.
    - Identify root causes of issues.
 
 2. IMPLEMENT FIXES:
+
    - Address issues systematically based on log analysis.
    - Test each fix to maintain functionality.
 
 3. VERIFY:
+
    - Run `npm run cq` to check fixes.
    - Identify any remaining issues.
 
 4. ITERATE:
-   - Repeat steps 1-3 until all quality checks pass.
-
-5. BUILD:
-   - Run `npm run build` for production deployment.
-   - Ensure build completes successfully.
-
-6. DEPLOY:
-   - Push changes to the `main` branch.
-
----
+   - Repeat steps until all quality checks pass.

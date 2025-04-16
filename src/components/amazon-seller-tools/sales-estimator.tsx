@@ -248,12 +248,12 @@ export default function SalesEstimator() {
                   <label className="text-sm font-medium">Product Name</label>
                   <Input
                     value={manualProduct.product}
-                    onChange={(e) =>
-                      { setManualProduct({
+                    onChange={(e) => {
+                      setManualProduct({
                         ...manualProduct,
                         product: (e.target as HTMLInputElement).value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter product name"
                   />
                 </div>
@@ -261,12 +261,12 @@ export default function SalesEstimator() {
                   <label className="text-sm font-medium">Category</label>
                   <Input
                     value={manualProduct.category}
-                    onChange={(e) =>
-                      { setManualProduct({
+                    onChange={(e) => {
+                      setManualProduct({
                         ...manualProduct,
                         category: e.target.value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter product category"
                   />
                 </div>
@@ -277,12 +277,12 @@ export default function SalesEstimator() {
                     min="0"
                     step="0.01"
                     value={manualProduct.price}
-                    onChange={(e) =>
-                      { setManualProduct({
+                    onChange={(e) => {
+                      setManualProduct({
                         ...manualProduct,
                         price: (e.target as HTMLInputElement).value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter product price"
                   />
                 </div>
@@ -292,15 +292,15 @@ export default function SalesEstimator() {
                   </label>
                   <select
                     value={manualProduct.competition}
-                    onChange={(e) =>
-                      { setManualProduct({
+                    onChange={(e) => {
+                      setManualProduct({
                         ...manualProduct,
                         competition: e.target.value as
                           | 'Low'
                           | 'Medium'
                           | 'High',
-                      }); }
-                    }
+                      });
+                    }}
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="Low">Low</option>

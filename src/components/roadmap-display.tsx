@@ -60,17 +60,14 @@ const RoadmapDisplay = () => {
 
   // Helper function to group tasks by category
   const groupTasksByCategory = (tasks: RoadmapData): Record<string, Task[]> => {
-    return tasks.reduce<Record<string, Task[]>>(
-      (acc, task) => {
-        const category = task.category;
-        if (!acc[category]) {
-          acc[category] = [];
-        }
-        acc[category].push(task);
-        return acc;
-      },
-      {},
-    );
+    return tasks.reduce<Record<string, Task[]>>((acc, task) => {
+      const category = task.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(task);
+      return acc;
+    }, {});
   };
 
   const getStatusColor = (status: string): string => {

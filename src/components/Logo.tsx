@@ -30,10 +30,18 @@ export default function Logo({
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
-      onMouseEnter={() => { handleInteraction(true); }}
-      onMouseLeave={() => { handleInteraction(false); }}
-      onFocus={() => { handleInteraction(true); }}
-      onBlur={() => { handleInteraction(false); }}
+      onMouseEnter={() => {
+        handleInteraction(true);
+      }}
+      onMouseLeave={() => {
+        handleInteraction(false);
+      }}
+      onFocus={() => {
+        handleInteraction(true);
+      }}
+      onBlur={() => {
+        handleInteraction(false);
+      }}
       tabIndex={0}
       {...props}
     >

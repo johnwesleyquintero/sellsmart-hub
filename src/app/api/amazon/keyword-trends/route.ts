@@ -20,9 +20,7 @@ function processCSVData(data: string[]) {
     const date = values[headers.indexOf('date')];
     const keyword = values[headers.indexOf('keyword')];
 
-    if (!processedData[keyword]) {
-      processedData[keyword] = [];
-    }
+    processedData[keyword] = [];
     processedData[keyword].push({ date, volume });
   });
 
@@ -34,25 +32,27 @@ export async function POST(request: Request) {
     const { csvData } = (await request.json()) as { csvData: string[] };
     let trendData: { name: string; [key: string]: number | string }[] = [];
 
-    if (csvData) {
-      const processedData = processCSVData(csvData);
-      const dates = [
-        ...new Set(csvData.slice(1).map((row) => row.split(',')[2])),
-      ].sort();
-
-      trendData = dates.map((date) => {
-        const dataPoint: { name: string; [key: string]: number | string } = {
-          name: date,
-        };
-        Object.keys(processedData).forEach((keyword) => {
-          const entry = processedData[keyword].find((e) => e.date === date);
-          dataPoint[keyword] = entry ? entry.volume : 0;
-        });
-        return dataPoint;
-      });
-    } else {
-      throw new Error('Please provide CSV data for keyword trend analysis');
+    if (csvData.length === 0) {
+      throw new Error(
+        'Please provide valid CSV data for keyword trend analysis',
+      );
     }
+
+    const processedData = processCSVData(csvData);
+    const dates = [
+      ...new Set(csvData.slice(1).map((row) => row.split(',')[2])),
+    ].sort();
+
+    trendData = dates.map((date) => {
+      const dataPoint: { name: string; [key: string]: number | string } = {
+        name: date,
+      };
+      Object.keys(processedData).forEach((keyword) => {
+        const entry = processedData[keyword].find((e) => e.date === date);
+        dataPoint[keyword] = entry ? entry.volume : 0;
+      });
+      return dataPoint;
+    });
 
     return NextResponse.json(trendData);
   } catch (error) {

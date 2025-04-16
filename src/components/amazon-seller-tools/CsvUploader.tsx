@@ -31,8 +31,12 @@ export default function CsvUploader({
       acceptedFiles.forEach((file: File) => {
         const reader = new FileReader();
 
-        reader.onabort = () => { console.log('file reading was aborted'); };
-        reader.onerror = () => { console.log('file reading has failed'); };
+        reader.onabort = () => {
+          console.log('file reading was aborted');
+        };
+        reader.onerror = () => {
+          console.log('file reading has failed');
+        };
 
         reader.onload = () => {
           Papa.parse(file, {

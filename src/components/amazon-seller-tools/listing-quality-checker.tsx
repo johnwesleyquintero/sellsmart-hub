@@ -248,9 +248,9 @@ export default function ListingQualityChecker() {
                   <div className="flex gap-2">
                     <Input
                       value={asin}
-                      onChange={(e) =>
-                        { setAsin((e.target as HTMLInputElement).value); }
-                      }
+                      onChange={(e) => {
+                        setAsin((e.target as HTMLInputElement).value);
+                      }}
                       placeholder="Enter ASIN (e.g., B08N5KWB9H)"
                     />
                     <Button onClick={handleAsinCheck} disabled={isLoading}>

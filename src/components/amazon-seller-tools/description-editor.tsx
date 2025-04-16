@@ -264,12 +264,12 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">Product Name</label>
                   <Input
                     value={newProduct.product}
-                    onChange={(e) =>
-                      { setNewProduct({
+                    onChange={(e) => {
+                      setNewProduct({
                         ...newProduct,
                         product: (e.target as HTMLInputElement).value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter product name"
                   />
                 </div>
@@ -277,12 +277,12 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">ASIN (Optional)</label>
                   <Input
                     value={newProduct.asin}
-                    onChange={(e) =>
-                      { setNewProduct({
+                    onChange={(e) => {
+                      setNewProduct({
                         ...newProduct,
                         asin: (e.target as HTMLInputElement).value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter Amazon ASIN"
                   />
                 </div>
@@ -290,12 +290,12 @@ export default function DescriptionEditor() {
                   <label className="text-sm font-medium">Description</label>
                   <Textarea
                     value={newProduct.description}
-                    onChange={(e) =>
-                      { setNewProduct({
+                    onChange={(e) => {
+                      setNewProduct({
                         ...newProduct,
                         description: (e.target as HTMLTextAreaElement).value,
-                      }); }
-                    }
+                      });
+                    }}
                     placeholder="Enter product description"
                     rows={3}
                   />
@@ -382,7 +382,9 @@ export default function DescriptionEditor() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => { setShowPreview(!showPreview); }}
+                      onClick={() => {
+                        setShowPreview(!showPreview);
+                      }}
                     >
                       {showPreview ? (
                         <>Edit</>
@@ -440,9 +442,9 @@ export default function DescriptionEditor() {
                   <div>
                     <Textarea
                       value={activeProduct.description}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        { handleDescriptionChange(e); }
-                      }
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        handleDescriptionChange(e);
+                      }}
                       placeholder="Enter product description"
                       rows={10}
                       className="font-mono text-sm"

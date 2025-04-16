@@ -1,4 +1,3 @@
-console.log('src/app/blog/[slug]/page.tsx is being processed');
 import BlogImage from '@/components/blog/blog-image';
 import { MDXComponents as mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +9,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import type { BlogPost } from '../../../lib/static-data-types';
-
-interface BlogPostProps {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
 
 interface Props {
   params: { slug: string };
@@ -56,10 +50,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'https://wesleyquintero.vercel.app',
     ).toString();
 
-    console.log('Metadata:', {
-      title: post.title,
-      description: post.description,
-    });
     return {
       title: `${post.title} | Wesley Quintero`,
       description: post.description,
@@ -101,7 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
-  console.log('getAllPosts result:', posts);
+
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -110,7 +100,6 @@ export async function generateStaticParams() {
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  console.log('getPostBySlug result:', post);
 
   if (!post) {
     notFound();
@@ -134,7 +123,7 @@ export default async function BlogPost({ params }: Props) {
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <div className="flex flex-wrap gap-2 mb-4">
-              {post.tags.map((tag: string) => (
+              {post.tags?.map((tag: string) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   <Tag className="h-3 w-3 mr-1" />
                   {tag}
@@ -178,22 +167,18 @@ export default async function BlogPost({ params }: Props) {
           <div className="mt-16 pt-8 border-t">
             <h2 className="text-2xl font-bold mb-4">Continue Reading</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {post.relatedPosts.map(
-                (relatedPost: { id: string; title: string; slug: string }) => (
-                  <Link
-                    key={relatedPost.slug}
-                    href={`/blog/${relatedPost.slug}`}
-                    className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                  >
-                    <h3 className="font-medium mb-1">
-                      {(relatedPost as BlogPost).title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {(relatedPost as BlogPost).description || ''}
-                    </p>
-                  </Link>
-                ),
-              )}
+              {post.relatedPosts.map((relatedPost: BlogPost) => (
+                <Link
+                  key={relatedPost.slug}
+                  href={`/blog/${relatedPost.slug}`}
+                  className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                >
+                  <h3 className="font-medium mb-1">{relatedPost.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {relatedPost.description || ''}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

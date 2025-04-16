@@ -19,7 +19,7 @@ export const getTransitionStyles = (duration: number = 300) => ({
 // Layout utility functions
 export const getResponsiveStyles = (base: number, scale: number = 1.2) => ({
   small: `${base.toString()}px`,
-  medium: `${(base * scale).toString()}px`, 
+  medium: `${(base * scale).toString()}px`,
   large: `${(base * scale * scale).toString()}px`,
 });
 

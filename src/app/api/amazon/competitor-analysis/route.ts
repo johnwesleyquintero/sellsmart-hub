@@ -54,28 +54,28 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { asin, metrics, sellerData, competitorData } = parsedBody.data;
+    const { metrics, sellerData, competitorData } = parsedBody.data;
 
     // Process uploaded CSV data
     const metricsData: MetricsData = {};
 
-    if (sellerData && competitorData) {
-      const sellerRows = processCSVData(sellerData);
-      const competitorRows = processCSVData(competitorData);
-      const allData = [...sellerRows, ...competitorRows];
-
-      metrics?.forEach((metric: string) => {
-        metricsData[metric] = allData.map((row) => row[metric] as number);
-      });
-    } else if (asin) {
-      throw new Error('Please upload CSV data files for analysis');
-    } else {
-      throw new Error(
-        'Please provide either CSV data files or an ASIN for analysis',
-      );
+    if (!sellerData || !competitorData) {
+      throw new Error('Please provide both seller and competitor CSV data files for analysis');
     }
 
-    const data = (await loadStaticData('case-studies')) || [];
+    const sellerRows = processCSVData(sellerData);
+    const competitorRows = processCSVData(competitorData);
+    const allData = [...sellerRows, ...competitorRows];
+
+    if (metrics) {
+      metrics.forEach((metric: string) => {
+        metricsData[metric] = allData.map((row) => row[metric] as number);
+      });
+    } else {
+      throw new Error('Please provide either CSV data files or an ASIN for analysis');
+    }
+
+    const data = await loadStaticData('case-studies');
 
     return new Response(JSON.stringify(data), {
       status: 200,

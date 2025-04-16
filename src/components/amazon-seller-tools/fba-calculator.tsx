@@ -279,9 +279,9 @@ export default function FbaCalculator() {
                   id="product"
                   type="text"
                   value={manualProduct.product}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    { handleInputChange(e); }
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleInputChange(e);
+                  }}
                   placeholder="Enter product name"
                   name="product"
                 />
@@ -294,9 +294,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.cost}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    { handleInputChange(e); }
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleInputChange(e);
+                  }}
                   placeholder="Enter product cost"
                 />
               </div>
@@ -308,9 +308,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.price}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    { handleInputChange(e); }
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleInputChange(e);
+                  }}
                   placeholder="Enter selling price"
                 />
               </div>
@@ -323,9 +323,9 @@ export default function FbaCalculator() {
                   min="0"
                   step="0.01"
                   value={manualProduct.fees}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    { handleInputChange(e); }
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleInputChange(e);
+                  }}
                   placeholder="Enter FBA fees"
                 />
               </div>

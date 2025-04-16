@@ -1,11 +1,27 @@
 import { NextResponse } from 'next/server';
 import { AmazonAlgorithms } from '../../../../lib/calculations/amazon-algorithms';
 
+import { z } from 'zod';
+
 export async function POST(request: Request) {
   try {
-    const { basePrice, competition, demandFactor } = await request.json();
+    const schema = z.object({
+      basePrice: z.number(),
+      competition: z.array(z.number()),
+      demandFactor: z.number(),
+    });
 
-    if (!basePrice || !competition?.length || !demandFactor) {
+    const requestBody = await request.json();
+    const parsedData = schema.safeParse(requestBody);
+
+    if (!parsedData.success) {
+      console.log(parsedData.error.issues);
+      return NextResponse.json({ error: "Invalid pricing data" }, { status: 400 });
+    }
+
+    const { basePrice, competition, demandFactor } = parsedData.data;
+
+    if (!basePrice || !competition.length || !demandFactor) {
       return NextResponse.json(
         { error: 'Missing required pricing parameters' },
         { status: 400 },

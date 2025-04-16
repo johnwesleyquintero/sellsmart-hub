@@ -81,9 +81,9 @@ export function PpcTable<TData, TValue>({
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        { column.toggleVisibility(!!value); }
-                      }
+                      onCheckedChange={(value) => {
+                        column.toggleVisibility(!!value);
+                      }}
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
@@ -110,8 +110,8 @@ export function PpcTable<TData, TValue>({
                       {header.column.getCanSort() ? (
                         <button
                           className="ml-2"
-                          onClick={() =>
-                            { table.setSorting(
+                          onClick={() => {
+                            table.setSorting(
                               header.column.getSortIndex() === 0
                                 ? [
                                     {
@@ -120,8 +120,8 @@ export function PpcTable<TData, TValue>({
                                     },
                                   ]
                                 : [],
-                            ); }
-                          }
+                            );
+                          }}
                         >
                           <ArrowDownUp className="h-4 w-4" />
                         </button>
@@ -147,13 +147,17 @@ export function PpcTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <button
-          onClick={() => { table.previousPage(); }}
+          onClick={() => {
+            table.previousPage();
+          }}
           disabled={!table.getCanPreviousPage()}
         >
           Previous
         </button>
         <button
-          onClick={() => { table.nextPage(); }}
+          onClick={() => {
+            table.nextPage();
+          }}
           disabled={!table.getCanNextPage()}
         >
           Next

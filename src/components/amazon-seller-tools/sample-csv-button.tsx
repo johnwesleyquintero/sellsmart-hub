@@ -32,7 +32,9 @@ export default function SampleCsvButton({
       variant={variant}
       size={size}
       className={className}
-      onClick={() => { downloadSampleCsv(dataType, fileName); }}
+      onClick={() => {
+        downloadSampleCsv(dataType, fileName);
+      }}
     >
       <Download className="mr-2 h-4 w-4" />
       Download Sample CSV
