@@ -4,23 +4,23 @@
 export const getContrastColor = (bgColor: string): string => {
   // Convert hex to RGB and calculate relative luminance
   const hex = bgColor.replace('#', '');
-  const r = parseInt(hex.substr(0, 2), 16) / 255;
-  const g = parseInt(hex.substr(2, 2), 16) / 255;
-  const b = parseInt(hex.substr(4, 2), 16) / 255;
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 2), 16) / 255;
+  const b = parseInt(hex.slice(4, 2), 16) / 255;
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 };
 
 // Animation utility functions
 export const getTransitionStyles = (duration: number = 300) => ({
-  transition: `all ${duration}ms ease-in-out`,
+  transition: `all ${duration.toString()}ms ease-in-out`,
 });
 
 // Layout utility functions
 export const getResponsiveStyles = (base: number, scale: number = 1.2) => ({
-  small: `${base}px`,
-  medium: `${base * scale}px`,
-  large: `${base * scale * scale}px`,
+  small: `${base.toString()}px`,
+  medium: `${(base * scale).toString()}px`, 
+  large: `${(base * scale * scale).toString()}px`,
 });
 
 // Theme constants

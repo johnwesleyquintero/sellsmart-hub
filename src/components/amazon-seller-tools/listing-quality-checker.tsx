@@ -81,7 +81,7 @@ export default function ListingQualityChecker() {
               'keywords',
             ];
             const missingColumns = requiredColumns.filter(
-              (col) => !results.meta?.fields?.includes(col),
+              (col) => !results.meta.fields?.includes(col),
             );
             if (missingColumns.length > 0) {
               throw new Error(
@@ -103,7 +103,7 @@ export default function ListingQualityChecker() {
                 const row = value as CSVRow;
                 const keywords =
                   row.keywords
-                    ?.split(',')
+                    .split(',')
                     .map((k) => k.trim())
                     .filter(Boolean) || [];
 
@@ -114,7 +114,7 @@ export default function ListingQualityChecker() {
                   product: row.product,
                   title: row.title,
                   description: row.description,
-                  bulletPoints: row.bullet_points?.split(';').filter(Boolean),
+                  bulletPoints: row.bullet_points.split(';').filter(Boolean),
                   images: Number(row.images) || 0,
                   keywords,
                   keywordAnalysis,
@@ -249,7 +249,7 @@ export default function ListingQualityChecker() {
                     <Input
                       value={asin}
                       onChange={(e) =>
-                        setAsin((e.target as HTMLInputElement).value)
+                        { setAsin((e.target as HTMLInputElement).value); }
                       }
                       placeholder="Enter ASIN (e.g., B08N5KWB9H)"
                     />

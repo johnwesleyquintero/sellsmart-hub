@@ -211,7 +211,7 @@ export default function AcosCalculator() {
             // PapaParse result.data might not perfectly match CampaignData initially
             // Cast to any[] first or handle potential type mismatches more robustly if needed
             const processedData = processParsedCsvData(
-              result.data as CampaignData[],
+              result.data,
             );
             setCampaigns(processedData);
           } catch (err) {
@@ -380,7 +380,7 @@ export default function AcosCalculator() {
             key={key}
             variant={selectedMetric === key ? 'default' : 'outline'}
             size="sm" // Smaller buttons for selection
-            onClick={() => setSelectedMetric(key as typeof selectedMetric)}
+            onClick={() => { setSelectedMetric(key as typeof selectedMetric); }}
             disabled={isLoading || campaigns.length === 0} // Disable if no data
           >
             {config.label}
@@ -715,7 +715,7 @@ export default function AcosCalculator() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setError(null)}
+            onClick={() => { setError(null); }}
             className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
           >
             <X className="h-4 w-4" />

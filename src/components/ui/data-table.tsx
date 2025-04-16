@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
                       key={column.id}
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
-                        column.toggleVisibility(value)
+                        { column.toggleVisibility(value); }
                       }
                     >
                       {column.id}
@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
                         <button
                           className="ml-2"
                           onClick={() =>
-                            table.setSorting(
+                            { table.setSorting(
                               header.column.getSortIndex() === 0
                                 ? [
                                     {
@@ -136,7 +136,7 @@ export function DataTable<TData, TValue>({
                                     },
                                   ]
                                 : [],
-                            )
+                            ); }
                           }
                         >
                           <ArrowDownUp className="h-4 w-4" />
@@ -163,13 +163,13 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <button
-          onClick={() => table.previousPage()}
+          onClick={() => { table.previousPage(); }}
           disabled={!table.getCanPreviousPage()}
         >
           Previous
         </button>
         <button
-          onClick={() => table.nextPage()}
+          onClick={() => { table.nextPage(); }}
           disabled={!table.getCanNextPage()}
         >
           Next

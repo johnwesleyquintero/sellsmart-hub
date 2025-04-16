@@ -72,8 +72,8 @@ export default function DescriptionEditor() {
                 product: productRow.product,
                 asin: productRow.asin || '',
                 description: productRow.description,
-                characterCount: productRow.description?.length || 0,
-                keywordCount: (productRow.description?.match(/\b\w+\b/g) || [])
+                characterCount: productRow.description.length || 0,
+                keywordCount: (productRow.description.match(/\b\w+\b/g) || [])
                   .length,
               };
             },
@@ -265,10 +265,10 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.product}
                     onChange={(e) =>
-                      setNewProduct({
+                      { setNewProduct({
                         ...newProduct,
                         product: (e.target as HTMLInputElement).value,
-                      })
+                      }); }
                     }
                     placeholder="Enter product name"
                   />
@@ -278,10 +278,10 @@ export default function DescriptionEditor() {
                   <Input
                     value={newProduct.asin}
                     onChange={(e) =>
-                      setNewProduct({
+                      { setNewProduct({
                         ...newProduct,
                         asin: (e.target as HTMLInputElement).value,
-                      })
+                      }); }
                     }
                     placeholder="Enter Amazon ASIN"
                   />
@@ -291,10 +291,10 @@ export default function DescriptionEditor() {
                   <Textarea
                     value={newProduct.description}
                     onChange={(e) =>
-                      setNewProduct({
+                      { setNewProduct({
                         ...newProduct,
                         description: (e.target as HTMLTextAreaElement).value,
-                      })
+                      }); }
                     }
                     placeholder="Enter product description"
                     rows={3}
@@ -382,7 +382,7 @@ export default function DescriptionEditor() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setShowPreview(!showPreview)}
+                      onClick={() => { setShowPreview(!showPreview); }}
                     >
                       {showPreview ? (
                         <>Edit</>
@@ -441,7 +441,7 @@ export default function DescriptionEditor() {
                     <Textarea
                       value={activeProduct.description}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        handleDescriptionChange(e)
+                        { handleDescriptionChange(e); }
                       }
                       placeholder="Enter product description"
                       rows={10}

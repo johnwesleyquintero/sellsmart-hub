@@ -249,10 +249,10 @@ export default function SalesEstimator() {
                   <Input
                     value={manualProduct.product}
                     onChange={(e) =>
-                      setManualProduct({
+                      { setManualProduct({
                         ...manualProduct,
                         product: (e.target as HTMLInputElement).value,
-                      })
+                      }); }
                     }
                     placeholder="Enter product name"
                   />
@@ -262,10 +262,10 @@ export default function SalesEstimator() {
                   <Input
                     value={manualProduct.category}
                     onChange={(e) =>
-                      setManualProduct({
+                      { setManualProduct({
                         ...manualProduct,
                         category: e.target.value,
-                      })
+                      }); }
                     }
                     placeholder="Enter product category"
                   />
@@ -278,10 +278,10 @@ export default function SalesEstimator() {
                     step="0.01"
                     value={manualProduct.price}
                     onChange={(e) =>
-                      setManualProduct({
+                      { setManualProduct({
                         ...manualProduct,
                         price: (e.target as HTMLInputElement).value,
-                      })
+                      }); }
                     }
                     placeholder="Enter product price"
                   />
@@ -293,13 +293,13 @@ export default function SalesEstimator() {
                   <select
                     value={manualProduct.competition}
                     onChange={(e) =>
-                      setManualProduct({
+                      { setManualProduct({
                         ...manualProduct,
                         competition: e.target.value as
                           | 'Low'
                           | 'Medium'
                           | 'High',
-                      })
+                      }); }
                     }
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >

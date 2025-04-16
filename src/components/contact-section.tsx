@@ -122,7 +122,7 @@ export default function ContactSection() {
                 <Button
                   variant="outline"
                   className="mt-4"
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => { setIsSubmitted(false); }}
                 >
                   Send Another Message
                 </Button>

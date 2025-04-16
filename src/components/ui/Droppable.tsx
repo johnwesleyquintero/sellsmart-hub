@@ -10,7 +10,7 @@ interface DroppableProps {
 const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: type,
-    drop: (item: string) => onDrop(item),
+    drop: (item: string) => { onDrop(item); },
     collect: (monitor: DropTargetMonitor) => ({
       isOver: monitor.isOver(),
     }),

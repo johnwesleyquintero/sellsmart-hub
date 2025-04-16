@@ -121,7 +121,7 @@ export default function BlogSection() {
                   src={post.image || '/default-fallback.svg'}
                   alt={post.title}
                   onError={() =>
-                    console.error(`Failed to load image: ${post.image}`)
+                    { console.error(`Failed to load image: ${post.image}`); }
                   }
                   width={800}
                   height={400}

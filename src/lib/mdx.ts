@@ -102,7 +102,7 @@ export async function getPostBySlug(slug: string) {
     const allPosts = blogData.posts;
     const relatedPosts = allPosts
       .filter(
-        (p) => p.id !== slug && p.tags?.some((tag) => post.tags?.includes(tag)),
+        (p) => p.id !== slug && p.tags.some((tag) => post.tags.includes(tag)),
       )
       .slice(0, 2)
       .map((p) => ({

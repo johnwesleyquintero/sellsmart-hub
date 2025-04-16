@@ -268,7 +268,7 @@ export default function KeywordDeduplicator({}: KeywordDeduplicatorProps) {
                   <input
                     type="text"
                     value={manualProduct}
-                    onChange={(e) => setManualProduct(e.target.value)}
+                    onChange={(e) => { setManualProduct(e.target.value); }}
                     placeholder="Enter product name"
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
@@ -277,7 +277,7 @@ export default function KeywordDeduplicator({}: KeywordDeduplicatorProps) {
                   <label className="text-sm font-medium">Keywords</label>
                   <Textarea
                     value={manualKeywords}
-                    onChange={(e) => setManualKeywords(e.target.value)}
+                    onChange={(e) => { setManualKeywords(e.target.value); }}
                     placeholder="Enter comma-separated keywords"
                     rows={4}
                   />

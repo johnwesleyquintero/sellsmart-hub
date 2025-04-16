@@ -280,7 +280,7 @@ export default function FbaCalculator() {
                   type="text"
                   value={manualProduct.product}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange(e)
+                    { handleInputChange(e); }
                   }
                   placeholder="Enter product name"
                   name="product"
@@ -295,7 +295,7 @@ export default function FbaCalculator() {
                   step="0.01"
                   value={manualProduct.cost}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange(e)
+                    { handleInputChange(e); }
                   }
                   placeholder="Enter product cost"
                 />
@@ -309,7 +309,7 @@ export default function FbaCalculator() {
                   step="0.01"
                   value={manualProduct.price}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange(e)
+                    { handleInputChange(e); }
                   }
                   placeholder="Enter selling price"
                 />
@@ -324,7 +324,7 @@ export default function FbaCalculator() {
                   step="0.01"
                   value={manualProduct.fees}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange(e)
+                    { handleInputChange(e); }
                   }
                   placeholder="Enter FBA fees"
                 />

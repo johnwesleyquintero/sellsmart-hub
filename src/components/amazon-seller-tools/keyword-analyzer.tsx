@@ -322,7 +322,7 @@ export default function KeywordAnalyzer() {
                     <Input
                       value={searchTerm}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSearchTerm(e.target.value)
+                        { setSearchTerm(e.target.value); }
                       }
                       placeholder="Enter product or keyword"
                     />

@@ -359,12 +359,12 @@ export default function CompetitorAnalyzer() {
             <Input
               id="seller-csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleFileUpload(
+                { handleFileUpload(
                   e,
                   setSellerData as React.Dispatch<
                     React.SetStateAction<ProcessedRow[] | null>
                   >,
-                )
+                ); }
               }
             />
           </div>
@@ -388,12 +388,12 @@ export default function CompetitorAnalyzer() {
             <Input
               id="competitor-csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleFileUpload(
+                { handleFileUpload(
                   e,
                   setCompetitorData as React.Dispatch<
                     React.SetStateAction<ProcessedRow[] | null>
                   >,
-                )
+                ); }
               }
             />
           </div>
@@ -406,7 +406,7 @@ export default function CompetitorAnalyzer() {
               id="asin"
               value={asin}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setAsin(e.target.value)
+                { setAsin(e.target.value); }
               }
               placeholder="B0XXXXXXXX"
             />

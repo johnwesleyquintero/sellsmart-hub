@@ -57,8 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ).toString();
 
     console.log('Metadata:', {
-      title: post?.title,
-      description: post?.description,
+      title: post.title,
+      description: post.description,
     });
     return {
       title: `${post.title} | Wesley Quintero`,
@@ -178,7 +178,7 @@ export default async function BlogPost({ params }: Props) {
           <div className="mt-16 pt-8 border-t">
             <h2 className="text-2xl font-bold mb-4">Continue Reading</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {post.relatedPosts?.map(
+              {post.relatedPosts.map(
                 (relatedPost: { id: string; title: string; slug: string }) => (
                   <Link
                     key={relatedPost.slug}
