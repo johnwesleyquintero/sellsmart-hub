@@ -21,10 +21,14 @@ export async function POST(request: Request) {
 
     if (!parsedInventoryData.success) {
       console.log(parsedInventoryData.error.issues);
-      return NextResponse.json({ error: "Invalid inventory data" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid inventory data' },
+        { status: 400 },
+      );
     }
 
-    const inventoryData: InventoryData = parsedInventoryData.data as InventoryData;
+    const inventoryData: InventoryData =
+      parsedInventoryData.data as InventoryData;
 
     // Validate required fields
     if (!inventoryData.salesLast30Days || !inventoryData.leadTime) {

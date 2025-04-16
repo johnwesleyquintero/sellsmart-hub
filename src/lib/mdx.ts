@@ -14,39 +14,7 @@ const postsDirectory = path.join(process.cwd(), 'src/app/content/blog');
 export async function getAllPosts(): Promise<BlogPost[]> {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
-    const { posts } = await import('@/data/portfolio-data/blog.json');
-    if (!posts) return [];
-
-    return posts
-      .map(
-        (post: {
-          id: string;
-          title: string;
-          description: string;
-          date: string;
-          image?: string;
-          tags?: string[];
-          readingTime?: string;
-          author?: string;
-          content?: string;
-        }): BlogPost => {
-          return {
-            id: post.id,
-            slug: post.id,
-            title: post.title,
-            description: post.description,
-            date: normalizeDate(post.date),
-            image: post.image || `/public/images/blog/${post.id}.svg`,
-            tags: post.tags || [],
-            readingTime: post.readingTime || '5 min read',
-            author: post.author || 'Wesley Quintero',
-            content: '',
-          };
-        },
-      )
-      .sort((a, b) =>
-        normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
-      );
+    return [];
   }
   console.time('readdirSync');
   const fileNames = fs.readdirSync(postsDirectory);
@@ -54,26 +22,24 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   const allPostsData = await Promise.all(
     fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
-      .map(async (fileName) => {
+      .map((fileName) => {
         const slug = fileName.replace(/\.mdx$/, '');
         const fullPath = path.join(postsDirectory, fileName);
         const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data } = matter(fileContents);
+        const { data } = matter(fileContents) as { data: MatterData };
 
         return {
           id: slug,
-          slug,
+          slug: slug,
           title: data.title,
           description: data.description,
-          date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
-          image: data.image
-            ? `/public/${data.image}`
-            : `/public/images/blog/${slug}.svg`,
+          date: normalizeDate(data.date),
+          image: data.image || `/public/images/blog/${slug}.svg`,
           tags: data.tags || [],
           readingTime: data.readingTime || '5 min read',
           author: data.author || 'Wesley Quintero',
           content: '',
-        };
+        } as BlogPost;
       }),
   );
 
@@ -82,23 +48,34 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   );
 }
 
+interface MatterData {
+  title: string;
+  description: string;
+  date: string | Date;
+  image?: string;
+  tags?: string[];
+  readingTime?: string;
+  author?: string;
+}
+
 interface BlogPostData {
   id: string;
   title: string;
   tags?: string[];
 }
 
-export async function getPostBySlug(slug: string) {
+export async function getPostBySlug(
+  slug: string,
+): Promise<BlogPost | undefined> {
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
     // If not, return sample data from data/portfolio-data/blog.json
     const blogData = await import('@/data/portfolio-data/blog.json');
     const post = blogData.posts.find((post: BlogPostData) => post.id === slug);
 
-    if (!post) return null;
+    if (!post) return undefined;
 
     // Get related posts
-    if (!blogData.posts) return null;
     const allPosts = blogData.posts;
     const relatedPosts = allPosts
       .filter(
@@ -110,12 +87,6 @@ export async function getPostBySlug(slug: string) {
         slug: p.id,
         title: p.title,
         description: p.description,
-        date: normalizeDate(p.date),
-        image: p.image || `/public/images/blog/${p.id}.svg`,
-        tags: p.tags || [],
-        readingTime: p.readingTime || '5 min read',
-        author: p.author || 'Wesley Quintero',
-        content: '',
       }));
 
     return {
@@ -127,7 +98,10 @@ export async function getPostBySlug(slug: string) {
   try {
     const fullPath = path.join(postsDirectory, `${slug}.mdx`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
+    const { data, content } = matter(fileContents) as {
+      data: MatterData;
+      content: string;
+    };
 
     // Get related posts
     const allPosts = await getAllPosts();
@@ -135,15 +109,16 @@ export async function getPostBySlug(slug: string) {
       .filter(
         (post: BlogPost) =>
           post.slug !== slug &&
-          post.tags.some((tag: string) => data.tags.includes(tag)),
+          post.tags.some((tag: string) => data.tags?.includes(tag) ?? false),
       )
       .slice(0, 2);
 
     return {
+      id: slug,
       slug,
       title: data.title,
       description: data.description,
-      date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
+      date: normalizeDate(data.date),
       image: data.image || `/public/images/blog/${slug}.svg`,
       tags: data.tags || [],
       readingTime: data.readingTime || '5 min read',
@@ -152,6 +127,6 @@ export async function getPostBySlug(slug: string) {
       relatedPosts,
     };
   } catch {
-    return null;
+    return undefined;
   }
 }

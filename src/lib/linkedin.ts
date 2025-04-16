@@ -1,12 +1,12 @@
 export async function getLinkedInExperience() {
-  try {
-    // Check if environment variable is available
-    if (!process.env.LINKEDIN_ACCESS_TOKEN) {
-      return [];
-    }
+  const linkedinToken = process.env.LINKEDIN_ACCESS_TOKEN;
+  if (!linkedinToken) {
+    throw new Error('LinkedIn token not configured');
+  }
 
-    // For now, return a placeholder response
-    // In a real implementation, you would use the LinkedIn API client
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate API call
+    // Temporary mock data while LinkedIn API integration is being tested
     return [
       {
         title: 'Founder/Developer',
@@ -48,29 +48,9 @@ export async function getLinkedInExperience() {
           'Managed marketplace support team',
         ],
       },
-      {
-        title: 'Amazon Account Manager',
-        company: 'Champion E-com LLC',
-        period: 'Oct 2022 - Sep 2023',
-        description: 'Skills: B2B, Management',
-        achievements: [
-          'Managed Amazon accounts for B2B clients',
-          'Improved account management processes',
-        ],
-      },
-      {
-        title: 'Amazon Wholesale Buyer',
-        company: 'Sales.support',
-        period: 'Oct 2018 - Jul 2022',
-        description: 'Skills: B2B, Management',
-        achievements: [
-          'Managed wholesale buying for Amazon',
-          'Improved B2B management processes',
-        ],
-      },
     ];
   } catch (error) {
-    console.error('Error fetching LinkedIn experience:', error);
-    return [];
+    console.error('Failed to fetch LinkedIn experience:', error);
+    throw error;
   }
 }

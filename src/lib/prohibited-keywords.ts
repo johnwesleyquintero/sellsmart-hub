@@ -1,19 +1,24 @@
+const DB_PATH = './data/prohibited-keywords.json';
+
 interface ProhibitedKeywordsDB {
   keywords: string[];
   lastUpdated: string;
 }
 
-export class ProhibitedKeywords {
-  private static readonly DB_PATH = './data/prohibited-keywords.json';
-
-  static async getAll(): Promise<string[]> {
-    const response = await fetch(this.DB_PATH);
+export async function getAll(): Promise<string[]> {
+  try {
+    const response = await fetch(DB_PATH);
     const data: ProhibitedKeywordsDB = await response.json();
     return data.keywords;
+  } catch (error) {
+    console.error('Failed to fetch prohibited keywords:', error);
+    return [];
   }
+}
 
-  static async add(keyword: string): Promise<void> {
-    const keywords = await this.getAll();
+export async function add(keyword: string): Promise<void> {
+  try {
+    const keywords = await getAll();
     if (!keywords.includes(keyword)) {
       const updatedData: ProhibitedKeywordsDB = {
         keywords: [...keywords, keyword],
@@ -21,8 +26,12 @@ export class ProhibitedKeywords {
       };
       await fetch('/api/prohibited-keywords', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedData),
       });
     }
+  } catch (error) {
+    console.error('Failed to add prohibited keyword:', error);
+    throw error;
   }
 }

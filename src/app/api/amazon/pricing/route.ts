@@ -16,7 +16,10 @@ export async function POST(request: Request) {
 
     if (!parsedData.success) {
       console.log(parsedData.error.issues);
-      return NextResponse.json({ error: "Invalid pricing data" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid pricing data' },
+        { status: 400 },
+      );
     }
 
     const { basePrice, competition, demandFactor } = parsedData.data;
@@ -29,10 +32,10 @@ export async function POST(request: Request) {
     }
 
     const optimalPrice = AmazonAlgorithms.calculateOptimalPrice(
-      Number(basePrice),
-      Number(competition),
-      [Number(demandFactor)], // Wrap in array to match number[] parameter type
-      [...Array(30).fill(95)],
+      parsedData.data.basePrice,
+      parsedData.data.competition[0],
+      [parsedData.data.demandFactor],
+      Array(30).fill(95),
       0.8,
       1.2,
     );

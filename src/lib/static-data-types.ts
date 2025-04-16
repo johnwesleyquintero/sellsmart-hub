@@ -41,6 +41,12 @@ export interface CaseStudy {
   date: string;
   tags: string[];
 }
+export interface RelatedPost {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+}
 
 export interface BlogPost {
   id: string;
@@ -53,6 +59,7 @@ export interface BlogPost {
   tags: string[];
   readingTime?: string;
   author?: string;
+  relatedPosts: RelatedPost[];
 }
 
 export interface Project {

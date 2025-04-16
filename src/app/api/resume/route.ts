@@ -1,5 +1,5 @@
 export const dynamic = 'force-static';
-export async function GET() {
+export function GET() {
   return new Response(JSON.stringify({ message: 'Resume endpoint' }), {
     headers: { 'Content-Type': 'application/json' },
     status: 200,

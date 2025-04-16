@@ -60,7 +60,9 @@ export async function POST(request: Request) {
     const metricsData: MetricsData = {};
 
     if (!sellerData || !competitorData) {
-      throw new Error('Please provide both seller and competitor CSV data files for analysis');
+      throw new Error(
+        'Please provide both seller and competitor CSV data files for analysis',
+      );
     }
 
     const sellerRows = processCSVData(sellerData);
@@ -72,7 +74,9 @@ export async function POST(request: Request) {
         metricsData[metric] = allData.map((row) => row[metric] as number);
       });
     } else {
-      throw new Error('Please provide either CSV data files or an ASIN for analysis');
+      throw new Error(
+        'Please provide either CSV data files or an ASIN for analysis',
+      );
     }
 
     const data = await loadStaticData('case-studies');

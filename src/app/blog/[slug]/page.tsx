@@ -17,7 +17,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const { slug } = params;
     const post = await getPostBySlug(slug);
 
     if (!post) {
@@ -123,7 +123,7 @@ export default async function BlogPost({ params }: Props) {
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <div className="flex flex-wrap gap-2 mb-4">
-              {post.tags?.map((tag: string) => (
+              {post.tags.map((tag: string) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   <Tag className="h-3 w-3 mr-1" />
                   {tag}
