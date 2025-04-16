@@ -57,6 +57,7 @@ export interface BlogPost {
   date: string;
   image?: string;
   tags: string[];
+  relatedPosts?: BlogPost[];
   readingTime?: string;
   author?: string;
   relatedPosts: RelatedPost[];
