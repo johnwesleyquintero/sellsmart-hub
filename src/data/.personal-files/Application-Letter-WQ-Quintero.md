@@ -27,24 +27,28 @@ I bring robust marketplace expertise as the founder of SellSmart and a former Am
 ## Key Achievements
 
 ### 1. SellSmart Platform
+
 - Developed a platform for multiple 7-figure Amazon sellers with integrated brand management features.
 - **Technologies:** React, Node.js, and AWS Lambda.
 - Integrated Seller Central API for real-time data processing and brand performance analytics.
 - Created custom ML models for both price optimization and brand sentiment analysis.
 
 ### 2. Operational Automation
+
 - Reduced operational costs by 35% through automation.
 - Automated bulk listing updates alongside dynamic brand positioning adjustments using Python.
 - Implemented PPC bid adjustments based on both ACOS and brand performance metrics.
 - Developed an automated inventory and brand health monitoring system.
 
 ### 3. Inventory Management
+
 - Achieved 95% forecast accuracy.
 - Employed the Prophet algorithm for sales forecasting.
 - Integrated seasonal trends and market variables.
 - Built a real-time stock monitoring solution.
 
 ### 4. PPC Optimization
+
 - Lowered ACoS by 25% via automated algorithms.
 - Developed a negative keyword discovery tool.
 - Streamlined campaign testing through automation.

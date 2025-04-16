@@ -6,31 +6,39 @@ To revolutionize job application narratives by integrating both basic and advanc
 **Key Competencies:**
 
 1. **Digital Collaboration & Modern Tool Mastery:**
+
    - Expert use of Slack, Airtable, and Google Drive to enhance collaboration and project agility.
    - In-depth command of Helium 10 suite (Cerebro, Magnet, Scribbles) to drive comprehensive keyword research and optimization.
 
 2. **Dynamic Keyword Research and Market Analysis:**
+
    - Advanced skills in discovering and analyzing keywords (exact & broad) while monitoring market trends.
    - Ability to capture highly targeted long-tail keywords to boost both organic visibility and sponsored results.
 
 3. **In-Depth Product Expertise:**
+
    - Profound understanding of product intricacies—from molecular details to patent-level insights and usage nuances.
 
 4. **Data-Driven Strategic Methodologies:**
+
    - Use of cutting-edge tools like Keyword Manager to unearth ranking opportunities supported by robust data analyses.
    - Regular, insightful reporting with recommendations and strategic plans to drive business growth.
 
 5. **AI-Powered Content and Listing Optimization:**
+
    - Effective integration of AI tools to generate high-impact content that elevates Amazon listings.
 
 6. **Innovative Custom Tool Development:**
+
    - Designing proprietary tools that extend and enhance Amazon’s native functionalities.
    - Portfolio available for review: [https://wesleyquintero.vercel.app/#tools] showcasing tailored, advanced solutions.
 
 7. **Full-Stack Development & Scalable Solutions:**
+
    - Expertise spanning both front-end and back-end development to create robust, scalable solutions beyond traditional approaches.
 
 8. **Agile and On-Demand Solution Building:**
+
    - Ability to dynamically upsize operations through flexible, immediately deployable strategies and actionable insights.
 
 9. **Business Process Optimization through Predictive Analytics:**
@@ -39,11 +47,13 @@ To revolutionize job application narratives by integrating both basic and advanc
 **Professional Background:**
 
 1. **Nebula-Singularity: SellSmart | Founder/Developer (2025-Present)**
+
    - Developed AI-powered analytics platform for Amazon sellers
    - Created automated tools for listing optimization and PPC management
    - Built scalable solutions handling multi-account management
 
 2. **My Amazon Guy | Amazon Specialist (2024-2025)**
+
    - Led data visualization and Amazon SEO initiatives
    - Implemented advanced keyword research methodologies
    - Optimized product listings across multiple categories
@@ -54,6 +64,7 @@ To revolutionize job application narratives by integrating both basic and advanc
    - Implemented automated inventory management systems
 
 **Certifications:**
+
 - Amazon Advertising (2023)
 - Data Modeling - Pragmatic Works
 - MAG School Certifications:
@@ -73,11 +84,12 @@ RE: Amazon Specialist Application - Amazon SEO, PPC, Inventory Management & Acco
 
 Dear HR,
 
-I am writing to express my strong interest in the Amazon Specialist role in your company. 
+I am writing to express my strong interest in the Amazon Specialist role in your company.
 
 As the founder of SellSmart and former Amazon Specialist at My Amazon Guy, I bring comprehensive marketplace expertise combined with advanced technical capabilities in AI-powered optimization and automation.
 
 My core qualifications include:
+
 - Development of AI-powered Amazon analytics platform
 - Multiple Amazon certifications including Advertising and SEO
 - Proven track record managing $1M+ monthly revenue accounts
@@ -106,6 +118,7 @@ Key achievements and implementations:
   → Implemented automated campaign structure testing
 
 Technical expertise:
+
 - Full-stack development (React, Node.js, Python)
 - AI/ML implementation for marketplace optimization
 - Amazon Seller Central API integration
@@ -117,6 +130,7 @@ I am particularly interested in contributing to company's Amazon marketplace gro
 Best regards,
 
 John Wesley Quintero
+
 - Portfolio: https://wesleyquintero.vercel.app
 - LinkedIn: https://linkedin.com/in/wesleyquintero
 
@@ -129,36 +143,42 @@ Dear HR,
 Offering comprehensive Amazon expertise backed by:
 
 1. Platform & Technical Mastery
+
 - Certified Amazon Advertising Professional
 - Multiple MAG School Certifications
 - Custom AI-powered tool development
 - Advanced API integrations
 
 2. Proven Business Impact
+
 - Built SellSmart marketplace platform
 - Managed $1M+ monthly revenue accounts
 - Developed automated optimization systems
 - Created scalable seller solutions
 
 3. Quantifiable Results
+
 - 25% reduction in ACoS
 - 35% operational cost reduction
 - 95% inventory forecast accuracy
 - 40% improvement in team efficiency
 
 Technical implementations:
+
 - Amazon API Integration using AWS Lambda
 - Python/Node.js backend services with 99.9% uptime
 - React-based dashboards processing 1M+ daily requests
 - Automated reporting system using Google Cloud
 
 Proven Technical Implementations:
+
 - Scalable microservices architecture on AWS
 - Real-time data processing pipeline
 - Custom ML models for price optimization
 - Automated PPC management system
 
 Development Methodology:
+
 - Agile development with 2-week sprints
 - CI/CD pipeline using GitHub Actions
 - Test-driven development with 90% coverage
@@ -167,8 +187,10 @@ Development Methodology:
 Best regards,
 
 John Wesley Quintero
+
 - Portfolio: https://wesleyquintero-dev.vercel.app/
 - LinkedIn: https://linkedin.com/in/wesleyquintero
 
 ---
+
 Keywords: AI-Powered Tools, Amazon Advertising, Certified Developer, Data Analytics, Marketplace Automation, Custom Solutions, Technical Implementation, Process Optimization

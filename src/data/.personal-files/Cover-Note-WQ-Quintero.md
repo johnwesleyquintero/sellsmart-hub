@@ -1,6 +1,7 @@
 # Cover Note
 
 ## Subject
+
 RE: Amazon Specialist Application - Amazon SEO, PPC, Inventory Management & Account Health Management
 
 ## Dear HR,
@@ -8,11 +9,13 @@ RE: Amazon Specialist Application - Amazon SEO, PPC, Inventory Management & Acco
 ---
 
 ## Overview
+
 Offering comprehensive Amazon expertise with an 80% focus on brand management—integrating brand strategy with operational excellence to drive significant business impact.
 
 ---
 
 ## Platform & Technical Mastery
+
 - **Brand Integration:** Leverages innovative strategies to embed Amazon brand management into all operational processes.
 - **Certifications:** Amazon Advertising Professional; MAG School Certifications.
 - **Tool Development:** Custom AI-powered solutions focused on extracting actionable brand insights.
@@ -21,6 +24,7 @@ Offering comprehensive Amazon expertise with an 80% focus on brand management—
 ---
 
 ## Proven Business Impact
+
 - **SellSmart Platform:** Launched a robust marketplace platform featuring dedicated brand management modules.
 - **Revenue & Brand Equity:** Oversaw accounts generating over $1M monthly while enhancing brand value.
 - **Systems Automation:** Developed scalable, automated systems for optimizing both performance and brand presence.
@@ -28,6 +32,7 @@ Offering comprehensive Amazon expertise with an 80% focus on brand management—
 ---
 
 ## Quantifiable Results
+
 - **ACoS Reduction:** Achieved 25% improvement.
 - **Cost Efficiency:** Reduced operational costs by 35%.
 - **Forecast Accuracy:** Reached 95% inventory forecast accuracy.
@@ -36,6 +41,7 @@ Offering comprehensive Amazon expertise with an 80% focus on brand management—
 ---
 
 ## Technical Implementations
+
 - **Backend & APIs:** Amazon API integration using AWS Lambda; Python/Node.js services with 99.9% uptime.
 - **Frontend:** React-based dashboards handling 1M+ daily requests.
 - **Reporting:** Automated systems on Google Cloud.
@@ -45,6 +51,7 @@ Offering comprehensive Amazon expertise with an 80% focus on brand management—
 ---
 
 ## Development Methodology
+
 - **Agile Practices:** 2-week sprints.
 - **CI/CD:** Implemented via GitHub Actions.
 - **TDD:** Test-driven development with 90% coverage.
