@@ -548,9 +548,3 @@ export default function CompetitorAnalyzer() {
     </Card>
   );
 }
-
-interface ChartDataEntry {
-  name: string;
-  price: number;
-  [key: string]: string | number;
-}

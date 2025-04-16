@@ -31,12 +31,11 @@ interface ProcessedKeywordData extends KeywordData {
 
 interface KeywordDeduplicatorProps {
   initialKeywords: string[];
-  data: Array<{ keyword: string; [key: string]: any }>;
+  data: Array<{ keyword: string; [key: string]: unknown }>;
   onDeduplicated: (keywords: string[]) => void;
 }
 
 export default function KeywordDeduplicator({
-  data,
 }: KeywordDeduplicatorProps) {
   const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
