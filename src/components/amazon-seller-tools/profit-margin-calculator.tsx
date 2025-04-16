@@ -70,6 +70,7 @@ export default function ProfitMarginCalculator() {
         sessions: row.clicks,
       }));
       setCsvData(productData);
+      console.log('csvData', csvData);
       calculateResults(productData);
     } catch (err) {
       if (err instanceof Error) {
@@ -101,7 +102,7 @@ export default function ProfitMarginCalculator() {
         category: ProductCategory.STANDARD,
       });
 
-      const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice({
+      const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice<number>({
         currentPrice: item.price,
         competitorPrices: item.competitorPrices || [
           item.price * 0.9,
@@ -172,6 +173,7 @@ export default function ProfitMarginCalculator() {
     };
 
     calculateResults([newProduct]);
+    setManualProduct({ product: '', cost: 0, price: 0, fees: 0 });
   };
 
   console.log('ProfitMarginCalculator: Before return statement');
@@ -179,7 +181,12 @@ export default function ProfitMarginCalculator() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <CsvUploader onUploadSuccess={handleFileUpload} />
+      <CsvUploader
+        onUploadSuccess={handleFileUpload}
+        isLoading={isLoading}
+        onClear={() => {}}
+        hasData={false}
+      />
 
       <form onSubmit={handleManualSubmit} className="space-y-4 mb-6">
         {/* Form fields */}

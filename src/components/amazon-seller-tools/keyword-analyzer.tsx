@@ -98,14 +98,11 @@ export default function KeywordAnalyzer() {
                   [key: string]: unknown; // Allow additional properties
                 }
 
+                const keywords = (item as KeywordItem).keywords;
                 const keywordArray =
-                  typeof (item as KeywordItem).keywords === 'string'
-                    ? (item as KeywordItem).keywords
-                        .split(',')
-                        .map((k: string) => k.trim())
-                    : Array.isArray((item as KeywordItem).keywords)
-                      ? (item as KeywordItem).keywords
-                      : [];
+                  typeof keywords === 'string'
+                    ? keywords.split(',').map((k: string) => k.trim())
+                    : [];
 
                 // Parse search volume if available
                 const searchVolume = (item as KeywordItem).searchVolume

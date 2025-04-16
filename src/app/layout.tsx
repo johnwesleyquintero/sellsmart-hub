@@ -2,7 +2,6 @@ import ClientProviders from '@/components/client-providers';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { DndProvider } from 'react-dnd';
 import './globals.css';
 import { metadata as metadataConfig } from './metadata';
 
@@ -57,11 +56,9 @@ export default function RootLayout({
         )}
       >
         <ClientProviders>
-          <DndProvider backend={HTML5Backend}>
-            <main id="main" className="flex-1">
-              {children}
-            </main>
-          </DndProvider>
+          <main id="main" className="flex-1">
+            {children}
+          </main>
         </ClientProviders>
       </body>
     </html>

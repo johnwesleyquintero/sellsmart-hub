@@ -75,6 +75,10 @@ export default function KeywordDeduplicator() {
               ] as string[];
 
               return {
+                keyword: '',
+                searchVolume: 0,
+                difficulty: 0,
+                relevancy: 0,
                 product: String(item.product),
                 originalKeywords,
                 cleanedKeywords,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDrag } from 'react-dnd';
+import { DragSourceMonitor, useDrag } from 'react-dnd';
 
 interface DraggableProps {
   id: string;
@@ -11,7 +11,7 @@ const Draggable: React.FC<DraggableProps> = ({ id, type, children }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: type,
     item: { id: id },
-    collect: (monitor) => ({
+    collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }));

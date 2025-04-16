@@ -2,21 +2,21 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { KeywordIntelligence } from '@/lib/keyword-intelligence';
 import {
-  Upload,
-  FileText,
   AlertCircle,
   CheckCircle,
+  FileText,
+  Upload,
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import { KeywordIntelligence } from '@/lib/keyword-intelligence';
+import { useState } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
 
@@ -81,7 +81,7 @@ export default function ListingQualityChecker() {
               'keywords',
             ];
             const missingColumns = requiredColumns.filter(
-              (col) => !results.meta.fields.includes(col),
+              (col) => !results.meta?.fields?.includes(col),
             );
             if (missingColumns.length > 0) {
               throw new Error(
@@ -99,7 +99,8 @@ export default function ListingQualityChecker() {
             }
 
             const processedData = await Promise.all(
-              results.data.map(async (row: CSVRow) => {
+              results.data.map(async (value: unknown) => {
+                const row = value as CSVRow;
                 const keywords =
                   row.keywords
                     ?.split(',')
@@ -134,7 +135,7 @@ export default function ListingQualityChecker() {
         setError(error instanceof Error ? error.message : 'An error occurred');
         toast({
           title: 'Error',
-          description: error.message,
+          description: (error as Error).message,
           variant: 'destructive',
         });
       }
@@ -247,7 +248,9 @@ export default function ListingQualityChecker() {
                   <div className="flex gap-2">
                     <Input
                       value={asin}
-                      onChange={(e) => setAsin(e.target.value)}
+                      onChange={(e) =>
+                        setAsin((e.target as HTMLInputElement).value)
+                      }
                       placeholder="Enter ASIN (e.g., B08N5KWB9H)"
                     />
                     <Button onClick={handleAsinCheck} disabled={isLoading}>

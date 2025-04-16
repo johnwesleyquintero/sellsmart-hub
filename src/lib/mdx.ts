@@ -9,7 +9,7 @@ function normalizeDate(date: string | Date) {
   return d.toISOString().split('T')[0]; // YYYY-MM-DD format
 }
 
-const postsDirectory = path.join(process.cwd(), 'content/blog');
+const postsDirectory = path.join(process.cwd(), 'src/app/content/blog');
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   // Check if directory exists
@@ -48,7 +48,9 @@ export async function getAllPosts(): Promise<BlogPost[]> {
         normalizeDate(b.date).localeCompare(normalizeDate(a.date)),
       );
   }
+  console.time('readdirSync');
   const fileNames = fs.readdirSync(postsDirectory);
+  console.timeEnd('readdirSync');
   const allPostsData = await Promise.all(
     fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
@@ -59,14 +61,18 @@ export async function getAllPosts(): Promise<BlogPost[]> {
         const { data } = matter(fileContents);
 
         return {
+          id: slug,
           slug,
           title: data.title,
           description: data.description,
           date: normalizeDate(data.date), // Normalize dates to YYYY-MM-DD format
-          image: data.image || `/public/images/blog/${slug}.svg`,
+          image: data.image
+            ? `/public/${data.image}`
+            : `/public/images/blog/${slug}.svg`,
           tags: data.tags || [],
           readingTime: data.readingTime || '5 min read',
           author: data.author || 'Wesley Quintero',
+          content: '',
         };
       }),
   );

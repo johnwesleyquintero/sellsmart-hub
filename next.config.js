@@ -1,14 +1,10 @@
 import path from 'path';
 
 let userConfig = undefined;
-try {
-  userConfig = await import('./v0-user-next.config');
-} catch (e) {
-  // ignore error
-}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -16,23 +12,66 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['wesleyquintero.vercel.app', 'avatars.githubusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'wesleyquintero.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/**',
+      },
+    ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/webp'],
+    formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    contentDispositionType: 'inline',
   },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
-  webpack: (config) => {
+  webpack: (config, options) => {
     config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
+    config.module.rules.push({
+      test: /\.svg$/,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    });
+
+    config.plugins.push(
+      new options.webpack.DefinePlugin({
+        'process.env.IMAGE_DEBUG': JSON.stringify(process.env.IMAGE_DEBUG),
+      }),
+    );
     return config;
   },
+  compiler: {
+    removeConsole: false,
+  },
+};
+
+console.log('Next.js config:', nextConfig);
+nextConfig.output = 'standalone';
+nextConfig.assetPrefix = '/';
+nextConfig.basePath = '';
+nextConfig.experimental = {
+  ...nextConfig.experimental,
+  outputFileTracingRoot: path.join(process.cwd(), '../'),
 };
 
 function mergeConfig(nextConfig, userConfig) {

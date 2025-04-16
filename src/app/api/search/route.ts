@@ -1,50 +1,30 @@
+export const dynamic = 'force-static';
 import { NextResponse } from 'next/server';
-import { apiKeyMiddleware } from '../../../lib/api-key-management';
 import { loadStaticData } from '../../../lib/load-static-data';
 import type { BlogPost } from '../../../lib/static-data-types';
 
-export async function GET(request: Request) {
-  const authResponse = apiKeyMiddleware(request);
-  if (authResponse) return authResponse;
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q')?.toLowerCase() || '';
+export async function GET() {
+  const query = 'seo';
+  const blogPosts = await loadStaticData('blog');
 
-  if (!query) {
-    return NextResponse.json(
-      { error: 'Search query is required' },
-      { status: 400 },
-    );
-  }
+  // Load tools data
+  const tools = await loadStaticData('tools');
 
-  try {
-    // Load blog posts
-    const blogPosts = await loadStaticData('blog');
+  const blogResults = blogPosts.filter(
+    (post: BlogPost) =>
+      post.title.toLowerCase().includes(query) ||
+      post.content.toLowerCase().includes(query),
+  );
 
-    // Load tools data
-    const tools = await loadStaticData('tools');
+  // Search tools
+  const toolResults = tools.filter(
+    (tool) =>
+      tool.name.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query),
+  );
 
-    const blogResults = blogPosts.filter(
-      (post: BlogPost) =>
-        post.title.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query),
-    );
-
-    // Search tools
-    const toolResults = tools.filter(
-      (tool) =>
-        tool.name.toLowerCase().includes(query) ||
-        tool.description.toLowerCase().includes(query),
-    );
-
-    return NextResponse.json({
-      blog: blogResults,
-      tools: toolResults,
-    });
-  } catch (error) {
-    console.error('Search error:', error);
-    return NextResponse.json(
-      { error: 'Failed to perform search' },
-      { status: 500 },
-    );
-  }
+  return NextResponse.json({
+    blog: blogResults,
+    tools: toolResults,
+  });
 }

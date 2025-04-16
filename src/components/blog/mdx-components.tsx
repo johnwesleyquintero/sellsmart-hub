@@ -1,8 +1,8 @@
 import { BlogPost } from '@/lib/static-data-types';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 import Link from 'next/link';
 import type React from 'react';
+import BlogImage from './blog-image';
 console.log('Import path for utils is incorrect');
 
 console.log('MDXComponents is being imported');
@@ -123,7 +123,27 @@ export const MDXComponents = {
       />
     );
   },
-  Image,
+  Image: ({
+    src,
+    alt,
+    width,
+    height,
+    className,
+  }: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+    className?: string;
+  }) => (
+    <BlogImage
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+    />
+  ),
   wrapper: ({ children }: { children: React.ReactNode; post: BlogPost }) => (
     <article className="prose dark:prose-invert">{children}</article>
   ),

@@ -1,17 +1,17 @@
 import React from 'react';
-import { useDrop } from 'react-dnd';
+import { DropTargetMonitor, useDrop } from 'react-dnd';
 
 interface DroppableProps {
   type: string;
-  onDrop: (item: any) => void;
+  onDrop: (item: string) => void;
   children: React.ReactNode;
 }
 
 const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: type,
-    drop: (item: any) => onDrop(item),
-    collect: (monitor) => ({
+    drop: (item: string) => onDrop(item),
+    collect: (monitor: DropTargetMonitor) => ({
       isOver: monitor.isOver(),
     }),
   }));

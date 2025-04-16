@@ -251,7 +251,7 @@ export default function SalesEstimator() {
                     onChange={(e) =>
                       setManualProduct({
                         ...manualProduct,
-                        product: e.target.value,
+                        product: (e.target as HTMLInputElement).value,
                       })
                     }
                     placeholder="Enter product name"
@@ -280,7 +280,7 @@ export default function SalesEstimator() {
                     onChange={(e) =>
                       setManualProduct({
                         ...manualProduct,
-                        price: e.target.value,
+                        price: (e.target as HTMLInputElement).value,
                       })
                     }
                     placeholder="Enter product price"

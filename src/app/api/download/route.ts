@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+export const dynamic = 'force-static';
 import { readFile } from 'fs/promises';
+import { NextResponse } from 'next/server';
 import path from 'path';
 
 export async function GET() {

@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Input } from '@/input';
 import {
   ColumnDef,
   flexRender,
@@ -60,12 +60,10 @@ export function PpcTable<TData, TValue>({
         <Input
           placeholder="Filter campaigns..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             table
               .getColumn('name')
-              ?.setFilterValue(
-                (event.target as HTMLInputElement as HTMLInputElement).value,
-              )
+              ?.setFilterValue((event.target as HTMLInputElement).value)
           }
           className="max-w-sm"
         />

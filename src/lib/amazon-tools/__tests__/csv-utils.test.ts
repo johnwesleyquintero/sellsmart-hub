@@ -19,12 +19,26 @@ describe('CSV Validation Utilities', () => {
 
   describe('validateRequiredColumns', () => {
     it('should return empty array when all required columns exist', () => {
-      const required = ['asin', 'price', 'reviews'];
+      const required: (
+        | 'price'
+        | 'reviews'
+        | 'rating'
+        | 'conversion_rate'
+        | 'click_through_rate'
+        | 'asin'
+      )[] = ['asin', 'price', 'reviews'];
       expect(validateRequiredColumns(testData, required)).toEqual([]);
     });
 
     it('should return missing columns when some are absent', () => {
-      const required = ['asin', 'missing'];
+      const required: (
+        | 'price'
+        | 'reviews'
+        | 'rating'
+        | 'conversion_rate'
+        | 'click_through_rate'
+        | 'asin'
+      )[] = ['asin', 'price', 'reviews'] as any;
       expect(validateRequiredColumns(testData, required)).toEqual(['missing']);
     });
   });
@@ -70,6 +84,21 @@ describe('CSV Validation Utilities', () => {
     const requiredColumns = ['asin', 'price', 'reviews'];
 
     it('should process valid CSV data', () => {
+      const requiredColumns: (
+        | 'price'
+        | 'reviews'
+        | 'rating'
+        | 'conversion_rate'
+        | 'click_through_rate'
+        | 'asin'
+      )[] = [
+        'asin',
+        'price',
+        'reviews',
+        'rating',
+        'conversion_rate',
+        'click_through_rate',
+      ];
       const result = processAmazonCsv(testData, requiredColumns);
       expect(result[0]).toEqual({
         asin: 'B0TEST1234',
@@ -82,7 +111,7 @@ describe('CSV Validation Utilities', () => {
     });
 
     it('should throw on missing columns', () => {
-      expect(() => processAmazonCsv(testData, ['missing'])).toThrow(
+      expect(() => processAmazonCsv(testData, ['missing'] as any)).toThrow(
         'Missing required columns: missing',
       );
     });

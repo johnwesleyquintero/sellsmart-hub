@@ -52,6 +52,7 @@ export interface BlogPost {
   readingTime?: string;
   author?: string;
   content: string;
+  slug: string;
 }
 
 export interface Project {

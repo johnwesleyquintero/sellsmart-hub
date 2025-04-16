@@ -1,3 +1,4 @@
+import { BlogImage } from '@/components/blog/BlogImage';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -10,7 +11,6 @@ import {
 import { getAllPosts } from '@/lib/mdx';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -20,7 +20,11 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
+  console.time('BlogPage');
+  console.time('getAllPosts');
   const posts = await getAllPosts();
+  console.timeEnd('getAllPosts');
+  console.timeEnd('BlogPage');
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 min-h-screen">
@@ -42,7 +46,7 @@ export default async function BlogPage() {
               className="overflow-hidden transition-all duration-300 hover:shadow-lg"
             >
               <div className="aspect-video overflow-hidden">
-                <Image
+                <BlogImage
                   src={post.image || '/placeholder.svg?height=400&width=600'}
                   alt={post.title}
                   width={600}

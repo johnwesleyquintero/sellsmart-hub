@@ -33,12 +33,15 @@ export const processAmazonCsv = <T extends Record<string, string | number>>(
 
   return csvData.map((row) => ({
     asin: row.asin,
-    price: safeParseNumber(row.price, 'price'),
-    reviews: safeParseNumber(row.reviews, 'reviews'),
-    rating: safeParseNumber(row.rating, 'rating'),
-    conversion_rate: safeParseNumber(row.conversion_rate, 'conversion_rate'),
+    price: safeParseNumber(String(row.price), 'price'),
+    reviews: safeParseNumber(String(row.reviews), 'reviews'),
+    rating: safeParseNumber(String(row.rating), 'rating'),
+    conversion_rate: safeParseNumber(
+      String(row.conversion_rate),
+      'conversion_rate',
+    ),
     click_through_rate: safeParseNumber(
-      row.click_through_rate,
+      String(row.click_through_rate),
       'click_through_rate',
     ),
     niche: row.niche,

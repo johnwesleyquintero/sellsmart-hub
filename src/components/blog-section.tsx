@@ -77,14 +77,33 @@ const blogPosts = [
     tags: ['Excel', 'Data Analysis', 'Automation'],
     url: '/blog/excel-power-tools',
   },
+  {
+    id: 7,
+    title: 'Next.js Metadata API Guide',
+    summary: 'A guide to using the Next.js Metadata API.',
+    image: '/images/blog/next-js-metadata-api-guide.svg',
+    date: 'April 16, 2025',
+    tags: ['Next.js', 'Metadata API'],
+    url: '/blog/next-js-metadata-api-guide',
+  },
+  {
+    id: 8,
+    title: 'Amazon Seller Tools',
+    summary: 'A guide to using Amazon Seller Tools.',
+    image: '/images/blog/amazon-seller-tools.svg',
+    date: 'April 16, 2025',
+    tags: ['Amazon', 'Seller Tools'],
+    url: '/blog/amazon-seller-tools',
+  },
 ];
 
 export default function BlogSection() {
+  console.log('BlogSection rendered');
   return (
     <section id="blog" className="bg-muted/30 py-20">
       <div className="container">
         <div className="mb-12 text-center">
-          <h2 className="section-heading">Blog & Articles</h2>
+          <h2 className="section-heading">Blog &amp; Articles</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Sharing insights and strategies for Amazon sellers and e-commerce
             businesses.
@@ -101,6 +120,9 @@ export default function BlogSection() {
                 <Image
                   src={post.image || '/default-fallback.svg'}
                   alt={post.title}
+                  onError={() =>
+                    console.error(`Failed to load image: ${post.image}`)
+                  }
                   width={800}
                   height={400}
                   quality={75}

@@ -27,7 +27,9 @@ export default function DescriptionEditor() {
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeProduct, setActiveProduct] = useState<ProductDescription>(null);
+  const [activeProduct, setActiveProduct] = useState<ProductDescription | null>(
+    null,
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [newProduct, setNewProduct] = useState({
     product: '',
@@ -158,7 +160,14 @@ export default function DescriptionEditor() {
       return;
     }
 
-    setProducts([...products, newProduct]);
+    setProducts([
+      ...products,
+      {
+        ...newProduct,
+        characterCount: newProduct.description.length,
+        keywordCount: countKeywords(newProduct.description),
+      },
+    ]);
     setNewProduct({
       product: '',
       asin: '',

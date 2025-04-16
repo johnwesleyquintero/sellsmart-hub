@@ -50,7 +50,7 @@ export default function CsvUploader({
     [onUploadSuccess],
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <div className="flex flex-col gap-4">

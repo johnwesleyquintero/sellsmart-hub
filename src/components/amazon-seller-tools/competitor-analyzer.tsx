@@ -364,7 +364,6 @@ export default function CompetitorAnalyzer() {
                   setSellerData as React.Dispatch<
                     React.SetStateAction<ProcessedRow[] | null>
                   >,
-                  'seller',
                 )
               }
             />
@@ -394,7 +393,6 @@ export default function CompetitorAnalyzer() {
                   setCompetitorData as React.Dispatch<
                     React.SetStateAction<ProcessedRow[] | null>
                   >,
-                  'competitor',
                 )
               }
             />
@@ -521,7 +519,7 @@ export default function CompetitorAnalyzer() {
                   </TooltipTrigger>
                   <TooltipContent className="bg-white border border-gray-300 rounded-md shadow-sm">
                     {chartData && chartData.length > 0 ? (
-                      chartData.map((entry: ChartDataEntry, index: number) => (
+                      chartData.map((entry: ChartDataPoint, index: number) => (
                         <div key={`tooltip-${index}`}>
                           {entry.name}: {entry.price}
                         </div>

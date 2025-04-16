@@ -1,0 +1,5 @@
+[build]
+  command = "npm run ps"
+  publish = "out"
+
+# Add any additional configuration here, such as environment variables or redirects

@@ -1,11 +1,11 @@
 console.log('src/app/blog/[slug]/page.tsx is being processed');
+import BlogImage from '@/components/blog/blog-image';
 import { MDXComponents as mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -19,10 +19,9 @@ interface Props {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({
-  params: { slug },
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
+    const { slug } = await params;
     const post = await getPostBySlug(slug);
 
     if (!post) {
@@ -55,6 +54,10 @@ export async function generateMetadata({
       'https://wesleyquintero.vercel.app',
     ).toString();
 
+    console.log('Metadata:', {
+      title: post?.title,
+      description: post?.description,
+    });
     return {
       title: `${post.title} | Wesley Quintero`,
       description: post.description,
@@ -96,13 +99,16 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
+  console.log('getAllPosts result:', posts);
   return posts.map((post) => ({
     slug: post.slug,
   }));
 }
 
-export default async function BlogPost({ params: { slug } }: Props) {
+export default async function BlogPost({ params }: Props) {
+  const { slug } = await params;
   const post = await getPostBySlug(slug);
+  console.log('getPostBySlug result:', post);
 
   if (!post) {
     notFound();
@@ -152,7 +158,7 @@ export default async function BlogPost({ params: { slug } }: Props) {
 
             {post.image && (
               <div className="mb-8 overflow-hidden rounded-lg">
-                <Image
+                <BlogImage
                   src={post.image || '/placeholder.svg'}
                   alt={post.title}
                   width={1200}
