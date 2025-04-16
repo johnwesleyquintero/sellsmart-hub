@@ -7,52 +7,67 @@
     {
       "id": "format",
       "name": "Formatting (Prettier)",
-      "command": "npm run format"
+      "command": "npm run format",
+      "description": "Checks code formatting using Prettier based on .prettierrc.json"
     },
     {
       "id": "lint",
       "name": "Linting (ESLint)",
-      "command": "npm run lint"
+      "command": "npm run lint -- --fix",
+      "description": "Checks for code style and potential errors using ESLint based on .eslintrc.json"
     },
     {
       "id": "typecheck",
       "name": "Type Checking (TSC)",
       "command": "npx tsc --noEmit",
-      "description": "Performs static type checking using TypeScript Compiler"
+      "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
     },
     {
       "id": "build",
-      "name": "Build Project",
-      "command": "npm run build"
+      "name": "Build Project (Next.js)",
+      "command": "npm run build",
+      "description": "Builds the Next.js production application"
     }
   ],
   "errorCategories": {
     "format": {
-      "patterns": ["SyntaxError:", "\\[error\\]", "Parsing error:"],
-      "suggestion": "Run 'npm run format' to fix Prettier formatting issues or check for syntax errors"
+      "patterns": [
+        "SyntaxError:",
+        "\\[error\\]",
+        "Parsing error:",
+        "needs formatting"
+      ],
+      "suggestion": "Run 'npm run format' to fix formatting issues. If errors persist, check for syntax errors in the reported files."
     },
     "lint": {
       "patterns": [
         "^\\s*\\d+:\\d+\\s+Error:",
         "^\\./.*?:$",
         "Parsing error:",
-        "@typescript-eslint/"
+        "@typescript-eslint/",
+        "Error: "
       ],
-      "suggestion": "Run 'npm run lint -- --fix' to potentially auto-fix ESLint issues or review the reported errors"
+      "suggestion": "Run 'npm run lint -- --fix' to automatically fix issues. Review the specific ESLint errors above and consult '.eslintrc.json' if needed."
     },
     "typecheck": {
-      "patterns": ["^.*?\\.tsx?\\(\\d+,\\d+\\): error TS\\d+:.*$"],
-      "suggestion": "Check type annotations and verify TS configurations"
+      "patterns": [
+        "^.*?\\.tsx?\\(\\d+,\\d+\\): error TS\\d+:.*$",
+        "Could not find a declaration file for module"
+      ],
+      "suggestion": "Review the TypeScript error messages (TSxxxx) above. Check the mentioned file/line for type errors or missing type declarations (`@types/...`). Verify your 'tsconfig.json' settings."
     },
     "build": {
       "patterns": [
         "Failed to compile",
         "Build failed",
-        "Syntax Error",
+        "Type error:",
+        "SyntaxError:",
+        "Module not found:",
         "Error:.*?Expected",
-        "error TS\\d+:"
+        "error TS\\d+:",
+        "Could not find a required file"
       ],
-      "suggestion": "Check the build output for compilation errors, often related to syntax or type issues"
+      "suggestion": "Build failed. Examine the build log above for specific errors (e.g., 'Module not found', 'SyntaxError', 'TypeError', TSxxxx). Check configuration files ('next.config.js', 'tsconfig.json'), dependencies ('package.json' - try running 'npm install'), and ensure environment variables are set correctly. Running 'npm run typecheck' or 'npm run lint' might reveal underlying issues."
     }
   }
 }

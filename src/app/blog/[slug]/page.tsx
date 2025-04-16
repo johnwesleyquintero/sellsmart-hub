@@ -9,9 +9,11 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-interface BlogPost {
-  title: string;
-  description?: string;
+import type { BlogPost } from '../../../lib/static-data-types';
+
+interface BlogPostProps {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 interface Props {
