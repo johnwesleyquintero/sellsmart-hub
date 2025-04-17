@@ -126,6 +126,7 @@ async function getGitCommitHash() {
 }
 
 // --- Main Execution Logic ---
+// eslint-disable-next-line sonarjs/cognitive-complexity
 async function runChecks() {
   const scriptStartTime = performance.now(); // For overall script timing including config load
   await loadConfig(); // Load config first

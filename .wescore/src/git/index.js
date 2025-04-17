@@ -32,4 +32,6 @@ export const updateTimestamp = (filePath) => {
   execSync(`git add ${filePath}`);
 };
 
-export default { getStagedFiles, updateTimestamp };
+const gitUtils = { getStagedFiles, updateTimestamp };
+
+export default gitUtils;
