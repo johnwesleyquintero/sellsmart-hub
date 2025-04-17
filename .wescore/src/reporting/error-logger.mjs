@@ -152,63 +152,76 @@ class IssueLogger {
           console.log(
             `[IssueLogger] Log file size (${stats.size} bytes) exceeds limit (${this.maxLogSize} bytes). Rotating.`,
           );
-          // Determine next rotation number
-          let rotationNum = 1;
-          while (
-            rotationNum < this.maxLogFiles &&
-            fs.existsSync(`${this.logFilePath}.${rotationNum}`)
-          ) {
-            rotationNum++;
-          }
-          // If max files reached, delete the oldest before rotating
-          if (rotationNum >= this.maxLogFiles) {
-            const oldestLog = `${this.logFilePath}.${this.maxLogFiles - 1}`;
-            console.log(
-              `[IssueLogger] Max log files reached. Deleting oldest: ${oldestLog}`,
-            );
-            try {
-              fs.unlinkSync(oldestLog);
-            } catch (e) {
-              console.error(
-                `[IssueLogger] Failed to delete oldest log: ${e.message}`,
-              );
-            }
-            rotationNum = this.maxLogFiles - 1; // Overwrite the last one
-          }
-
-          // Shift existing rotated logs
-          for (let i = rotationNum - 1; i >= 1; i--) {
-            try {
-              fs.renameSync(
-                `${this.logFilePath}.${i}`,
-                `${this.logFilePath}.${i + 1}`,
-              );
-            } catch (e) {
-              console.error(
-                `[IssueLogger] Failed to rename log ${i}: ${e.message}`,
-              );
-            }
-          }
-          // Rename current log to .1
-          try {
-            fs.renameSync(this.logFilePath, `${this.logFilePath}.1`);
-          } catch (e) {
-            console.error(
-              `[IssueLogger] Failed to rename current log: ${e.message}`,
-            );
-          }
-          console.log(`[IssueLogger] Log rotated to ${this.logFilePath}.1`);
+          this._rotateLogs();
         }
       }
     } catch (rotateError) {
-      const errorMsg = `[IssueLogger] ERROR: Failed during log rotation! ${rotateError.message}\n`;
-      console.error(errorMsg);
+      this._handleRotationError(rotateError);
+    }
+  }
+
+  _rotateLogs() {
+    let rotationNum = this._determineRotationNumber();
+    if (rotationNum >= this.maxLogFiles) {
+      this._deleteOldestLog();
+      rotationNum = this.maxLogFiles - 1; // Overwrite the last one
+    }
+    this._shiftExistingLogs(rotationNum);
+    this._renameCurrentLog();
+  }
+
+  _determineRotationNumber() {
+    let rotationNum = 1;
+    while (
+      rotationNum < this.maxLogFiles &&
+      fs.existsSync(`${this.logFilePath}.${rotationNum}`)
+    ) {
+      rotationNum++;
+    }
+    return rotationNum;
+  }
+
+  _deleteOldestLog() {
+    const oldestLog = `${this.logFilePath}.${this.maxLogFiles - 1}`;
+    console.log(
+      `[IssueLogger] Max log files reached. Deleting oldest: ${oldestLog}`,
+    );
+    try {
+      fs.unlinkSync(oldestLog);
+    } catch (e) {
+      console.error(`[IssueLogger] Failed to delete oldest log: ${e.message}`);
+    }
+  }
+
+  _shiftExistingLogs(rotationNum) {
+    for (let i = rotationNum - 1; i >= 1; i--) {
       try {
-        process.stderr.write(errorMsg);
-      } catch {
-        /* Ignore stderr write failures */
+        fs.renameSync(
+          `${this.logFilePath}.${i}`,
+          `${this.logFilePath}.${i + 1}`,
+        );
+      } catch (e) {
+        console.error(`[IssueLogger] Failed to rename log ${i}: ${e.message}`);
       }
-      // Continue even if rotation fails, try logging to the main file
+    }
+  }
+
+  _renameCurrentLog() {
+    try {
+      fs.renameSync(this.logFilePath, `${this.logFilePath}.1`);
+      console.log(`[IssueLogger] Log rotated to ${this.logFilePath}.1`);
+    } catch (e) {
+      console.error(`[IssueLogger] Failed to rename current log: ${e.message}`);
+    }
+  }
+
+  _handleRotationError(rotateError) {
+    const errorMsg = `[IssueLogger] ERROR: Failed during log rotation! ${rotateError.message}\n`;
+    console.error(errorMsg);
+    try {
+      process.stderr.write(errorMsg);
+    } catch {
+      /* Ignore stderr write failures */
     }
   }
 
@@ -421,9 +434,7 @@ class IssueLogger {
           context,
         );
         this._logIssue(category, logEntry, issueDetail); // Use the common internal log method
-        let loggedCount = 0;
-        let loggedCount = 0;
-        loggedCount++;
+        // Remove loggedCount as it's not used
       }
     }
   }

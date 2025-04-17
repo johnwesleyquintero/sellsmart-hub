@@ -1,14 +1,16 @@
 import { Metadata } from 'next';
 
 const defaultImage = '/default-fallback.svg';
+const SITE_DESCRIPTION =
+  'Data-Driven Amazon & E-commerce Specialist portfolio website.';
+const AUTHOR_NAME = 'Wesley Quintero'; // Define a constant for the author's name
+const FAVICON_PATH = '/favicon.svg'; // Define a constant for the favicon path
 
 export const metadata: Metadata = {
-  title: 'Wesley Quintero - Professional Portfolio',
-  const SITE_DESCRIPTION = 'Data-Driven Amazon & E-commerce Specialist portfolio website.';
-
-description: SITE_DESCRIPTION,
+  title: `${AUTHOR_NAME} - Professional Portfolio`,
+  description: SITE_DESCRIPTION,
   keywords: [
-    'Wesley Quintero',
+    AUTHOR_NAME,
     'Amazon Specialist',
     'Data Analytics',
     'E-commerce',
@@ -21,36 +23,36 @@ description: SITE_DESCRIPTION,
     'DevFlowDB',
   ],
   authors: [
-    { name: 'Wesley Quintero', url: 'https://github.com/johnwesleyquintero' },
+    { name: AUTHOR_NAME, url: 'https://github.com/johnwesleyquintero' },
   ],
-  creator: 'Wesley Quintero',
-  publisher: 'Wesley Quintero',
+  creator: AUTHOR_NAME,
+  publisher: AUTHOR_NAME,
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://wesleyquintero.vercel.app/',
-    title: 'Wesley Quintero | Data Analytics Innovator',
+    title: `${AUTHOR_NAME} | Data Analytics Innovator`,
     description:
       'Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights.',
-    siteName: 'Wesley Quintero Portfolio',
+    siteName: `${AUTHOR_NAME} Portfolio`,
     images: [
       {
         url: 'https://wesleyquintero.vercel.app/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'Wesley Quintero Portfolio',
+        alt: `${AUTHOR_NAME} Portfolio`,
       },
       {
         url: `https://wesleyquintero.vercel.app${defaultImage}`,
         width: 1200,
         height: 630,
-        alt: 'Wesley Quintero Portfolio Fallback',
+        alt: `${AUTHOR_NAME} Portfolio Fallback`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Wesley Quintero | Data Analytics Innovator',
+    title: `${AUTHOR_NAME} | Data Analytics Innovator`,
     description:
       'Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights.',
     images: [
@@ -70,13 +72,13 @@ description: SITE_DESCRIPTION,
     },
   },
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: FAVICON_PATH,
+    shortcut: FAVICON_PATH,
+    apple: FAVICON_PATH,
     other: [
       {
         rel: 'mask-icon',
-        url: '/favicon.svg',
+        url: FAVICON_PATH,
         color: '#000000',
       },
     ],
@@ -93,7 +95,7 @@ description: SITE_DESCRIPTION,
     canonical: 'https://wesleyquintero.vercel.app',
   },
   generator: 'Next.js',
-  applicationName: 'Wesley Quintero Portfolio',
+  applicationName: `${AUTHOR_NAME} Portfolio`,
   referrer: 'origin-when-cross-origin',
   formatDetection: {
     email: false,

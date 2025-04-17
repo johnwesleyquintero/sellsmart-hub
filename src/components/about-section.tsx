@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+// Define the constant for the repeated string
+const SKILLS_B2B_MANAGEMENT = 'Skills: B2B, Management';
+
 // Update the fallback skills to match your expertise areas
 const fallbackSkills: Skill[] = [
   {
@@ -81,7 +84,7 @@ const fallbackExperience: Experience[] = [
     title: 'Marketplace Support',
     company: 'Adorama',
     period: 'May 2023 - Sep 2023',
-    description: 'Skills: B2B, Management',
+    description: SKILLS_B2B_MANAGEMENT, // Use the constant
     achievements: [
       'Managed client relationships and marketplace integrations',
       'Implemented efficient management processes',
@@ -92,7 +95,7 @@ const fallbackExperience: Experience[] = [
     title: 'Amazon Account Manager',
     company: 'Champion E-com LLC',
     period: 'Oct 2022 - Sep 2023',
-    description: 'Skills: B2B, Management',
+    description: SKILLS_B2B_MANAGEMENT, // Use the constant
     achievements: [
       'Oversaw account health and performance metrics',
       'Developed management strategies for multiple clients',

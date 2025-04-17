@@ -18,16 +18,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = params;
     const post = await getPostBySlug(slug);
 
+    const DEFAULT_IMAGE_URL = '/default-fallback.svg'; // Define the constant here
+    const NOT_FOUND_TITLE = 'Post Not Found | Wesley Quintero'; // Define the constant for the title
+
     if (!post) {
+      const NOT_FOUND_DESCRIPTION = 'The requested blog post could not be found.';
+      
       return {
-        title: 'Post Not Found | Wesley Quintero',
-        description: 'The requested blog post could not be found.',
+        title: NOT_FOUND_TITLE, // Use the constant
+        description: NOT_FOUND_DESCRIPTION,
         openGraph: {
-          title: 'Post Not Found | Wesley Quintero',
-          description: 'The requested blog post could not be found.',
+          title: NOT_FOUND_TITLE, // Use the constant
+          description: NOT_FOUND_DESCRIPTION,
           images: [
             {
-              url: '/default-fallback.svg',
+              url: DEFAULT_IMAGE_URL,
               width: 1200,
               height: 630,
               alt: 'Post Not Found',
@@ -36,9 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
         twitter: {
           card: 'summary_large_image',
-          title: 'Post Not Found | Wesley Quintero',
-          description: 'The requested blog post could not be found.',
-          images: ['/default-fallback.svg'],
+          title: NOT_FOUND_TITLE, // Use the constant
+          description: NOT_FOUND_DESCRIPTION,
+          images: [DEFAULT_IMAGE_URL],
         },
       };
     }
@@ -64,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         url: canonicalUrl,
         images: [
           {
-            url: post.image || '/default-fallback.svg',
+            url: post.image || DEFAULT_IMAGE_URL, // Use the constant
             width: 1200,
             height: 630,
             alt: post.title,
@@ -75,14 +80,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: 'summary_large_image',
         title: post.title,
         description: post.description,
-        images: [post.image || '/default-fallback.svg'],
+        images: [post.image || DEFAULT_IMAGE_URL], // Use the constant
       },
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
+    const ERROR_DESCRIPTION = 'An error occurred while loading this blog post.';
     return {
       title: 'Error | Wesley Quintero',
-      description: 'An error occurred while loading this blog post.',
+      description: ERROR_DESCRIPTION,
     };
   }
 }
