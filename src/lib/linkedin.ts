@@ -1,7 +1,10 @@
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+
 export async function getLinkedInExperience() {
-  const linkedinToken = process.env.LINKEDIN_ACCESS_TOKEN;
-  if (!linkedinToken) {
-    throw new Error('LinkedIn token not configured');
+  const session = await getServerSession(authOptions);
+  if (!session?.accessToken) {
+    throw new Error('Not authenticated');
   }
 
   try {

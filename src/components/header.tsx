@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { FileText, Loader2, Menu, Moon, Sun, X } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
+  const { data: session } = useSession();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -158,7 +160,24 @@ export default function Header() {
                 >
                   {item.name}
                 </Link>
-              ),
+              )
+            )}
+            {session ? (
+              <Button
+                variant="ghost"
+                onClick={() => signOut()}
+                className="text-sm font-medium transition-all duration-300 hover:text-primary"
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => signIn()}
+                className="text-sm font-medium transition-all duration-300 hover:text-primary"
+              >
+                Sign In
+              </Button>
             )}
           </nav>
 

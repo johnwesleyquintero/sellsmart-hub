@@ -102,6 +102,7 @@ coverage/
 # Private keys or sensitive configuration files
 *.pem
 *.key
+.config/keys/
 
 # ===================================================================
 # Personal / Project-Specific (Not for Version Control)

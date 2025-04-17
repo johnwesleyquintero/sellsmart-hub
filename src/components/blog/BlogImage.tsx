@@ -21,7 +21,8 @@ export function BlogImage({
   const [error, setError] = useState(false);
 
   const handleError = () => {
-    console.error(`Failed to load image: ${src}`);
+    const cleanSrc = src.replace(/^\/public/, '');
+    console.error(`Failed to load image: ${cleanSrc}`);
     setError(true);
   };
 
@@ -31,7 +32,7 @@ export function BlogImage({
 
   return (
     <Image
-      src={error ? '/default-fallback.svg' : src}
+      src={error ? '/default-fallback.svg' : src.replace(/^\/public/, '')}
       alt={alt}
       width={width}
       height={height}

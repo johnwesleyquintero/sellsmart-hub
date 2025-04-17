@@ -1,0 +1,35 @@
+# LOCAL FILE ONLY. (THIS REPOSITORY IS PRIVATE ANYWAY)
+
+## About
+- **Owned by**: @johnwesleyquintero
+- **App ID**: 1204205
+
+## Authentication
+- **Client ID**: Iv23liEg8MLwhnWkX22g
+- **Client Secret**: [REDACTED] (Ensure this is stored securely and not exposed in public files)
+
+## Basic Information
+- **GitHub App Name**: WesCode Auth
+- **Homepage URL**: https://wescode.vercel.app
+
+## OAuth Configuration
+- **Callback URL**: https://wescode.vercel.app/api/auth/callback/github
+- **Enable Device Flow**: Yes (Consider enabling if you want to support device-based authentication)
+
+## Post Installation
+- **Setup URL**: https://wescode.vercel.app/setup
+- **Redirect on Update**: Yes (Redirect users to the 'Setup URL' after installations are updated)
+
+## Webhook Configuration
+- **Webhook URL**: https://wescode.vercel.app/api/webhooks
+- **SSL Verification**: Enabled (Recommended for security)
+
+## Display Information
+- **Badge Background Color**: #ffffff
+
+## Private Keys
+- **Private Key SHA256**: [STORED IN VERCEL ENV VARIABLES] (Accessible via production environment)
+
+## IP Allow List
+- **IP Addresses**: 76.76.21.21/32, 76.76.21.22/32, 2a07:5741:0:7::/64
+

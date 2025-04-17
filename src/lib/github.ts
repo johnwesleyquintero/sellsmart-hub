@@ -1,43 +1,63 @@
+interface GitHubRepo {
+  fork: boolean;
+  private: boolean;
+  name: string;
+  description: string | null;
+  html_url: string;
+  homepage: string | null;
+  topics: string[];
+  pushed_at: string;
+  stargazers_count: number;
+}
+
 // Update the GitHub API function to properly use environment variables
-export async function getGitHubProjects() {
+export async function getGitHubProjects(): Promise<
+  Array<{
+    title: string;
+    description: string;
+    githubUrl: string;
+    liveUrl: string;
+    tags: string[];
+    updatedAt: string;
+    stars: number;
+  }>
+> {
   // Implement actual GitHub API call
-  const githubToken = process.env.GITHUB_TOKEN;
+  const githubToken = process.env.INTEGRATION_GITHUB_ACCESS_TOKEN;
   if (!githubToken) {
     throw new Error('GitHub token not configured');
   }
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate API call
-    // Temporarily returning mock data while GitHub integration is being tested
-    return [
+    const response = await fetch(
+      'https://api.github.com/users/johnwesleyquintero/repos',
       {
-        title: 'Nebula-Singularity: SellSmart',
-        image: '/images/NS-SellSmart-preview.svg',
-        description:
-          'AI-powered Amazon analytics dashboard with real-time PPC optimization',
-        tags: ['React', 'Node.js', 'AI', 'Analytics'],
-        liveUrl: 'https://sellsmart-hub.vercel.app/',
-        githubUrl: 'https://github.com/johnwesleyquintero/sellsmart',
+        headers: {
+          Authorization: `Bearer ${githubToken}`,
+          Accept: 'application/vnd.github+json',
+        },
       },
-      {
-        title: 'Portfolio Website',
-        image: '/public/portfolio-preview.svg',
-        description:
-          'A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Data-Driven Amazon & E-commerce Specialist with Amazon Free Tools embedded.',
-        tags: ['Next.js', 'TypeScript', 'React', 'Tailwind CSS'],
-        liveUrl: 'https://wesleyquintero.vercel.app/',
-        githubUrl: 'https://github.com/johnwesleyquintero/portfolio',
-      },
-      {
-        title: 'DevFlowDB',
-        image: '/public/database.svg',
-        description:
-          'Lightweight WASM-powered SQL database with HTTPvfs integration for efficient data fetching. Handles 500+ queries/sec with <200ms latency in demo (1MB database size). Features schema versioning and browser IndexedDB caching.',
-        tags: ['sql.js (WASM)', 'TypeScript', 'HTTPvfs', 'IndexedDB'],
-        liveUrl: 'DevFlowDB.vercel.app',
-        githubUrl: 'https://github.com/johnwesleyquintero/DevFlowDB',
-      },
-    ];
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `GitHub API error: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const repos = (await response.json()) as GitHubRepo[];
+
+    return repos
+      .filter((repo: GitHubRepo) => !repo.fork && !repo.private)
+      .map((repo: GitHubRepo) => ({
+        title: repo.name,
+        description: repo.description || 'No description',
+        githubUrl: repo.html_url,
+        liveUrl: repo.homepage || '',
+        tags: repo.topics || [],
+        updatedAt: repo.pushed_at,
+        stars: repo.stargazers_count,
+      }));
   } catch (error) {
     console.error('Failed to fetch GitHub projects:', error);
     throw error;

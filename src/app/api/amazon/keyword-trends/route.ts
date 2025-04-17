@@ -1,18 +1,11 @@
+import { KeywordTrend, KeywordTrendCollection, KeywordTrendData } from '@/lib/models/keyword-trends';
+import { connectToDatabase } from '@/lib/mongodb';
 import { NextResponse } from 'next/server';
 
-interface TrendEntry {
-  date: string;
-  volume: number;
-}
-
-interface ProcessedData {
-  [keyword: string]: TrendEntry[];
-}
-
-function processCSVData(data: string[]) {
+function processCSVData(data: string[]): KeywordTrend[] {
   const headers = data[0].split(',').map((h) => h.trim());
   const rows = data.slice(1);
-  const processedData: ProcessedData = {};
+  const trends: KeywordTrend[] = [];
 
   rows.forEach((row) => {
     const values = row.split(',');
@@ -20,17 +13,21 @@ function processCSVData(data: string[]) {
     const date = values[headers.indexOf('date')];
     const keyword = values[headers.indexOf('keyword')];
 
-    processedData[keyword] = [];
-    processedData[keyword].push({ date, volume });
+    trends.push({
+      keyword,
+      date,
+      volume,
+      createdAt: new Date()
+    });
   });
 
-  return processedData;
+  return trends;
 }
 
 export async function POST(request: Request) {
   try {
     const { csvData } = (await request.json()) as { csvData: string[] };
-    let trendData: { name: string; [key: string]: number | string }[] = [];
+    let trendData: KeywordTrendData[] = [];
 
     if (csvData.length === 0) {
       throw new Error(
@@ -38,21 +35,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const processedData = processCSVData(csvData);
-    const dates = [
-      ...new Set(csvData.slice(1).map((row) => row.split(',')[2])),
-    ].sort();
+    const { db } = await connectToDatabase();
+    const collection = db.collection(KeywordTrendCollection);
+    
+    // Process and store the data
+    const trends = processCSVData(csvData);
+    await collection.insertMany(trends);
 
-    trendData = dates.map((date) => {
-      const dataPoint: { name: string; [key: string]: number | string } = {
-        name: date,
-      };
-      Object.keys(processedData).forEach((keyword) => {
-        const entry = processedData[keyword].find((e) => e.date === date);
+    // Retrieve and format the data
+    const dates = [...new Set(trends.map(t => t.date))].sort();
+    const keywords = [...new Set(trends.map(t => t.keyword))];
+
+    trendData = await Promise.all(dates.map(async (date) => {
+      const dataPoint: KeywordTrendData = { name: date };
+      const dateEntries = await collection
+        .find({ date })
+        .toArray();
+
+      keywords.forEach((keyword) => {
+        const entry = dateEntries.find(e => e.keyword === keyword);
         dataPoint[keyword] = entry ? entry.volume : 0;
       });
       return dataPoint;
-    });
+    }));
 
     return NextResponse.json(trendData);
   } catch (error) {
