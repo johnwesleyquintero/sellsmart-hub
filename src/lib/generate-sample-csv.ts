@@ -1,8 +1,9 @@
-import Papa from 'papaparse';
 
 type SampleDataType = 'fba' | 'keyword' | 'ppc' | 'keyword-dedup' | 'acos';
 
 export function generateSampleCsv(dataType: SampleDataType): string {
+  const DEFAULT_PRODUCT_NAME = 'Sample Product';
+  
   interface SampleData {
     productName: string;
     cost?: number;
@@ -88,7 +89,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'ppc':
       data = [
         {
-          productName: 'Sample Product',
+          productName: DEFAULT_PRODUCT_NAME,
           name: 'Auto Campaign - Wireless Earbuds',
           type: 'Auto',
           spend: 245.67,
@@ -97,7 +98,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 320,
         },
         {
-          productName: 'Sample Product',
+          productName: DEFAULT_PRODUCT_NAME,
           name: 'Sponsored Products - Phone Cases',
           type: 'Sponsored Products',
           spend: 178.34,
@@ -106,7 +107,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 245,
         },
         {
-          productName: 'Sample Product',
+          productName: DEFAULT_PRODUCT_NAME,
           name: 'Sponsored Brands - Charging Cables',
           type: 'Sponsored Brands',
           spend: 89.45,
@@ -133,7 +134,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
     case 'acos':
       data = [
         {
-          productName: 'Sample Product', // Added to satisfy SampleData
+          productName: DEFAULT_PRODUCT_NAME,
           campaign: 'Auto Campaign - Wireless Earbuds',
           adSpend: 245.67,
           sales: 1245.89,
@@ -141,7 +142,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 320,
         },
         {
-          productName: 'Sample Product', // Added to satisfy SampleData
+          productName: DEFAULT_PRODUCT_NAME,
           campaign: 'Sponsored Products - Phone Cases',
           adSpend: 178.34,
           sales: 567.21,
@@ -149,7 +150,7 @@ export function generateSampleCsv(dataType: SampleDataType): string {
           clicks: 245,
         },
         {
-          productName: 'Sample Product', // Added to satisfy SampleData
+          productName: DEFAULT_PRODUCT_NAME,
           campaign: 'Sponsored Brands - Charging Cables',
           adSpend: 89.45,
           sales: 156.78,
@@ -162,7 +163,11 @@ export function generateSampleCsv(dataType: SampleDataType): string {
       return '';
   }
 
-  return Papa.unparse(data);
+  if (data.length === 0) return '';
+  const headers = Object.keys(data[0]).join(',');
+  const rows = data.map(obj => Object.values(obj).map(v => typeof v === 'string' ? `"${v}"` : v).join(','));
+    
+  return [headers, ...rows].join('\n');
 }
 
 export function downloadSampleCsv(
