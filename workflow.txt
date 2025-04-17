@@ -89,7 +89,25 @@ TYPE CHECK WORKFLOW
 4. REPEAT:
    - Continue running `npm run typecheck` and fixing issues until no type errors remain.
 
+
 ===================================================================
+FORMATTING WORKFLOW
+===================================================================
+
+1. RUN FORMATTING:
+   - Execute `npm run format` to automatically format the codebase for consistency.
+
+2. REVIEW CHANGES:
+   - Check the formatted code for any unexpected changes or issues.
+
+3. ADDRESS ISSUES:
+   - Resolve any formatting problems to ensure code readability and consistency.
+
+4. VERIFY:
+   - Ensure the entire codebase is properly formatted and ready for further development.
+
+===================================================================
+
 
 
 

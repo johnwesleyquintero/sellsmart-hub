@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
     '/amazon-seller-tools',
     '/blog',
     '/',
-  ].some(publicPath => path.startsWith(publicPath));
+  ].some((publicPath) => path.startsWith(publicPath));
 
   // Get the token from the request
   const token = await getToken({

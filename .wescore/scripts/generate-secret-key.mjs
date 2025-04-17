@@ -7,15 +7,15 @@ const KEY_DIR = join(process.cwd(), '.config/keys');
 function generateSecretKey() {
   try {
     const secretKey = randomBytes(32).toString('hex');
-    
+
     // Ensure storage directory exists
     mkdirSync(KEY_DIR, { recursive: true });
-    
+
     // Write to secure location
     writeFileSync(
       join(KEY_DIR, 'secret-key.txt'),
       `# AUTO-GENERATED - DO NOT COMMIT
-${secretKey}`
+${secretKey}`,
     );
 
     console.log('Secret key generated and stored securely in .config/keys');

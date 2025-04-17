@@ -292,7 +292,7 @@ class IssueLogger {
       contextString = ` | Context: ${JSON.stringify(context)}`;
     }
     const logEntry = `[${timestamp}] [${category}]${contextString}\n${logFileContent}\n----------------------------------------\n`;
-    const summaryMessage = `ESLint: ${result.errorCount} error(s), ${result.warningCount} warning(s) in ${result.filePath}`;
+    const summaryMessage = `Lint: ${result.errorCount} error(s), ${result.warningCount} warning(s) in ${result.filePath}`;
     const issueDetail = {
       timestamp,
       category,

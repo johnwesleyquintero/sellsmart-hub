@@ -1,4 +1,8 @@
-import { KeywordTrend, KeywordTrendCollection, KeywordTrendData } from '@/lib/models/keyword-trends';
+import {
+  KeywordTrend,
+  KeywordTrendCollection,
+  KeywordTrendData,
+} from '@/lib/models/keyword-trends';
 import { connectToDatabase } from '@/lib/mongodb';
 import { NextResponse } from 'next/server';
 
@@ -17,7 +21,7 @@ function processCSVData(data: string[]): KeywordTrend[] {
       keyword,
       date,
       volume,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   });
 
@@ -37,27 +41,27 @@ export async function POST(request: Request) {
 
     const { db } = await connectToDatabase();
     const collection = db.collection(KeywordTrendCollection);
-    
+
     // Process and store the data
     const trends = processCSVData(csvData);
     await collection.insertMany(trends);
 
     // Retrieve and format the data
-    const dates = [...new Set(trends.map(t => t.date))].sort();
-    const keywords = [...new Set(trends.map(t => t.keyword))];
+    const dates = [...new Set(trends.map((t) => t.date))].sort();
+    const keywords = [...new Set(trends.map((t) => t.keyword))];
 
-    trendData = await Promise.all(dates.map(async (date) => {
-      const dataPoint: KeywordTrendData = { name: date };
-      const dateEntries = await collection
-        .find({ date })
-        .toArray();
+    trendData = await Promise.all(
+      dates.map(async (date) => {
+        const dataPoint: KeywordTrendData = { name: date };
+        const dateEntries = await collection.find({ date }).toArray();
 
-      keywords.forEach((keyword) => {
-        const entry = dateEntries.find(e => e.keyword === keyword);
-        dataPoint[keyword] = entry ? entry.volume : 0;
-      });
-      return dataPoint;
-    }));
+        keywords.forEach((keyword) => {
+          const entry = dateEntries.find((e) => e.keyword === keyword);
+          dataPoint[keyword] = entry ? entry.volume : 0;
+        });
+        return dataPoint;
+      }),
+    );
 
     return NextResponse.json(trendData);
   } catch (error) {

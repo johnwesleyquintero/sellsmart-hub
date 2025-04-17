@@ -1,11 +1,14 @@
-import { ProhibitedKeyword, ProhibitedKeywordCollection } from './models/prohibited-keywords';
+import {
+  ProhibitedKeyword,
+  ProhibitedKeywordCollection,
+} from './models/prohibited-keywords';
 import { connectToDatabase } from './mongodb';
 
 export async function getAll(): Promise<string[]> {
   try {
     const { db } = await connectToDatabase();
     const keywords = await db
-      .collection(ProhibitedKeywordCollection)
+      .collection<ProhibitedKeyword>(ProhibitedKeywordCollection)
       .find({}, { projection: { keyword: 1 } })
       .toArray();
     return keywords.map((k) => k.keyword);
@@ -24,12 +27,12 @@ export async function add(keyword: string): Promise<void> {
     const { db } = await connectToDatabase();
     const collection = db.collection(ProhibitedKeywordCollection);
     const exists = await collection.findOne({ keyword });
-    
+
     if (!exists) {
       const newKeyword: ProhibitedKeyword = {
         keyword,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       await collection.insertOne(newKeyword);
     }

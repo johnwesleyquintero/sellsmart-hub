@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -27,15 +28,15 @@ export function AuthDisplay() {
       >
         <X size={18} />
       </button>
-      
+
       <h3 className="text-lg font-semibold text-blue-800 mb-2">
         Unified Authentication Platform
       </h3>
-      
+
       <p className="text-blue-700 mb-4">
-        This account is secured with enterprise-grade authentication. Your credentials
-        are securely managed through our GitHub OAuth integration and can be used
-        across all WesCode applications.
+        This account is secured with enterprise-grade authentication. Your
+        credentials are securely managed through our GitHub OAuth integration
+        and can be used across all WesCode applications.
       </p>
 
       <div className="flex items-center gap-4">
@@ -44,14 +45,18 @@ export function AuthDisplay() {
         </Link>
         <span className="text-blue-300">|</span>
         <div className="flex gap-2">
-          <img
+          <Image
             src="/images/github-mark.svg"
             alt="GitHub Logo"
+            width={20}
+            height={20}
             className="h-5 w-5"
           />
-          <img
+          <Image
             src="/images/linkedin.svg"
             alt="LinkedIn Logo"
+            width={20}
+            height={20}
             className="h-5 w-5"
           />
         </div>

@@ -35,7 +35,10 @@
     "**/*.tsx",
     "next-env.d.ts",
     "src/**/*",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "dist/scripts/playground-1.mongodb.js",
+    "dist/scripts/playground-2.mongodb.js",
+    "dist/scripts/portfolio-playground.mongodb.js"
   ],
   "typeRoots": ["./src/types", "./node_modules/@types"],
   "exclude": ["node_modules", ".next"]

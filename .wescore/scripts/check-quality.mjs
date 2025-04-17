@@ -369,16 +369,16 @@ function writeLogFile(
         switch (checkIdentifier) {
           case 'lint': // Assuming 'lint' is the ID for ESLint
           case 'Linting':
-            recommendations += `• ${chalk.yellow(check.name)}: Run ${chalk.cyan('npm run lint -- --fix')} to attempt automatic fixes, or review ESLint errors reported above.\n`;
+            recommendations += `• ${chalk.yellow(check.name)}: Run ${chalk.cyan('npm run lint -- --fix')} to attempt automatic fixes, or Enforce code style consistency by iteratively linting and correcting: Execute npm run lint, meticulously review the output for violations of established style guidelines, systematically address each reported issue, and repeat this process until the codebase achieves a clean linting report, ensuring adherence to coding standards and best practices.\n`;
             break;
           case 'format': // Assuming 'format' is the ID for Prettier
           case 'Formatting (Prettier)':
             // Usually Prettier passes or fails on check, fix is separate
-            recommendations += `• ${chalk.yellow(check.name)}: Run ${chalk.cyan('npm run format')} to apply correct formatting.\n`;
+            recommendations += `• ${chalk.yellow(check.name)}: Run ${chalk.cyan('npm run format')} to apply correct formatting. Thoroughly review the changes for unexpected modifications or introduced issues. Address any formatting discrepancies to guarantee optimal code readability and consistency. Finally, verify the entire codebase is uniformly formatted and ready for subsequent development tasks.\n`;
             break;
           case 'type-check': // Assuming 'type-check' is the ID for TSC
           case 'Type Checking (TSC)':
-            recommendations += `• ${chalk.yellow(check.name)}: Review the TypeScript errors (e.g., ${chalk.red('error TSxxxx')}) reported by 'tsc' in the log details above.\n`;
+            recommendations += `• ${chalk.yellow(check.name)}: Review the TypeScript errors (e.g., ${chalk.red('error TSxxxx')}) reported by 'tsc' in the log details above, or Implement a rigorous type safety protocol: Execute npm run typecheck and meticulously analyze the output, prioritizing the immediate resolution of all identified type errors and inconsistencies. Iterate this process – type checking, analysis, and remediation – until the codebase achieves a state of complete type safety, free from any reported errors. Document all significant type-related changes and decisions made during the remediation process.\n`;
             break;
           case 'build': // Assuming 'build' is the ID for Build Project
           case 'Build Project':

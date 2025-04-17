@@ -31,7 +31,7 @@
         "Parsing error:",
         "needs formatting"
       ],
-      "suggestion": "Run 'npm run format' to fix formatting issues. If errors persist, check for syntax errors in the reported files."
+      "suggestion": "Execute `npm run format` to automatically format the codebase. Thoroughly review the changes for unexpected modifications or introduced issues. Address any formatting discrepancies to guarantee optimal code readability and consistency. Finally, verify the entire codebase is uniformly formatted and ready for subsequent development tasks."
     },
     "lint": {
       "patterns": [
@@ -41,14 +41,14 @@
         "@typescript-eslint/",
         "Error: "
       ],
-      "suggestion": "Run 'npm run lint -- --fix' to automatically fix issues. Review the specific ESLint errors above and consult '.eslintrc.json' if needed."
+      "suggestion": "Enforce code style consistency by iteratively linting and correcting: Execute `npm run lint`, meticulously review the output for violations of established style guidelines, systematically address each reported issue, and repeat this process until the codebase achieves a clean linting report, ensuring adherence to coding standards and best practices."
     },
     "typecheck": {
       "patterns": [
         "^.*?\\.tsx?\\(\\d+,\\d+\\): error TS\\d+:.*$",
         "Could not find a declaration file for module"
       ],
-      "suggestion": "Review the TypeScript error messages (TSxxxx) above. Check the mentioned file/line for type errors or missing type declarations (`@types/...`). Verify your 'tsconfig.json' settings."
+      "suggestion": "Implement a rigorous type safety protocol: Execute `npm run typecheck` and meticulously analyze the output, prioritizing the immediate resolution of all identified type errors and inconsistencies. Iterate this process – type checking, analysis, and remediation – until the codebase achieves a state of complete type safety, free from any reported errors. Document all significant type-related changes and decisions made during the remediation process."
     },
     "build": {
       "patterns": [

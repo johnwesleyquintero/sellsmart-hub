@@ -1,11 +1,12 @@
 import { clientPromise } from '@/lib/mongodb';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import { NextAuthOptions } from 'next-auth';
+import { NextAuthOptions, Session } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 import GithubProvider from 'next-auth/providers/github';
 import LinkedInProvider from 'next-auth/providers/linkedin';
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise()),
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
@@ -27,7 +28,7 @@ export const authOptions: NextAuthOptions = {
     error: '/auth/error',
   },
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session?.user) {
         session.user.id = token.sub;
       }

@@ -160,7 +160,7 @@ export default function Header() {
                 >
                   {item.name}
                 </Link>
-              )
+              ),
             )}
             {session ? (
               <Button
