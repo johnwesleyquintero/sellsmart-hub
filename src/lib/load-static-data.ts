@@ -1,14 +1,26 @@
-import { StaticDataTypes } from './static-data-types';
 import { generateSampleCsv } from './generate-sample-csv';
-
-
+import { StaticDataTypes } from './static-data-types';
 
 // Ensure 'acos' is a valid key in StaticDataTypes
-type AcosDataType = Extract<keyof StaticDataTypes, "acos">;
+type AcosDataType = Extract<keyof StaticDataTypes, 'acos'>;
 
 export async function loadStaticData<T extends keyof StaticDataTypes>(
   file: T,
 ): Promise<StaticDataTypes[T]> {
+  function validateStaticData(data: unknown): data is StaticDataTypes[T] {
+    if (!Array.isArray(data)) return false;
+    return data.every((item) => {
+      const baseProps = 'id' in item && 'title' in item;
+      switch (file) {
+        case 'case-studies':
+          return baseProps && 'metrics' in item;
+        case 'blog':
+          return baseProps && 'content' in item;
+        default:
+          return baseProps;
+      }
+    });
+  }
   if (file === 'projects') {
     return (await import('../data/portfolio-data/projects.json')).default
       .projects as unknown as StaticDataTypes[T];
@@ -38,28 +50,30 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
       .tools as StaticDataTypes[T];
   }
 
-  if (file === ('acos' as T)) { // Properly assert type for generic comparison
+  if (file === 'acos') {
+    // Remove unsafe type assertion
     const csv = generateSampleCsv('acos');
     const lines = csv.split('\n');
     const headers = lines[0].split(',');
     const data = lines.slice(1).map((line) => {
       const values = line.split(',');
-      return headers.reduce((obj, header, index) => {
-        let value = values[index];
-        if (value.startsWith('"') && value.endsWith('"')) {
-          value = value.slice(1, -1);
-        }
-        if (header === 'adSpend' || header === 'sales' || header === 'clicks' || header === 'impressions') {
-          const parsedValue = parseFloat(value);
-          return { ...obj, [header]: isNaN(parsedValue) ? 0 : parsedValue };
-        } else {
-          return { ...obj, [header]: value };
-        }
-      }, {});
+      return {
+        productName:
+          values[headers.indexOf('productName')]?.replace(/^"|"$/g, '') || '',
+        campaign:
+          values[headers.indexOf('campaign')]?.replace(/^"|"$/g, '') || '',
+        adSpend: parseFloat(values[headers.indexOf('adSpend')] || '0') || 0,
+        sales: parseFloat(values[headers.indexOf('sales')] || '0') || 0,
+        clicks: parseInt(values[headers.indexOf('clicks')] || '0', 10) || 0,
+        impressions:
+          parseInt(values[headers.indexOf('impressions')] || '0', 10) || 0,
+      };
     });
 
-
-    return data as StaticDataTypes[AcosDataType];
+    if (!validateStaticData(data)) {
+      throw new Error(`Invalid ACOS data structure for ${file}`);
+    }
+    return data as StaticDataTypes[T];
   }
 
   throw new Error(`Invalid file type: ${file}`);
