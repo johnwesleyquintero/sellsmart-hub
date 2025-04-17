@@ -10,7 +10,7 @@ export const DEFAULT_COMMANDS_CONFIG = [
   },
   {
     id: 'lint',
-    name: 'Linting (ESLint)',
+    name: 'Linting',
     command: 'npm run lint',
     description: 'Checks for code style and potential errors using ESLint.',
   },

@@ -368,7 +368,7 @@ function writeLogFile(
         const checkIdentifier = check.id || check.name;
         switch (checkIdentifier) {
           case 'lint': // Assuming 'lint' is the ID for ESLint
-          case 'Linting (ESLint)':
+          case 'Linting':
             recommendations += `• ${chalk.yellow(check.name)}: Run ${chalk.cyan('npm run lint -- --fix')} to attempt automatic fixes, or review ESLint errors reported above.\n`;
             break;
           case 'format': // Assuming 'format' is the ID for Prettier
