@@ -22,10 +22,6 @@ import SampleCsvButton from './sample-csv-button';
 
 import type { KeywordData } from '@/lib/amazon-types';
 
-interface DeduplicatorKeywordData {
-  product: string;
-  keywords: string | string[];
-}
 
 interface ProcessedKeywordData extends KeywordData {
   product: string;
@@ -33,14 +29,7 @@ interface ProcessedKeywordData extends KeywordData {
   cleanedKeywords: string[];
   duplicatesRemoved: number;
 }
-
-interface KeywordDeduplicatorProps {
-  initialKeywords: string[];
-  data: Array<{ keyword: string; [key: string]: unknown }>;
-  onDeduplicated: (keywords: string[]) => void;
-}
-
-export default function KeywordDeduplicator({}: KeywordDeduplicatorProps) {
+export default function KeywordDeduplicator() {
   const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

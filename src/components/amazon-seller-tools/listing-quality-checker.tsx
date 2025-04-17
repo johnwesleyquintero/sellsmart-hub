@@ -107,8 +107,9 @@ export default function ListingQualityChecker() {
                     .map((k) => k.trim())
                     .filter(Boolean) || [];
 
+                console.log("KeywordIntelligence:", KeywordIntelligence);
                 const keywordAnalysis =
-                  await KeywordIntelligence.analyzeBatch(keywords);
+                  await KeywordIntelligence.analyze(keywords);
 
                 return {
                   product: row.product,

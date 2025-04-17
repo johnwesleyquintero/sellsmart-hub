@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "cross-env NODE_ENV=production next build",
-    "start": "node .next/standalone/server.js",
+    "start": " cross-env NODE_ENV=production next start",
     "lint": "next lint",
     "format": "prettier --write . --ignore-unknown",
     "typecheck": "tsc --noEmit",

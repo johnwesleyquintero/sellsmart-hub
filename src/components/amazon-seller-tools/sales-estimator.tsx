@@ -264,7 +264,7 @@ export default function SalesEstimator() {
                     onChange={(e) => {
                       setManualProduct({
                         ...manualProduct,
-                        category: e.target.value,
+                        category: (e.target as HTMLInputElement).value,
                       });
                     }}
                     placeholder="Enter product category"

@@ -63,6 +63,22 @@ export interface ProductData {
   weight?: number;
   salesVelocity?: number;
 }
+export interface ProductScoreParams {
+  conversionRate: number;
+  sessions: number;
+  reviewRating: number;
+  reviewCount: number;
+  priceCompetitiveness: number;
+  inventoryHealth: number;
+  weight: number;
+  volume: number;
+  category: ProductCategory;
+}
+export interface OptimalPriceParams {
+  currentPrice: number;
+  competitorPrices: number[];
+  productScore: number;
+}
 
 export class AmazonAlgorithms {
   static calculateInventoryRecommendation(

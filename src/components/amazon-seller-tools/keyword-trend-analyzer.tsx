@@ -11,6 +11,12 @@ import {
 } from 'recharts';
 import CsvUploader from './CsvUploader';
 
+interface CsvRow {
+  id: string;
+  impressions: number;
+  clicks: number;
+}
+
 interface ChartDataPoint {
   name: string;
   [key: string]: number | string;
@@ -19,7 +25,7 @@ interface ChartDataPoint {
 const KeywordTrendAnalyzer: React.FC = () => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
-  const handleFileUpload = useCallback(async (data: string | number[]) => {
+  const handleFileUpload = useCallback(async (data: CsvRow[]) => {
     try {
       const response = await fetch('/api/amazon/keyword-trends', {
         method: 'POST',
@@ -42,7 +48,12 @@ const KeywordTrendAnalyzer: React.FC = () => {
 
   return (
     <div>
-      <CsvUploader onUpload={handleFileUpload} />
+      <CsvUploader 
+        onUploadSuccess={(data) => handleFileUpload(data)}
+        isLoading={false}
+        onClear={() => setChartData([])}
+        hasData={chartData.length > 0}
+      />
       {chartData.length > 0 && (
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartData}>

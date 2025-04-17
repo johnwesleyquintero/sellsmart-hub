@@ -38,7 +38,7 @@ describe('CSV Validation Utilities', () => {
         | 'conversion_rate'
         | 'click_through_rate'
         | 'asin'
-      )[] = ['asin', 'price', 'reviews'] as any;
+      )[] = ['asin', 'price', 'reviews'];
       expect(validateRequiredColumns(testData, required)).toEqual(['missing']);
     });
   });
@@ -81,8 +81,6 @@ describe('CSV Validation Utilities', () => {
   });
 
   describe('processAmazonCsv', () => {
-    const requiredColumns = ['asin', 'price', 'reviews'];
-
     it('should process valid CSV data', () => {
       const requiredColumns: (
         | 'price'
@@ -111,7 +109,7 @@ describe('CSV Validation Utilities', () => {
     });
 
     it('should throw on missing columns', () => {
-      expect(() => processAmazonCsv(testData, ['missing'] as any)).toThrow(
+      expect(() => processAmazonCsv(testData, ['missing'] as unknown as string[])).toThrow(
         'Missing required columns: missing',
       );
     });

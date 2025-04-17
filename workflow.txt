@@ -1,5 +1,5 @@
 ===================================================================
-DEVELOPMENT WORKFLOW
+GENERAL WORKFLOW
 ===================================================================
 
 1. REVIEW & ANALYZE:
@@ -15,10 +15,82 @@ DEVELOPMENT WORKFLOW
    - Identify any remaining issues.
 
 4. ITERATE:
-   - Repeat steps 1-3 until all quality checks pass.
+   - Repeat steps until all quality checks pass.
 
 5. BUILD:
    - Run `npm run build` for production deployment.
    - Ensure build completes successfully.
 
+
 ===================================================================
+CODE QUALITY CHECK WORKFLOW
+===================================================================
+
+1. RUN QUALITY CHECKS:
+   - Execute `npm run cq` to perform code quality checks and identify any issues.
+
+2. ANALYZE RESULTS:
+   - Review the output for errors, warnings, and potential improvements.
+
+3. ADDRESS ISSUES:
+   - Systematically fix identified issues and ensure code adheres to quality standards.
+
+4. REPEAT:
+   - Continue running `npm run cq` and addressing issues until all checks pass successfully.
+
+
+===================================================================
+BUILD WORKFLOW
+===================================================================
+
+1. RUN BUILD:
+   - Execute `npm run build` to initiate the production deployment build process.
+
+2. MONITOR BUILD:
+   - Observe the build process for any errors or warnings that may arise.
+
+3. ADDRESS ISSUES:
+   - Fix any identified issues to ensure a successful build.
+
+4. VERIFY:
+   - Confirm that the build completes successfully and is ready for deployment.
+
+
+===================================================================
+LINTING WORKFLOW
+===================================================================
+
+1. RUN LINTING:
+   - Execute `npm run lint` to check the codebase for stylistic errors and inconsistencies.
+
+2. REVIEW RESULTS:
+   - Analyze the linting output for any reported issues or warnings.
+
+3. FIX ISSUES:
+   - Address each linting issue to ensure code adheres to style guidelines.
+
+4. REPEAT:
+   - Continue running `npm run lint` and resolving issues until the codebase is free of linting errors.
+
+
+===================================================================
+TYPE CHECK WORKFLOW
+===================================================================
+
+1. RUN TYPE CHECKS:
+   - Execute `npm run typecheck` to verify type safety across the codebase.
+
+2. REVIEW OUTPUT:
+   - Examine the type check results for any type errors or inconsistencies.
+
+3. RESOLVE ISSUES:
+   - Address each type error to ensure the codebase is type-safe and consistent.
+
+4. REPEAT:
+   - Continue running `npm run typecheck` and fixing issues until no type errors remain.
+
+===================================================================
+
+
+
+

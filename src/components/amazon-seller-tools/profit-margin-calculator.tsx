@@ -102,7 +102,7 @@ export default function ProfitMarginCalculator() {
         category: ProductCategory.STANDARD,
       });
 
-      const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice<number>({
+      const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice({
         currentPrice: item.price,
         competitorPrices: item.competitorPrices || [
           item.price * 0.9,

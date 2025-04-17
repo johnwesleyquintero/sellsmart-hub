@@ -1,12 +1,13 @@
+import { OptimalPriceParams, ProductScoreParams } from '../amazon-types';
 export class AmazonAlgorithms {
   /**
    * Calculates product quality score based on market data
    * @param productData Product information object
    * @param config Algorithm configuration parameters
    */
-  static calculateProductScore(): number {
+  static calculateProductScore(params: ProductScoreParams): number {
     // Implementation logic here
-    return 0; // Placeholder return value
+    return params.conversionRate; // Placeholder return value
   }
 
   /**
@@ -14,8 +15,8 @@ export class AmazonAlgorithms {
    * @param productData Product information object
    * @param config Algorithm configuration parameters
    */
-  static calculateOptimalPrice(): number {
+  static calculateOptimalPrice(params: OptimalPriceParams): number {
     // Implementation logic here
-    return 0; // Placeholder return value
+    return params.currentPrice; // Placeholder return value
   }
 }
