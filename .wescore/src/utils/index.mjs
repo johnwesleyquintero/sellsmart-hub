@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from 'fs';
 import path from 'path';
 
@@ -36,11 +37,8 @@ export function getProjectInfo() {
     const name = (pkg.name || 'project').replace(/[^a-z0-9_-]/gi, '_');
     const version = pkg.version || 'local';
     return { name, version };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    // eslint-disable-next-line no-unused-vars
-    console.log(
-      'WARN',
+    console.warn(
       'Could not read package.json for naming. Using default "project-local".',
     );
     return { name: 'project', version: 'local' };
@@ -61,5 +59,5 @@ export function formatDate(date) {
 
 const PROJECT_ROOT = process.cwd(); // Define PROJECT_ROOT
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default { cleanTarget, getProjectInfo, formatDate, PROJECT_ROOT };
+const utils = { cleanTarget, getProjectInfo, formatDate, PROJECT_ROOT };
+export default utils;
