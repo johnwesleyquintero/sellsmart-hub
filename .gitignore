@@ -115,3 +115,5 @@ coverage/
 .personal-files/ # Assuming this is a directory
 # Note: .personal-files/ was listed twice, removed duplicate
 
+
+.vercel
