@@ -4,7 +4,9 @@ const defaultImage = '/default-fallback.svg';
 
 export const metadata: Metadata = {
   title: 'Wesley Quintero - Professional Portfolio',
-  description: 'Data-Driven Amazon & E-commerce Specialist portfolio website.',
+  const SITE_DESCRIPTION = 'Data-Driven Amazon & E-commerce Specialist portfolio website.';
+
+description: SITE_DESCRIPTION,
   keywords: [
     'Wesley Quintero',
     'Amazon Specialist',
