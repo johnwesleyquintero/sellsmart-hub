@@ -5,15 +5,19 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
 ): Promise<StaticDataTypes[T]> {
   if (file === 'projects') {
     return (await import('../data/portfolio-data/projects.json')).default
-      .projects as StaticDataTypes[T];
+      .projects as unknown as StaticDataTypes[T];
   }
   if (file === 'blog') {
-    return (await import('../data/portfolio-data/blog.json')).default
-      .posts as StaticDataTypes[T];
+    const data = await import('../data/portfolio-data/blog.json');
+    return data.default.posts.map(post => ({
+      ...post,
+      content: post.content || '',
+      relatedPosts: post.relatedPosts || []
+    })) as unknown as StaticDataTypes[T];
   }
   if (file === 'case-studies') {
     const data = await import('../data/portfolio-data/case-studies.json');
-    return data.default.studies as StaticDataTypes[T];
+    return data.default.studies as unknown as StaticDataTypes[T];
   }
   if (file === 'changelog') {
     return (await import('../data/portfolio-data/changelog.json')).default

@@ -7,6 +7,14 @@ interface DroppableProps {
   children: React.ReactNode;
 }
 
+import { useCallback } from 'react';
+
+interface DroppableProps {
+  type: string;
+  onDrop: (item: string) => void;
+  children: React.ReactNode;
+}
+
 const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: type,
@@ -18,9 +26,13 @@ const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
     }),
   }));
 
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    drop(node);
+  }, [drop]);
+
   return (
     <div
-      ref={drop}
+      ref={setRef}
       style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}
     >
       {children}

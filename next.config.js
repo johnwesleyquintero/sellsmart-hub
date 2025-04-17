@@ -3,7 +3,7 @@ import path from 'path';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Core settings
-  output: 'standalone', // Keep if needed for Docker/standalone deployment
+  // output: 'standalone', // Keep if needed for Docker/standalone deployment
 
   // Build-time checks
   // --- ESLint block removed ---

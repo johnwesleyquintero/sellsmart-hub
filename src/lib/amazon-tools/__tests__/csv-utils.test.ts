@@ -109,7 +109,7 @@ describe('CSV Validation Utilities', () => {
     });
 
     it('should throw on missing columns', () => {
-      expect(() => processAmazonCsv(testData, ['missing'] as unknown as string[])).toThrow(
+      expect(() => processAmazonCsv(testData, ['missing'] as unknown as ('price' | 'reviews' | 'rating' | 'conversion_rate' | 'click_through_rate' | 'asin')[])).toThrow(
         'Missing required columns: missing',
       );
     });

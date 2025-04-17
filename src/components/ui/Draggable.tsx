@@ -8,6 +8,23 @@ interface DraggableProps {
   children: React.ReactNode;
 }
 
+
+interface DraggableProps {
+  id: string;
+  type: string;
+  data?: Record<string, unknown>;
+  children: React.ReactNode;
+}
+
+import { useCallback } from 'react';
+
+interface DraggableProps {
+  id: string;
+  type: string;
+  data?: Record<string, unknown>;
+  children: React.ReactNode;
+}
+
 const Draggable: React.FC<DraggableProps> = ({ id, type, children }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: type,
@@ -17,8 +34,12 @@ const Draggable: React.FC<DraggableProps> = ({ id, type, children }) => {
     }),
   }));
 
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    drag(node);
+  }, [drag]);
+
   return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <div ref={setRef} style={{ opacity: isDragging ? 0.5 : 1 }}>
       {children}
     </div>
   );
