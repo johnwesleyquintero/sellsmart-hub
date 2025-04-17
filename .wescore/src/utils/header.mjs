@@ -26,9 +26,7 @@ import process from 'process';
 export function generateHeader(data = {}) {
   const {
     startTime = new Date(),
-:start_line:29
--------
-    // 
+    logfilePath = '.task_tracker.log', // Keep for context
     commandExecuted = process.argv.slice(2).join(' ') || 'N/A',
     totalChecks = 0, // Default to 0 if not provided
     passedChecks = 0,

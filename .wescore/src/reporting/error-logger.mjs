@@ -415,10 +415,9 @@ class IssueLogger {
 
     for (const result of eslintResults) {
       if (result.errorCount > 0 || result.warningCount > 0) {
-:start_line:424
--------
         const { logEntry, issueDetail } = this._formatLintResultEntry(
           result,
+          category,
           context,
         );
         this._logIssue(category, logEntry, issueDetail); // Use the common internal log method
