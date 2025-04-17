@@ -8,7 +8,6 @@ interface DraggableProps {
   children: React.ReactNode;
 }
 
-
 interface DraggableProps {
   id: string;
   type: string;
@@ -34,9 +33,12 @@ const Draggable: React.FC<DraggableProps> = ({ id, type, children }) => {
     }),
   }));
 
-  const setRef = useCallback((node: HTMLDivElement | null) => {
-    drag(node);
-  }, [drag]);
+  const setRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      drag(node);
+    },
+    [drag],
+  );
 
   return (
     <div ref={setRef} style={{ opacity: isDragging ? 0.5 : 1 }}>

@@ -48,7 +48,7 @@ const KeywordTrendAnalyzer: React.FC = () => {
 
   return (
     <div>
-      <CsvUploader 
+      <CsvUploader
         onUploadSuccess={(data) => handleFileUpload(data)}
         isLoading={false}
         onClear={() => setChartData([])}

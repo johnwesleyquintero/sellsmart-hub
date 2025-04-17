@@ -22,7 +22,6 @@ import SampleCsvButton from './sample-csv-button';
 
 import type { KeywordData } from '@/lib/amazon-types';
 
-
 interface ProcessedKeywordData extends KeywordData {
   product: string;
   originalKeywords: string[];

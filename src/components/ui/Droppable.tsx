@@ -26,9 +26,12 @@ const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
     }),
   }));
 
-  const setRef = useCallback((node: HTMLDivElement | null) => {
-    drop(node);
-  }, [drop]);
+  const setRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      drop(node);
+    },
+    [drop],
+  );
 
   return (
     <div

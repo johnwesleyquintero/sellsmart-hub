@@ -101,19 +101,34 @@ To contribute to this project:
 
 ## Deployment
 
-This project is automatically deployed to Vercel when pushing to the main branch. For manual deployment:
+This project supports both automatic CI/CD deployment and manual workflows:
 
-1. Install Vercel CLI
+### Automated Deployment (CI/CD)
 
-   ```bash
-   npm install -g vercel
-   ```
+- Pushes to `main` branch trigger production deployment
+- PR environments created for branches matching `feat/*` or `fix/*`
 
-2. Run deployment
+### Manual Deployment
 
-   ```bash
-   vercel
-   ```
+```bash
+npm install -g vercel@latest
+vercel deploy --prod --confirm
+```
+
+### Environment Configuration
+
+Ensure these environment variables are set in Vercel:
+
+- `NEXT_PUBLIC_VERCEL_ENV` (production/preview/development)
+- `NEXT_PUBLIC_GA_ID` (Analytics)
+- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (Contact form)
+
+### CI/CD Features
+
+- Automated testing via `vercel.yml`
+- Branch preview environments
+- Rollback protection
+- Deployment status checks
 
 ## Environment Variables
 

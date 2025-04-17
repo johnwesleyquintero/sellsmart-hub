@@ -1,0 +1,19 @@
+# Vercel CI/CD Configuration
+build:
+  env:
+    NODE_ENV: production
+
+routes:
+  - src: /(.*)
+    dest: /$1
+    headers:
+      Cache-Control: public, max-age=3600
+
+gitHub:
+  enabled: true
+  autoAlias: true
+  automerge: true
+
+checks:
+  enabled: true
+  timeout: 180

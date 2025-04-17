@@ -9,10 +9,10 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
   }
   if (file === 'blog') {
     const data = await import('../data/portfolio-data/blog.json');
-    return data.default.posts.map(post => ({
+    return data.default.posts.map((post) => ({
       ...post,
       content: post.content || '',
-      relatedPosts: post.relatedPosts || []
+      relatedPosts: post.relatedPosts || [],
     })) as unknown as StaticDataTypes[T];
   }
   if (file === 'case-studies') {
