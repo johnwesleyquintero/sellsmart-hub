@@ -60,6 +60,7 @@ const nextConfig = {
 
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
+    console.log('Webpack config.module.rules:', config.module.rules);
     // Alias for @/ imports (assuming source code is primarily in 'src')
     config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
 
