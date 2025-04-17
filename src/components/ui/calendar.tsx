@@ -53,9 +53,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-              //@ts-expect-error Typescript does not know about IconLeft
               IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-              //@ts-expect-error Typescript does not know about IconRight
               IconRight: () => <ChevronRight className="h-4 w-4" />,
             }}
       {...props}
