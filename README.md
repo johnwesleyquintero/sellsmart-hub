@@ -10,13 +10,10 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 
 - Modern, responsive UI with dark/light mode support.
 - Advanced Amazon Seller Tools suite including:
-  - ACoS Calculator with historical trend analysis.
-  - Competitor Analyzer for pricing and listing performance.
-  - Description Editor with real-time preview, keyword optimization, and CSV export.
-  - FBA Calculator with robust CSV upload and error validation.
-  - Keyword Analyzer and Deduplicator with smart duplicate removal.
-  - PPC Campaign Auditor generating detailed campaign CSV reports.
-  - Profit Margin Calculator and Sales Estimator with dynamic market data analysis.
+  - ACoS Calculator with historical trend analysis
+  - Competitor Analyzer for pricing and listing performance
+  - FBA Calculator with basic CSV upload functionality
+  - Keyword Deduplicator (core functionality)
 - Integrated blog with MDX support, rich typography, and related posts suggestions.
 
 ### Enhanced Resume Download

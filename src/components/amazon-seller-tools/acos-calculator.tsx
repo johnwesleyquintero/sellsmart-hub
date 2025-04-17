@@ -3,7 +3,6 @@
 import {
   Badge,
   Button,
-  Card,
   CardContent,
   ChartContainer,
   Input,
@@ -30,13 +29,13 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
   LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import DataCard from './DataCard';
 import SampleCsvButton from './sample-csv-button';
 
 // --- Interfaces & Types ---
@@ -448,7 +447,7 @@ export default function AcosCalculator() {
       {campaigns.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Bar Chart */}
-          <Card>
+          <DataCard>
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold mb-4 text-center">
                 {chartConfig[selectedMetric].label} Distribution
@@ -514,127 +513,22 @@ export default function AcosCalculator() {
                 </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
-          </Card>
+          </DataCard>
 
           {/* Line Chart */}
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-4 text-center">
-                ACoS vs ROAS Trend
-              </h3>
-              <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                <ResponsiveContainer>
-                  <LineChart
-                    data={campaigns}
-                    margin={{ top: 5, right: 30, left: 30, bottom: 60 }} // Adjusted margins
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis
-                      dataKey="campaign"
-                      tick={{ fontSize: 10 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={70}
-                      interval={0}
-                    />
-                    {/* Left Y-Axis for ACoS */}
-                    <YAxis
-                      yAxisId="left"
-                      orientation="left"
-                      stroke={chartConfig.acos.theme.light}
-                      label={{
-                        value: 'ACoS (%)',
-                        angle: -90,
-                        position: 'insideLeft',
-                        style: {
-                          textAnchor: 'middle',
-                          fill: chartConfig.acos.theme.light,
-                        },
-                        dx: -20, // Adjust label position
-                      }}
-                      tickFormatter={(value) =>
-                        typeof value === 'number' && isFinite(value)
-                          ? value.toFixed(0)
-                          : value === Infinity
-                            ? '∞'
-                            : value
-                      }
-                      domain={[0, 'auto']} // Start ACoS from 0
-                    />
-                    {/* Right Y-Axis for ROAS */}
-                    <YAxis
-                      yAxisId="right"
-                      orientation="right"
-                      stroke={chartConfig.roas.theme.light}
-                      label={{
-                        value: 'ROAS (x)',
-                        angle: 90, // Changed angle for right axis
-                        position: 'insideRight',
-                        style: {
-                          textAnchor: 'middle',
-                          fill: chartConfig.roas.theme.light,
-                        },
-                        dx: 20, // Adjust label position
-                      }}
-                      tickFormatter={(value) =>
-                        typeof value === 'number' && isFinite(value)
-                          ? value.toFixed(1)
-                          : value === Infinity
-                            ? '∞'
-                            : value
-                      }
-                      domain={[0, 'auto']} // Start ROAS from 0
-                    />
-                    <Tooltip
-                      formatter={(value: number | string, name: string) => {
-                        const originalName = name.includes('ACoS')
-                          ? 'acos'
-                          : 'roas';
-                        if (
-                          (originalName === 'acos' ||
-                            originalName === 'roas') &&
-                          value === Infinity
-                        ) {
-                          return ['Infinite', name];
-                        }
-                        if (typeof value === 'number' && isFinite(value)) {
-                          return [
-                            `${value.toFixed(2)}${name.includes('ACoS') ? '%' : 'x'}`,
-                            name,
-                          ];
-                        }
-                        return [String(value), name];
-                      }}
-                      labelFormatter={(label) => `Campaign: ${label || ''}`}
-                    />
-                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="acos"
-                      name="ACoS (%)"
-                      stroke={chartConfig.acos.theme.light}
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                      connectNulls={false} // Don't connect points if data is missing
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="roas"
-                      name="ROAS (x)"
-                      stroke={chartConfig.roas.theme.light}
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                      connectNulls={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+          <DataCard>
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              ACoS vs ROAS Trend
+            </h3>
+            <ChartContainer config={chartConfig} className="h-[400px] w-full">
+              <ResponsiveContainer>
+                <LineChart
+                  data={campaigns}
+                  margin={{ top: 5, right: 30, left: 30, bottom: 60 }} // Adjusted margins
+                />
+              </ResponsiveContainer>
+            </ChartContainer>
+          </DataCard>
         </div>
       )}
 
@@ -668,7 +562,7 @@ export default function AcosCalculator() {
       {/* Input Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* CSV Upload Card */}
-        <Card>
+        <DataCard>
           <CardContent className="p-6">
             <div className="flex flex-col items-center justify-center gap-4 text-center">
               <div className="rounded-full bg-primary/10 p-3">
@@ -703,10 +597,10 @@ export default function AcosCalculator() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </DataCard>
 
         {/* Manual Calculator Card */}
-        <Card>
+        <DataCard>
           <CardContent className="p-6">
             <h3 className="text-lg font-medium mb-4">Manual Calculator</h3>
             <form
@@ -774,7 +668,7 @@ export default function AcosCalculator() {
               </Button>
             </form>
           </CardContent>
-        </Card>
+        </DataCard>
       </div>
 
       {/* Error Display */}
@@ -808,7 +702,7 @@ export default function AcosCalculator() {
 
       {/* Results Table */}
       {campaigns.length > 0 && !isLoading && (
-        <Card>
+        <DataCard>
           <CardContent className="p-0">
             <h3 className="text-lg font-semibold p-4 border-b">
               Calculation Results ({campaigns.length} Campaigns)
@@ -904,12 +798,12 @@ export default function AcosCalculator() {
               </table>
             </div>
           </CardContent>
-        </Card>
+        </DataCard>
       )}
 
       {/* ACoS Guide */}
       {campaigns.length > 0 && !isLoading && (
-        <Card className="bg-muted/20">
+        <DataCard className="bg-muted/20">
           <CardContent className="p-4">
             <h3 className="mb-2 text-sm font-medium">
               ACoS Interpretation Guide
@@ -931,7 +825,7 @@ export default function AcosCalculator() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </DataCard>
       )}
     </div>
   );
@@ -942,7 +836,7 @@ const formatValue = (
   name: keyof typeof chartConfig,
 ) => {
   if ((name === 'acos' || name === 'roas') && value === Infinity) {
-    return ['Infinite', chartConfig[name].label];
+    return ['Infinite', chartConfig[name]?.label ?? ''];
   }
   if (typeof value === 'number' && isFinite(value)) {
     const suffix = getSuffix(name);
@@ -950,25 +844,28 @@ const formatValue = (
     const decimals = getDecimals(name);
     return [
       `${prefix}${value.toFixed(decimals)}${suffix}`,
-      chartConfig[name].label,
+      chartConfig[name]?.label ?? '',
     ];
   }
-  return [String(value), chartConfig[name].label];
+  return [String(value), chartConfig[name]?.label ?? ''];
 };
 
 const getSuffix = (name: keyof typeof chartConfig) => {
-  if (chartConfig[name].label.includes('%')) return '%';
-  if (chartConfig[name].label.includes('(x)')) return 'x';
+  const label = chartConfig[name]?.label ?? '';
+  if (label.includes('%')) return '%';
+  if (label.includes('(x)')) return 'x';
   return '';
 };
 
 const getPrefix = (name: keyof typeof chartConfig) => {
-  return chartConfig[name].label.includes('($)') ? '$' : '';
+  const label = chartConfig[name]?.label ?? '';
+  return label.includes('($)') ? '$' : '';
 };
 
 const getDecimals = (name: keyof typeof chartConfig) => {
-  if (chartConfig[name].label.includes('%')) return 2;
-  if (chartConfig[name].label.includes('(x)')) return 2;
-  if (chartConfig[name].label.includes('($)')) return 2;
+  const label = chartConfig[name]?.label ?? '';
+  if (label.includes('%')) return 2;
+  if (label.includes('(x)')) return 2;
+  if (label.includes('($)')) return 2;
   return 0;
 };

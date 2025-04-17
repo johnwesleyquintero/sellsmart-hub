@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Papa from 'papaparse';
 import { useRef, useState } from 'react';
+import DataCard from './DataCard';
 // Add import for SampleCsvButton
 import SampleCsvButton from './sample-csv-button';
 
@@ -203,97 +204,91 @@ export default function KeywordDeduplicator() {
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Upload className="h-6 w-6 text-primary" />
+        <DataCard>
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Upload CSV</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload a CSV file with your product keywords
+              </p>
+            </div>
+            <div className="w-full">
+              <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
+                <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                <span className="text-sm font-medium">Click to upload CSV</span>
+                <span className="text-xs text-muted-foreground">
+                  (CSV with product name and comma-separated keywords)
+                </span>
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                  ref={fileInputRef}
+                />
+              </label>
+              <div className="flex justify-center mt-4">
+                <SampleCsvButton
+                  dataType="keyword-dedup"
+                  fileName="sample-keyword-deduplicator.csv"
+                />
+              </div>
+              {products.length > 0 && (
+                <Button
+                  variant="outline"
+                  className="w-full mt-4"
+                  onClick={clearData}
+                >
+                  Clear Data
+                </Button>
+              )}
+            </div>
+          </div>
+        </DataCard>
+
+        <DataCard>
+          <div className="space-y-4 p-2">
+            <h3 className="text-lg font-medium">Manual Entry</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">
+                  Product Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={manualProduct}
+                  onChange={(e) => {
+                    setManualProduct(e.target.value);
+                  }}
+                  placeholder="Enter product name"
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
               </div>
               <div>
-                <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a CSV file with your product keywords
+                <label className="text-sm font-medium">Keywords</label>
+                <Textarea
+                  value={manualKeywords}
+                  onChange={(e) => {
+                    setManualKeywords(e.target.value);
+                  }}
+                  placeholder="Enter comma-separated keywords"
+                  rows={4}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Enter keywords separated by commas
                 </p>
               </div>
-              <div className="w-full">
-                <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
-                  <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click to upload CSV
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    (CSV with product name and comma-separated keywords)
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={isLoading}
-                    ref={fileInputRef}
-                  />
-                </label>
-                <div className="flex justify-center mt-4">
-                  <SampleCsvButton
-                    dataType="keyword-dedup"
-                    fileName="sample-keyword-deduplicator.csv"
-                  />
-                </div>
-                {products.length > 0 && (
-                  <Button
-                    variant="outline"
-                    className="w-full mt-4"
-                    onClick={clearData}
-                  >
-                    Clear Data
-                  </Button>
-                )}
-              </div>
+              <Button onClick={handleManualProcess} className="w-full">
+                <Filter className="mr-2 h-4 w-4" />
+                Remove Duplicates
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <div className="space-y-4 p-2">
-              <h3 className="text-lg font-medium">Manual Entry</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium">
-                    Product Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={manualProduct}
-                    onChange={(e) => {
-                      setManualProduct(e.target.value);
-                    }}
-                    placeholder="Enter product name"
-                    className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Keywords</label>
-                  <Textarea
-                    value={manualKeywords}
-                    onChange={(e) => {
-                      setManualKeywords(e.target.value);
-                    }}
-                    placeholder="Enter comma-separated keywords"
-                    rows={4}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Enter keywords separated by commas
-                  </p>
-                </div>
-                <Button onClick={handleManualProcess} className="w-full">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Remove Duplicates
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </DataCard>
       </div>
 
       {error && (

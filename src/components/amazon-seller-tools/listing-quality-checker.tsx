@@ -205,64 +205,58 @@ export default function ListingQualityChecker() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row">
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Upload className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Upload CSV</h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a CSV file with your listing data
-                </p>
-              </div>
-              <div className="w-full">
-                <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
-                  <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click to upload CSV
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    (CSV with listing details)
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={isLoading}
-                  />
-                </label>
-              </div>
+        <DataCard>
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <h3 className="text-lg font-medium">Upload CSV</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload a CSV file with your listing data
+              </p>
+            </div>
+            <div className="w-full">
+              <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center hover:bg-primary/5">
+                <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                <span className="text-sm font-medium">Click to upload CSV</span>
+                <span className="text-xs text-muted-foreground">
+                  (CSV with listing details)
+                </span>
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                />
+              </label>
+            </div>
+          </div>
+        </DataCard>
 
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <div className="space-y-4 p-2">
-              <h3 className="text-lg font-medium">Check by ASIN</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium">Amazon ASIN</label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={asin}
-                      onChange={(e) => {
-                        setAsin((e.target as HTMLInputElement).value);
-                      }}
-                      placeholder="Enter ASIN (e.g., B08N5KWB9H)"
-                    />
-                    <Button onClick={handleAsinCheck} disabled={isLoading}>
-                      Check
-                    </Button>
-                  </div>
+        <DataCard>
+          <div className="space-y-4 p-2">
+            <h3 className="text-lg font-medium">Check by ASIN</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">Amazon ASIN</label>
+                <div className="flex gap-2">
+                  <Input
+                    value={asin}
+                    onChange={(e) => {
+                      setAsin((e.target as HTMLInputElement).value);
+                    }}
+                    placeholder="Enter ASIN (e.g., B08N5KWB9H)"
+                  />
+                  <Button onClick={handleAsinCheck} disabled={isLoading}>
+                    Check
+                  </Button>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </DataCard>
       </div>
 
       {error && (

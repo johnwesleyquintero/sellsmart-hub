@@ -2,8 +2,6 @@
 
 ## Reproduce
 
-`.\run_tasks.bat`
-
 `npm run cq`
 
 ---
