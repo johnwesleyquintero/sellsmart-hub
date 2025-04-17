@@ -7,6 +7,16 @@ export interface StaticDataTypes {
   experience: Experience[];
   tools: Tool[];
   changelog: ChangelogEntry[];
+  acos: AcosData[];
+}
+
+export interface AcosData {
+  productName: string;
+  campaign: string;
+  adSpend: number;
+  sales: number;
+  clicks: number;
+  impressions: number;
 }
 
 export interface Tool {

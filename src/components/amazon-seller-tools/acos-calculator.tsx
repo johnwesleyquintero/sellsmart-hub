@@ -471,7 +471,7 @@ export default function AcosCalculator() {
                     />
                     <YAxis
                       label={{
-                        value: chartConfig[selectedMetric].label,
+                        value: chartConfig[selectedMetric]?.label || 'Metric',
                         angle: -90,
                         position: 'insideLeft',
                         style: { textAnchor: 'middle' },
@@ -500,13 +500,13 @@ export default function AcosCalculator() {
                         value: number | string,
                         name: keyof typeof chartConfig,
                       ) => formatValue(value, name)}
-                      labelFormatter={(label) => `Campaign: ${label}`}
+                      labelFormatter={(label) => `Campaign: ${label || ''}`}
                     />
 
                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
                     <Bar
                       dataKey={selectedMetric}
-                      name={chartConfig[selectedMetric].label}
+                      name={chartConfig[selectedMetric]?.label || 'Metric'}
                       fill={chartConfig[selectedMetric].theme.light}
                       radius={[4, 4, 0, 0]} // Rounded top corners
                     />
@@ -605,7 +605,7 @@ export default function AcosCalculator() {
                         }
                         return [String(value), name];
                       }}
-                      labelFormatter={(label) => `Campaign: ${label}`}
+                      labelFormatter={(label) => `Campaign: ${label || ''}`}
                     />
                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
                     <Line

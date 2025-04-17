@@ -122,6 +122,8 @@ Ensure these environment variables are set in Vercel:
 - `NEXT_PUBLIC_VERCEL_ENV` (production/preview/development)
 - `NEXT_PUBLIC_GA_ID` (Analytics)
 - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (Contact form)
+- `MONGODB_URI` (Database connection string)
+- `MONGODB_DB_NAME` (Database name)
 
 ### CI/CD Features
 
