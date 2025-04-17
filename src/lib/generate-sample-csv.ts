@@ -1,9 +1,8 @@
-
 type SampleDataType = 'fba' | 'keyword' | 'ppc' | 'keyword-dedup' | 'acos';
 
 export function generateSampleCsv(dataType: SampleDataType): string {
   const DEFAULT_PRODUCT_NAME = 'Sample Product';
-  
+
   interface SampleData {
     productName: string;
     cost?: number;
@@ -165,8 +164,12 @@ export function generateSampleCsv(dataType: SampleDataType): string {
 
   if (data.length === 0) return '';
   const headers = Object.keys(data[0]).join(',');
-  const rows = data.map(obj => Object.values(obj).map(v => typeof v === 'string' ? `"${v}"` : v).join(','));
-    
+  const rows = data.map((obj) =>
+    Object.values(obj)
+      .map((v) => (typeof v === 'string' ? `"${v}"` : v))
+      .join(','),
+  );
+
   return [headers, ...rows].join('\n');
 }
 

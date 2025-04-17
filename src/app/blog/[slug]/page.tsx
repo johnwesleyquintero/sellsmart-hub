@@ -22,8 +22,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const NOT_FOUND_TITLE = 'Post Not Found | Wesley Quintero'; // Define the constant for the title
 
     if (!post) {
-      const NOT_FOUND_DESCRIPTION = 'The requested blog post could not be found.';
-      
+      const NOT_FOUND_DESCRIPTION =
+        'The requested blog post could not be found.';
+
       return {
         title: NOT_FOUND_TITLE, // Use the constant
         description: NOT_FOUND_DESCRIPTION,

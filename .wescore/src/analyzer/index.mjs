@@ -79,4 +79,8 @@ export function categorizeLogOutput(
   };
 }
 
-export default { stripAnsiCodes, categorizeLogOutput };
+const analyzerObject = {
+  // properties and methods
+};
+
+export default analyzerObject;

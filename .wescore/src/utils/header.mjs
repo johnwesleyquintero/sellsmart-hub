@@ -26,7 +26,8 @@ import process from 'process';
 export function generateHeader(data = {}) {
   const {
     startTime = new Date(),
-    logfilePath = '.task_tracker.log', // Keep for context
+    // Remove or use 'logfilePath' if it's not needed
+    // const logfilePath = 'some/path'; // Example of removing an unused variable
     commandExecuted = process.argv.slice(2).join(' ') || 'N/A',
     totalChecks = 0, // Default to 0 if not provided
     passedChecks = 0,

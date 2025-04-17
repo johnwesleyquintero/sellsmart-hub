@@ -23,6 +23,15 @@ import {
   YAxis,
 } from 'recharts';
 
+interface CsvRow {
+  asin: string;
+  price: string;
+  reviews: string;
+  rating: number;
+  conversion_rate: string;
+  click_through_rate: string;
+}
+
 interface ProcessedRow {
   asin: string;
   price: number;
@@ -31,6 +40,69 @@ interface ProcessedRow {
   conversion_rate: number;
   click_through_rate: number;
   niche?: string;
+}
+
+export function validateAndProcessData(data: CsvRow[]): {
+  validData: ProcessedRow[];
+  errors: string[];
+} {
+  const validData: ProcessedRow[] = [];
+  const errors: string[] = [];
+
+  data.forEach((row, index) => {
+    const {
+      asin,
+      price,
+      reviews,
+      rating,
+      conversion_rate,
+      click_through_rate,
+    } = row;
+    if (
+      !asin ||
+      !price ||
+      !reviews ||
+      !rating ||
+      !conversion_rate ||
+      !click_through_rate
+    ) {
+      errors.push(`Row ${index + 1}: Missing required fields`);
+      return;
+    }
+
+    const parsedPrice = Number(price);
+    const parsedReviews = Number(reviews);
+    const parsedRating = Number(rating);
+    const parsedConversionRate = Number(conversion_rate);
+    const parsedClickThroughRate = Number(click_through_rate);
+
+    if (
+      isNaN(parsedPrice) ||
+      isNaN(parsedReviews) ||
+      isNaN(parsedRating) ||
+      isNaN(parsedConversionRate) ||
+      isNaN(parsedClickThroughRate)
+    ) {
+      errors.push(`Row ${index + 1}: Invalid numeric values`);
+      return;
+    }
+
+    validData.push({
+      asin,
+      price: parsedPrice,
+      reviews: parsedReviews,
+      rating: parsedRating,
+      conversion_rate: parsedConversionRate,
+      click_through_rate: parsedClickThroughRate,
+    });
+  });
+
+  return { validData, errors };
+}
+
+interface ChartDataPoint {
+  name: string;
+  [key: string]: string | number;
 }
 
 type MetricType =
@@ -51,84 +123,13 @@ const getChartColor = (metric: MetricType): string => {
   return colors[metric];
 };
 
-interface ChartDataPoint {
-  name: string;
-  [key: string]: string | number;
-}
-
-interface CsvRow {
-  asin: string;
-  price: string;
-  reviews: string;
-  rating: string;
-  conversion_rate: string;
-  click_through_rate: string;
-  niche?: string;
-}
-
-export default function CompetitorAnalyzer() {
+export function CompetitorAnalyzer() {
   const [asin, setAsin] = useState('');
   const [metrics, setMetrics] = useState<MetricType[]>([
     'price',
     'reviews',
     'rating',
   ]);
-  const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
-  const [sellerData, setSellerData] = useState<ProcessedRow | null>(null);
-  const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
-  const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>([]);
-
-  const validateAndProcessData = (
-    data: CsvRow[],
-  ): { validData: ProcessedRow[]; errors: string[] } => {
-    const errors: string[] = [];
-    const validData = data
-      .filter((row, index) => {
-        const rowErrors: string[] = [];
-
-        if (!row.asin || row.asin.length !== 10) {
-          rowErrors.push(`Row ${index + 1}: Invalid ASIN format`);
-        }
-        if (isNaN(parseFloat(row.price))) {
-          rowErrors.push(`Row ${index + 1}: Invalid price`);
-        }
-        if (isNaN(parseInt(row.reviews))) {
-          rowErrors.push(`Row ${index + 1}: Invalid reviews`);
-        }
-        if (isNaN(parseFloat(row.rating))) {
-          rowErrors.push(`Row ${index + 1}: Invalid rating`);
-        }
-        if (isNaN(parseFloat(row.conversion_rate))) {
-          rowErrors.push(`Row ${index + 1}: Invalid conversion rate`);
-        }
-        if (isNaN(parseFloat(row.click_through_rate))) {
-          rowErrors.push(`Row ${index + 1}: Invalid CTR`);
-        }
-
-        if (rowErrors.length > 0) {
-          errors.push(...rowErrors);
-          return false;
-        }
-        return true;
-      })
-      .map((row) => ({
-        asin: row.asin,
-        price: parseFloat(row.price),
-        reviews: parseInt(row.reviews),
-        rating: parseFloat(row.rating),
-        conversion_rate: parseFloat(row.conversion_rate),
-        click_through_rate: parseFloat(row.click_through_rate),
-        niche: row.niche,
-      }));
-
-    return { validData, errors };
-  };
-
-  useEffect(() => {
-    if (chartData) {
-      setSelectedMetrics(metrics);
-    }
-  }, [chartData, metrics]);
 
   const handleFileUpload = useCallback(
     (
@@ -200,7 +201,12 @@ export default function CompetitorAnalyzer() {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+  const [sellerData, setSellerData] = useState<ProcessedRow[] | null>(null);
+  const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
+  const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
+  const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>(metrics);
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   const analyzeCompetitor = async () => {
     if (!sellerData && !competitorData && !asin) {
       toast({
@@ -229,25 +235,23 @@ export default function CompetitorAnalyzer() {
 
       // If no API call needed (using uploaded CSV data)
       if (processedSellerData && processedCompetitorData) {
-        const formattedData = processedCompetitorData.map(
-          (row: ProcessedRow) => {
-            const competitor = row.asin || row.niche || 'N/A';
-            const dataPoint: ChartDataPoint = {
-              name: competitor,
-            };
+        const formattedData = processedCompetitorData.map((row) => {
+          const competitor = row.asin || row.niche || 'N/A';
+          const dataPoint: ChartDataPoint = {
+            name: competitor,
+          };
 
-            metrics.forEach((metric) => {
-              const value = row[metric as keyof ProcessedRow];
-              if (value !== undefined) {
-                dataPoint[metric] = value;
-              }
-            });
+          metrics.forEach((metric) => {
+            const value = row[metric as keyof ProcessedRow];
+            if (value !== undefined) {
+              dataPoint[metric] = value;
+            }
+          });
 
-            return dataPoint;
-          },
-        );
+          return dataPoint;
+        });
 
-        if (formattedData.length > 0) {
+        if (formattedData.length > 0 && metrics.length > 0) {
           setChartData(formattedData);
           setIsLoading(false);
           return;
@@ -315,7 +319,7 @@ export default function CompetitorAnalyzer() {
       });
 
       // Ensure we have data to render
-      if (formattedData.length > 0) {
+      if (formattedData.length > 0 && metrics.length > 0) {
         setChartData(formattedData);
       } else {
         throw new Error('No data available to render');
@@ -335,6 +339,12 @@ export default function CompetitorAnalyzer() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (chartData) {
+      setSelectedMetrics(metrics);
+    }
+  }, [chartData, metrics]);
 
   const isMobile = useIsMobile();
 

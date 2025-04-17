@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import AcosCalculator from './amazon-seller-tools/acos-calculator';
-import CompetitorAnalyzer from './amazon-seller-tools/competitor-analyzer';
+import { CompetitorAnalyzer } from 'C:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/competitor-analyzer';
 import DescriptionEditor from './amazon-seller-tools/description-editor';
 import FbaCalculator from './amazon-seller-tools/fba-calculator';
 import KeywordAnalyzer from './amazon-seller-tools/keyword-analyzer';

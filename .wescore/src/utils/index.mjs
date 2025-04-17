@@ -57,4 +57,6 @@ export function formatDate(date) {
   return `${yyyy}${mm}${dd}`;
 }
 
-export default { cleanTarget, getProjectInfo, formatDate };
+const PROJECT_ROOT = process.cwd(); // Define PROJECT_ROOT
+
+export default { cleanTarget, getProjectInfo, formatDate, PROJECT_ROOT };

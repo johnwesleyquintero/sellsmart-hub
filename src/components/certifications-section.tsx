@@ -1,7 +1,8 @@
 import { Award, Calendar, CheckCircle } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
-
+const CERTIFICATION_SECTION_HEADING = 'Certifications';
+// Then use CERTIFICATION_TITLE instead of repeating the string
 const certifications = [
   {
     name: 'Amazon Advertising',
@@ -66,7 +67,7 @@ export default function CertificationsSection() {
     <section id="certifications" className="py-20">
       <div className="container">
         <div className="mb-12 text-center">
-          <h2 className="section-heading">Certifications</h2>
+          <h2 className="section-heading">{CERTIFICATION_SECTION_HEADING}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Professional certifications and credentials in Amazon, data
             analytics, and e-commerce.

@@ -69,9 +69,15 @@ const chartConfig = {
   roas: { label: 'ROAS (x)', theme: { light: '#82ca9d', dark: '#82ca9d' } },
   ctr: { label: 'CTR (%)', theme: { light: '#ffc658', dark: '#ffc658' } },
   cpc: { label: 'CPC ($)', theme: { light: '#ff7300', dark: '#ff7300' } },
-  conversionRate: { label: 'Conv. Rate (%)', theme: { light: '#ff8042', dark: '#ff8042' } }, // Added Conversion Rate
+  conversionRate: {
+    label: 'Conv. Rate (%)',
+    theme: { light: '#ff8042', dark: '#ff8042' },
+  }, // Added Conversion Rate
 } as const satisfies {
-  [key in MetricKey | 'conversionRate']: { label: string; theme: { light: string; dark: string } };
+  [key in MetricKey | 'conversionRate']: {
+    label: string;
+    theme: { light: string; dark: string };
+  };
 };
 
 // --- Helper Functions ---
@@ -95,7 +101,10 @@ const calculateLocalMetrics = (
   sales: number,
   impressions?: number,
   clicks?: number,
-): Omit<CampaignData, 'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'> => {
+): Omit<
+  CampaignData,
+  'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
+> => {
   // Handle zero or negative sales, and zero adSpend edge cases
   const acos = sales > 0 ? (adSpend / sales) * 100 : Infinity;
   const roas = adSpend > 0 ? sales / adSpend : sales > 0 ? Infinity : 0; // ROAS is 0 if spend is 0 and sales are 0, Infinity if sales > 0 and spend is 0
@@ -113,14 +122,14 @@ const calculateLocalMetrics = (
   return { acos, roas, ctr, cpc, conversionRate };
 };
 
-
 // --- Component ---
 
 export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMetric, setSelectedMetric] = useState<keyof typeof chartConfig>('acos'); // Use keys of chartConfig
+  const [selectedMetric, setSelectedMetric] =
+    useState<keyof typeof chartConfig>('acos'); // Use keys of chartConfig
 
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({
@@ -144,14 +153,16 @@ export default function AcosCalculator() {
 
   const processParsedCsvData = useCallback((parsedData: unknown[]) => {
     // Type guard to check if an object has the required properties
-    const isPotentialCampaignData = (item: unknown): item is Partial<CampaignData> => {
-        return (
-            typeof item === 'object' && 
-            item !== null && 
-            'campaign' in item && 
-            'adSpend' in item && 
-            'sales' in item
-        );
+    const isPotentialCampaignData = (
+      item: unknown,
+    ): item is Partial<CampaignData> => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        'campaign' in item &&
+        'adSpend' in item &&
+        'sales' in item
+      );
     };
 
     const processedData: CampaignData[] = parsedData
@@ -161,25 +172,40 @@ export default function AcosCalculator() {
         const campaignName = String(item.campaign ?? '');
         const adSpend = Number(item.adSpend ?? 0);
         const sales = Number(item.sales ?? 0);
-        const impressions = item.impressions !== undefined ? Number(item.impressions) : undefined;
-        const clicks = item.clicks !== undefined ? Number(item.clicks) : undefined;
+        const impressions =
+          item.impressions !== undefined ? Number(item.impressions) : undefined;
+        const clicks =
+          item.clicks !== undefined ? Number(item.clicks) : undefined;
 
         // Validate numeric types after conversion
         if (isNaN(adSpend) || adSpend < 0 || isNaN(sales) || sales < 0) {
-          console.warn(`Skipping invalid row for campaign "${campaignName}": Invalid adSpend or sales.`);
+          console.warn(
+            `Skipping invalid row for campaign "${campaignName}": Invalid adSpend or sales.`,
+          );
           return null; // Skip invalid rows
         }
-        if (impressions !== undefined && (isNaN(impressions) || impressions < 0)) {
-             console.warn(`Skipping invalid row for campaign "${campaignName}": Invalid impressions.`);
-             return null;
+        if (
+          impressions !== undefined &&
+          (isNaN(impressions) || impressions < 0)
+        ) {
+          console.warn(
+            `Skipping invalid row for campaign "${campaignName}": Invalid impressions.`,
+          );
+          return null;
         }
-         if (clicks !== undefined && (isNaN(clicks) || clicks < 0)) {
-             console.warn(`Skipping invalid row for campaign "${campaignName}": Invalid clicks.`);
-             return null;
+        if (clicks !== undefined && (isNaN(clicks) || clicks < 0)) {
+          console.warn(
+            `Skipping invalid row for campaign "${campaignName}": Invalid clicks.`,
+          );
+          return null;
         }
 
-
-        const metrics = calculateLocalMetrics(adSpend, sales, impressions, clicks);
+        const metrics = calculateLocalMetrics(
+          adSpend,
+          sales,
+          impressions,
+          clicks,
+        );
 
         return {
           campaign: campaignName,
@@ -201,7 +227,6 @@ export default function AcosCalculator() {
     return processedData;
   }, []);
 
-
   // Centralized file processing logic for react-dropzone
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -211,7 +236,8 @@ export default function AcosCalculator() {
       setIsLoading(true);
       setError(null); // Clear previous errors
 
-      Papa.parse(file, { // No need for <CampaignData> here, process later
+      Papa.parse(file, {
+        // No need for <CampaignData> here, process later
         header: true,
         dynamicTyping: true, // Let PapaParse try converting types
         skipEmptyLines: true,
@@ -297,9 +323,7 @@ export default function AcosCalculator() {
         isNaN(Number.parseFloat(manualCampaign.sales)) ||
         Number.parseFloat(manualCampaign.sales) < 0 // Allow 0 sales now
       ) {
-        setError(
-          'Sales amount must be a valid non-negative number.',
-        );
+        setError('Sales amount must be a valid non-negative number.');
       } else {
         setError('Please ensure all fields are filled correctly.');
       }
@@ -453,25 +477,33 @@ export default function AcosCalculator() {
                         style: { textAnchor: 'middle' },
                         dy: -10, // Adjust label position if needed
                       }}
-                      tickFormatter={(value) =>
-                        typeof value === 'number' && isFinite(value) // Check for finite numbers
-                          ? value.toFixed(
-                              chartConfig[selectedMetric].label.includes('%')
-                                ? 1
-                                : chartConfig[selectedMetric].label.includes('($)')
-                                  ? 2
-                                  : 0,
-                            )
-                          : value === Infinity ? '∞' : value // Handle Infinity
+                      tickFormatter={
+                        (value) =>
+                          typeof value === 'number' && isFinite(value) // Check for finite numbers
+                            ? value.toFixed(
+                                chartConfig[selectedMetric].label.includes('%')
+                                  ? 1
+                                  : chartConfig[selectedMetric].label.includes(
+                                        '($)',
+                                      )
+                                    ? 2
+                                    : 0,
+                              )
+                            : value === Infinity
+                              ? '∞'
+                              : value // Handle Infinity
                       }
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
-                      formatter={(value: number | string, name: keyof typeof chartConfig) => formatValue(value, name)}
+                      formatter={(
+                        value: number | string,
+                        name: keyof typeof chartConfig,
+                      ) => formatValue(value, name)}
                       labelFormatter={(label) => `Campaign: ${label}`}
                     />
 
-                    <Legend wrapperStyle={{ paddingTop: '10px' }}/>
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
                     <Bar
                       dataKey={selectedMetric}
                       name={chartConfig[selectedMetric].label}
@@ -518,10 +550,14 @@ export default function AcosCalculator() {
                           textAnchor: 'middle',
                           fill: chartConfig.acos.theme.light,
                         },
-                        dx: -20 // Adjust label position
+                        dx: -20, // Adjust label position
                       }}
                       tickFormatter={(value) =>
-                        typeof value === 'number' && isFinite(value) ? value.toFixed(0) : value === Infinity ? '∞' : value
+                        typeof value === 'number' && isFinite(value)
+                          ? value.toFixed(0)
+                          : value === Infinity
+                            ? '∞'
+                            : value
                       }
                       domain={[0, 'auto']} // Start ACoS from 0
                     />
@@ -538,17 +574,27 @@ export default function AcosCalculator() {
                           textAnchor: 'middle',
                           fill: chartConfig.roas.theme.light,
                         },
-                         dx: 20 // Adjust label position
+                        dx: 20, // Adjust label position
                       }}
                       tickFormatter={(value) =>
-                        typeof value === 'number' && isFinite(value) ? value.toFixed(1) : value === Infinity ? '∞' : value
+                        typeof value === 'number' && isFinite(value)
+                          ? value.toFixed(1)
+                          : value === Infinity
+                            ? '∞'
+                            : value
                       }
                       domain={[0, 'auto']} // Start ROAS from 0
                     />
                     <Tooltip
                       formatter={(value: number | string, name: string) => {
-                        const originalName = name.includes('ACoS') ? 'acos' : 'roas';
-                        if ((originalName === 'acos' || originalName === 'roas') && value === Infinity) {
+                        const originalName = name.includes('ACoS')
+                          ? 'acos'
+                          : 'roas';
+                        if (
+                          (originalName === 'acos' ||
+                            originalName === 'roas') &&
+                          value === Infinity
+                        ) {
                           return ['Infinite', name];
                         }
                         if (typeof value === 'number' && isFinite(value)) {
@@ -561,7 +607,7 @@ export default function AcosCalculator() {
                       }}
                       labelFormatter={(label) => `Campaign: ${label}`}
                     />
-                    <Legend wrapperStyle={{ paddingTop: '10px' }}/>
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
                     <Line
                       yAxisId="left"
                       type="monotone"
@@ -754,7 +800,8 @@ export default function AcosCalculator() {
       {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
+          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />{' '}
+          {/* Indeterminate */}
           <p className="text-sm text-muted-foreground">Processing data...</p>
         </div>
       )}
@@ -792,17 +839,33 @@ export default function AcosCalculator() {
                 </thead>
                 <tbody>
                   {campaigns.map((campaign, index) => {
-                     const acosValue = campaign.acos;
-                     const roasValue = campaign.roas;
-                     const acosDisplay = acosValue === Infinity ? '∞' : acosValue !== undefined ? `${acosValue.toFixed(2)}%` : 'N/A';
-                     const roasDisplay = roasValue === Infinity ? '∞' : roasValue !== undefined ? `${roasValue.toFixed(2)}x` : 'N/A';
-                     const rating = getAcosRating(acosValue ?? Infinity); // Use Infinity if undefined
-                     const acosColor = getAcosColor(acosValue ?? Infinity);
+                    const acosValue = campaign.acos;
+                    const roasValue = campaign.roas;
+                    const acosDisplay =
+                      acosValue === Infinity
+                        ? '∞'
+                        : acosValue !== undefined
+                          ? `${acosValue.toFixed(2)}%`
+                          : 'N/A';
+                    const roasDisplay =
+                      roasValue === Infinity
+                        ? '∞'
+                        : roasValue !== undefined
+                          ? `${roasValue.toFixed(2)}x`
+                          : 'N/A';
+                    const rating = getAcosRating(acosValue ?? Infinity); // Use Infinity if undefined
+                    const acosColor = getAcosColor(acosValue ?? Infinity);
 
-                     let badgeVariant: "default" | "secondary" | "destructive" | "outline" = 'outline';
-                     if (rating === 'Excellent') badgeVariant = 'default'; // Or 'success' if you have it
-                     else if (rating === 'Good') badgeVariant = 'secondary';
-                     else if (rating === 'Poor' || rating === 'Very Poor') badgeVariant = 'destructive'; // Combined Poor/Very Poor
+                    let badgeVariant:
+                      | 'default'
+                      | 'secondary'
+                      | 'destructive'
+                      | 'outline' = 'outline';
+                    if (rating === 'Excellent')
+                      badgeVariant = 'default'; // Or 'success' if you have it
+                    else if (rating === 'Good') badgeVariant = 'secondary';
+                    else if (rating === 'Poor' || rating === 'Very Poor')
+                      badgeVariant = 'destructive'; // Combined Poor/Very Poor
 
                     return (
                       <tr
@@ -851,9 +914,13 @@ export default function AcosCalculator() {
             <h3 className="mb-2 text-sm font-medium">
               ACoS Interpretation Guide
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2"> {/* Adjusted grid for 4 items */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {' '}
+              {/* Adjusted grid for 4 items */}
               {acosRatingGuide.map((rating) => (
-                <div key={rating.label}> {/* Added key prop */}
+                <div key={rating.label}>
+                  {' '}
+                  {/* Added key prop */}
                   <span className={`font-medium ${rating.color}`}>
                     {rating.label}
                   </span>
@@ -870,7 +937,10 @@ export default function AcosCalculator() {
   );
 }
 
-const formatValue = (value: number | string, name: keyof typeof chartConfig) => {
+const formatValue = (
+  value: number | string,
+  name: keyof typeof chartConfig,
+) => {
   if ((name === 'acos' || name === 'roas') && value === Infinity) {
     return ['Infinite', chartConfig[name].label];
   }
@@ -878,7 +948,10 @@ const formatValue = (value: number | string, name: keyof typeof chartConfig) => 
     const suffix = getSuffix(name);
     const prefix = getPrefix(name);
     const decimals = getDecimals(name);
-    return [`${prefix}${value.toFixed(decimals)}${suffix}`, chartConfig[name].label];
+    return [
+      `${prefix}${value.toFixed(decimals)}${suffix}`,
+      chartConfig[name].label,
+    ];
   }
   return [String(value), chartConfig[name].label];
 };
