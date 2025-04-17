@@ -2,6 +2,10 @@ import { Metadata } from 'next';
 
 const defaultImage = '/default-fallback.svg';
 
+const openGraphTitle = 'Wesley Quintero | Data Analytics Innovator';
+const openGraphDescription =
+  'Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights.';
+
 export const metadata: Metadata = {
   title: 'Wesley Quintero - Professional Portfolio',
   description: 'Data-Driven Amazon & E-commerce Specialist portfolio website.',
@@ -27,9 +31,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://wesleyquintero.vercel.app/',
-    title: 'Wesley Quintero | Data Analytics Innovator',
-    description:
-      'Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights.',
+    title: openGraphTitle,
+    description: openGraphDescription,
     siteName: 'Wesley Quintero Portfolio',
     images: [
       {
@@ -48,9 +51,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Wesley Quintero | Data Analytics Innovator',
-    description:
-      'Data Analytics Innovator and Founder of Nebula Suite, building tools that streamline workflows and provide valuable insights.',
+    title: openGraphTitle,
+    description: openGraphDescription,
     images: [
       'https://wesleyquintero.vercel.app/og-image.svg',
       `https://wesleyquintero.vercel.app${defaultImage}`,

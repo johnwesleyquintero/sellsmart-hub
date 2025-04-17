@@ -16,7 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "cq": "node ./.wescore/scripts/check-quality.mjs",
     "ps": "node ./.wescore/scripts/package-static.mjs",
-    "update-timestamps": "node ./.wescore/scripts/update-timestamps.cjs"
+    "update-timestamps": "node ./.wescore/scripts/update-timestamps.cjs",
+    "lint:smells": "eslint ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -81,6 +82,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@next/eslint-plugin-next": "^15.3.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -98,6 +100,7 @@
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-sonarjs": "^3.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "postcss": "^8.5.3",

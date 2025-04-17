@@ -12,10 +12,8 @@
 import fs from 'fs';
 import os from 'os'; // <-- Import os module
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const DEFAULT_LOG_DIR = path.resolve(__filename, '..', '..', 'logs'); // .wescore/logs/
+const DEFAULT_LOG_DIR = path.resolve(process.cwd(), '.wescore', 'logs'); // .wescore/logs/
 const DEFAULT_MAX_LOG_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const DEFAULT_MAX_LOG_FILES = 5;
 
@@ -139,7 +137,7 @@ class IssueLogger {
       console.error(errorMsg);
       try {
         process.stderr.write(errorMsg);
-      } catch (_) {
+      } catch {
         /* Ignore stderr write errors */
       }
       return false; // Initialization failed
@@ -207,7 +205,9 @@ class IssueLogger {
       console.error(errorMsg);
       try {
         process.stderr.write(errorMsg);
-      } catch (_) {}
+      } catch {
+        /* Ignore stderr write failures */
+      }
       // Continue even if rotation fails, try logging to the main file
     }
   }
@@ -329,7 +329,9 @@ class IssueLogger {
           process.stderr.write(
             criticalMsg + JSON.stringify(issueDetail) + '\n',
           );
-        } catch (_) {}
+        } catch {
+          /* Intentional no-op */
+        }
         return; // Stop if initialization failed
       }
     }
@@ -354,7 +356,9 @@ class IssueLogger {
       console.error('[IssueLogger] Original Issue Detail:', issueDetail);
       try {
         process.stderr.write(errorMsg + JSON.stringify(issueDetail) + '\n');
-      } catch (_) {}
+      } catch {
+        /* Ignore stderr write failures */
+      }
     }
   }
 
@@ -370,12 +374,16 @@ class IssueLogger {
       console.error(errorMsg);
       try {
         process.stderr.write(errorMsg);
-      } catch (_) {}
+      } catch {
+        /* Ignore stderr write failures */
+      }
       // Attempt to clean up temp file if it exists
       try {
         if (fs.existsSync(this.summaryTmpPath))
           fs.unlinkSync(this.summaryTmpPath);
-      } catch (_) {}
+      } catch {
+        /* Ignore stderr write failures */
+      }
     }
   }
 
@@ -404,15 +412,18 @@ class IssueLogger {
    */
   logLintResults(eslintResults, context = {}) {
     const category = ISSUE_CATEGORIES.LINTING;
-    let loggedCount = 0;
+
     for (const result of eslintResults) {
       if (result.errorCount > 0 || result.warningCount > 0) {
+:start_line:424
+-------
         const { logEntry, issueDetail } = this._formatLintResultEntry(
           result,
-          category,
           context,
         );
         this._logIssue(category, logEntry, issueDetail); // Use the common internal log method
+        let loggedCount = 0;
+        let loggedCount = 0;
         loggedCount++;
       }
     }

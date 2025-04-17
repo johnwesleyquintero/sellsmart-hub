@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
-const { getStagedFiles, updateTimestamp } = require('../src/git/index.js');
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { getStagedFiles, updateTimestamp } from '../src/git/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const projectRoot = path.join(__dirname, '..', '..');
 
 // Main execution
 try {
   const stagedFiles = getStagedFiles();
   stagedFiles.forEach((file) => {
     if (file) {
-      const fullPath = path.join(process.cwd(), file);
+      const fullPath = path.join(projectRoot, file);
       updateTimestamp(fullPath);
     }
   });

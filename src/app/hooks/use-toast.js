@@ -7,7 +7,11 @@ var __rest =
       if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
         t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === 'function')
-      for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+      for (
+        var i = 0, symbol = Object.getOwnPropertySymbols(s);
+        i < symbol.length;
+        i++
+      ) {
         if (
           e.indexOf(p[i]) < 0 &&
           Object.prototype.propertyIsEnumerable.call(s, p[i])

@@ -75,7 +75,7 @@ function getAcosColor(acos: number): string {
   return 'text-red-500';
 }
 
-export default function AcosCalculator() {
+function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +114,7 @@ export default function AcosCalculator() {
           Number(item.adSpend) >= 0 && // Ad spend cannot be negative
           item.sales !== undefined &&
           !isNaN(Number(item.sales)) &&
-          Number(item.sales) >= 0, // Sales can be zero, handle below
+          Number(item.sales) >= 0 // Sales can be zero, handle below
       )
       .map((item) => {
         const adSpend = Number(item.adSpend);
@@ -242,7 +242,7 @@ export default function AcosCalculator() {
       // Allow only numbers and a single decimal for numeric fields
       if (name === 'adSpend' || name === 'sales') {
         // Updated regex to allow empty string and valid numbers
-        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+        if (value === '' || /^\\d*\\.?\\d*$/.test(value)) {
           setManualCampaign((prev) => ({ ...prev, [name]: value }));
         }
       } else {
@@ -331,7 +331,7 @@ export default function AcosCalculator() {
       URL.revokeObjectURL(url); // Clean up blob URL
     } catch (err) {
       setError(
-        `Failed to generate CSV: ${err instanceof Error ? err.message : String(err)}`,
+        `Failed to generate CSV: ${err instanceof Error ? err.message : String(err)}.`,
       );
     }
   }, [campaigns]);
@@ -342,6 +342,23 @@ export default function AcosCalculator() {
     setManualCampaign({ campaign: '', adSpend: '', sales: '' }); // Also clear manual form
     // Resetting file input value is handled implicitly by react-dropzone not holding the file state
   }, []);
+
+  const calculateLocalMetrics = (
+    adSpend: number,
+    sales: number,
+    impressions?: number,
+    clicks?: number,
+  ) => {
+    if (sales <= 0) return { acos: Infinity, roas: 0 };
+
+    const acos = (adSpend / sales) * 100;
+    const roas = sales / adSpend;
+    const ctr = clicks && impressions ? (clicks / impressions) * 100 : undefined;
+    const cpc = clicks ? adSpend / clicks : undefined;
+    const conversionRate = clicks ? (sales / clicks) * 100 : undefined;
+
+    return { acos, roas, ctr, cpc, conversionRate };
+  };
 
   return (
     <div className="space-y-6">
@@ -582,7 +599,7 @@ export default function AcosCalculator() {
             </li>
             <li>
               Ensure <code>adSpend</code> and <code>sales</code> are numeric
-              (&gt;= 0).
+              (>= 0).
             </li>
             <li>
               Example Row:
@@ -735,10 +752,9 @@ export default function AcosCalculator() {
       )}
 
       {/* Results Table */}
-      {campaigns.length > 0 && !isLoading && (
+      {campaigns.length > 0 && (
         <Card>
           <CardContent className="p-0">
-            {' '}
             {/* Remove padding for full-width table */}
             <h3 className="text-lg font-semibold p-4 border-b">
               Calculation Results ({campaigns.length} Campaigns)
@@ -826,7 +842,7 @@ export default function AcosCalculator() {
       )}
 
       {/* ACoS Guide */}
-      {campaigns.length > 0 && !isLoading && (
+      {campaigns.length > 0 && (
         <Card className="bg-muted/20">
           <CardContent className="p-4">
             <h3 className="mb-2 text-sm font-medium">
@@ -868,3 +884,5 @@ const calculateLocalMetrics = (
 
   return { acos, roas, ctr, cpc, conversionRate };
 };
+
+export default AcosCalculator;

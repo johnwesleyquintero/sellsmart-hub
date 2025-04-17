@@ -21,6 +21,13 @@
       "name": "Type Checking (TSC)",
       "command": "npx tsc --noEmit",
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
+    },
+    {
+      "id": "smells",
+      "name": "Code Smell Analysis (ESLint/SonarJS)",
+      "command": "npm run lint:smells",
+      "enabled": true,
+      "description": "Detects potential code smells and maintainability issues."
     }
   ],
   "errorCategories": {

@@ -1,3 +1,5 @@
+const PROJECT_ROOT = process.cwd();
+
 import fs from 'fs';
 import path from 'path';
 
@@ -12,12 +14,12 @@ export function cleanTarget(targetPath, targetDesc) {
     try {
       fs.rmSync(targetPath, { recursive: true, force: true });
       console.log('SUCCESS', `${targetDesc} removed.`);
-    } catch (error) {
+    } catch {
       console.log(
         'ERROR',
         `Failed to remove ${targetDesc}. Check permissions or if files are in use.`,
       );
-      console.log('ERROR', error.message);
+      console.log('ERROR', 'error.message');
       process.exit(1);
     }
   } else {
@@ -36,7 +38,7 @@ export function getProjectInfo() {
     const name = (pkg.name || 'project').replace(/[^a-z0-9_-]/gi, '_');
     const version = pkg.version || 'local';
     return { name, version };
-  } catch (error) {
+  } catch {
     console.log(
       'WARN',
       'Could not read package.json for naming. Using default "project-local".',

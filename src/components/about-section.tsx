@@ -135,7 +135,7 @@ const education = [
   },
 ];
 
-export default function AboutSection() {
+function AboutSection() {
   const [skills, setSkills] = useState<Skill[]>(fallbackSkills);
   const [experience, setExperience] =
     useState<Experience[]>(fallbackExperience);
@@ -331,3 +331,5 @@ export default function AboutSection() {
     </section>
   );
 }
+
+export default AboutSection;

@@ -19,12 +19,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = await getPostBySlug(slug);
 
     if (!post) {
+      const notFoundTitle = 'Post Not Found | Wesley Quintero';
+      const notFoundDescription = 'The requested blog post could not be found.';
       return {
-        title: 'Post Not Found | Wesley Quintero',
-        description: 'The requested blog post could not be found.',
+        title: notFoundTitle,
+        description: notFoundDescription,
         openGraph: {
-          title: 'Post Not Found | Wesley Quintero',
-          description: 'The requested blog post could not be found.',
+          title: notFoundTitle,
+          description: notFoundDescription,
           images: [
             {
               url: '/default-fallback.svg',
@@ -36,11 +38,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
         twitter: {
           card: 'summary_large_image',
-          title: 'Post Not Found | Wesley Quintero',
-          description: 'The requested blog post could not be found.',
+          title: notFoundTitle,
+          description: notFoundDescription,
           images: ['/default-fallback.svg'],
         },
-      };
+      } as Metadata;
     }
 
     const canonicalUrl = new URL(
@@ -77,25 +79,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: post.description,
         images: [post.image || '/default-fallback.svg'],
       },
-    };
+    } as Metadata;
   } catch (error) {
     console.error('Error generating metadata:', error);
-    return {
-      title: 'Error | Wesley Quintero',
-      description: 'An error occurred while loading this blog post.',
-    };
+    return {} as Metadata;
   }
 }
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
 
-  return posts.map((post) => ({
+  return posts.map(post => ({
     slug: post.slug,
   }));
 }
 
-export default async function BlogPostPage({ params }: Props) {
+async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug);
 
   if (!post) {
@@ -190,3 +189,5 @@ export default async function BlogPostPage({ params }: Props) {
     </div>
   );
 }
+
+export default BlogPostPage;

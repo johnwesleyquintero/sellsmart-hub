@@ -1,6 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import fs from 'fs';
 
 // Get list of staged files
 export const getStagedFiles = () => {

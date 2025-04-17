@@ -13,11 +13,19 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }: { token: JWT; account?: Account }) {
-      if (account) {
-        token.accessToken = account.access_token as string;
+    async jwt(params: {
+      token: JWT;
+      user: unknown;
+      account: Account | null;
+      profile?: unknown;
+      trigger?: unknown;
+      isNewUser?: boolean;
+      session?: unknown;
+    }) {
+      if (params.account) {
+        params.token.accessToken = params.account.access_token as string;
       }
-      return token;
+      return params.token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.accessToken = token.accessToken as string;
