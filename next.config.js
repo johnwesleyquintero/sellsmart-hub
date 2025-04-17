@@ -3,34 +3,28 @@ import path from 'path';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Core settings
-  output: 'standalone', // Keep if needed for deployment strategy
-  // assetPrefix: '/', // Default, can be omitted
-  // basePath: '', // Default, can be omitted
+  output: 'standalone', // Keep if needed for Docker/standalone deployment
 
   // Build-time checks
-  eslint: {
-    // Linting is important, run it separately if ignoring here
-    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
-    dirs: ['src'], // Adjust if code lives outside src
-  },
+  // --- ESLint block removed ---
+  // Recommendation: Run 'npm run lint' separately in your workflow/CI pipeline.
+
   typescript: {
-    // CRITICAL: Set to false and fix errors
+    // CRITICAL: Keep this false to ensure type safety in builds.
     ignoreBuildErrors: false,
   },
 
-  // Image Optimization
+  // Image Optimization (Looks good, keep as is unless specific needs arise)
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'wesleyquintero.vercel.app',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
-        port: '',
         pathname: '/**',
       },
       {
@@ -44,8 +38,8 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true, // Ensure SVGs are safe if true
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;", // Good with dangerouslyAllowSVG
+    dangerouslyAllowSVG: true, // Use with caution: Ensure SVGs are trusted/sanitized.
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     contentDispositionType: 'inline',
   },
 
@@ -54,8 +48,8 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
-    // Necessary for standalone output in some setups (e.g., monorepos)
-    outputFileTracingRoot: path.join(process.cwd(), '../'),
+    // --- outputFileTracingRoot removed ---
+    // Default tracing should work for standard repo structure.
   },
 
   // Compiler options
@@ -66,38 +60,36 @@ const nextConfig = {
 
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
-    // Alias for @/ imports
+    // Alias for @/ imports (assuming source code is primarily in 'src')
     config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
 
-    // Rule for handling SVGs as React components
+    // Rule for handling SVGs as React components using @svgr/webpack
+    // Ensure you have @svgr/webpack installed (`npm install --save-dev @svgr/webpack`)
     config.module.rules.push({
-      test: /\.svg$/,
+      test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            // svgo: false, // Optionally disable SVGO optimization if causing issues
+          },
+        },
+      ],
     });
 
-    // Define environment variables (only if needed)
-    // Consider using NEXT_PUBLIC_ for browser-accessible vars
+    // Define environment variables (build-time/server-side)
+    // Use NEXT_PUBLIC_ prefix for variables needed in the browser
     config.plugins.push(
       new webpackInstance.DefinePlugin({
         'process.env.IMAGE_DEBUG': JSON.stringify(
-          process.env.IMAGE_DEBUG || 'false',
-        ), // Provide default
+          process.env.IMAGE_DEBUG || 'false', // Provide default
+        ),
       }),
     );
-
-    // Example: Log only during development builds
-    if (dev) {
-      // console.log('Webpack config (dev only):', config); // Example conditional log
-    }
 
     return config;
   },
 };
-
-// Remove the console log here, or make it conditional if needed for debugging
-// if (process.env.NODE_ENV === 'development') {
-//   console.log('Next.js config:', nextConfig);
-// }
 
 export default nextConfig;
