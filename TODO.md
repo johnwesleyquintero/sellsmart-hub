@@ -36,8 +36,8 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 
 ## Phase 0: Foundational Fixes (Prerequisites - Execute FIRST)
 
-- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_ <!-- Note: README still needs update from `npm run install` to `npm install` -->
-- [x] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_ <!-- Note: Further README updates needed based on analysis below -->
+- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_
+- [ ] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_
 - [ ] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup_
 - [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup_
 - [ ] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup_
@@ -58,7 +58,7 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 - [ ] **ID 19 (Documentation / High):** Add initial User Guides for functional Amazon seller tools. _Basic "how-to" for users_
 - [ ] **ID 11 (Documentation / High):** Create API documentation for `/api/newsletter/subscribe`. _Document the first API endpoint_
 - [ ] **ID 5 (Amazon Tools / High):** Implement core PPC Campaign Auditor functionality (optimization features). _Needed for content/core value. Aligns README status._
-- [ ] **ID 6 (Amazon Tools / High):** Enhance Keyword Analyzer with trend data (core functionality). _Needed for content/core value. Aligns README status._ <!-- Decision Point: Confirm if this includes separate "Keyword Trend Analyzer" tool or just enhances Keyword Analyzer -->
+- [ ] **ID 6 (Amazon Tools / High):** Implement Keyword Trend Analyzer (core functionality, seasonal analysis). _Builds separate tool. Aligns README status (#ID6)._
 - [ ] **ID 24 (Amazon Tools / Critical):** Improve calculation algorithms for keyword analysis. _Ensure core tool logic is sound. Aligns README status._
 - [ ] **ID 54 (Amazon Tools / High):** Implement pending Competitor Analyzer features (e.g., pricing analysis improvements). <!-- New Task: Explicitly track Competitor Analyzer enhancements mentioned in README if ID 24 scope is only keywords -->
 - [ ] **ID 8 (Testing / High):** Add initial Unit Tests for core Seller Tool logic. _Start building test coverage_

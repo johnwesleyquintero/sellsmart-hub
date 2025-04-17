@@ -161,7 +161,7 @@ cp .env.example .env
 | Tool Name                | Status         | Description                                                                                   |
 | ------------------------ | -------------- | --------------------------------------------------------------------------------------------- |
 | ACoS Calculator          | Functional     | Advanced ACoS calculator with historical trend analysis and campaign optimization suggestions |
-| Competitor Analyzer      | In Development | Core metrics implemented, pricing analysis improvements pending (#ID24)                       |
+| Competitor Analyzer      | In Development | Core metrics implemented, pricing analysis improvements pending (#ID54)                       |
 | Description Editor       | Functional     | Rich text editor with A+ content support and keyword optimization                             |
 | FBA Calculator           | Functional     | Calculates FBA fees, profit margins, and storage costs                                        |
 | Keyword Analyzer         | Functional     | Analyzes keyword performance, search volume, and competition                                  |
