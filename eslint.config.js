@@ -39,6 +39,15 @@ export default [
     },
   },
   {
+    files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+    plugins: {
+      jest: require('eslint-plugin-jest'),
+    },
+    env: {
+      'jest/globals': true,
+    },
+  },
+  {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: tsParser,

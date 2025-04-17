@@ -25,11 +25,11 @@ const RoadmapDisplay = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('/todo.json');
+        const response = await fetch('/api/roadmap');
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status.toString()}`);
         }
-        const jsonData = await response.json();
+        const jsonData: unknown = await response.json();
 
         // Validate data with Zod
         const validationResult = RoadmapSchema.safeParse(jsonData);
@@ -55,16 +55,16 @@ const RoadmapDisplay = () => {
       }
     };
 
-    fetchData();
+    void fetchData().catch((err: unknown) => {
+      console.error('Failed to fetch roadmap data:', err);
+    });
   }, []);
 
   // Helper function to group tasks by category
   const groupTasksByCategory = (tasks: RoadmapData): Record<string, Task[]> => {
     return tasks.reduce<Record<string, Task[]>>((acc, task) => {
       const category = task.category;
-      if (!acc[category]) {
-        acc[category] = [];
-      }
+      acc[category] = [];
       acc[category].push(task);
       return acc;
     }, {});
@@ -111,12 +111,8 @@ const RoadmapDisplay = () => {
     );
   }
 
-  if (!roadmapData || roadmapData.length === 0) {
-    return (
-      <Alert className="max-w-6xl mx-auto my-8">
-        <AlertDescription>No roadmap data found.</AlertDescription>
-      </Alert>
-    );
+  if (!roadmapData) {
+    return null;
   }
 
   const groupedTasks = groupTasksByCategory(roadmapData);

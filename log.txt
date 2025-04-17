@@ -1,0 +1,539 @@
+// ESLint Errors by Category
+
+// Type Safety Issues
+@typescript-eslint/no-unsafe-assignment: 48 occurrences
+@typescript-eslint/no-unsafe-member-access: 12 occurrences 
+@typescript-eslint/no-unsafe-argument: 8 occurrences
+@typescript-eslint/no-unsafe-call: 6 occurrences
+@typescript-eslint/no-unsafe-return: 4 occurrences
+
+// Deprecation Warnings
+@typescript-eslint/no-deprecated: 28 occurrences
+- ElementRef deprecation: 24 instances
+- Brand icons deprecation: 4 instances
+
+// Code Quality Issues
+@typescript-eslint/no-unnecessary-condition: 16 occurrences
+@typescript-eslint/restrict-template-expressions: 14 occurrences
+@typescript-eslint/no-misused-promises: 5 occurrences
+@typescript-eslint/no-extraneous-class: 8 occurrences
+
+// Variable/Function Issues
+@typescript-eslint/no-unused-vars: 2 occurrences
+@typescript-eslint/no-explicit-any: 3 occurrences
+@typescript-eslint/require-await: 2 occurrences
+no-redeclare: 4 occurrences
+
+// Undefined References
+no-undef: 32 occurrences
+
+// Other Issues
+@typescript-eslint/no-floating-promises: 1 occurrence
+@typescript-eslint/no-unused-expressions: 1 occurrence
+no-empty-pattern: 1 occurrence
+
+Total Issues: 218
+- Errors: 170
+- Warnings: 48
+
+Files with Most Issues:
+1. src/components/ui/sidebar.tsx
+2. src/components/amazon-seller-tools/competitor-analyzer.tsx
+3. src/components/amazon-seller-tools/listing-quality-checker.tsx
+4. src/components/header.tsx
+5. src/lib/amazon-tools/__tests__/csv-utils.test.ts
+
+
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\app\api\amazon\inventory\route.ts
+  8:11  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\app\api\amazon\pricing\route.ts
+  14:11  warning  Unsafe assignment of an `any` value                                         @typescript-eslint/no-unsafe-assignment
+  38:7   warning  Unsafe argument of type `any[]` assigned to a parameter of type `number[]`  @typescript-eslint/no-unsafe-argument
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\app\api\prohibited-keywords\route.ts
+  6:9  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\app\hooks\use-toast.js
+  10:23  error  'p' is already defined       no-redeclare
+  33:19  error  'setTimeout' is not defined  no-undef
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\app\hooks\use-toast.ts
+  131:6  error  'Toast' is already defined  no-redeclare
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\about-section.tsx
+  150:50  error    Invalid type "number" of template literal expression                                                                              
+                                  @typescript-eslint/restrict-template-expressions
+  152:15  warning  Unsafe assignment of an `any` value                                                                                               
+                                  @typescript-eslint/no-unsafe-assignment
+  155:18  warning  Unsafe member access .skills on an `any` value                                                                                    
+                                  @typescript-eslint/no-unsafe-member-access
+  155:33  warning  Unsafe member access .skills on an `any` value                                                                                    
+                                  @typescript-eslint/no-unsafe-member-access
+  156:21  warning  Unsafe argument of type `any` assigned to a parameter of type `SetStateAction<Skill[]>`                                           
+                                  @typescript-eslint/no-unsafe-argument
+  156:26  warning  Unsafe member access .skills on an `any` value                                                                                    
+                                  @typescript-eslint/no-unsafe-member-access
+  159:18  warning  Unsafe member access .experience on an `any` value                                                                                
+                                  @typescript-eslint/no-unsafe-member-access
+  159:37  warning  Unsafe member access .experience on an `any` value                                                                                
+                                  @typescript-eslint/no-unsafe-member-access
+  160:25  warning  Unsafe argument of type `any` assigned to a parameter of type `SetStateAction<Experience[]>`                                      
+                                  @typescript-eslint/no-unsafe-argument
+  160:30  warning  Unsafe member access .experience on an `any` value                                                                                
+                                  @typescript-eslint/no-unsafe-member-access
+  171:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  254:48  error    Invalid type "number" of template literal expression                                                                              
+                                  @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\acos-calculator.tsx
+  112:11  error  Unnecessary conditional, the types have no overlap    @typescript-eslint/no-unnecessary-condition
+  115:11  error  Unnecessary conditional, the types have no overlap    @typescript-eslint/no-unnecessary-condition
+  178:11  error  Unnecessary conditional, value is always falsy        @typescript-eslint/no-unnecessary-condition
+  423:25  error  Unsafe return of a value of type `any`                @typescript-eslint/no-unsafe-return
+  501:25  error  Unsafe return of a value of type `any`                @typescript-eslint/no-unsafe-return
+  520:25  error  Unsafe return of a value of type `any`                @typescript-eslint/no-unsafe-return
+  773:52  error  Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\competitor-analyzer.tsx
+   90:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+   93:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+   96:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+   99:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+  102:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+  105:33  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+  205:24  error    Unnecessary conditional, value is always falsy                                     @typescript-eslint/no-unnecessary-condition    
+  231:34  error    Unnecessary conditional, value is always truthy                                    @typescript-eslint/no-unnecessary-condition    
+  282:9   warning  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment        
+  283:13  error    Unnecessary conditional, value is always falsy                                     @typescript-eslint/no-unnecessary-condition    
+  283:22  error    Unnecessary conditional, value is always falsy                                     @typescript-eslint/no-unnecessary-condition    
+  283:43  error    Unnecessary conditional, value is always falsy                                     @typescript-eslint/no-unnecessary-condition    
+  302:44  error    Unnecessary conditional, the types have no overlap                                 @typescript-eslint/no-unnecessary-condition
+  459:27  error    Promise-returning function provided to attribute where a void return was expected  @typescript-eslint/no-misused-promises
+  468:21  warning  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment        
+  471:15  warning  Unsafe call of a(n) `any` typed value                                              @typescript-eslint/no-unsafe-call
+  471:29  warning  Unsafe member access .push on an `any` value                                       @typescript-eslint/no-unsafe-member-access     
+  521:22  error    Unnecessary conditional, value is always truthy                                    @typescript-eslint/no-unnecessary-condition    
+  523:46  error    Invalid type "number" of template literal expression                               @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\description-editor.tsx
+  86:36  error  Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\keyword-analyzer.tsx
+   38:7   error  'KeywordIntelligence' is already defined                                           no-redeclare
+   39:3   error  Async method 'analyzeBatch' has no 'await' expression                              @typescript-eslint/require-await
+   67:5   error  Async arrow function 'handleFileUpload' has no 'await' expression                  @typescript-eslint/require-await
+   77:7   error  Promise-returning function provided to property where a void return was expected   @typescript-eslint/no-misused-promises
+   90:49  error  Unnecessary conditional, value is always truthy                                    @typescript-eslint/no-unnecessary-condition      
+  116:19  error  Unnecessary conditional, value is always truthy                                    @typescript-eslint/no-unnecessary-condition      
+  120:29  error  Unnecessary conditional, value is always truthy                                    @typescript-eslint/no-unnecessary-condition      
+  287:30  error  Promise-returning function provided to attribute where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\keyword-deduplicator.tsx
+  25:11  error  'DeduplicatorKeywordData' is defined but never used  @typescript-eslint/no-unused-vars
+  43:45  error  Unexpected empty object pattern                      no-empty-pattern
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\keyword-trend-analyzer.tsx
+  33:48  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+  36:13  warning  Unsafe assignment of an `any` value                   @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\listing-quality-checker.tsx
+   68:11  error    Promise-returning function provided to property where a void return was expected  @typescript-eslint/no-misused-promises
+  105:19  error    Unnecessary conditional, value is always truthy                                   @typescript-eslint/no-unnecessary-condition     
+  110:23  warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  111:25  warning  Unsafe call of a(n) `error` type typed value                                      @typescript-eslint/no-unsafe-call
+  120:19  warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  350:34  error    Invalid type "number" of template literal expression                              @typescript-eslint/restrict-template-expressions
+  365:34  error    Invalid type "number" of template literal expression                              @typescript-eslint/restrict-template-expressions
+  380:34  error    Invalid type "number" of template literal expression                              @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\profit-margin-calculator.tsx
+  60:11  error  Unnecessary conditional, value is always falsy         @typescript-eslint/no-unnecessary-condition
+  79:48  error  Invalid type "unknown" of template literal expression  @typescript-eslint/restrict-template-expressions
+  87:9   error  Unnecessary conditional, value is always falsy         @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\sales-estimator.tsx
+  199:5   error    'alert' is not defined                     no-undef
+  267:25  warning  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\contact-section.tsx
+  133:30  error  Promise-returning function provided to attribute where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\error-boundary.tsx
+  20:16  warning  Unsafe argument of type `any` assigned to a parameter of type `SetStateAction<Error | null>`  @typescript-eslint/no-unsafe-argument
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\footer.tsx
+   89:18  error  `Github` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=github instead. This icon will be removed in v1.0      @typescript-eslint/no-deprecated
+   98:18  error  `Linkedin` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=linkedin instead. This icon will be removed in v1.0  @typescript-eslint/no-deprecated
+  107:18  error  `Twitter` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=twitter instead. This icon will be removed in v1.0    @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\header.tsx
+   28:7   error    'clearTimeout' is not defined                                                      no-undef
+   67:11  warning  Unsafe array destructuring of a tuple element with an `any` value                  @typescript-eslint/no-unsafe-assignment        
+   75:7   error    Unsafe return of a value of type `any`                                             @typescript-eslint/no-unsafe-return
+  211:29  warning  Unsafe member access .blog on an `any` value                                       @typescript-eslint/no-unsafe-member-access     
+  211:42  warning  Unsafe member access .blog on an `any` value                                       @typescript-eslint/no-unsafe-member-access     
+  216:28  warning  Unsafe call of a(n) `any` typed value                                              @typescript-eslint/no-unsafe-call
+  216:33  warning  Unsafe member access .blog on an `any` value                                       @typescript-eslint/no-unsafe-member-access     
+  235:29  warning  Unsafe member access .tools on an `any` value                                      @typescript-eslint/no-unsafe-member-access     
+  235:43  warning  Unsafe member access .tools on an `any` value                                      @typescript-eslint/no-unsafe-member-access     
+  240:28  warning  Unsafe call of a(n) `any` typed value                                              @typescript-eslint/no-unsafe-call
+  240:33  warning  Unsafe member access .tools on an `any` value                                      @typescript-eslint/no-unsafe-member-access     
+  257:30  warning  Unsafe member access .blog on an `any` value                                       @typescript-eslint/no-unsafe-member-access     
+  257:52  warning  Unsafe member access .tools on an `any` value                                      @typescript-eslint/no-unsafe-member-access     
+  290:27  error    Promise-returning function provided to attribute where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\hero-section.tsx
+   88:16  error  `Github` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=github instead. This icon will be removed in v1.0      @typescript-eslint/no-deprecated
+   97:16  error  `Linkedin` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=linkedin instead. This icon will be removed in v1.0  @typescript-eslint/no-deprecated
+  106:16  error  `Twitter` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=twitter instead. This icon will be removed in v1.0    @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\projects-section.tsx
+  112:28  error  `Github` is deprecated. Brand icons have been deprecated and are due to be removed, please refer to https://github.com/lucide-icons/lucide/issues/670. We recommend using https://simpleicons.org/?q=github instead. This icon will be removed in v1.0  @typescript-eslint/no-deprecated 
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\Draggable.tsx
+   7:25  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  12:9   warning  Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+  12:34  warning  Unsafe call of a(n) `error` type typed value  @typescript-eslint/no-unsafe-call
+  21:15  warning  Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\Droppable.tsx
+  11:9   warning  Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+  11:30  warning  Unsafe call of a(n) `error` type typed value  @typescript-eslint/no-unsafe-call
+  23:12  warning  Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\avatar.tsx
+   9:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  24:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  37:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\carousel.tsx
+  130:13  error  Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\chart.tsx
+   71:7   error    Unnecessary conditional, value is always falsy                                                  @typescript-eslint/no-unnecessary-condition
+  144:22  error    Invalid type "NameType" of template literal expression                                          @typescript-eslint/restrict-template-expressions
+  191:28  error    Invalid type "NameType" of template literal expression                                          @typescript-eslint/restrict-template-expressions
+  193:19  warning  Unsafe assignment of an `any` value                                                             @typescript-eslint/no-unsafe-assignment
+  193:58  warning  Unsafe member access .fill on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+  204:65  warning  Unsafe argument of type `any` assigned to a parameter of type `Payload<ValueType, NameType>[]`  @typescript-eslint/no-unsafe-argument
+  224:31  warning  Unsafe assignment of an `any` value                                                             @typescript-eslint/no-unsafe-assignment
+  225:31  warning  Unsafe assignment of an `any` value                                                             @typescript-eslint/no-unsafe-assignment
+  291:26  error    Invalid type "DataKey<any>" of template literal expression                                      @typescript-eslint/restrict-template-expressions
+  296:20  warning  Unsafe assignment of an `any` value                                                             @typescript-eslint/no-unsafe-assignment
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\context-menu.tsx
+   22:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   43:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   58:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   75:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   93:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  117:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  139:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  157:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\data-table.tsx
+  74:14  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\dialog.tsx
+   18:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   33:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   85:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  100:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\drawer.tsx
+  26:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  38:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  81:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  96:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\form.tsx
+   50:7  error  Unnecessary conditional, value is always falsy                                                                                       
+   @typescript-eslint/no-unnecessary-condition
+   89:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  106:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\hover-card.tsx
+  13:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\input-otp.tsx
+  10:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  26:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  34:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  62:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\popover.tsx
+  13:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\radio-group.tsx
+  10:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  24:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\scroll-area.tsx
+   9:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  27:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\select.tsx
+   16:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   36:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   53:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   71:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  103:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  115:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  138:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\separator.tsx
+  9:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\sheet.tsx
+   19:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+   57:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  106:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  118:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\sidebar.tsx
+   39:7   error  'SidebarContext' is already defined                                                                                                 
+    no-redeclare
+   87:53  error  Invalid type "boolean" of template literal expression                                                                               
+    @typescript-eslint/restrict-template-expressions
+   87:83  error  Invalid type "number" of template literal expression                                                                                
+    @typescript-eslint/restrict-template-expressions
+   94:7   error  Expected an assignment or function call and instead saw an expression                                                               
+    @typescript-eslint/no-unused-expressions
+  271:9   error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  344:9   error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  392:9   error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  663:15  error  Invalid type "number" of template literal expression                                                                                
+    @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\slider.tsx
+  9:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\switch.tsx
+  9:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\toggle-group.tsx
+  18:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+  36:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\toggle.tsx
+  32:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\tooltip.tsx
+  15:9  error  `ElementRef` is deprecated. Use `ComponentRef<T>` instead
+
+Retrieves the type of the 'ref' prop for a given component type or tag name  @typescript-eslint/no-deprecated
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\use-mobile.tsx
+  11:50  error  Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-tools\__tests__\csv-utils.test.ts
+    8:1   error    'describe' is not defined                                                                                                         
+                      no-undef
+   20:3   error    'describe' is not defined                                                                                                         
+                      no-undef
+   21:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   30:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   33:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   34:13  warning  Unsafe assignment of an `any` value                                                                                               
+                      @typescript-eslint/no-unsafe-assignment
+   41:45  error    Unexpected any. Specify a different type                                                                                          
+                      @typescript-eslint/no-explicit-any
+   42:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   46:3   error    'describe' is not defined                                                                                                         
+                      no-undef
+   47:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   48:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   51:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   52:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   53:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   54:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   55:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   59:3   error    'describe' is not defined                                                                                                         
+                      no-undef
+   60:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   61:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   62:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   65:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   66:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   69:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   72:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   77:5   error    'it' is not defined                                                                                                               
+                      no-undef
+   78:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   79:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+   83:3   error    'describe' is not defined                                                                                                         
+                      no-undef
+   84:11  error    'requiredColumns' is assigned a value but never used                                                                              
+                      @typescript-eslint/no-unused-vars
+   86:5   error    'it' is not defined                                                                                                               
+                      no-undef
+  103:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+  113:5   error    'it' is not defined                                                                                                               
+                      no-undef
+  114:7   error    'expect' is not defined                                                                                                           
+                      no-undef
+  114:47  warning  Unsafe argument of type `any` assigned to a parameter of type `("asin" | "price" | "reviews" | "rating" | "conversion_rate" | "click_through_rate")[]`  @typescript-eslint/no-unsafe-argument
+  114:62  error    Unexpected any. Specify a different type                                                                                          
+                      @typescript-eslint/no-explicit-any
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-tools\acos\components\acos-table.tsx
+  63:14  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-tools\amazon-algorithms.ts
+  1:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-tools\keyword-analyzer\components\keyword-table.tsx
+  63:14  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-tools\ppc-analyzer\components\ppc-table.tsx
+  62:19  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\amazon-types.ts
+  67:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\amazon-algorithms.ts
+  4:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\competitor-utils.ts
+  20:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\inventory-utils.ts
+  4:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\keyword-utils.ts
+  3:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\listing-utils.ts
+  17:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\market-analysis.ts
+  29:14  error  Unexpected class with only static properties  @typescript-eslint/no-extraneous-class
+
+✖ 218 problems (170 errors, 48 warnings)
+
+PS C:\Users\johnw\OneDrive\Desktop\portfolio> npx --yes eslint --debug src/ && npx tsc --noEmit --listFiles

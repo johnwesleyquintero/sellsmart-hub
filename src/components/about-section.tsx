@@ -145,7 +145,9 @@ export default function AboutSection() {
   useEffect(() => {
     async function fetchContent() {
       try {
-        const res = await fetch('/api/content');
+        console.log('Fetching /api/content with GET method');
+        const res = await fetch('/api/content', { method: 'GET' });
+        console.log('Response status:', res.status);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }

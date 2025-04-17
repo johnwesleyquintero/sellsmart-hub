@@ -9,12 +9,12 @@ export interface KeywordAnalysis {
 
 export const KeywordIntelligence = {
   analyze(keywords: string[]): KeywordAnalysis[] {
-    return keywords.map(keyword => ({
+    return keywords.map((keyword) => ({
       keyword,
       isProhibited: false,
       score: 0,
       confidence: 0,
-      matchType: 'exact'
+      matchType: 'exact',
     }));
-  }
-}
+  },
+};

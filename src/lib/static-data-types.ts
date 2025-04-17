@@ -57,7 +57,7 @@ export interface BlogPost {
   date: string;
   image?: string;
   tags: string[];
-// Removed duplicate relatedPosts property
+  // Removed duplicate relatedPosts property
   readingTime?: string;
   author?: string;
   relatedPosts: RelatedPost[];

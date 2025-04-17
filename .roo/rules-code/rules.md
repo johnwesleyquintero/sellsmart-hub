@@ -18,6 +18,5 @@
    - Review `.task_tracker.log` again for errors and warnings.
    - Identify and fix any remaining issues.
 
-
 4. ITERATE:
    - Repeat steps until all quality checks pass.

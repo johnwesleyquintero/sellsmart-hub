@@ -300,7 +300,12 @@ export default function CompetitorAnalyzer() {
         metrics.forEach((metric) => {
           const metricData = data.metrics[metric];
           if (Array.isArray(metricData) && metricData[index] !== undefined) {
-            dataPoint[metric] = Number(metricData[index]) || 0;
+            const value = validatedData.metrics[metric][index];
+            if (typeof value === 'number') {
+              dataPoint[metric] = value;
+            } else {
+              dataPoint[metric] = 0;
+            }
           } else {
             dataPoint[metric] = 0; // Default value if data is missing
           }

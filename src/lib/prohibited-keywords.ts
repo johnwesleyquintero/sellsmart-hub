@@ -43,5 +43,5 @@ export async function add(keyword: string): Promise<void> {
 export const ProhibitedKeywords = {
   getAll,
   add,
-  getKeywords: getAll
+  getKeywords: getAll,
 };

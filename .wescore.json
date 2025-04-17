@@ -21,12 +21,6 @@
       "name": "Type Checking (TSC)",
       "command": "npx tsc --noEmit",
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
-    },
-    {
-      "id": "build",
-      "name": "Build Project (Next.js)",
-      "command": "npm run build",
-      "description": "Builds the Next.js production application"
     }
   ],
   "errorCategories": {

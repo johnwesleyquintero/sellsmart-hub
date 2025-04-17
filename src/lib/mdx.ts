@@ -6,7 +6,7 @@ import { BlogPost } from './types';
 
 const matterDataSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional().default(''),
   date: z.union([z.string(), z.date()]),
   image: z.string().optional(),
   tags: z.array(z.string()).optional(),
