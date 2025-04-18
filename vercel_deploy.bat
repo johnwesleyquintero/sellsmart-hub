@@ -32,15 +32,6 @@ powershell -File cleanup.ps1
 echo }"
 echo --- Cleanup finished ---
 
-REM --- Building the project for production ---
-echo --- Building project ---
-call npm run build
-echo --- Build finished with exit code: !errorlevel! ---
-if !errorlevel! neq 0 (
-    echo ERROR: Build failed with exit code !errorlevel! !
-    exit /b !errorlevel!
-)
-
 REM --- Deploying Production Build ---
 echo --- Deploying Production Build ---
 call npx vercel deploy --prod --yes %*
