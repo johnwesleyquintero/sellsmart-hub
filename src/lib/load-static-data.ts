@@ -59,7 +59,8 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
       const values = line.split(',');
       return {
         productName:
-          values[headers.indexOf('productName')]?.replace(/(^\"|\"$)/g, '') || '',
+          values[headers.indexOf('productName')]?.replace(/(^\"|\"$)/g, '') ||
+          '',
         campaign:
           values[headers.indexOf('campaign')]?.replace(/(^\"|\"$)/g, '') || '',
         adSpend: parseFloat(values[headers.indexOf('adSpend')] || '0') || 0,

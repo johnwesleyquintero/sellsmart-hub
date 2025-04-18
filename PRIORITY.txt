@@ -1,3 +1,373 @@
+PS C:\Users\johnw\OneDrive\Desktop\portfolio> npm run cq
+
+> portfolio@0.1.0 cq
+> node ./.wescore/scripts/check-quality.mjs
+
+[2025-04-18T18:25:48.454Z] [INFO ] Loading configuration from C:\Users\johnw\OneDrive\Desktop\portfolio\.wescore.json...
+[2025-04-18T18:25:48.470Z] [INFO ] Configuration loaded. Found 4 enabled checks.
+[2025-04-18T18:25:48.471Z] [INFO ] Starting Wescore quality checks...
+[2025-04-18T18:25:48.473Z] [INFO ] ⚡ Running 4 checks in sequential mode
+[2025-04-18T18:25:48.475Z] [INFO ] 
+  [1/4] ▶ Running: Formatting (Prettier) (npm run format)
+[2025-04-18T18:25:56.285Z] [ERROR] [1/4] ❌ Failed (Exit Code 2): Formatting (Prettier) (7.81s)
+[2025-04-18T18:25:56.286Z] [ERROR]   Output:
+  --- Error Output Start ---
+[2025-04-18T18:25:56.287Z] [ERROR]   Stderr:
+  [warn] Ignored unknown option --ignore-unchanged.
+  [error] src/lib/calculations/keyword-utils.ts: SyntaxError: Expression expected. (50:5)
+  [error]   48 |     };
+  [error]   49 |       changePercent: Number(changePercent.toFixed(2)),
+  [error] > 50 |     };
+  [error]      |     ^
+  [error]   51 |   }
+  [error]   52 |
+  [error]   53 |   static prioritizeKeywords(keywords: KeywordData[]): KeywordData[] {
+[2025-04-18T18:25:56.287Z] [ERROR]   Stdout:
+  
+  > portfolio@0.1.0 format
+  > prettier --write . --ignore-unchanged
+  
+  .config/dotnet-tools.json 77ms (unchanged)
+  .lintstagedrc.json 4ms (unchanged)
+  .prettierrc.json 4ms (unchanged)
+  .roo/rules-code/rules.md 57ms (unchanged)
+  .vscode/launch.json 14ms (unchanged)
+  .vscode/settings.json 2ms (unchanged)
+  .wescore.json 19ms (unchanged)
+  .wescore/config/loader.mjs 37ms (unchanged)
+  .wescore/config/schema.mjs 31ms (unchanged)
+  .wescore/package-lock.json 27ms (unchanged)
+  .wescore/package.json 4ms (unchanged)
+  .wescore/README.md 11ms (unchanged)
+  .wescore/scripts/check-quality.mjs 128ms (unchanged)
+  .wescore/scripts/generate-secret-key.mjs 13ms (unchanged)
+  .wescore/scripts/update-timestamps.mjs 11ms (unchanged)
+  .wescore/src/analyzer/index.mjs 17ms (unchanged)
+  .wescore/src/archiver/index.mjs 30ms (unchanged)
+  .wescore/src/git/index.js 7ms (unchanged)
+  .wescore/src/logger/index.mjs 13ms (unchanged)
+  .wescore/src/reporting/error-logger.mjs 75ms (unchanged)
+  .wescore/src/runner/commandRunner.mjs 12ms (unchanged)
+  .wescore/src/utils/header.mjs 17ms (unchanged)
+  .wescore/src/utils/index.mjs 11ms (unchanged)
+  components.json 3ms (unchanged)
+  docs/CHANGELOG.md 6ms (unchanged)
+  docs/CODE_OF_CONDUCT.md 21ms (unchanged)
+  docs/CONTRIBUTING.md 25ms (unchanged)
+  docs/error-guide.md 12ms (unchanged)
+  docs/FEEDBACK.md 22ms (unchanged)
+  docs/NEW IDEA.md 59ms (unchanged)
+  docs/NEW_STRUCTURE.md 11ms (unchanged)
+  docs/README.md 7ms (unchanged)
+  docs/TODO_COMPONENT.md 229ms (unchanged)
+  docs/WORKAROUND.md 38ms (unchanged)
+  eslint.config.js 6ms (unchanged)
+  jsconfig.json 3ms (unchanged)
+  next.config.js 11ms (unchanged)
+  package-lock.json 290ms (unchanged)
+  package.json 3ms (unchanged)
+  postcss.config.mjs 3ms (unchanged)
+  public/site.webmanifest 1ms (unchanged)
+  public/todo.json 7ms (unchanged)
+  README.md 42ms (unchanged)
+  roo-code-settings.json 5ms (unchanged)
+  src/app/api/amazon/competitor-analysis/route.ts 46ms (unchanged)
+  src/app/api/amazon/inventory/route.ts 12ms (unchanged)
+  src/app/api/amazon/keyword-trends/route.ts 16ms (unchanged)
+  src/app/api/amazon/pricing/route.ts 11ms (unchanged)
+  src/app/api/auth/[...nextauth]/env.d.ts 3ms (unchanged)
+  src/app/api/auth/[...nextauth]/options.ts 9ms (unchanged)
+  src/app/api/auth/[...nextauth]/route.ts 8ms (unchanged)
+  src/app/api/content/route.ts 7ms (unchanged)
+  src/app/api/download/route.ts 9ms (unchanged)
+  src/app/api/prohibited-keywords/route.ts 11ms (unchanged)
+  src/app/api/resume/route.ts 3ms (unchanged)
+  src/app/api/search/route.ts 7ms (unchanged)
+  src/app/auth/signin/page.tsx 14ms (unchanged)
+  src/app/blog/[slug]/not-found.tsx 7ms (unchanged)
+  src/app/blog/[slug]/page.tsx 34ms (unchanged)
+  src/app/blog/layout.tsx 6ms (unchanged)
+  src/app/blog/page.tsx 28ms (unchanged)
+  src/app/content/blog/10-advanced-amazon-seo-techniques-that-actually-work-in-2025.mdx 60ms (unchanged)
+  src/app/content/blog/amazon-seller-tools.mdx 36ms (unchanged)
+  src/app/content/blog/b2b-strategies-amazon-sellers.mdx 29ms (unchanged)
+  src/app/content/blog/data-visualization-for-amazon-sellers.mdx 41ms (unchanged)
+  src/app/content/blog/excel-power-tools-amazon-sellers.mdx 26ms (unchanged)
+  src/app/content/blog/getting-started-with-amazon-fba.mdx 48ms (unchanged)
+  src/app/content/blog/mastering-amazon-ppc.mdx 27ms (unchanged)
+  src/app/content/blog/next-js-metadata-api-guide.mdx 51ms (unchanged)
+  src/app/dashboard/auth-display.tsx 9ms (unchanged)
+  src/app/dashboard/layout.tsx 3ms (unchanged)
+  src/app/dashboard/page.tsx 6ms (unchanged)
+  src/app/error.tsx 19ms (unchanged)
+  src/app/globals.css 21ms (unchanged)
+  src/app/hooks/use-mobile.tsx 7ms (unchanged)
+  src/app/hooks/use-toast.js 25ms (unchanged)
+  src/app/hooks/use-toast.ts 25ms (unchanged)
+  src/app/layout.tsx 7ms (unchanged)
+  src/app/loading.tsx 3ms (unchanged)
+  src/app/metadata.ts 17ms (unchanged)
+  src/app/not-found.tsx 3ms (unchanged)
+  src/app/page.tsx 6ms (unchanged)
+  src/app/sitemap.ts 4ms (unchanged)
+  src/components/about-section.tsx 44ms (unchanged)
+  src/components/amazon-seller-tools/acos-calculator.tsx 130ms (unchanged)
+  src/components/amazon-seller-tools/amazon-seller-tools.md 73ms (unchanged)
+  src/components/amazon-seller-tools/CampaignCard.tsx 9ms (unchanged)
+  src/components/amazon-seller-tools/competitor-analyzer.tsx 63ms (unchanged)
+  src/components/amazon-seller-tools/CsvUploader.tsx 10ms (unchanged)
+  src/components/amazon-seller-tools/DataCard.tsx 4ms (unchanged)
+  src/components/amazon-seller-tools/description-editor.tsx 48ms (unchanged)
+  src/components/amazon-seller-tools/fba-calculator.tsx 54ms (unchanged)
+  src/components/amazon-seller-tools/keyword-analyzer.tsx 84ms (unchanged)
+  src/components/amazon-seller-tools/keyword-deduplicator.tsx 39ms (unchanged)
+  src/components/amazon-seller-tools/keyword-trend-analyzer.tsx 12ms (unchanged)
+  src/components/amazon-seller-tools/listing-quality-checker.tsx 104ms (unchanged)
+  src/components/amazon-seller-tools/ppc-campaign-auditor.tsx 45ms (unchanged)
+  src/components/amazon-seller-tools/profit-margin-calculator.tsx 21ms (unchanged)
+  src/components/amazon-seller-tools/sales-estimator.tsx 53ms (unchanged)
+  src/components/amazon-seller-tools/sample-csv-button.tsx 4ms (unchanged)
+  src/components/amazon-seller-tools/shared/FormDataDisplay.tsx 12ms (unchanged)
+  src/components/amazon-seller-tools/shared/ToolForm.tsx 13ms (unchanged)
+  src/components/blog-section.tsx 17ms (unchanged)
+  src/components/blog/blog-card.tsx 6ms (unchanged)
+  src/components/blog/blog-image.tsx 2ms (unchanged)
+  src/components/blog/blog-layout.tsx 3ms (unchanged)
+  src/components/blog/BlogImage.tsx 6ms (unchanged)
+  src/components/blog/mdx-components.tsx 20ms (unchanged)
+  src/components/certifications-section.tsx 14ms (unchanged)
+  src/components/client-providers.tsx 3ms (unchanged)
+  src/components/contact-section.tsx 27ms (unchanged)
+  src/components/error-boundary.tsx 11ms (unchanged)
+  src/components/featured-tools-section.tsx 20ms (unchanged)
+  src/components/footer.tsx 10ms (unchanged)
+  src/components/header.tsx 39ms (unchanged)
+  src/components/hero-section.tsx 11ms (unchanged)
+  src/components/logo.module.css 15ms (unchanged)
+  src/components/Logo.tsx 7ms (unchanged)
+  src/components/projects-section.tsx 11ms (unchanged)
+  src/components/resume.tsx 3ms (unchanged)
+  src/components/roadmap-display.tsx 19ms (unchanged)
+  src/components/SomeComponent.tsx 3ms (unchanged)
+  src/components/testimonials-section.tsx 15ms (unchanged)
+  src/components/theme-provider.tsx 3ms (unchanged)
+  src/components/TimeStamp.tsx 3ms (unchanged)
+  src/components/ui/accordion.tsx 9ms (unchanged)
+  src/components/ui/alert-dialog.tsx 18ms (unchanged)
+  src/components/ui/alert.tsx 10ms (unchanged)
+  src/components/ui/amazon-forms/DraggableItem.tsx 5ms (unchanged)
+  src/components/ui/amazon-forms/FormContainer.tsx 4ms (unchanged)
+  src/components/ui/aspect-ratio.tsx 2ms (unchanged)
+  src/components/ui/avatar.tsx 9ms (unchanged)
+  src/components/ui/badge.tsx 5ms (unchanged)
+  src/components/ui/breadcrumb.tsx 14ms (unchanged)
+  src/components/ui/button.tsx 9ms (unchanged)
+  src/components/ui/calendar.tsx 7ms (unchanged)
+  src/components/ui/card.tsx 10ms (unchanged)
+  src/components/ui/carousel.tsx 36ms (unchanged)
+  src/components/ui/chart.tsx 37ms (unchanged)
+  src/components/ui/checkbox.tsx 7ms (unchanged)
+  src/components/ui/client-providers.tsx 4ms (unchanged)
+  src/components/ui/collapsible.tsx 2ms (unchanged)
+  src/components/ui/command.tsx 16ms (unchanged)
+  src/components/ui/context-menu.tsx 29ms (unchanged)
+  src/components/ui/dashboard-sidebar.tsx 8ms (unchanged)
+  src/components/ui/data-table.tsx 19ms (unchanged)
+  src/components/ui/dialog.tsx 30ms (unchanged)
+  src/components/ui/DndProvider.tsx 3ms (unchanged)
+  src/components/ui/DragDropArea.tsx 4ms (unchanged)
+  src/components/ui/Draggable.tsx 8ms (unchanged)
+  src/components/ui/drawer.tsx 13ms (unchanged)
+  src/components/ui/dropdown-menu.tsx 20ms (unchanged)
+  src/components/ui/Droppable.tsx 7ms (unchanged)
+  src/components/ui/error-boundary.tsx 8ms (unchanged)
+  src/components/ui/file-drop-zone.tsx 14ms (unchanged)
+  src/components/ui/form.tsx 27ms (unchanged)
+  src/components/ui/hover-card.tsx 5ms (unchanged)
+  src/components/ui/index.js 1ms (unchanged)
+  src/components/ui/index.ts 2ms (unchanged)
+  src/components/ui/input-otp.tsx 10ms (unchanged)
+  src/components/ui/input.tsx 6ms (unchanged)
+  src/components/ui/label.tsx 2ms (unchanged)
+  src/components/ui/menubar.tsx 25ms (unchanged)
+  src/components/ui/navigation-menu.tsx 16ms (unchanged)
+  src/components/ui/NumberInput.tsx 5ms (unchanged)
+  src/components/ui/optimized-image.tsx 5ms (unchanged)
+  src/components/ui/OptimizedImage.tsx 3ms (unchanged)
+  src/components/ui/pagination.tsx 11ms (unchanged)
+  src/components/ui/popover.tsx 4ms (unchanged)
+  src/components/ui/progress.tsx 4ms (unchanged)
+  src/components/ui/radio-group.tsx 6ms (unchanged)
+  src/components/ui/resizable.tsx 6ms (unchanged)
+  src/components/ui/scroll-area.tsx 8ms (unchanged)
+  src/components/ui/select.tsx 16ms (unchanged)
+  src/components/ui/separator.tsx 4ms (unchanged)
+  src/components/ui/settings.tsx 2ms (unchanged)
+  src/components/ui/sheet.tsx 14ms (unchanged)
+  src/components/ui/sidebar.tsx 75ms (unchanged)
+  src/components/ui/skeleton.tsx 3ms (unchanged)
+  src/components/ui/slider.tsx 5ms (unchanged)
+  src/components/ui/sonner.tsx 5ms (unchanged)
+  src/components/ui/switch.tsx 3ms (unchanged)
+  src/components/ui/table.tsx 13ms (unchanged)
+  src/components/ui/tabs.tsx 6ms (unchanged)
+  src/components/ui/textarea.tsx 3ms (unchanged)
+  src/components/ui/theme-provider.tsx 2ms (unchanged)
+  src/components/ui/toast.tsx 12ms (unchanged)
+  src/components/ui/toaster.tsx 5ms (unchanged)
+  src/components/ui/toggle-group.tsx 8ms (unchanged)
+  src/components/ui/toggle.tsx 6ms (unchanged)
+  src/components/ui/tooltip.tsx 5ms (unchanged)
+  src/components/ui/use-mobile.tsx 3ms (unchanged)
+  src/components/ui/use-toast.ts 20ms (unchanged)
+  src/data/.personal-files/Application-Letter-WQ-Quintero.md 12ms (unchanged)
+  src/data/.personal-files/Cover-Note-WQ-Quintero.md 10ms (unchanged)
+  src/data/.personal-files/templates.md 39ms (unchanged)
+  src/data/amazon-tools-sample-data/sample-acos-data.json 4ms (unchanged)
+  src/data/amazon-tools-sample-data/sample-fba-data.json 2ms (unchanged)
+  src/data/amazon-tools-sample-data/sample-keyword-data.json 2ms (unchanged)
+  src/data/amazon-tools-sample-data/sample-keyword-dedup-data.json 1ms (unchanged)
+  src/data/amazon-tools-sample-data/sample-ppc-data.json 4ms (unchanged)
+  src/data/changelog.json 2ms (unchanged)
+  src/data/portfolio-data/blog.json 1ms (unchanged)
+  src/data/portfolio-data/case-studies.json 2ms (unchanged)
+  src/data/portfolio-data/changelog.json 1ms (unchanged)
+  src/data/portfolio-data/education.json 9ms (unchanged)
+  src/data/portfolio-data/experience.json 2ms (unchanged)
+  src/data/portfolio-data/personal.json 2ms (unchanged)
+  src/data/portfolio-data/projects.json 2ms (unchanged)
+  src/data/portfolio-data/skills.json 2ms (unchanged)
+  src/data/portfolio-data/tools.json 1ms (unchanged)
+  src/data/prohibited-keywords/brands/brands.json 3ms (unchanged)
+  src/data/prohibited-keywords/content/content.json 2ms (unchanged)
+  src/data/prohibited-keywords/general/general.json 1ms (unchanged)
+  src/data/prohibited-keywords/health/health.json 1ms (unchanged)
+  src/data/prohibited-keywords/index.json 1ms (unchanged)
+  src/data/prohibited-keywords/legal/legal.json 3ms (unchanged)
+  src/data/prohibited-keywords/promotional/promotional.json 2ms (unchanged)
+  src/data/prohibited-keywords/readme.md 5ms (unchanged)
+  src/data/prohibited-keywords/safety/safety.json 1ms (unchanged)
+  src/data/prohibited-keywords/substances/substances.json 1ms (unchanged)
+  src/data/todo.json 12ms (unchanged)
+  src/lib/amazon-tools/__tests__/csv-utils.test.ts 11ms (unchanged)
+  src/lib/amazon-tools/acos/components/acos-table.tsx 14ms (unchanged)
+  src/lib/amazon-tools/amazon-algorithms.ts 3ms (unchanged)
+  src/lib/amazon-tools/amazon-types.ts 2ms (unchanged)
+  src/lib/amazon-tools/csv-utils.ts 8ms (unchanged)
+  src/lib/amazon-tools/errors/errors.ts 3ms (unchanged)
+  src/lib/amazon-tools/export-utils.ts 6ms (unchanged)
+  src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx 16ms (unchanged)
+  src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx 16ms (unchanged)
+  src/lib/amazon-tools/types.ts 7ms (unchanged)
+  src/lib/amazon-types.ts 19ms (unchanged)
+  src/lib/api-key-management.ts 10ms (unchanged)
+  src/lib/calculations/acos-utils.ts 4ms (unchanged)
+  src/lib/calculations/amazon-algorithms.ts 13ms (unchanged)
+  src/lib/calculations/competitor-utils.ts 15ms (unchanged)
+  src/lib/calculations/index.ts 3ms (unchanged)
+  src/lib/calculations/inventory-utils.ts 7ms (unchanged)
+  src/lib/calculations/listing-utils.ts 21ms (unchanged)
+  src/lib/calculations/market-analysis.ts 20ms (unchanged)
+  src/lib/config.ts 2ms (unchanged)
+  src/lib/config/inventory-config.ts 1ms (unchanged)
+  src/lib/core-utils.ts 3ms (unchanged)
+  src/lib/generate-sample-csv.ts 24ms (unchanged)
+  src/lib/github.ts 8ms (unchanged)
+  src/lib/hooks/use-amazon-data.ts 5ms (unchanged)
+  src/lib/keyword-intelligence.ts 4ms (unchanged)
+  src/lib/linkedin.ts 5ms (unchanged)
+  src/lib/load-static-data.ts 13ms (unchanged)
+  src/lib/mdx.ts 18ms (unchanged)
+  src/lib/models/keyword-trends.ts 2ms (unchanged)
+  src/lib/models/prohibited-keywords.ts 2ms (unchanged)
+  src/lib/models/user.ts 3ms (unchanged)
+  src/lib/mongodb.ts 6ms (unchanged)
+  src/lib/prohibited-keywords.ts 7ms (unchanged)
+  src/lib/roadmap-schema.ts 7ms (unchanged)
+  src/lib/shared/index.ts 10ms (unchanged)
+  src/lib/static-data-types.ts 9ms (unchanged)
+  src/lib/types.ts 4ms (unchanged)
+  src/lib/utils.ts 9ms (unchanged)
+  src/middleware.ts 5ms (unchanged)
+  src/pages/_document.tsx 3ms (unchanged)
+  src/styles/globals.css 11ms (unchanged)
+  src/styles/premium.css 9ms (unchanged)
+  src/types/globals.d.ts 4ms (unchanged)
+  src/types/sample-data-type.ts 1ms (unchanged)
+  tailwind.config.js 7ms (unchanged)
+  TODO.md 44ms (unchanged)
+  tsconfig.json 2ms (unchanged)
+  vercel.yml 6ms (unchanged)
+[2025-04-18T18:25:56.290Z] [ERROR] --- Error Output End ---
+[2025-04-18T18:25:56.290Z] [INFO ]
+  [2/4] ▶ Running: Linting (npm run lint)
+[2025-04-18T18:26:12.340Z] [ERROR] [2/4] ❌ Failed (Exit Code 1): Linting (16.05s)
+[2025-04-18T18:26:12.344Z] [ERROR]   Output:
+  --- Error Output Start ---
+[2025-04-18T18:26:12.344Z] [ERROR]   Stderr:
+
+  ./src/components/ui/sidebar.tsx
+  667:3  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
+  669:5  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
+
+  ./src/lib/calculations/keyword-utils.ts
+  50:4  Error: Parsing error: Expression expected.
+
+  ./src/lib/load-static-data.ts
+  62:60  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
+  64:57  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
+
+  info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+[2025-04-18T18:26:12.346Z] [ERROR]   Stdout:
+
+  > portfolio@0.1.0 lint
+  > next lint
+
+[2025-04-18T18:26:12.347Z] [ERROR] --- Error Output End ---
+[2025-04-18T18:26:12.348Z] [INFO ]
+  [3/4] ▶ Running: Type Checking (TSC) (npx tsc --noEmit)
+[2025-04-18T18:26:28.365Z] [ERROR] [3/4] ❌ Failed (Exit Code 2): Type Checking (TSC) (16.02s)
+[2025-04-18T18:26:28.370Z] [ERROR]   Output:
+  --- Error Output Start ---
+[2025-04-18T18:26:28.373Z] [ERROR]   Stdout:
+  src/lib/calculations/keyword-utils.ts(50,5): error TS1109: Expression expected.
+  src/lib/calculations/keyword-utils.ts(53,3): error TS1128: Declaration or statement expected.
+  src/lib/calculations/keyword-utils.ts(53,37): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(53,51): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(53,53): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(53,67): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(53,69): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(61,1): error TS1128: Declaration or statement expected.
+[2025-04-18T18:26:28.375Z] [ERROR] --- Error Output End ---
+[2025-04-18T18:26:28.377Z] [INFO ]
+  [4/4] ▶ Running: Code Smell Analysis (ESLint/SonarJS) (npm run lint:smells)
+[2025-04-18T18:26:50.568Z] [ERROR] [4/4] ❌ Failed (Exit Code 1): Code Smell Analysis (ESLint/SonarJS) (22.19s)
+[2025-04-18T18:26:50.569Z] [ERROR]   Output:
+  --- Error Output Start ---
+[2025-04-18T18:26:50.569Z] [ERROR]   Stdout:
+
+  > portfolio@0.1.0 lint:smells
+  > eslint --config eslint.config.js .
+
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\sidebar.tsx
+    667:3  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
+    669:5  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\keyword-utils.ts
+    50:4  error  Parsing error: Expression expected
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\load-static-data.ts
+    62:60  error  Group parts of the regex together to make the intended operator precedence explicit  sonarjs/anchor-precedence
+    64:57  error  Group parts of the regex together to make the intended operator precedence explicit  sonarjs/anchor-precedence
+
+  ✖ 5 problems (3 errors, 2 warnings)
+    0 errors and 2 warnings potentially fixable with the `--fix` option.
+
+[2025-04-18T18:26:50.570Z] [ERROR] --- Error Output End ---
+[2025-04-18T18:26:50.570Z] [INFO ]
+  --- Checks Complete ---
+[2025-04-18T18:26:50.570Z] [INFO ] Ran 4/4 checks in 62.10s (Total script time: 62.12s)
 ========================================================
                 WESCORE - RUN SUMMARY
 ========================================================
@@ -6,7 +376,7 @@ Platform:         win32 10.0.26100
 Node Version:     v20.19.0
 Git Commit:       f549901
 Command:          node .wescore\scripts\check-quality.mjs
-Duration:         57.65s
+Duration:         62.10s
 --------------------------------------------------------
 Status:           ❌ FAILURE (4 failed)
 Total Checks:     4
@@ -19,12 +389,12 @@ Failed Checks:
   - Type Checking (TSC) (Exit Code 2)
   - Code Smell Analysis (ESLint/SonarJS) (Exit Code 1)
 ========================================================
-[2025-04-18T18:15:05.518Z] [ERROR] 
+[2025-04-18T18:26:50.737Z] [ERROR] 
   4 check(s) failed:
-[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Formatting (Prettier)
-[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Linting
-[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Type Checking (TSC)
-[2025-04-18T18:15:05.520Z] [ERROR]   ▼ Code Smell Analysis (ESLint/SonarJS)
+[2025-04-18T18:26:50.738Z] [ERROR]   ▼ Formatting (Prettier)
+[2025-04-18T18:26:50.739Z] [ERROR]   ▼ Linting
+[2025-04-18T18:26:50.739Z] [ERROR]   ▼ Type Checking (TSC)
+[2025-04-18T18:26:50.740Z] [ERROR]   ▼ Code Smell Analysis (ESLint/SonarJS)
 
 ========================================================
                     RECOMMENDATIONS
@@ -34,56 +404,46 @@ Failed Checks:
   Review the following output snippet for specific error messages:
 -------------------- SNIPPET START --------------------
   [warn] Ignored unknown option --ignore-unchanged.
-  [error] src/lib/calculations/keyword-utils.ts: SyntaxError: ',' expected. (42:11)
-  [error]   40 |
-  [error]   41 |     return {
-  [error] > 42 |       let trend: 'up' | 'down' | 'stable' = 'stable';
-  [error]      |           ^
-  [error]   43 |     if (changePercent > 5) {
-  [error]   44 |       trend = 'up';
-  [error]   45 |     } else if (changePercent < -5) {
+  [error] src/lib/calculations/keyword-utils.ts: SyntaxError: Expression expected. (50:5)
+  [error]   48 |     };
+  [error]   49 |       changePercent: Number(changePercent.toFixed(2)),
+  [error] > 50 |     };
+  [error]      |     ^
+  [error]   51 |   }
+  [error]   52 |
+  [error]   53 |   static prioritizeKeywords(keywords: KeywordData[]): KeywordData[] {
 --------------------- SNIPPET END ---------------------
   Command executed: npm run format
 
 • Linting:
   Review the following output snippet for specific error messages:
 -------------------- SNIPPET START --------------------
-  ./src/components/amazon-seller-tools/keyword-trend-analyzer.tsx
-  72:42  Error: Make sure that using this pseudorandom number generator is safe here.  sonarjs/pseudo-random
-  89:18  Error: Make sure that using this pseudorandom number generator is safe here.  sonarjs/pseudo-random
-
   ./src/components/ui/sidebar.tsx
   667:3  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
   669:5  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
 
   ./src/lib/calculations/keyword-utils.ts
-  42:10  Error: Parsing error: ',' expected.
+  50:4  Error: Parsing error: Expression expected.
 
   ./src/lib/load-static-data.ts
   62:60  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
   64:57  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
 
-  ... (output truncated)
+  info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
 --------------------- SNIPPET END ---------------------
   Command executed: npm run lint
 
 • Type Checking (TSC):
   Review the following output snippet for specific error messages:
 -------------------- SNIPPET START --------------------
-  src/lib/calculations/keyword-utils.ts(42,11): error TS1005: ',' expected.
-  src/lib/calculations/keyword-utils.ts(42,43): error TS1005: ',' expected.
-  src/lib/calculations/keyword-utils.ts(42,53): error TS1005: ':' expected.
-  src/lib/calculations/keyword-utils.ts(43,23): error TS1005: ',' expected.
-  src/lib/calculations/keyword-utils.ts(43,26): error TS1005: ';' expected.
-  src/lib/calculations/keyword-utils.ts(45,7): error TS1128: Declaration or statement expected.
-  src/lib/calculations/keyword-utils.ts(49,5): error TS1109: Expression expected.
-  src/lib/calculations/keyword-utils.ts(52,3): error TS1128: Declaration or statement expected.
-  src/lib/calculations/keyword-utils.ts(52,37): error TS1005: ',' expected.
-  src/lib/calculations/keyword-utils.ts(52,51): error TS1011: An element access expression should take an argument.
-  src/lib/calculations/keyword-utils.ts(52,53): error TS1005: ';' expected.
-  src/lib/calculations/keyword-utils.ts(52,67): error TS1011: An element access expression should take an argument.
-  src/lib/calculations/keyword-utils.ts(52,69): error TS1005: ';' expected.
-  src/lib/calculations/keyword-utils.ts(60,1): error TS1128: Declaration or statement expected.
+  src/lib/calculations/keyword-utils.ts(50,5): error TS1109: Expression expected.
+  src/lib/calculations/keyword-utils.ts(53,3): error TS1128: Declaration or statement expected.
+  src/lib/calculations/keyword-utils.ts(53,37): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(53,51): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(53,53): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(53,67): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(53,69): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(61,1): error TS1128: Declaration or statement expected.
 --------------------- SNIPPET END ---------------------
   Command executed: npx tsc --noEmit
 
@@ -94,16 +454,16 @@ Failed Checks:
   > eslint --config eslint.config.js .
 
 
-  C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\keyword-trend-analyzer.tsx
-    72:42  error  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
-    89:18  error  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
-
   C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\sidebar.tsx
     667:3  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
     669:5  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
 
   C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\keyword-utils.ts
-    42:10  error  Parsing error: ',' expected
+    50:4  error  Parsing error: Expression expected
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\load-static-data.ts
+    62:60  error  Group parts of the regex together to make the intended operator precedence explicit  sonarjs/anchor-precedence
+    64:57  error  Group parts of the regex together to make the intended operator precedence explicit  sonarjs/anchor-precedence
 
   ... (output truncated)
 --------------------- SNIPPET END ---------------------
@@ -134,4 +494,4 @@ Documentation:
 
 ========================================================
 
-PS C:\Users\johnw\OneDrive\Desktop\portfolio> 
+PS C:\Users\johnw\OneDrive\Desktop\portfolio>

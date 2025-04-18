@@ -46,7 +46,7 @@ export class KeywordUtils {
     }
     return {
       trend,
-      changePercent: Number(changePercent.toFixed(2))
+      changePercent: Number(changePercent.toFixed(2)),
     };
   }
 
