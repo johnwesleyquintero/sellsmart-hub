@@ -158,10 +158,10 @@ cp .env.example .env
 | Tool Name                | Core Implementation | Enhancements Needed                    | Documentation Link                          |
 | ------------------------ | ------------------- | -------------------------------------- | ------------------------------------------- |
 | ACoS Calculator          | Complete            | Input validation, Export functionality | [/docs/amazon-tools/acos-calculator.md]     |
-| PPC Campaign Auditor     | In Progress         | Visualization, Algorithm improvements  | [/docs/amazon-tools/ppc-auditor.md]         |
+| PPC Campaign Auditor     | Planned             | Core functionality, Visualization      | [/docs/amazon-tools/ppc-auditor.md]         |
 | Profit Margin Calculator | Complete            | Unit tests, Error handling             | [/docs/amazon-tools/profit-analyzer.md]     |
-| Competitor Analyzer      | In Progress         | Data enrichment, Trend analysis        | [/docs/amazon-tools/competitor-analyzer.md] |
-| Keyword Trend Analyzer   | Planned             | Machine learning integration           | [/docs/amazon-tools/keyword-trends.md]      |
+| Competitor Analyzer      | In Progress         | Pricing analysis, Data enrichment      | [/docs/amazon-tools/competitor-analyzer.md] |
+| Keyword Trend Analyzer   | Planned             | Core functionality, Seasonal analysis  | [/docs/amazon-tools/keyword-trends.md]      |
 
 ---
 

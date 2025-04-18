@@ -152,7 +152,12 @@ export default function SalesEstimator() {
     else baseSales = 100;
 
     // Price factor
-    const priceFactor = price < 20 ? 1.5 : price < 50 ? 1.0 : 0.7;
+    const getPriceFactor = (price: number) => {
+      if (price < 20) return 1.5;
+      if (price < 50) return 1.0;
+      return 0.7;
+    };
+    const priceFactor = getPriceFactor(price);
 
     // Competition factor
     const competitionFactor =

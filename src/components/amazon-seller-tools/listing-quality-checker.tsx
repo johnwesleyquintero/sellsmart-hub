@@ -1,9 +1,6 @@
 // src/components/amazon-seller-tools/listing-quality-checker.tsx
 'use client';
 
-import type React from 'react';
-import { useState, useCallback } from 'react';
-import Papa from 'papaparse';
 import {
   AlertCircle,
   CheckCircle,
@@ -11,6 +8,9 @@ import {
   Upload,
   XCircle,
 } from 'lucide-react';
+import Papa from 'papaparse';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
@@ -26,7 +26,7 @@ import { KeywordIntelligence } from '@/lib/keyword-intelligence';
 
 // --- Types ---
 
-interface CSVRow {
+export interface CSVRow {
   product: string;
   title: string;
   description: string;
@@ -35,7 +35,7 @@ interface CSVRow {
   keywords: string; // Comma-separated
 }
 
-type KeywordAnalysisResult = {
+export type KeywordAnalysisResult = {
   keyword: string;
   isProhibited: boolean;
   score: number;
@@ -44,7 +44,7 @@ type KeywordAnalysisResult = {
   reason?: string;
 };
 
-type ListingData = {
+export type ListingData = {
   product: string;
   title?: string;
   description?: string;
@@ -56,6 +56,24 @@ type ListingData = {
   issues?: string[];
   suggestions?: string[];
 };
+
+// --- Constants ---
+
+const REQUIRED_COLUMNS = [
+  'product',
+  'title',
+  'description',
+  'bullet_points',
+  'images',
+  'keywords',
+] as const;
+const MIN_TITLE_LENGTH = 5;
+const MAX_TITLE_LENGTH = 200;
+const MIN_DESCRIPTION_LENGTH = 50;
+const MAX_DESCRIPTION_LENGTH = 2000;
+const MIN_BULLET_POINTS = 3;
+const MIN_IMAGES = 3;
+const MAX_IMAGES = 9;
 
 // --- Helper Functions ---
 
@@ -125,7 +143,9 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
   }
   if (bulletPoints.length < 3) {
     issues.push('Insufficient bullet points');
-    suggestions.push('Add at least 3-5 bullet points highlighting key benefits.');
+    suggestions.push(
+      'Add at least 3-5 bullet points highlighting key benefits.',
+    );
     score -= 15;
   }
   if (isNaN(images) || images < 5) {
@@ -164,7 +184,9 @@ const parseAndProcessCsv = (content: string): Promise<ListingData[]> => {
         try {
           validateCSVData(results);
           // Process rows concurrently
-          const processedData = await Promise.all(results.data.map(processCSVRow));
+          const processedData = await Promise.all(
+            results.data.map(processCSVRow),
+          );
           resolve(processedData);
         } catch (parseError) {
           reject(
@@ -268,7 +290,7 @@ export default function ListingQualityChecker() {
     setError(null);
 
     // Simulate API call for ASIN lookup
-    setTimeout(() => {      
+    setTimeout(() => {
       // Generate a random listing with issues
       const issues = [
         'Title missing main keywords',
@@ -302,21 +324,21 @@ export default function ListingQualityChecker() {
       // eslint-disable-next-line sonarjs/pseudo-random -- Acceptable for mock data generation
       const keywordsPresent = Math.random() > 0.4;
 
-        const newListing: ListingData = {
-          product: `Product (ASIN: ${asin})`,
-          title: titlePresent ? 'Product Title Example' : '',
-          description: descPresent ? 'Product description example...' : '',
-          bulletPoints: bulletsPresent ? ['Bullet 1', 'Bullet 2'] : [],
-          images: imagesCount,
-          keywords: keywordsPresent ? ['keyword1', 'keyword2'] : [],
-          issues: selectedIssues.length
-            ? selectedIssues
-            : ['No major issues found'],
-          suggestions: selectedSuggestions.length
-            ? selectedSuggestions
-            : ['Listing looks good!'],
-          score: Math.max(0, 100 - selectedIssues.length * 15),
-        };
+      const newListing: ListingData = {
+        product: `Product (ASIN: ${asin})`,
+        title: titlePresent ? 'Product Title Example' : '',
+        description: descPresent ? 'Product description example...' : '',
+        bulletPoints: bulletsPresent ? ['Bullet 1', 'Bullet 2'] : [],
+        images: imagesCount,
+        keywords: keywordsPresent ? ['keyword1', 'keyword2'] : [],
+        issues: selectedIssues.length
+          ? selectedIssues
+          : ['No major issues found'],
+        suggestions: selectedSuggestions.length
+          ? selectedSuggestions
+          : ['Listing looks good!'],
+        score: Math.max(0, 100 - selectedIssues.length * 15),
+      };
 
       setListings((prevListings) => [...prevListings, newListing]);
       setAsin('');
@@ -347,8 +369,8 @@ export default function ListingQualityChecker() {
                 <FileText className="mb-2 h-8 w-8 text-primary/60" />
                 <span className="text-sm font-medium">Click to upload CSV</span>
                 <span className="text-xs text-muted-foreground">
-                  (Requires: product, title, description, bullet_points,
-                  images, keywords)
+                  (Requires: product, title, description, bullet_points, images,
+                  keywords)
                 </span>
                 <input
                   type="file"
@@ -384,7 +406,9 @@ export default function ListingQualityChecker() {
                   <Input
                     id="asin-input"
                     value={asin}
-                    onChange={(e) => setAsin((e.target as HTMLInputElement).value)}
+                    onChange={(e) =>
+                      setAsin((e.target as HTMLInputElement).value)
+                    }
                     placeholder="Enter ASIN (e.g., B08N5KWB9H)"
                     className="flex-grow"
                   />
@@ -559,9 +583,7 @@ export default function ListingQualityChecker() {
                           No major issues found.
                         </p>
                       )}
-
-                      {listing.suggestions &&
-                      listing.suggestions.length > 0 ? (
+                      {listing.suggestions && listing.suggestions.length > 0 ? (
                         <div className="space-y-1 pt-2 border-t border-dashed mt-2">
                           <h5 className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                             Suggestions:

@@ -20,7 +20,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ isDashboardPage }: DashboardSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // const [selectedIndex, setSelectedIndex] = useState(0);
+
   const pathname = usePathname();
 
   useEffect(() => {

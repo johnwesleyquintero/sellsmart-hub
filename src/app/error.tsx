@@ -4,7 +4,7 @@ import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-export default function Error({
+export default function CustomError({
   error,
   reset,
 }: {

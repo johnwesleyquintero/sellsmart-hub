@@ -350,7 +350,9 @@ async function runChecks() {
       console.log(`  Command executed: ${check.command}`);
     });
 
-    console.log(`\nRemember to commit any fixes after resolving the issues.`);
+    console.log(
+      `\nExecute comprehensive code quality checks using "npm run cq", meticulously analyzing the output for errors, warnings, and areas for improvement. Systematically address each identified issue, ensuring strict adherence to established code quality standards. Iterate this process of running "npm run cq", analyzing results, and resolving issues until all checks pass successfully, guaranteeing a high-quality codebase. Remember to commit any fixes after resolving the issues.`,
+    );
     console.log(`========================================================`);
   } else {
     // Success message if all checks passed

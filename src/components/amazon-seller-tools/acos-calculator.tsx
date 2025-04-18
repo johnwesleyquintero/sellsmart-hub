@@ -106,7 +106,13 @@ const calculateLocalMetrics = (
 > => {
   // Handle zero or negative sales, and zero adSpend edge cases
   const acos = sales > 0 ? (adSpend / sales) * 100 : Infinity;
-  const roas = adSpend > 0 ? sales / adSpend : sales > 0 ? Infinity : 0; // ROAS is 0 if spend is 0 and sales are 0, Infinity if sales > 0 and spend is 0
+  const calculateROAS = () => {
+    if (adSpend > 0) {
+      return sales / adSpend;
+    }
+    return sales > 0 ? Infinity : 0;
+  };
+  const roas = calculateROAS();
 
   const safeImpressions = impressions && impressions > 0 ? impressions : 0;
   const safeClicks = clicks && clicks > 0 ? clicks : 0;
@@ -116,7 +122,13 @@ const calculateLocalMetrics = (
   // Assuming 'sales' represents revenue. If it represents orders, this calculation is correct.
   // If 'sales' is revenue, conversion rate calculation needs # of orders.
   // Using clicks as a proxy if orders aren't available.
-  const conversionRate = safeClicks > 0 ? (sales / safeClicks) * 100 : 0; // Placeholder: Needs clarification if 'sales' is revenue or orders
+  const calculateConversionRate = () => {
+    if (safeClicks > 0) {
+      return (sales / safeClicks) * 100;
+    }
+    return 0;
+  };
+  const conversionRate = calculateConversionRate();
 
   return { acos, roas, ctr, cpc, conversionRate };
 };

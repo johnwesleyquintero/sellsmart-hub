@@ -1,6 +1,6 @@
 'use client';
 var __rest =
-  (this && this.__rest) ||
+  (typeof self !== 'undefined' && self.__rest) ||
   function (s, e) {
     var t = {};
     for (var p in s)
@@ -19,11 +19,11 @@ var __rest =
 // Inspired by react-hot-toast library
 import * as React from 'react';
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
-let count = 0;
+const TOAST_REMOVE_DELAY = 1000;
 function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER;
-  return count.toString();
+  const array = new Uint32Array(1);
+  window.crypto.getRandomValues(array);
+  return array[0].toString(36);
 }
 const toastTimeouts = new Map();
 const addToRemoveQueue = (toastId) => {
@@ -42,17 +42,17 @@ const addToRemoveQueue = (toastId) => {
 export const reducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TOAST':
-      return Object.assign(Object.assign({}, state), {
+      return {
+        ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      });
+      };
     case 'UPDATE_TOAST':
-      return Object.assign(Object.assign({}, state), {
+      return {
+        ...state,
         toasts: state.toasts.map((t) =>
-          t.id === action.toast.id
-            ? Object.assign(Object.assign({}, t), action.toast)
-            : t,
+          t.id === action.toast.id ? { ...t, ...action.toast } : t,
         ),
-      });
+      };
     case 'DISMISS_TOAST': {
       const { toastId } = action;
       // ! Side effects ! - This could be extracted into a dismissToast() action,
@@ -64,21 +64,24 @@ export const reducer = (state, action) => {
           addToRemoveQueue(toast.id);
         });
       }
-      return Object.assign(Object.assign({}, state), {
+      return {
+        ...state,
         toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? Object.assign(Object.assign({}, t), { open: false })
-            : t,
+          t.id === toastId || toastId === undefined ? { ...t, open: false } : t,
         ),
-      });
+      };
     }
     case 'REMOVE_TOAST':
       if (action.toastId === undefined) {
-        return Object.assign(Object.assign({}, state), { toasts: [] });
+        return {
+          ...state,
+          toasts: [],
+        };
       }
-      return Object.assign(Object.assign({}, state), {
+      return {
+        ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      });
+      };
   }
 };
 const listeners = [];

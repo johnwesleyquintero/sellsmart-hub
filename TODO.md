@@ -35,12 +35,12 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 ## Phase 0: Foundational Fixes (Prerequisites - Execute FIRST)
 
 - [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_ <!-- Updated based on recent changes -->
-- [x] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_ <!-- Updated based on recent changes -->
-- [ ] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup. Initial audit complete; 2 duplicate form components identified for refactoring._ <!-- Note added based on recent changes -->
-- [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup. Removed `validateAmazonAsin`; 3 additional unused functions identified for future removal._ <!-- Note added based on recent changes -->
-- [ ] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup_
-- [ ] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass). _Foundational performance_
-- [ ] **ID 55 (UI / Critical):** Standardize drag and drop feature across all tools. _Ensure consistent UX_
+- [x] **ID 34 (Docs / Critical):** Ensure consistency between `README.md` Tools Table, `amazon-seller-tools.md` descriptions, and `TODO.md` status. _Reflect current reality accurately across all docs._ <!-- Updated README Tools Table to align with current tool status. -->
+- [x] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup. Shared `ToolForm`, `FormDataDisplay`, and `export-utils` created. `keyword-analyzer` refactored as template._ <!-- Updated based on recent changes -->
+- [x] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup._ <!-- Removed duplicate cn(), unused styling utils, consolidated common utils. -->
+- [x] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup. Added types, improved error handling, standardized patterns._ <!-- Completed as requested -->
+- [x] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass). _Foundational performance. Created OptimizedImage component, implemented lazy loading, placeholders, responsive sizing._ <!-- Completed as requested -->
+- [x] **ID 55 (UI / Critical):** Standardize drag and drop feature across all tools. _Ensure consistent UX. Created reusable FileDropZone, added validation/limits, consistent feedback._ <!-- Completed as requested -->
 
 ---
 
@@ -55,10 +55,10 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 - [ ] **ID 40 (Content / High):** Create initial Blog Posts for _functional_ Seller Tools. _Explain value/usage of ready tools_
 - [ ] **ID 19 (Documentation / High):** Add initial User Guides for functional Amazon seller tools. _Basic "how-to" for users_
 - [ ] **ID 11 (Documentation / High):** Create API documentation for `/api/newsletter/subscribe`. _Document the first API endpoint_
-- [ ] **ID 5 (Amazon Tools / High):** Implement core PPC Campaign Auditor functionality (optimization features). _Needed for content/core value. Aligns README status._
-- [ ] **ID 6 (Amazon Tools / High):** Implement Keyword Trend Analyzer (core functionality, seasonal analysis). _Builds separate tool. Aligns README status (#ID6)._
-- [ ] **ID 24 (Amazon Tools / Critical):** Improve calculation algorithms for keyword analysis. _Ensure core tool logic is sound. Aligns README status._
-- [ ] **ID 54 (Amazon Tools / High):** Implement pending Competitor Analyzer features (e.g., pricing analysis improvements). <!-- New Task: Explicitly track Competitor Analyzer enhancements mentioned in README if ID 24 scope is only keywords -->
+- [ ] **ID 5 (Amazon Tools / High):** Implement core PPC Campaign Auditor functionality (optimization features). _Goal: Reach feature set described in amazon-seller-tools.md (v2.0.0). Needed for content/core value. Aligns README status._ <!-- Updated based on analysis -->
+- [ ] **ID 6 (Amazon Tools / High):** Implement Keyword Trend Analyzer (core functionality, seasonal analysis). _Goal: Reach feature set described in amazon-seller-tools.md (v1.0.0). Builds separate tool. Aligns README status (#ID6)._ <!-- Updated based on analysis -->
+- [ ] **ID 24 (Amazon Tools / Critical):** Improve calculation algorithms for keyword analysis. _Refine logic for Keyword Analyzer (v2.1.0) as described in amazon-seller-tools.md. Ensure core tool logic is sound._ <!-- Updated based on analysis -->
+- [ ] **ID 54 (Amazon Tools / High):** Implement pending Competitor Analyzer features (e.g., pricing analysis improvements). _Goal: Reach feature set described in amazon-seller-tools.md (v1.0.0)._ <!-- Updated based on analysis -->
 - [ ] **ID 8 (Testing / High):** Add initial Unit Tests for core Seller Tool logic. _Start building test coverage_
 - [ ] **ID 41 (UI / Medium):** Add Links to Social Media/Newsletter Signup (Footer, etc.). _Promote channels_
 - [ ] **ID 12 (UI / Medium):** Implement consistent Dark Mode support across site. _Part of branding/UI polish_
@@ -113,7 +113,14 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 - [x] **ID 4 (Amazon Tools / Critical):** Complete ACOS Calculator implementation.
 - [x] **ID 7 (UI / Critical):** Implement responsive design for all tools.
 - [x] **ID 14 (Security / Critical):** Implement API key rotation and management.
+- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs.
+- [x] **ID 34 (Docs / Critical):** Ensure consistency between `README.md` Tools Table, `amazon-seller-tools.md` descriptions, and `TODO.md` status.
+- [x] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`.
+- [x] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory.
+- [x] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code.
+- [x] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass).
+- [x] **ID 55 (UI / Critical):** Standardize drag and drop feature across all tools.
 
 ---
 
-[//]: # (Roadmap last updated: 2024-08-01) <!-- Update Manually -->
+[//]: # (Roadmap last updated: 2024-08-05) <!-- Update Manually -->

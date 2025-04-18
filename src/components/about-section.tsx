@@ -223,112 +223,119 @@ export default function AboutSection() {
               </p>
             </div>
           </div>
-        ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800/30 dark:bg-red-900/20 dark:text-red-400">
-            <p>{error}</p>
-          </div>
         ) : (
-          <div className="grid gap-12 md:grid-cols-2">
-            <div className="space-y-8">
-              <Card className="overflow-hidden">
-                <CardContent className="p-6">
-                  <h3 className="mb-4 text-xl font-semibold">
-                    Technical Expertise
-                  </h3>
-                  <div className="space-y-6">
-                    {skills.map((skill) => (
-                      <div key={skill.name} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {getIconComponent(skill.icon)}
-                            <span className="font-medium">{skill.name}</span>
+          <>
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800/30 dark:bg-red-900/20 dark:text-red-400">
+                <p>{error}</p>
+              </div>
+            )}
+            {!error && (
+              <div className="grid gap-12 md:grid-cols-2">
+                <div className="space-y-8">
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-6">
+                      <h3 className="mb-4 text-xl font-semibold">
+                        Technical Expertise
+                      </h3>
+                      <div className="space-y-6">
+                        {skills.map((skill) => (
+                          <div key={skill.name} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {getIconComponent(skill.icon)}
+                                <span className="font-medium">
+                                  {skill.name}
+                                </span>
+                              </div>
+                              <span className="text-sm text-muted-foreground">
+                                {skill.level}%
+                              </span>
+                            </div>
+                            <div
+                              role="progressbar"
+                              aria-valuenow={skill.level}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              className="h-2 w-full rounded-full bg-gray-200"
+                            >
+                              <div
+                                className="h-full rounded-full bg-blue-500"
+                                style={{ width: `${skill.level}%` }}
+                              />
+                            </div>
                           </div>
-                          <span className="text-sm text-muted-foreground">
-                            {skill.level}%
-                          </span>
-                        </div>
-                        <div
-                          role="progressbar"
-                          aria-valuenow={skill.level}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                          className="h-2 w-full rounded-full bg-gray-200"
-                        >
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="mb-4 text-xl font-semibold">Education</h3>
+                      <div className="space-y-4">
+                        {education.map((edu, index) => (
                           <div
-                            className="h-full rounded-full bg-blue-500"
-                            style={{ width: `${skill.level}%` }}
-                          />
-                        </div>
+                            key={index}
+                            className="border-l-2 border-primary/20 pl-4"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="h-4 w-4 text-primary" />
+                              <h4 className="font-semibold">{edu.degree}</h4>
+                            </div>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {edu.institution}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {edu.period}
+                            </p>
+                            <p className="mt-2 text-sm">{edu.description}</p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </div>
 
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="mb-4 text-xl font-semibold">Education</h3>
-                  <div className="space-y-4">
-                    {education.map((edu, index) => (
-                      <div
-                        key={index}
-                        className="border-l-2 border-primary/20 pl-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-primary" />
-                          <h4 className="font-semibold">{edu.degree}</h4>
-                        </div>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {edu.institution}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {edu.period}
-                        </p>
-                        <p className="mt-2 text-sm">{edu.description}</p>
+                <div>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="mb-6 text-xl font-semibold">
+                        Professional Journey
+                      </h3>
+                      <div className="space-y-8">
+                        {experience.map((exp, index) => (
+                          <div
+                            key={index}
+                            className="relative border-l-2 border-primary/20 pl-4"
+                          >
+                            <div className="absolute -left-[9px] top-[6px] h-4 w-4 rounded-full border-2 border-primary bg-background"></div>
+                            <div>
+                              <h4 className="font-semibold">{exp.title}</h4>
+                              <p className="text-sm font-medium text-primary">
+                                {exp.company}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {exp.period}
+                              </p>
+                              <p className="mt-2 text-sm text-muted-foreground">
+                                {exp.description}
+                              </p>
+                              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                                {exp.achievements.map((achievement, i) => (
+                                  <li key={i}>{achievement}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div>
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="mb-6 text-xl font-semibold">
-                    Professional Journey
-                  </h3>
-                  <div className="space-y-8">
-                    {experience.map((exp, index) => (
-                      <div
-                        key={index}
-                        className="relative border-l-2 border-primary/20 pl-4"
-                      >
-                        <div className="absolute -left-[9px] top-[6px] h-4 w-4 rounded-full border-2 border-primary bg-background"></div>
-                        <div>
-                          <h4 className="font-semibold">{exp.title}</h4>
-                          <p className="text-sm font-medium text-primary">
-                            {exp.company}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {exp.period}
-                          </p>
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {exp.description}
-                          </p>
-                          <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                            {exp.achievements.map((achievement, i) => (
-                              <li key={i}>{achievement}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
