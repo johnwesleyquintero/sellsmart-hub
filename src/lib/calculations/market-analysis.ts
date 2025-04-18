@@ -1,4 +1,4 @@
-export interface MarketMetrics {
+interface MarketMetrics {
   searchVolume?: number;
   competition?: 'low' | 'medium' | 'high';
   trend?: 'rising' | 'stable' | 'declining';
@@ -27,51 +27,70 @@ export interface ListingMetrics {
 }
 
 export class MarketAnalysis {
+  private static calculateHistoricalScore(volume?: number[]): number {
+    if (!volume?.length) return 0;
+    return Math.min(volume.reduce((a, b) => a + b, 0) / volume.length, 100);
+  }
+
+  private static calculateCompetitionScore(count?: number): number {
+    return count ? Math.min(count * 0.5, 100) : 50;
+  }
+
+  private static calculateSeasonalityScore(data?: number[]): number {
+    if (!data?.length) return 100;
+    const variance = Math.max(...data) - Math.min(...data);
+    return Math.min(100 - (variance * 10), 100);
+  }
+
   static calculateMarketMetrics(data: {
     historicalVolume?: number[];
     competitorCount?: number;
     seasonalityData?: number[];
   }): MarketMetrics {
-    const { historicalVolume, competitorCount, seasonalityData } = data;
+    // Removed unused variables
+    // const historicalScore = this.calculateHistoricalScore(data.historicalVolume);
+    // const competitionScore = this.calculateCompetitionScore(data.competitorCount);
+    // const seasonalityScore = this.calculateSeasonalityScore(data.seasonalityData);
 
-    // Calculate trend from historical volume
     let trend: MarketMetrics['trend'] = 'stable';
-    if (historicalVolume && historicalVolume.length >= 2) {
+    if (data.historicalVolume && data.historicalVolume.length >= 2) {
       const recentChange =
-        ((historicalVolume[historicalVolume.length - 1] -
-          historicalVolume[historicalVolume.length - 2]) /
-          historicalVolume[historicalVolume.length - 2]) *
+        ((data.historicalVolume[data.historicalVolume.length - 1] -
+          data.historicalVolume[data.historicalVolume.length - 2]) /
+          data.historicalVolume[data.historicalVolume.length - 2]) *
         100;
-      trend =
-        recentChange > 5
-          ? 'rising'
-          : recentChange < -5
-            ? 'declining'
-            : 'stable';
+      if (recentChange > 5) {
+        trend = 'rising';
+      } else if (recentChange < -5) {
+        trend = 'declining';
+      }
+      // Removed redundant assignment to 'trend'
     }
 
-    // Calculate competition level
     let competition: MarketMetrics['competition'] = 'medium';
-    if (competitorCount) {
-      competition =
-        competitorCount < 10 ? 'low' : competitorCount > 50 ? 'high' : 'medium';
+    if (data.competitorCount) {
+      if (data.competitorCount < 10) {
+        competition = 'low';
+      } else if (data.competitorCount > 50) {
+        competition = 'high';
+      }
+      // Removed redundant assignment to 'competition'
     }
 
-    // Calculate seasonality factor
     let seasonality = 1;
-    if (seasonalityData && seasonalityData.length >= 12) {
+    if (data.seasonalityData && data.seasonalityData.length >= 12) {
       const avg =
-        seasonalityData.reduce((a, b) => a + b, 0) / seasonalityData.length;
+        data.seasonalityData.reduce((a, b) => a + b, 0) / data.seasonalityData.length;
       const currentMonth = new Date().getMonth();
-      seasonality = seasonalityData[currentMonth] / avg;
+      seasonality = data.seasonalityData[currentMonth] / avg;
     }
 
     return {
       trend,
       competition,
       seasonality,
-      difficulty: competitorCount ? Math.min(competitorCount / 100, 1) : 0.5,
-      score: 0, // To be calculated based on multiple factors
+      difficulty: data.competitorCount ? Math.min(data.competitorCount / 100, 1) : 0.5,
+      score: 0,
     };
   }
 
@@ -120,7 +139,6 @@ export class MarketAnalysis {
       ? Math.min((listing.keywords.length / 250) * 100, 100)
       : 0;
 
-    // Calculate conversion potential based on all factors
     const conversionPotential = [
       titleScore * 0.3,
       descriptionScore * 0.2,

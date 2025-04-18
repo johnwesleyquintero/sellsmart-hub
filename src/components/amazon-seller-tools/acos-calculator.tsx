@@ -308,7 +308,7 @@ export default function AcosCalculator() {
       // Allow only numbers and a single decimal for numeric fields
       // Regex allows empty string, digits, and optionally one decimal point
       if (name === 'adSpend' || name === 'sales') {
-        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+        if (value === '' || /^\d+(\.\d+)?$/.test(value)) {
           setManualCampaign((prev) => ({ ...prev, [name]: value }));
         }
       } else {
@@ -488,22 +488,23 @@ export default function AcosCalculator() {
                         style: { textAnchor: 'middle' },
                         dy: -10, // Adjust label position if needed
                       }}
-                      tickFormatter={
-                        (value) =>
-                          typeof value === 'number' && isFinite(value) // Check for finite numbers
-                            ? value.toFixed(
-                                chartConfig[selectedMetric].label.includes('%')
-                                  ? 1
-                                  : chartConfig[selectedMetric].label.includes(
-                                        '($)',
-                                      )
-                                    ? 2
-                                    : 0,
-                              )
-                            : value === Infinity
-                              ? '∞'
-                              : value // Handle Infinity
-                      }
+                      tickFormatter={(value) => {
+                        if (typeof value === 'number' && isFinite(value)) {
+                          let decimals = 0;
+                          if (chartConfig[selectedMetric].label.includes('%')) {
+                            decimals = 1;
+                          } else if (
+                            chartConfig[selectedMetric].label.includes('($)')
+                          ) {
+                            decimals = 2;
+                          }
+                          return value.toFixed(decimals);
+                        } else if (value === Infinity) {
+                          return '∞';
+                        } else {
+                          return value;
+                        }
+                      }}
                       domain={['auto', 'auto']} // Ensure Y-axis scales appropriately
                     />
                     <Tooltip
@@ -747,18 +748,18 @@ export default function AcosCalculator() {
                   {campaigns.map((campaign, index) => {
                     const acosValue = campaign.acos;
                     const roasValue = campaign.roas;
-                    const acosDisplay =
-                      acosValue === Infinity
-                        ? '∞'
-                        : acosValue !== undefined
-                          ? `${acosValue.toFixed(2)}%`
-                          : 'N/A';
-                    const roasDisplay =
-                      roasValue === Infinity
-                        ? '∞'
-                        : roasValue !== undefined
-                          ? `${roasValue.toFixed(2)}x`
-                          : 'N/A';
+                    let acosDisplay = 'N/A';
+                    if (acosValue === Infinity) {
+                      acosDisplay = '∞';
+                    } else if (acosValue !== undefined) {
+                      acosDisplay = `${acosValue.toFixed(2)}%`;
+                    }
+                    let roasDisplay = 'N/A';
+                    if (roasValue === Infinity) {
+                      roasDisplay = '∞';
+                    } else if (roasValue !== undefined) {
+                      roasDisplay = `${roasValue.toFixed(2)}x`;
+                    }
                     const rating = getAcosRating(acosValue ?? Infinity); // Use Infinity if undefined
                     const acosColor = getAcosColor(acosValue ?? Infinity);
 

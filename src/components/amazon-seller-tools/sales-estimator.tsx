@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+type CompetitionLevel = 'Low' | 'Medium' | 'High';
+
 type ProductData = {
   product: string;
   category: string;
@@ -34,8 +36,48 @@ export default function SalesEstimator() {
     product: '',
     category: '',
     price: '',
-    competition: 'Medium' as 'Low' | 'Medium' | 'High',
+    competition: 'Medium' as CompetitionLevel,
   });
+
+  const getBaseSales = (category: string): number => {
+    if (category === 'Electronics') return 150;
+    if (category === 'Phone Accessories') return 200;
+    return 100;
+  };
+
+  const getPriceFactor = (priceValue: number): number => {
+    if (priceValue < 10) return 2.0; // Higher factor for very low prices
+    if (priceValue < 25) return 1.5; // Increased factor for low prices
+    if (priceValue < 50) return 1.0; // Neutral factor for mid-range prices
+    return 0.7; // Lower factor for higher prices
+  };
+
+  const getCompetitionFactor = (competition: CompetitionLevel): number => {
+    if (competition === 'Low') return 1.3;
+    if (competition === 'Medium') return 1.0;
+    return 0.7; // High competition
+  };
+
+  const getConfidenceLevel = (
+    competition: CompetitionLevel,
+    price: number,
+  ): 'Low' | 'Medium' | 'High' => {
+    if (competition === 'Low' && price < 30) return 'High';
+    if (competition === 'High' && price > 50) return 'Low';
+    return 'Medium';
+  };
+
+  const calculateSalesData = (item: { category: string; price: number; competition: CompetitionLevel; }): { estimatedSales: number; estimatedRevenue: number; confidence: 'Low' | 'Medium' | 'High'; } => {
+    const baseSales = getBaseSales(item.category);
+    const priceFactor = getPriceFactor(item.price);
+    const competitionFactor = getCompetitionFactor(item.competition);
+
+    return {
+      estimatedSales: Math.round(baseSales * priceFactor * competitionFactor),
+      estimatedRevenue: Math.round(baseSales * priceFactor * competitionFactor) * item.price,
+      confidence: getConfidenceLevel(item.competition, item.price),
+    };
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -53,56 +95,25 @@ export default function SalesEstimator() {
             product: 'Wireless Earbuds',
             category: 'Electronics',
             price: 39.99,
-            competition: 'High' as 'Low' | 'Medium' | 'High',
+            competition: 'High' as CompetitionLevel,
           },
           {
             product: 'Phone Case',
             category: 'Phone Accessories',
             price: 19.99,
-            competition: 'Medium' as 'Low' | 'Medium' | 'High',
+            competition: 'Medium' as CompetitionLevel,
           },
           {
             product: 'Charging Cable',
             category: 'Electronics',
             price: 12.99,
-            competition: 'Low' as 'Low' | 'Medium' | 'High',
+            competition: 'Low' as CompetitionLevel,
           },
         ];
 
         const processedData = sampleData.map((item) => {
-          // This is a simplified sales estimation algorithm
-          // In a real app, you'd have a more sophisticated algorithm
-          let baseSales = 0;
-
-          // Category factor
-          if (item.category === 'Electronics') baseSales = 150;
-          else if (item.category === 'Phone Accessories') baseSales = 200;
-          else baseSales = 100;
-
-          // Price factor
-          const priceFactor =
-            item.price < 20 ? 1.5 : item.price < 50 ? 1.0 : 0.7;
-
-          // Competition factor
-          const competitionFactor =
-            item.competition === 'Low'
-              ? 1.3
-              : item.competition === 'Medium'
-                ? 1.0
-                : 0.7;
-
-          // Calculate estimated sales
-          const estimatedSales = Math.round(
-            baseSales * priceFactor * competitionFactor,
-          );
-          const estimatedRevenue = estimatedSales * item.price;
-
-          // Determine confidence level
-          let confidence: 'Low' | 'Medium' | 'High' = 'Medium';
-          if (item.competition === 'Low' && item.price < 30)
-            confidence = 'High';
-          else if (item.competition === 'High' && item.price > 50)
-            confidence = 'Low';
+          const { estimatedSales, estimatedRevenue, confidence } =
+            calculateSalesData(item);
 
           return {
             ...item,
@@ -142,42 +153,11 @@ export default function SalesEstimator() {
       return;
     }
 
-    // This is a simplified sales estimation algorithm
-    // In a real app, you'd have a more sophisticated algorithm
-    let baseSales = 0;
-
-    // Category factor
-    if (manualProduct.category === 'Electronics') baseSales = 150;
-    else if (manualProduct.category === 'Phone Accessories') baseSales = 200;
-    else baseSales = 100;
-
-    // Price factor
-    const getPriceFactor = (price: number) => {
-      if (price < 20) return 1.5;
-      if (price < 50) return 1.0;
-      return 0.7;
-    };
-    const priceFactor = getPriceFactor(price);
-
-    // Competition factor
-    const competitionFactor =
-      manualProduct.competition === 'Low'
-        ? 1.3
-        : manualProduct.competition === 'Medium'
-          ? 1.0
-          : 0.7;
-
-    // Calculate estimated sales
-    const estimatedSales = Math.round(
-      baseSales * priceFactor * competitionFactor,
-    );
-    const estimatedRevenue = estimatedSales * price;
-
-    // Determine confidence level
-    let confidence: 'Low' | 'Medium' | 'High' = 'Medium';
-    if (manualProduct.competition === 'Low' && price < 30) confidence = 'High';
-    else if (manualProduct.competition === 'High' && price > 50)
-      confidence = 'Low';
+    const { estimatedSales, estimatedRevenue, confidence } = calculateSalesData({
+      category: manualProduct.category,
+      price,
+      competition: manualProduct.competition,
+    });
 
     const newProduct: ProductData = {
       product: manualProduct.product,
@@ -300,10 +280,7 @@ export default function SalesEstimator() {
                     onChange={(e) => {
                       setManualProduct({
                         ...manualProduct,
-                        competition: e.target.value as
-                          | 'Low'
-                          | 'Medium'
-                          | 'High',
+                        competition: e.target.value as CompetitionLevel,
                       });
                     }}
                     className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -386,13 +363,15 @@ export default function SalesEstimator() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <Badge
-                          variant={
-                            product.competition === 'Low'
-                              ? 'default'
-                              : product.competition === 'Medium'
-                                ? 'secondary'
-                                : 'destructive'
-                          }
+                          variant={(() => {
+                            if (product.competition === 'Low') {
+                              return 'default';
+                            } else if (product.competition === 'Medium') {
+                              return 'secondary';
+                            } else {
+                              return 'destructive';
+                            }
+                          })()}
                         >
                           {product.competition}
                         </Badge>
@@ -403,21 +382,21 @@ export default function SalesEstimator() {
                       <td className="px-4 py-3 text-right text-sm font-medium">
                         ${product.estimatedRevenue.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        <Badge
-                          variant={
-                            product.confidence === 'High'
-                              ? 'default'
-                              : product.confidence === 'Medium'
-                                ? 'secondary'
-                                : 'outline'
-                          }
-                        >
-                          {product.confidence}
-                        </Badge>
+                      <td className="px-4 py-3 text-center">                        
+                        {(() => {
+                          let badgeVariant: 'default' | 'secondary' | 'outline' = 'outline';
+                          if (product.confidence === 'High') badgeVariant = 'default';
+                          else if (product.confidence === 'Medium') badgeVariant = 'secondary';
+                          return (
+                            <Badge variant={badgeVariant}>
+                              {product.confidence}
+                            </Badge>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}
+
                 </tbody>
               </table>
             </div>

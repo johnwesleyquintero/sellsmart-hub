@@ -1,0 +1,34 @@
+================================================
+CODE QUALITY ISSUES
+================================================
+
+Here's a breakdown of the errors, grouped by file and type, with a preliminary assessment of priority:
+
+High Priority - Security/Performance Risks:
+
+src/components/amazon-seller-tools/CsvUploader.tsx:45:59, src/components/amazon-seller-tools/keyword-deduplicator.tsx:71:54 - sonarjs/no-nested-functions: Nested functions reduce readability and maintainability.
+Multiple instances in src/components/amazon-seller-tools/description-editor.tsx, src/components/amazon-seller-tools/keyword-deduplicator.tsx, src/components/amazon-seller-tools/sales-estimator.tsx, src/lib/calculations/competitor-utils.ts, src/lib/calculations/inventory-utils.ts, src/lib/calculations/keyword-utils.ts, src/lib/calculations/market-analysis.ts - sonarjs/no-nested-conditional: Nested ternary operations are hard to read.
+src/components/roadmap-display.tsx:43:82 - sonarjs/no-nested-template-literals: Nested template literals can be difficult to read and debug.
+src/lib/calculations/market-analysis.ts:30:10 - sonarjs/cognitive-complexity: High cognitive complexity makes code harder to understand and maintain.
+src/components/amazon-seller-tools/sales-estimator.tsx:37:30, src/lib/amazon-tools/__tests__/csv-utils.test.ts:23:9 - sonarjs/use-type-alias: Using type aliases can improve code readability and maintainability.
+Low Priority - Minor Issues:
+
+src/components/blog/mdx-components.tsx:68:7, src/components/ui/table.tsx:10:5 - sonarjs/table-header: Missing table headers might affect accessibility.
+src/components/roadmap-display.tsx:58:5 - sonarjs/void-use: Unnecessary use of the void operator.
+Multiple instances in src/components/ui/data-table.tsx, src/lib/amazon-tools/acos/components/acos-table.tsx, src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx, src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx, src/lib/hooks/use-amazon-data.ts - sonarjs/no-commented-code: Commented-out code should be removed.
+src/lib/load-static-data.ts:62:60 & 64:57 - sonarjs/anchor-precedence: Regex operator precedence might be unclear.
+
+Goal 3: Develop an action plan.
+
+I will address the issues in the following order:
+
+
+Address the "no-nested-functions" errors in src/components/amazon-seller-tools/CsvUploader.tsx and src/components/amazon-seller-tools/keyword-deduplicator.tsx.
+Address the "no-nested-conditional" errors in the listed files.
+Address the "cognitive-complexity" error in src/lib/calculations/market-analysis.ts.
+Address the "use-type-alias" errors in src/components/amazon-seller-tools/sales-estimator.tsx and src/lib/amazon-tools/__tests__/csv-utils.test.ts.
+Address the "no-nested-template-literals" error in src/components/roadmap-display.tsx.
+Address the "table-header" errors in src/components/blog/mdx-components.tsx and src/components/ui/table.tsx.
+Address the "void-use" error in src/components/roadmap-display.tsx.
+Address the "no-commented-code" errors in the listed files.
+Address the "anchor-precedence" errors in src/lib/load-static-data.ts.

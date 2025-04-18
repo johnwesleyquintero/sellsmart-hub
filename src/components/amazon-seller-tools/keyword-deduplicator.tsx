@@ -30,6 +30,33 @@ interface ProcessedKeywordData extends KeywordData {
   duplicatesRemoved: number;
 }
 export default function KeywordDeduplicator() {
+  const extractKeywords = (keywords: string | string[]): string[] => {
+    if (typeof keywords === 'string') {
+      return keywords
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
+
+  const processKeywordData = (item: {
+    product: string;
+    keywords: string | string[];
+  }): ProcessedKeywordData => {
+    const originalKeywords = extractKeywords(item.keywords);
+    const cleanedKeywords: string[] = [...new Set(originalKeywords)];
+    return {
+      keyword: '',
+      searchVolume: 0,
+      difficulty: 0,
+      relevancy: 0,
+      product: String(item.product),
+      originalKeywords,
+      cleanedKeywords,
+      duplicatesRemoved: originalKeywords.length - cleanedKeywords.length,
+    };
+  };
   const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,33 +90,8 @@ export default function KeywordDeduplicator() {
             keywords: string | string[];
           }>;
           const processedData: ProcessedKeywordData[] = csvData
-            .filter((item) => item.product && item.keywords)
-            .map((item) => {
-              // Split keywords by comma if it's a string
-              const originalKeywords =
-                typeof item.keywords === 'string'
-                  ? item.keywords.split(',').map((k) => k.trim())
-                  : Array.isArray(item.keywords)
-                    ? item.keywords
-                    : [];
+            .filter((item) => item.product && item.keywords).map(processKeywordData);
 
-              // Remove duplicates
-              const cleanedKeywords: string[] = [
-                ...new Set(originalKeywords),
-              ] as string[];
-
-              return {
-                keyword: '',
-                searchVolume: 0,
-                difficulty: 0,
-                relevancy: 0,
-                product: String(item.product),
-                originalKeywords,
-                cleanedKeywords,
-                duplicatesRemoved:
-                  originalKeywords.length - cleanedKeywords.length,
-              };
-            });
 
           if (processedData.length === 0) {
             setError(

@@ -2,7 +2,6 @@
 import DragDropArea from '@/components/ui/DragDropArea';
 import { Button } from '@/components/ui/button';
 import { FileText, Info } from 'lucide-react';
-import Papa from 'papaparse';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import SampleCsvButton from './sample-csv-button';
@@ -38,15 +37,7 @@ export default function CsvUploader({
           console.log('file reading has failed');
         };
 
-        reader.onload = () => {
-          Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results: Papa.ParseResult<CsvRow>) => {
-              onUploadSuccess(results.data);
-            },
-          });
-        };
+        reader.onload = () => handleCsvParse(file, onUploadSuccess);
 
         reader.readAsText(file);
       });
@@ -88,3 +79,7 @@ export default function CsvUploader({
     </div>
   );
 }
+function handleCsvParse(file: File, onUploadSuccess: (data: CsvRow[]) => void): any {
+  throw new Error('Function not implemented.');
+}
+

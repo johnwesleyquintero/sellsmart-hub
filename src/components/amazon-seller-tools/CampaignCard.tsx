@@ -11,7 +11,11 @@ export interface Identifier {
   keyword: string;
 }
 
-export default function CampaignCard({ campaign }: { campaign: CampaignData }) {
+interface CampaignCardProps {
+  campaign: CampaignData;
+}
+
+export default function CampaignCard({ campaign }: CampaignCardProps) {
   return (
     <Card>
       <CardContent className="p-4">
