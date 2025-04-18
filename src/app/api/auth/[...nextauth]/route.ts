@@ -22,21 +22,21 @@ const handler = NextAuth({
       isNewUser?: boolean;
       session?: unknown;
     }) {
-      console.log("JWT Callback - Account:", params.account);
+      console.log('JWT Callback - Account:', params.account);
       if (params.account) {
         params.token.accessToken = params.account.access_token as string;
       }
-      console.log("JWT Callback - Token:", params.token);
+      console.log('JWT Callback - Token:', params.token);
       return params.token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      console.log("Session Callback - Token:", token);
+      console.log('Session Callback - Token:', token);
       if (token.accessToken) {
         session.accessToken = token.accessToken as string;
       } else {
-        console.log("Session Callback - accessToken is missing from token");
+        console.log('Session Callback - accessToken is missing from token');
       }
-      console.log("Session Callback - Session:", session);
+      console.log('Session Callback - Session:', session);
       return session;
     },
   },
