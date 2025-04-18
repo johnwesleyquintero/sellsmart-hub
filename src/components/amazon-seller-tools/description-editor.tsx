@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { getScoreColor } from '@/lib/calculations/color-utils';
 import { AlertCircle, Eye, FileText, Save, Upload } from 'lucide-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
