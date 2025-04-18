@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+import { ChatInterface } from '@/components/ui/chat-interface';
 
 const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
   ssr: false,
@@ -48,6 +49,8 @@ export default function Home() {
           <CertificationsSection />
           <BlogSection />
           <ContactSection />
+          {/* Add the ChatInterface component */}
+          <ChatInterface />
         </ErrorBoundary>
         <Footer />
       </div>

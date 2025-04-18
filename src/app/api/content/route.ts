@@ -11,10 +11,12 @@ export async function GET() {
         console.error('Error fetching GitHub projects:', error);
         return [];
       }),
-      getLinkedInExperience().catch((error) => {
-        console.error('Error fetching LinkedIn experience:', error);
-        return [];
-      }),
+      getLinkedInExperience()
+        .then((experience) => experience)
+        .catch((error) => {
+          console.error('Error fetching LinkedIn experience:', error);
+          return [];
+        }),
     ]);
 
     return NextResponse.json({
