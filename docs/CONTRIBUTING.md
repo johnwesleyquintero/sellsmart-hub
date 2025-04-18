@@ -84,7 +84,7 @@ Please adhere to the [GitHub Flow](https://guides.github.com/introduction/flow/)
 - Use npm commands for installing and managing packages:
   ```bash
   npm install
-  npm add <package>
+  npm install <package>
   ```
 
 ## Version Control
