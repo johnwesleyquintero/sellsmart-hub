@@ -2,12 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import type React from 'react';
 import { useEffect, useState } from 'react';
 
-// Update the interface to extend proper React props
-export interface ErrorBoundaryProps extends React.PropsWithChildren {
-  // Keep existing props if any
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
 }
 
 export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
@@ -15,6 +13,8 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return; // Ensure we're client-side
+    
     const errorHandler = (error: ErrorEvent) => {
       setHasError(true);
       setError(error.error);
@@ -22,10 +22,7 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
     };
 
     window.addEventListener('error', errorHandler);
-
-    return () => {
-      window.removeEventListener('error', errorHandler);
-    };
+    return () => window.removeEventListener('error', errorHandler);
   }, []);
 
   if (hasError) {
