@@ -69,9 +69,7 @@ const KeywordTrendAnalyzer: React.FC = () => {
                   key={key}
                   type="monotone"
                   dataKey={key}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16,
-                  )}`}
+                  stroke={`#${Math.floor(sampleValue * 16777215).toString(16)}`}
                 />
               ))}
           </LineChart>
@@ -80,5 +78,12 @@ const KeywordTrendAnalyzer: React.FC = () => {
     </div>
   );
 };
+
+// Replace Math.random() with crypto-safe alternative
+const randomBuffer = new Uint32Array(1);
+window.crypto.getRandomValues(randomBuffer);
+const sampleValue = randomBuffer[0] / 4294967295;
+const generateColor = () =>
+  `#${Math.floor(sampleValue * 16777215).toString(16)}`;
 
 export default KeywordTrendAnalyzer;

@@ -39,9 +39,10 @@ const RoadmapDisplay = () => {
             'Schema validation failed:',
             validationResult.error.errors,
           );
-          throw new Error(
-            `Roadmap data is invalid: ${validationResult.error.errors.map((e) => `${e.path.join('.')} - ${e.message}`).join(', ')}`,
-          );
+          const errorMessage = validationResult.error.errors
+            .map((e) => `${e.path.join('.')} - ${e.message}`)
+            .join(', ');
+          throw new Error(`Roadmap data is invalid: ${errorMessage}`);
         }
 
         setRoadmapData(validationResult.data);
@@ -55,7 +56,7 @@ const RoadmapDisplay = () => {
       }
     };
 
-    void fetchData().catch((err: unknown) => {
+    fetchData().catch((err: unknown) => {
       console.error('Failed to fetch roadmap data:', err);
     });
   }, []);

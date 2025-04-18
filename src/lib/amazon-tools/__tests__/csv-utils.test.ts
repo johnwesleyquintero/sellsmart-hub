@@ -1,3 +1,11 @@
+type RequiredColumns =
+  | 'price'
+  | 'reviews'
+  | 'rating'
+  | 'conversion_rate'
+  | 'click_through_rate'
+  | 'asin';
+
 import {
   processAmazonCsv,
   safeParseNumber,
@@ -19,26 +27,28 @@ describe('CSV Validation Utilities', () => {
 
   describe('validateRequiredColumns', () => {
     it('should return empty array when all required columns exist', () => {
-      const required: (
+      type RequiredColumns =
         | 'price'
         | 'reviews'
         | 'rating'
         | 'conversion_rate'
         | 'click_through_rate'
-        | 'asin'
-      )[] = ['asin', 'price', 'reviews'];
+        | 'asin';
+
+      const required: RequiredColumns[] = ['asin', 'price', 'reviews'];
       expect(validateRequiredColumns(testData, required)).toEqual([]);
     });
 
     it('should return missing columns when some are absent', () => {
-      const required: (
+      type RequiredColumns =
         | 'price'
         | 'reviews'
         | 'rating'
         | 'conversion_rate'
         | 'click_through_rate'
-        | 'asin'
-      )[] = ['asin', 'price', 'reviews'];
+        | 'asin';
+
+      const required: RequiredColumns[] = ['asin', 'price', 'reviews'];
       expect(validateRequiredColumns(testData, required)).toEqual(['missing']);
     });
   });
@@ -110,14 +120,7 @@ describe('CSV Validation Utilities', () => {
 
     it('should throw on missing columns', () => {
       expect(() =>
-        processAmazonCsv(testData, ['missing'] as unknown as (
-          | 'price'
-          | 'reviews'
-          | 'rating'
-          | 'conversion_rate'
-          | 'click_through_rate'
-          | 'asin'
-        )[]),
+        processAmazonCsv(testData, ['missing'] as unknown as RequiredColumns[]),
       ).toThrow('Missing required columns: missing');
     });
   });

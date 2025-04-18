@@ -38,15 +38,18 @@ export class InventoryUtils {
       data.currentInventory * INVENTORY_METRICS.defaultHoldingCostPercentage,
     );
 
-    const status =
-      data.currentInventory === 0
-        ? InventoryHealthStatus.CRITICAL
-        : data.currentInventory < reorderPoint
-          ? InventoryHealthStatus.LOW
-          : data.currentInventory >
-              reorderPoint * INVENTORY_METRICS.maxStockMultiplier
-            ? InventoryHealthStatus.EXCESS
-            : InventoryHealthStatus.HEALTHY;
+    let status: InventoryHealthStatus = InventoryHealthStatus.HEALTHY;
+
+    if (data.currentInventory === 0) {
+      status = InventoryHealthStatus.CRITICAL;
+    } else if (data.currentInventory < reorderPoint) {
+      status = InventoryHealthStatus.LOW;
+    } else if (
+      data.currentInventory >
+      reorderPoint * INVENTORY_METRICS.maxStockMultiplier
+    ) {
+      status = InventoryHealthStatus.EXCESS;
+    }
 
     return {
       status,

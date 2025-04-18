@@ -24,13 +24,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowDownUp, Columns } from 'lucide-react';
-// import { useState, useRef } from 'react';
-// import { SampleCsvButton } from './sample-csv-button';
-// import { Upload } from 'lucide-react';
-// import { Button } from '@/components/ui/button';
-// import { useState } from 'react';
-// import { AlertCircle } from 'lucide-react';
-// import { error } from 'console';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,8 +34,6 @@ export function PpcTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
   const table = useReactTable({
     data,
     columns,
@@ -50,9 +41,6 @@ export function PpcTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
-
-  // const handleExport = () => {};
-  // const clearData = () => {};
 
   return (
     <div>

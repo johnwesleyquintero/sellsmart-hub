@@ -1,4 +1,3 @@
-// import sampleData from '@/data/sample-data.json';
 import type {
   AmazonProduct,
   CompetitorData,

@@ -85,8 +85,12 @@ export class CompetitorUtils {
       metrics.reduce((sum, m) => sum + m.reviews, 0) / metrics.length;
 
     // Determine market segment
-    const segment =
-      avgPrice > 100 ? 'premium' : avgPrice > 50 ? 'midrange' : 'budget';
+    let segment: 'budget' | 'midrange' | 'premium' = 'budget';
+    if (avgPrice > 100) {
+      segment = 'premium';
+    } else if (avgPrice > 50) {
+      segment = 'midrange';
+    }
 
     // Analyze competitive advantages
     const competitiveAdvantage = [];

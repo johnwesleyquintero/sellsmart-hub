@@ -38,8 +38,14 @@ export class KeywordUtils {
     const last = historicalData[historicalData.length - 1];
     const changePercent = ((last - first) / first) * 100;
 
+    let trend: 'up' | 'down' | 'stable' = 'stable';
+    if (changePercent > 5) {
+      trend = 'up';
+    }
     return {
-      trend: changePercent > 5 ? 'up' : changePercent < -5 ? 'down' : 'stable',
+      trend,
+      changePercent
+    };
       changePercent: Number(changePercent.toFixed(2)),
     };
   }

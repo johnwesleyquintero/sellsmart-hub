@@ -1,34 +1,137 @@
-================================================
-CODE QUALITY ISSUES
-================================================
+========================================================
+                WESCORE - RUN SUMMARY
+========================================================
+Timestamp:        01/01/1970, 07:30:00 AM
+Platform:         win32 10.0.26100
+Node Version:     v20.19.0
+Git Commit:       f549901
+Command:          node .wescore\scripts\check-quality.mjs
+Duration:         57.65s
+--------------------------------------------------------
+Status:           ❌ FAILURE (4 failed)
+Total Checks:     4
+Passed:           0
+Failed:           4
 
-Here's a breakdown of the errors, grouped by file and type, with a preliminary assessment of priority:
+Failed Checks:
+  - Formatting (Prettier) (Exit Code 2)
+  - Linting (Exit Code 1)
+  - Type Checking (TSC) (Exit Code 2)
+  - Code Smell Analysis (ESLint/SonarJS) (Exit Code 1)
+========================================================
+[2025-04-18T18:15:05.518Z] [ERROR] 
+  4 check(s) failed:
+[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Formatting (Prettier)
+[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Linting
+[2025-04-18T18:15:05.519Z] [ERROR]   ▼ Type Checking (TSC)
+[2025-04-18T18:15:05.520Z] [ERROR]   ▼ Code Smell Analysis (ESLint/SonarJS)
 
-High Priority - Security/Performance Risks:
+========================================================
+                    RECOMMENDATIONS
+========================================================
 
-src/components/amazon-seller-tools/CsvUploader.tsx:45:59, src/components/amazon-seller-tools/keyword-deduplicator.tsx:71:54 - sonarjs/no-nested-functions: Nested functions reduce readability and maintainability.
-Multiple instances in src/components/amazon-seller-tools/description-editor.tsx, src/components/amazon-seller-tools/keyword-deduplicator.tsx, src/components/amazon-seller-tools/sales-estimator.tsx, src/lib/calculations/competitor-utils.ts, src/lib/calculations/inventory-utils.ts, src/lib/calculations/keyword-utils.ts, src/lib/calculations/market-analysis.ts - sonarjs/no-nested-conditional: Nested ternary operations are hard to read.
-src/components/roadmap-display.tsx:43:82 - sonarjs/no-nested-template-literals: Nested template literals can be difficult to read and debug.
-src/lib/calculations/market-analysis.ts:30:10 - sonarjs/cognitive-complexity: High cognitive complexity makes code harder to understand and maintain.
-src/components/amazon-seller-tools/sales-estimator.tsx:37:30, src/lib/amazon-tools/__tests__/csv-utils.test.ts:23:9 - sonarjs/use-type-alias: Using type aliases can improve code readability and maintainability.
-Low Priority - Minor Issues:
+• Formatting (Prettier):
+  Review the following output snippet for specific error messages:
+-------------------- SNIPPET START --------------------
+  [warn] Ignored unknown option --ignore-unchanged.
+  [error] src/lib/calculations/keyword-utils.ts: SyntaxError: ',' expected. (42:11)
+  [error]   40 |
+  [error]   41 |     return {
+  [error] > 42 |       let trend: 'up' | 'down' | 'stable' = 'stable';
+  [error]      |           ^
+  [error]   43 |     if (changePercent > 5) {
+  [error]   44 |       trend = 'up';
+  [error]   45 |     } else if (changePercent < -5) {
+--------------------- SNIPPET END ---------------------
+  Command executed: npm run format
 
-src/components/blog/mdx-components.tsx:68:7, src/components/ui/table.tsx:10:5 - sonarjs/table-header: Missing table headers might affect accessibility.
-src/components/roadmap-display.tsx:58:5 - sonarjs/void-use: Unnecessary use of the void operator.
-Multiple instances in src/components/ui/data-table.tsx, src/lib/amazon-tools/acos/components/acos-table.tsx, src/lib/amazon-tools/keyword-analyzer/components/keyword-table.tsx, src/lib/amazon-tools/ppc-analyzer/components/ppc-table.tsx, src/lib/hooks/use-amazon-data.ts - sonarjs/no-commented-code: Commented-out code should be removed.
-src/lib/load-static-data.ts:62:60 & 64:57 - sonarjs/anchor-precedence: Regex operator precedence might be unclear.
+• Linting:
+  Review the following output snippet for specific error messages:
+-------------------- SNIPPET START --------------------
+  ./src/components/amazon-seller-tools/keyword-trend-analyzer.tsx
+  72:42  Error: Make sure that using this pseudorandom number generator is safe here.  sonarjs/pseudo-random
+  89:18  Error: Make sure that using this pseudorandom number generator is safe here.  sonarjs/pseudo-random
 
-Goal 3: Develop an action plan.
+  ./src/components/ui/sidebar.tsx
+  667:3  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
+  669:5  Warning: Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random').
 
-I will address the issues in the following order:
+  ./src/lib/calculations/keyword-utils.ts
+  42:10  Error: Parsing error: ',' expected.
+
+  ./src/lib/load-static-data.ts
+  62:60  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
+  64:57  Error: Group parts of the regex together to make the intended operator precedence explicit.  sonarjs/anchor-precedence
+
+  ... (output truncated)
+--------------------- SNIPPET END ---------------------
+  Command executed: npm run lint
+
+• Type Checking (TSC):
+  Review the following output snippet for specific error messages:
+-------------------- SNIPPET START --------------------
+  src/lib/calculations/keyword-utils.ts(42,11): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(42,43): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(42,53): error TS1005: ':' expected.
+  src/lib/calculations/keyword-utils.ts(43,23): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(43,26): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(45,7): error TS1128: Declaration or statement expected.
+  src/lib/calculations/keyword-utils.ts(49,5): error TS1109: Expression expected.
+  src/lib/calculations/keyword-utils.ts(52,3): error TS1128: Declaration or statement expected.
+  src/lib/calculations/keyword-utils.ts(52,37): error TS1005: ',' expected.
+  src/lib/calculations/keyword-utils.ts(52,51): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(52,53): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(52,67): error TS1011: An element access expression should take an argument.
+  src/lib/calculations/keyword-utils.ts(52,69): error TS1005: ';' expected.
+  src/lib/calculations/keyword-utils.ts(60,1): error TS1128: Declaration or statement expected.
+--------------------- SNIPPET END ---------------------
+  Command executed: npx tsc --noEmit
+
+• Code Smell Analysis (ESLint/SonarJS):
+  Review the following output snippet for specific error messages:
+-------------------- SNIPPET START --------------------
+  > portfolio@0.1.0 lint:smells
+  > eslint --config eslint.config.js .
 
 
-Address the "no-nested-functions" errors in src/components/amazon-seller-tools/CsvUploader.tsx and src/components/amazon-seller-tools/keyword-deduplicator.tsx.
-Address the "no-nested-conditional" errors in the listed files.
-Address the "cognitive-complexity" error in src/lib/calculations/market-analysis.ts.
-Address the "use-type-alias" errors in src/components/amazon-seller-tools/sales-estimator.tsx and src/lib/amazon-tools/__tests__/csv-utils.test.ts.
-Address the "no-nested-template-literals" error in src/components/roadmap-display.tsx.
-Address the "table-header" errors in src/components/blog/mdx-components.tsx and src/components/ui/table.tsx.
-Address the "void-use" error in src/components/roadmap-display.tsx.
-Address the "no-commented-code" errors in the listed files.
-Address the "anchor-precedence" errors in src/lib/load-static-data.ts.
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\amazon-seller-tools\keyword-trend-analyzer.tsx
+    72:42  error  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
+    89:18  error  Make sure that using this pseudorandom number generator is safe here  sonarjs/pseudo-random
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\components\ui\sidebar.tsx
+    667:3  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
+    669:5  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/pseudo-random')
+
+  C:\Users\johnw\OneDrive\Desktop\portfolio\src\lib\calculations\keyword-utils.ts
+    42:10  error  Parsing error: ',' expected
+
+  ... (output truncated)
+--------------------- SNIPPET END ---------------------
+  Command executed: npm run lint:smells
+
+========================================================
+              IMMEDIATE ACTIONS REQUIRED
+========================================================
+
+The Wescore code quality checks have identified one or more issues.
+
+Instructions:
+1. Analyze the provided WESCORE run summary, focusing on the failed checks.
+2. Prioritize addressing the specific errors detailed in the output snippets for each failed check.
+Pay close attention to:
+   - File paths
+   - Line numbers
+   - Error messages
+
+Post-Fix Actions:
+1. After implementing fixes, re-run the code quality checks using the command: npm run cq
+2. Verify that the identified issues have been resolved and that all checks now pass.
+3. If failures persist, repeat the analysis and correction process until a successful run is achieved.
+
+Documentation:
+- Document the changes made.
+- Commit the corrected code to the repository.
+
+========================================================
+
+PS C:\Users\johnw\OneDrive\Desktop\portfolio> 

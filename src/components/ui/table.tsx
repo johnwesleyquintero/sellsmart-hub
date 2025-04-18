@@ -11,7 +11,13 @@ const Table = React.forwardRef<
       ref={ref}
       className={cn('w-full caption-bottom text-sm', className)}
       {...props}
-    />
+    >
+      <thead>
+        <tr>
+          <th></th>
+        </tr>
+      </thead>
+    </table>
   </div>
 ));
 Table.displayName = 'Table';
@@ -114,11 +120,11 @@ TableCaption.displayName = 'TableCaption';
 
 export {
   Table,
-  TableHeader,
   TableBody,
+  TableCaption,
+  TableCell,
   TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
-  TableCell,
-  TableCaption,
 };

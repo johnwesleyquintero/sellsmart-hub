@@ -413,15 +413,7 @@ export default function DescriptionEditor() {
                   </div>
                   <div className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs">
                     <span className="font-medium">Score:</span>
-                    <span
-                      className={
-                        (activeProduct.score || 0) >= 80
-                          ? 'text-green-600 dark:text-green-400'
-                          : (activeProduct.score || 0) >= 50
-                            ? 'text-yellow-600 dark:text-yellow-400'
-                            : 'text-red-600 dark:text-red-400'
-                      }
-                    >
+                    <span className={getScoreColor(activeProduct.score || 0)}>
                       {activeProduct.score}/100
                     </span>
                   </div>

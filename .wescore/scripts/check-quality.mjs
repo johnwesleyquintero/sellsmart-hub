@@ -358,10 +358,32 @@ async function runChecks() {
       console.log(`  Command executed: ${check.command}`);
     });
 
-    console.log(
-      `\nExecute comprehensive code quality checks using "npm run cq", meticulously analyzing the output for errors, warnings, and areas for improvement. Systematically address each identified issue, ensuring strict adherence to established code quality standards. Iterate this process of running "npm run cq", analyzing results, and resolving issues until all checks pass successfully, guaranteeing a high-quality codebase. Remember to commit any fixes after resolving the issues.`,
-    );
-    console.log(`========================================================`);
+    console.log(`
+========================================================
+              IMMEDIATE ACTIONS REQUIRED
+========================================================
+
+The Wescore code quality checks have identified one or more issues.
+
+Instructions:
+1. Analyze the provided WESCORE run summary, focusing on the failed checks.
+2. Prioritize addressing the specific errors detailed in the output snippets for each failed check. 
+Pay close attention to:
+   - File paths
+   - Line numbers
+   - Error messages
+
+Post-Fix Actions:
+1. After implementing fixes, re-run the code quality checks using the command: npm run cq
+2. Verify that the identified issues have been resolved and that all checks now pass.
+3. If failures persist, repeat the analysis and correction process until a successful run is achieved.
+
+Documentation:
+- Document the changes made.
+- Commit the corrected code to the repository.
+
+========================================================
+`);
   } else {
     // Success message if all checks passed
     log(
