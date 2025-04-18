@@ -59,9 +59,9 @@ export async function loadStaticData<T extends keyof StaticDataTypes>(
       const values = line.split(',');
       return {
         productName:
-          values[headers.indexOf('productName')]?.replace(/^"|"$/g, '') || '',
+          values[headers.indexOf('productName')]?.replace(/(^\"|\"$)/g, '') || '',
         campaign:
-          values[headers.indexOf('campaign')]?.replace(/^"|"$/g, '') || '',
+          values[headers.indexOf('campaign')]?.replace(/(^\"|\"$)/g, '') || '',
         adSpend: parseFloat(values[headers.indexOf('adSpend')] || '0') || 0,
         sales: parseFloat(values[headers.indexOf('sales')] || '0') || 0,
         clicks: parseInt(values[headers.indexOf('clicks')] || '0', 10) || 0,
