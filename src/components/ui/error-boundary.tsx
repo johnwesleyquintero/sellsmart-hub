@@ -1,44 +1,72 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+'use client';
 
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallback?: ReactNode;
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+
+// Update the interface to extend proper React props
+export interface ErrorBoundaryProps extends React.PropsWithChildren {
+  // Keep existing props if any
 }
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
+export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  state: ErrorBoundaryState = { hasError: false };
+  useEffect(() => {
+    const errorHandler = (error: ErrorEvent) => {
+      setHasError(true);
+      setError(error.error);
+      console.error('Error caught by error boundary:', error);
+    };
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
+    window.addEventListener('error', errorHandler);
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Error Boundary caught:', error, errorInfo);
-  }
+    return () => {
+      window.removeEventListener('error', errorHandler);
+    };
+  }, []);
 
-  render() {
-    if (this.state.hasError) {
-      return (
-        this.props.fallback || (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <h3 className="text-red-600 font-medium">Data Rendering Error</h3>
-            <p className="text-red-500 text-sm mt-2">
-              {this.state.error?.message ||
-                'Failed to render data visualization'}
+  if (hasError) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-800/30 dark:bg-red-900/20">
+        <AlertTriangle className="mb-4 h-12 w-12 text-red-500 dark:text-red-400" />
+        <h2 className="mb-2 text-xl font-bold text-red-800 dark:text-red-400">
+          Something went wrong
+        </h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Please refer to the{' '}
+          <a href="/docs/error-guide.md" className="underline">
+            error guide
+          </a>{' '}
+          for further details.
+        </p>
+        <p className="mb-6 max-w-md text-red-700 dark:text-red-300">
+          We apologize for the inconvenience. An unexpected error has occurred.
+        </p>
+        <Button
+          onClick={() => {
+            setHasError(false);
+            setError(null);
+            window.location.reload();
+          }}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Reload Page
+        </Button>
+        {error && process.env.NODE_ENV === 'development' && (
+          <div className="mt-6 max-w-md overflow-auto rounded border border-red-300 bg-white p-4 text-left text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300">
+            <p className="font-mono font-bold">
+              {error.name}: {error.message}
             </p>
+            <pre className="mt-2 text-xs">{error.stack}</pre>
           </div>
-        )
-      );
-    }
-
-    return this.props.children;
+        )}
+      </div>
+    );
   }
+
+  return <>{children}</>;
 }
