@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp: number;
 }
 
 export function ChatInterface() {
@@ -36,41 +37,59 @@ export function ChatInterface() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage: Message = {
+      role: 'user',
+      content: input,
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-  
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: input,
-          history: messages.slice(-4) // Send last 4 messages for context
+          history: messages.slice(-4), // Send last 4 messages for context
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to process chat message');
       }
-  
+
       const data = await response.json();
-      const assistantMessage: Message = { 
-        role: 'assistant', 
-        content: data.response || "I couldn't generate a response. Please try again."
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content:
+          data.response || "I couldn't generate a response. Please try again.",
+        timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: error instanceof Error ? error.message : 'Sorry, an unexpected error occurred'
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content:
+            error instanceof Error
+              ? error.message
+              : 'Sorry, an unexpected error occurred',
+          timestamp: Date.now(),
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = async (lastInput: string) => {
+    setInput(lastInput);
+    await handleSubmit({ preventDefault: () => {} } as any);
   };
 
   return (
@@ -112,14 +131,37 @@ export function ChatInterface() {
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
                   >
-                    {message.content}
+                    {message.content.startsWith('[ERROR] ') ? (
+                      <div className="space-y-2">
+                        <div>{message.content.replace('[ERROR] ', '')}</div>
+                        <button
+                          onClick={() =>
+                            handleRetry(
+                              message.content.match(/Last input: (.*)/)?.[1] ||
+                                '',
+                            )
+                          }
+                          className="text-sm px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="prose max-w-none"
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="max-w-[80%] rounded-lg p-3 bg-gray-100">
-                    <div className="animate-pulse">Thinking...</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                      <span>Generating response...</span>
+                    </div>
                   </div>
                 </div>
               )}
