@@ -139,8 +139,7 @@ export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMetric, setSelectedMetric] =
-    useState<keyof typeof chartConfig>('acos'); // Use keys of chartConfig
+  const [selectedMetric, setSelectedMetric] = useState<keyof typeof chartConfig>('acos');
 
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({
@@ -528,7 +527,7 @@ export default function AcosCalculator() {
             </CardContent>
           </DataCard>
 
-          {/* Line Chart */}
+          {/* Line Chart for ACoS vs ROAS Trend */}
           <DataCard>
             <h3 className="text-lg font-semibold mb-4 text-center">
               ACoS vs ROAS Trend
@@ -537,7 +536,7 @@ export default function AcosCalculator() {
               <ResponsiveContainer>
                 <LineChart
                   data={campaigns}
-                  margin={{ top: 5, right: 30, left: 30, bottom: 60 }} // Adjusted margins
+                  margin={{ top: 5, right: 30, left: 30, bottom: 60 }}
                 />
               </ResponsiveContainer>
             </ChartContainer>
