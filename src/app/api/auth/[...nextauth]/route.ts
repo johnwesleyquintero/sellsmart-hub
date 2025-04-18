@@ -1,9 +1,14 @@
 import NextAuth, { Account, Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
+import GithubProvider from 'next-auth/providers/github';
 import LinkedInProvider from 'next-auth/providers/linkedin';
 
 const handler = NextAuth({
   providers: [
+    GithubProvider({
+      clientId: process.env.GITHUB_ID || '',
+      clientSecret: process.env.GITHUB_SECRET || '',
+    }),
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID || '',
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',

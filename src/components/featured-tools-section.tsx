@@ -7,6 +7,7 @@ import {
   DollarSign,
   FileText,
   Filter,
+  LayoutDashboard,
   LineChart,
   Percent,
   Search,
@@ -25,6 +26,7 @@ import ListingQualityChecker from './amazon-seller-tools/listing-quality-checker
 import PpcCampaignAuditor from './amazon-seller-tools/ppc-campaign-auditor';
 import ProfitMarginCalculator from './amazon-seller-tools/profit-margin-calculator';
 import SalesEstimator from './amazon-seller-tools/sales-estimator';
+import UnifiedDashboard from './amazon-seller-tools/unified-dashboard';
 import { Badge } from './ui/badge';
 import {
   Card,
@@ -144,6 +146,15 @@ export default function FeaturedToolsSection() {
       status: 'beta',
       version: '0.8.0',
       component: <SalesEstimator />,
+    },
+    {
+      id: 'unified-dashboard',
+      name: 'Unified Dashboard',
+      description: 'Comprehensive dashboard for all Amazon seller metrics',
+      icon: <LayoutDashboard className="h-5 w-5" />,
+      status: 'active',
+      version: '1.0.0',
+      component: <UnifiedDashboard />,
     },
   ];
 
