@@ -39,7 +39,7 @@ export class MarketAnalysis {
   private static calculateSeasonalityScore(data?: number[]): number {
     if (!data?.length) return 100;
     const variance = Math.max(...data) - Math.min(...data);
-    return Math.min(100 - (variance * 10), 100);
+    return Math.min(100 - variance * 10, 100);
   }
 
   static calculateMarketMetrics(data: {
@@ -80,7 +80,8 @@ export class MarketAnalysis {
     let seasonality = 1;
     if (data.seasonalityData && data.seasonalityData.length >= 12) {
       const avg =
-        data.seasonalityData.reduce((a, b) => a + b, 0) / data.seasonalityData.length;
+        data.seasonalityData.reduce((a, b) => a + b, 0) /
+        data.seasonalityData.length;
       const currentMonth = new Date().getMonth();
       seasonality = data.seasonalityData[currentMonth] / avg;
     }
@@ -89,7 +90,9 @@ export class MarketAnalysis {
       trend,
       competition,
       seasonality,
-      difficulty: data.competitorCount ? Math.min(data.competitorCount / 100, 1) : 0.5,
+      difficulty: data.competitorCount
+        ? Math.min(data.competitorCount / 100, 1)
+        : 0.5,
       score: 0,
     };
   }

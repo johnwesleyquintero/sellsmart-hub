@@ -79,7 +79,9 @@ export default function CsvUploader({
     </div>
   );
 }
-function handleCsvParse(file: File, onUploadSuccess: (data: CsvRow[]) => void): any {
+function handleCsvParse(
+  file: File,
+  onUploadSuccess: (data: CsvRow[]) => void,
+): any {
   throw new Error('Function not implemented.');
 }
-

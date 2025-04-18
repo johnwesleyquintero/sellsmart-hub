@@ -67,14 +67,23 @@ export default function SalesEstimator() {
     return 'Medium';
   };
 
-  const calculateSalesData = (item: { category: string; price: number; competition: CompetitionLevel; }): { estimatedSales: number; estimatedRevenue: number; confidence: 'Low' | 'Medium' | 'High'; } => {
+  const calculateSalesData = (item: {
+    category: string;
+    price: number;
+    competition: CompetitionLevel;
+  }): {
+    estimatedSales: number;
+    estimatedRevenue: number;
+    confidence: 'Low' | 'Medium' | 'High';
+  } => {
     const baseSales = getBaseSales(item.category);
     const priceFactor = getPriceFactor(item.price);
     const competitionFactor = getCompetitionFactor(item.competition);
 
     return {
       estimatedSales: Math.round(baseSales * priceFactor * competitionFactor),
-      estimatedRevenue: Math.round(baseSales * priceFactor * competitionFactor) * item.price,
+      estimatedRevenue:
+        Math.round(baseSales * priceFactor * competitionFactor) * item.price,
       confidence: getConfidenceLevel(item.competition, item.price),
     };
   };
@@ -153,11 +162,13 @@ export default function SalesEstimator() {
       return;
     }
 
-    const { estimatedSales, estimatedRevenue, confidence } = calculateSalesData({
-      category: manualProduct.category,
-      price,
-      competition: manualProduct.competition,
-    });
+    const { estimatedSales, estimatedRevenue, confidence } = calculateSalesData(
+      {
+        category: manualProduct.category,
+        price,
+        competition: manualProduct.competition,
+      },
+    );
 
     const newProduct: ProductData = {
       product: manualProduct.product,
@@ -382,11 +393,16 @@ export default function SalesEstimator() {
                       <td className="px-4 py-3 text-right text-sm font-medium">
                         ${product.estimatedRevenue.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-center">                        
+                      <td className="px-4 py-3 text-center">
                         {(() => {
-                          let badgeVariant: 'default' | 'secondary' | 'outline' = 'outline';
-                          if (product.confidence === 'High') badgeVariant = 'default';
-                          else if (product.confidence === 'Medium') badgeVariant = 'secondary';
+                          let badgeVariant:
+                            | 'default'
+                            | 'secondary'
+                            | 'outline' = 'outline';
+                          if (product.confidence === 'High')
+                            badgeVariant = 'default';
+                          else if (product.confidence === 'Medium')
+                            badgeVariant = 'secondary';
                           return (
                             <Badge variant={badgeVariant}>
                               {product.confidence}
@@ -396,7 +412,6 @@ export default function SalesEstimator() {
                       </td>
                     </tr>
                   ))}
-
                 </tbody>
               </table>
             </div>

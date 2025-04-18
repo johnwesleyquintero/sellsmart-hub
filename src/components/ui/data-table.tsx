@@ -24,24 +24,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowDownUp, Columns } from 'lucide-react';
-// import {
-//   Button,
-//   Card,
-//   CardContent,
-//   Progress,
-//   Badge,
-// } from '@/components/ui';
-// import {
-//   AlertCircle,
-//   Download,
-//   FileText,
-//   TrendingDown,
-//   TrendingUp,
-//   Upload,
-//   Info,
-// } from 'lucide-react';
-// import { useState, useRef } from 'react';
-// import { SampleCsvButton } from './sample-csv-button';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

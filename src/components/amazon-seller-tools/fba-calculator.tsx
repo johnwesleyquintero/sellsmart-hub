@@ -81,7 +81,10 @@ export default function FbaCalculator() {
             })
             .map(
               (item: FBAData): ProductData => ({
-                productId: window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36).padStart(12, '0'),
+                productId: window.crypto
+                  .getRandomValues(new Uint32Array(1))[0]
+                  .toString(36)
+                  .padStart(12, '0'),
                 dimensions: { length: 0, width: 0, height: 0 },
                 weight: 0,
                 storageDuration: 0,
@@ -148,7 +151,10 @@ export default function FbaCalculator() {
 
     setError(null);
     const newManualProduct: ProductData = {
-      productId: window.crypto.getRandomValues(new Uint32Array(1))[0].toString(36).padStart(12, '0'),
+      productId: window.crypto
+        .getRandomValues(new Uint32Array(1))[0]
+        .toString(36)
+        .padStart(12, '0'),
       dimensions: { length: 0, width: 0, height: 0 },
       weight: 0,
       storageDuration: 0,

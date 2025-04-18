@@ -90,8 +90,8 @@ export default function KeywordDeduplicator() {
             keywords: string | string[];
           }>;
           const processedData: ProcessedKeywordData[] = csvData
-            .filter((item) => item.product && item.keywords).map(processKeywordData);
-
+            .filter((item) => item.product && item.keywords)
+            .map(processKeywordData);
 
           if (processedData.length === 0) {
             setError(
