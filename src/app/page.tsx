@@ -4,19 +4,35 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 
-const ErrorBoundary = dynamic(
-  () => import('@/components/ui/error-boundary'),
-  { ssr: false, loading: () => <div className="min-h-[400px]" /> }
-);
+const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
+  ssr: false,
+  loading: () => <div className="min-h-[400px]" />,
+});
 
 // Dynamically import sections that might use browser APIs
-const HeroSection = dynamic(() => import('@/components/hero-section'), { ssr: false });
-const FeaturedToolsSection = dynamic(() => import('@/components/featured-tools-section'), { ssr: false });
-const ProjectsSection = dynamic(() => import('@/components/projects-section'), { ssr: false });
-const AboutSection = dynamic(() => import('@/components/about-section'), { ssr: false });
-const CertificationsSection = dynamic(() => import('@/components/certifications-section'), { ssr: false });
-const BlogSection = dynamic(() => import('@/components/blog-section'), { ssr: false });
-const ContactSection = dynamic(() => import('@/components/contact-section'), { ssr: false });
+const HeroSection = dynamic(() => import('@/components/hero-section'), {
+  ssr: false,
+});
+const FeaturedToolsSection = dynamic(
+  () => import('@/components/featured-tools-section'),
+  { ssr: false },
+);
+const ProjectsSection = dynamic(() => import('@/components/projects-section'), {
+  ssr: false,
+});
+const AboutSection = dynamic(() => import('@/components/about-section'), {
+  ssr: false,
+});
+const CertificationsSection = dynamic(
+  () => import('@/components/certifications-section'),
+  { ssr: false },
+);
+const BlogSection = dynamic(() => import('@/components/blog-section'), {
+  ssr: false,
+});
+const ContactSection = dynamic(() => import('@/components/contact-section'), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

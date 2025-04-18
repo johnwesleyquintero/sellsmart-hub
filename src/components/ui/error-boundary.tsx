@@ -14,7 +14,7 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure we're client-side
-    
+
     const errorHandler = (error: ErrorEvent) => {
       setHasError(true);
       setError(error.error);

@@ -139,7 +139,8 @@ export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMetric, setSelectedMetric] = useState<keyof typeof chartConfig>('acos');
+  const [selectedMetric, setSelectedMetric] =
+    useState<keyof typeof chartConfig>('acos');
 
   // State for manual input form
   const [manualCampaign, setManualCampaign] = useState({

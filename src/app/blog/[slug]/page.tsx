@@ -15,7 +15,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { slug } = params;
+    // Await the params to ensure they are fully resolved
+    const { slug } = await params;
     const post = await getPostBySlug(slug);
 
     const DEFAULT_IMAGE_URL = '/default-fallback.svg'; // Define the constant here
@@ -103,7 +104,8 @@ export async function generateStaticParams() {
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const post = await getPostBySlug(params.slug);
+  // Await the params to ensure they are fully resolved
+  const post = await getPostBySlug(await params.slug);
 
   if (!post) {
     notFound();
