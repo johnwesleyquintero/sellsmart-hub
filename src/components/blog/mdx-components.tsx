@@ -3,9 +3,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type React from 'react';
 import BlogImage from './blog-image';
-console.log('Import path for utils is incorrect');
 
-console.log('MDXComponents is being imported');
 export const MDXComponents = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
