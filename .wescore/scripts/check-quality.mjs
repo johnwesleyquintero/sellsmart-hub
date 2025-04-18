@@ -129,6 +129,14 @@ async function getGitCommitHash() {
 // eslint-disable-next-line sonarjs/cognitive-complexity
 async function runChecks() {
   const scriptStartTime = performance.now(); // For overall script timing including config load
+  log(
+    'DEBUG',
+    `ESLint config: ${JSON.stringify(config.checks.find((check) => check.name === 'Linting'))}`,
+  );
+  log(
+    'DEBUG',
+    `Files being linted: ${JSON.stringify(config.checks.find((check) => check.name === 'Linting')?.command)}`,
+  );
   await loadConfig(); // Load config first
 
   if (allChecks.length === 0) {
