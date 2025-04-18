@@ -10,8 +10,15 @@ import Header from '@/components/header';
 import HeroSection from '@/components/hero-section';
 import ProjectsSection from '@/components/projects-section';
 import dynamic from 'next/dynamic';
-// Import ErrorBoundaryProps
-import type { ErrorBoundaryProps } from '@/components/ui/error-boundary';
+
+// Update dynamic import to properly handle SSR exclusion
+const ErrorBoundary = dynamic(
+  () => import('@/components/ui/error-boundary'),
+  { 
+    ssr: false,
+    loading: () => <div className="min-h-[400px]"/> // Optional loading state
+  }
+);
 
 export default function Home() {
   return (
@@ -33,9 +40,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Update the dynamic import to use proper typing
-const ErrorBoundary = dynamic<ErrorBoundaryProps>(
-  () => import('@/components/ui/error-boundary').then(mod => mod.default),
-  { ssr: false }
-);
