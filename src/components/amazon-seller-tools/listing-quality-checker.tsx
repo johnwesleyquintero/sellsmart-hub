@@ -2,6 +2,7 @@
 
 import type React from 'react';
 
+import DataCard from '@/components/amazon-seller-tools/DataCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,6 +48,58 @@ export default function ListingQualityChecker() {
   const [error, setError] = useState<string | null>(null);
   const [asin, setAsin] = useState('');
 
+  interface CSVRow {
+    product: string;
+    title: string;
+    description: string;
+    bullet_points: string;
+    images: string;
+    keywords: string;
+  }
+
+  const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
+    if (results.errors.length > 0) {
+      throw new Error(
+        `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
+      );
+    }
+
+    const requiredColumns = [
+      'product',
+      'title',
+      'description',
+      'bullet_points',
+      'images',
+      'keywords',
+    ];
+    const missingColumns = requiredColumns.filter(
+      (col) => !results.meta.fields?.includes(col),
+    );
+    if (missingColumns.length > 0) {
+      throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+    }
+  };
+
+  const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
+    const keywords =
+      row.keywords
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean) || [];
+
+    const keywordAnalysis = await KeywordIntelligence.analyze(keywords);
+
+    return {
+      product: row.product,
+      title: row.title,
+      description: row.description,
+      bulletPoints: row.bullet_points.split(';').filter(Boolean),
+      images: Number(row.images) || 0,
+      keywords,
+      keywordAnalysis,
+    };
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -62,74 +115,38 @@ export default function ListingQualityChecker() {
           throw new Error('Invalid file content');
         }
 
-        Papa.parse(content, {
+        Papa.parse<CSVRow>(content, {
           header: true,
           skipEmptyLines: true,
           complete: async (results) => {
-            if (results.errors.length > 0) {
-              throw new Error(
-                `CSV errors: ${results.errors.map((e) => e.message).join(', ')}`,
+            try {
+              validateCSVData(results);
+
+              const processedData = await Promise.all(
+                results.data.map(processCSVRow),
               );
-            }
 
-            const requiredColumns = [
-              'product',
-              'title',
-              'description',
-              'bullet_points',
-              'images',
-              'keywords',
-            ];
-            const missingColumns = requiredColumns.filter(
-              (col) => !results.meta.fields?.includes(col),
-            );
-            if (missingColumns.length > 0) {
-              throw new Error(
-                `Missing required columns: ${missingColumns.join(', ')}`,
+              setListings(processedData);
+              setError(null);
+              toast({
+                title: 'Success',
+                description: `${file.name} processed successfully`,
+                variant: 'default',
+              });
+            } catch (parseError) {
+              setError(
+                parseError instanceof Error
+                  ? parseError.message
+                  : 'An error occurred during parsing',
               );
+              toast({
+                title: 'Error',
+                description: (parseError as Error).message,
+                variant: 'destructive',
+              });
+            } finally {
+              setIsLoading(false);
             }
-
-            interface CSVRow {
-              product: string;
-              title: string;
-              description: string;
-              bullet_points: string;
-              images: string;
-              keywords: string;
-            }
-
-            const processedData = await Promise.all(
-              results.data.map(async (value: unknown) => {
-                const row = value as CSVRow;
-                const keywords =
-                  row.keywords
-                    .split(',')
-                    .map((k) => k.trim())
-                    .filter(Boolean) || [];
-
-                console.log('KeywordIntelligence:', KeywordIntelligence);
-                const keywordAnalysis =
-                  await KeywordIntelligence.analyze(keywords);
-
-                return {
-                  product: row.product,
-                  title: row.title,
-                  description: row.description,
-                  bulletPoints: row.bullet_points.split(';').filter(Boolean),
-                  images: Number(row.images) || 0,
-                  keywords,
-                  keywordAnalysis,
-                };
-              }),
-            );
-
-            setListings(processedData);
-            setError(null);
-            toast({
-              title: 'Success',
-              description: `${file.name} processed successfully`,
-              variant: 'default',
-            });
           },
         });
       } catch (error) {
@@ -139,8 +156,8 @@ export default function ListingQualityChecker() {
           description: (error as Error).message,
           variant: 'destructive',
         });
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     reader.readAsText(file);
   };
@@ -165,7 +182,7 @@ export default function ListingQualityChecker() {
         'Low-quality main image',
       ];
 
-      const selectedIssues = issues.filter(() => Math.random() > 0.5);
+      const selectedIssues = issues.filter(() => Math.random() > 0.5); // eslint-disable-line sonarjs/pseudo-random
 
       const suggestions = [
         'Add main keywords to the beginning of your title',
@@ -181,12 +198,12 @@ export default function ListingQualityChecker() {
 
       const newListing: ListingData = {
         product: `Product (ASIN: ${asin})`,
-        title: Math.random() > 0.3 ? 'Product Title Example' : '',
+        title: Math.random() > 0.3 ? 'Product Title Example' : '', // eslint-disable-line sonarjs/pseudo-random
         description:
-          Math.random() > 0.3 ? 'Product description example...' : '',
-        bulletPoints: Math.random() > 0.5 ? ['Bullet 1', 'Bullet 2'] : [],
-        images: Math.floor(Math.random() * 7),
-        keywords: Math.random() > 0.4 ? ['keyword1', 'keyword2'] : [],
+          Math.random() > 0.3 ? 'Product description example...' : '', // eslint-disable-line sonarjs/pseudo-random
+        bulletPoints: Math.random() > 0.5 ? ['Bullet 1', 'Bullet 2'] : [], // eslint-disable-line sonarjs/pseudo-random
+        images: Math.floor(Math.random() * 7), // eslint-disable-line sonarjs/pseudo-random
+        keywords: Math.random() > 0.4 ? ['keyword1', 'keyword2'] : [], // eslint-disable-line sonarjs/pseudo-random
         issues: selectedIssues.length
           ? selectedIssues
           : ['No major issues found'],
@@ -200,6 +217,18 @@ export default function ListingQualityChecker() {
       setAsin('');
       setIsLoading(false);
     }, 1500);
+  };
+
+  const getBadgeVariant = (
+    score: number,
+  ): 'default' | 'secondary' | 'destructive' => {
+    if (score >= 80) {
+      return 'default';
+    } else if (score >= 50) {
+      return 'secondary';
+    } else {
+      return 'destructive';
+    }
   };
 
   return (
@@ -284,15 +313,7 @@ export default function ListingQualityChecker() {
                   <h3 className="text-lg font-medium">{listing.product}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Quality Score:</span>
-                    <Badge
-                      variant={
-                        (listing.score || 0) >= 80
-                          ? 'default'
-                          : (listing.score || 0) >= 50
-                            ? 'secondary'
-                            : 'destructive'
-                      }
-                    >
+                    <Badge variant={getBadgeVariant(listing.score || 0)}>
                       {listing.score || 0}/100
                     </Badge>
                   </div>

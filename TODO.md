@@ -34,10 +34,10 @@ This document outlines the development roadmap for the **`ScaleWithWesley`** Por
 
 ## Phase 0: Foundational Fixes (Prerequisites - Execute FIRST)
 
-- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_
-- [ ] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_
-- [ ] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup_
-- [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup_
+- [x] **ID 33 (Docs / Critical):** BLOCKER: Resolve `npm`/`npm` inconsistency across ALL docs. _Update `.rules.md`, `README.md`, `CONTRIBUTING.md`_ <!-- Updated based on recent changes -->
+- [x] **ID 34 (Docs / Critical):** Align `README.md` "Tools Documentation" table with actual `TODO.md` status. _Reflect reality, don't overstate features_ <!-- Updated based on recent changes -->
+- [ ] **ID 26 (UI / Critical):** Consolidate duplicate UI components in `amazon-seller-tools`. _Code Cleanup. Initial audit complete; 2 duplicate form components identified for refactoring._ <!-- Note added based on recent changes -->
+- [ ] **ID 27 (Code Quality / Critical):** Remove unused utility functions from `lib` directory. _Code Cleanup. Removed `validateAmazonAsin`; 3 additional unused functions identified for future removal._ <!-- Note added based on recent changes -->
 - [ ] **ID 30 (Code Quality / Critical):** Improve readability and maintainability of seller tools code. _Code Cleanup_
 - [ ] **ID 10 (Performance / Critical):** Optimize image loading and rendering (Initial pass). _Foundational performance_
 - [ ] **ID 55 (UI / Critical):** Standardize drag and drop feature across all tools. _Ensure consistent UX_

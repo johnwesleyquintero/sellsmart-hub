@@ -15,7 +15,7 @@ If you haven't already, install Zod:
 ```bash
 npm install zod
 # or
-yarn add zod
+npm install zod
 ```
 
 ### 2. Define the Zod Schema (src/schemas/roadmapSchema.ts):

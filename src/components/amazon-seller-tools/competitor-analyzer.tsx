@@ -12,7 +12,7 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { Info } from 'lucide-react';
 import Papa from 'papaparse';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   CartesianGrid,
   Legend,
@@ -204,61 +204,58 @@ export function CompetitorAnalyzer() {
   const [sellerData, setSellerData] = useState<ProcessedRow[] | null>(null);
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
-  const [selectedMetrics, setSelectedMetrics] = useState<MetricType[]>(metrics);
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
-  const analyzeCompetitor = async () => {
+  const validateData = (): boolean => {
     if (!sellerData && !competitorData && !asin) {
       toast({
         title: 'Error',
         description: 'Please upload data files or enter an ASIN',
         variant: 'destructive',
       });
-      return;
+      return false;
+    }
+    return true;
+  };
+
+  const processCsvData = (): void => {
+    let processedSellerData = sellerData;
+    let processedCompetitorData = competitorData;
+
+    if (!processedSellerData && sellerData) {
+      processedSellerData = sellerData;
     }
 
-    setIsLoading(true);
-    try {
-      // Process CSV data if uploaded
-      let processedSellerData = sellerData;
-      let processedCompetitorData = competitorData;
+    if (!processedCompetitorData.length && competitorData.length) {
+      processedCompetitorData = competitorData;
+    }
 
-      // Process seller data if needed
-      if (!processedSellerData && sellerData) {
-        processedSellerData = sellerData;
-      }
+    if (processedSellerData && processedCompetitorData) {
+      const formattedData = processedCompetitorData.map((row) => {
+        const competitor = row.asin || row.niche || 'N/A';
+        const dataPoint: ChartDataPoint = {
+          name: competitor,
+        };
 
-      // Process competitor data if needed
-      if (!processedCompetitorData.length && competitorData.length) {
-        processedCompetitorData = competitorData;
-      }
-
-      // If no API call needed (using uploaded CSV data)
-      if (processedSellerData && processedCompetitorData) {
-        const formattedData = processedCompetitorData.map((row) => {
-          const competitor = row.asin || row.niche || 'N/A';
-          const dataPoint: ChartDataPoint = {
-            name: competitor,
-          };
-
-          metrics.forEach((metric) => {
-            const value = row[metric as keyof ProcessedRow];
-            if (value !== undefined) {
-              dataPoint[metric] = value;
-            }
-          });
-
-          return dataPoint;
+        metrics.forEach((metric) => {
+          const value = row[metric as keyof ProcessedRow];
+          if (value !== undefined) {
+            dataPoint[metric] = value;
+          }
         });
 
-        if (formattedData.length > 0 && metrics.length > 0) {
-          setChartData(formattedData);
-          setIsLoading(false);
-          return;
-        }
-      }
+        return dataPoint;
+      });
 
-      // Fallback to API call if no valid CSV data
+      if (formattedData.length > 0 && metrics.length > 0) {
+        setChartData(formattedData);
+        setIsLoading(false);
+        return;
+      }
+    }
+  };
+
+  const fetchAndProcessApiData = async (): Promise<void> => {
+    try {
       const response = await fetch('/api/amazon/competitor-analysis', {
         method: 'POST',
         headers: {
@@ -267,8 +264,8 @@ export function CompetitorAnalyzer() {
         body: JSON.stringify({
           asin,
           metrics,
-          sellerData: processedSellerData,
-          competitorData: processedCompetitorData,
+          sellerData: sellerData,
+          competitorData: competitorData,
         }),
       });
 
@@ -300,7 +297,6 @@ export function CompetitorAnalyzer() {
           name: competitor,
         };
 
-        // Safely map each metric
         metrics.forEach((metric) => {
           const metricData = data.metrics[metric];
           if (Array.isArray(metricData) && metricData[index] !== undefined) {
@@ -318,7 +314,6 @@ export function CompetitorAnalyzer() {
         return dataPoint;
       });
 
-      // Ensure we have data to render
       if (formattedData.length > 0 && metrics.length > 0) {
         setChartData(formattedData);
       } else {
@@ -340,11 +335,21 @@ export function CompetitorAnalyzer() {
     }
   };
 
-  useEffect(() => {
-    if (chartData) {
-      setSelectedMetrics(metrics);
+  const analyzeCompetitor = async () => {
+    if (!validateData()) {
+      return;
     }
-  }, [chartData, metrics]);
+
+    setIsLoading(true);
+
+    processCsvData();
+
+    if (!chartData) {
+      await fetchAndProcessApiData();
+    }
+
+    setIsLoading(false);
+  };
 
   const isMobile = useIsMobile();
 
@@ -545,7 +550,7 @@ export function CompetitorAnalyzer() {
                   </TooltipContent>
                 </Tooltip>
                 <Legend wrapperStyle={{ paddingTop: 20 }} />
-                {selectedMetrics.map((metric) => (
+                {metrics.map((metric) => (
                   <Line
                     key={metric}
                     type="monotone"

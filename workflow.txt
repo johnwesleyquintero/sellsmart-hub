@@ -3,7 +3,7 @@ GENERAL WORKFLOW
 ===================================================================
 
 1. REVIEW & ANALYZE:
-   - Review `.task_tracker.log` for errors and warnings.
+   - Review `TODO.md` for errors and pending implementations.
    - Identify root causes of issues.
 
 2. IMPLEMENT FIXES:
