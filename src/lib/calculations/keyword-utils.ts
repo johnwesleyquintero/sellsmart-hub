@@ -41,12 +41,12 @@ export class KeywordUtils {
     let trend: 'up' | 'down' | 'stable' = 'stable';
     if (changePercent > 5) {
       trend = 'up';
+    } else if (changePercent < -5) {
+      trend = 'down';
     }
     return {
       trend,
-      changePercent
-    };
-      changePercent: Number(changePercent.toFixed(2)),
+      changePercent: Number(changePercent.toFixed(2))
     };
   }
 
