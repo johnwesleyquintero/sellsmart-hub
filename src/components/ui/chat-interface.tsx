@@ -7,6 +7,9 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  status?: 'sending' | 'sent' | 'error';
+  error?: string;
+  retryCount?: number;
 }
 
 export function ChatInterface() {
@@ -41,8 +44,10 @@ export function ChatInterface() {
       role: 'user',
       content: input,
       timestamp: Date.now(),
+      status: 'sending',
+      retryCount: 0
     };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -62,26 +67,38 @@ export function ChatInterface() {
       }
 
       const data = await response.json();
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content:
-          data.response || "I couldn't generate a response. Please try again.",
+      // Update user message status to sent
+      setMessages(prev => prev.map(msg => 
+        msg === userMessage ? { ...msg, status: 'sent' } : msg
+      ));
+      
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: data.response || "I couldn't generate a response. Please try again.",
         timestamp: Date.now(),
+        status: 'sent'
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content:
-            error instanceof Error
-              ? error.message
-              : 'Sorry, an unexpected error occurred',
-          timestamp: Date.now(),
-        },
-      ]);
+      const errorMessage = error instanceof Error ? error.message : 'Sorry, an unexpected error occurred';
+      
+      // Update user message status to error
+      setMessages(prev => prev.map(msg => 
+        msg === userMessage ? { 
+          ...msg, 
+          status: 'error',
+          error: errorMessage,
+          retryCount: (msg.retryCount || 0) + 1
+        } : msg
+      ));
+
+      setMessages(prev => [...prev, { 
+        role: 'assistant',
+        content: errorMessage,
+        timestamp: Date.now(),
+        status: 'error'
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -129,8 +146,13 @@ export function ChatInterface() {
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+                    className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'} relative`}
                   >
+                    <div className="absolute -bottom-4 right-0 text-xs text-gray-500">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                      {message.status === 'sending' && ' • Sending...'}
+                      {message.status === 'error' && ' • Failed'}
+                    </div>
                     {message.content.startsWith('[ERROR] ') ? (
                       <div className="space-y-2">
                         <div>{message.content.replace('[ERROR] ', '')}</div>

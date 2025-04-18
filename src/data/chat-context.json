@@ -1,0 +1,41 @@
+{
+  "chatContext": {
+    "personalInfo": {
+      "name": "Wesley Quintero",
+      "email": "johnwesleyquintero@gmail.com",
+      "location": "Tagum, Davao Region, Philippines",
+      "phone": "+63 950 446 9156"
+    },
+    "professionalProfile": {
+      "title": "Data-Driven Amazon & E-commerce Specialist",
+      "tagline": "Helping Brands Scale with Insights, Automation & AI",
+      "description": "Building AI-Powered Tools via Nebula-Singularity Platform"
+    },
+    "amazonExpertise": {
+      "sellerCentral": {
+        "role": "Certified Developer",
+        "link": "https://sellercentral.amazon.com/"
+      },
+      "developerCentral": {
+        "role": "API Integration Specialist",
+        "link": "https://developer.amazon.com/"
+      }
+    },
+    "skills": {
+      "technicalExpert": [
+        "Data Analytics",
+        "Programming",
+        "ML",
+        "DB Management"
+      ],
+      "technicalAdvanced": ["Python/R/JS", "AI Automation", "SQL/Supabase"],
+      "softSkills": ["Leadership", "Client Relations", "Problem Solving"]
+    },
+    "commonQueries": {
+      "portfolio": "I can help you explore Wesley's portfolio, which showcases his expertise in Amazon e-commerce, data analytics, and AI-powered solutions.",
+      "experience": "Wesley is a certified Amazon Developer and API Integration Specialist with extensive experience in e-commerce automation and data analytics.",
+      "contact": "You can reach Wesley via email at johnwesleyquintero@gmail.com or phone at +63 950 446 9156.",
+      "services": "Wesley specializes in building AI-powered tools for e-commerce, data analytics, and process automation."
+    }
+  }
+}

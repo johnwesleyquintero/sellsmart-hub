@@ -11,13 +11,27 @@ export async function POST(request: NextRequest) {
 
     const { message, history = [] } = await request.json();
 
-    // Create a context-aware prompt that includes information about our webapp
-    const contextPrompt = `You are an AI assistant for our portfolio webapp. You help users with:
-    - Navigating the portfolio sections (About, Projects, Blog, etc)
-    - Understanding technical project details
-    - Providing relevant recommendations based on user interests
-    - Answering questions about skills and experience
-    Please provide helpful, context-aware responses.
+    // Load portfolio context
+    const portfolioContext = await import('@/data/chat-context.json');
+
+    // Create a context-aware prompt that includes portfolio information
+    const contextPrompt = `You are an AI assistant for Wesley Quintero's portfolio website. You have access to the following information about Wesley:
+
+    Personal Information:
+    - Name: ${portfolioContext.chatContext.personalInfo.name}
+    - Role: ${portfolioContext.chatContext.professionalProfile.title}
+    - Expertise: ${portfolioContext.chatContext.professionalProfile.description}
+    
+    Technical Skills:
+    - Expert in: ${portfolioContext.chatContext.skills.technicalExpert.join(', ')}
+    - Advanced in: ${portfolioContext.chatContext.skills.technicalAdvanced.join(', ')}
+    - Soft Skills: ${portfolioContext.chatContext.skills.softSkills.join(', ')}
+    
+    Amazon Expertise:
+    - ${portfolioContext.chatContext.amazonExpertise.sellerCentral.role} for Amazon Seller Central
+    - ${portfolioContext.chatContext.amazonExpertise.developerCentral.role}
+
+    Please provide accurate, personalized responses based on this information. For contact inquiries, share the appropriate contact details from the portfolio data.
     
     Previous conversation context:
     ${history.map((msg: { role: string; content: string }) => `${msg.role}: ${msg.content}`).join('\n')}
