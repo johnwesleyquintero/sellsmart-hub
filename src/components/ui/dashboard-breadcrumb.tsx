@@ -1,21 +1,20 @@
 'use client';
 
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export function DashboardBreadcrumb() {
   const pathname = usePathname();
-  const pathSegments = pathname
-    .split('/')
-    .filter((segment) => segment !== '');
+  if (!pathname) return null;
+  const pathSegments = pathname.split('/').filter((segment) => segment !== '');
 
   return (
     <Breadcrumb className="mb-6">

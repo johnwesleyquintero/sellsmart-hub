@@ -155,13 +155,13 @@ cp .env.example .env
 
 ## Tools Documentation
 
-| Tool Name            | Status    | Version | Core Features                                          | Implementation Status                   | Planned Enhancements                    |
-| -------------------- | --------- | ------- | ----------------------------------------------------- | -------------------------------------- | -------------------------------------- |
-| ACoS Calculator      | Active    | 1.5.0   | Campaign tracking, Revenue analysis                    | Core functionality complete             | Advanced visualization, Export options  |
-| PPC Campaign Auditor | Beta      | 0.9.0   | Performance metrics, Bid optimization                  | Basic metrics implemented               | AI-powered suggestions, Trend analysis  |
-| Description Editor   | Active    | 1.5.0   | HTML formatting, Keyword integration                   | Core functionality complete             | Enhanced SEO tools, Mobile optimization |
-| Keyword Deduplicator | Active    | 1.5.0   | Bulk processing, Duplicate detection                  | Core functionality with pending updates | AI suggestions, Performance tracking    |
-| Competitor Analyzer  | Planned   | -       | Market research, Pricing analysis                     | In development                         | Data enrichment, Automated monitoring   |
+| Tool Name            | Status  | Version | Core Features                         | Implementation Status                   | Planned Enhancements                    |
+| -------------------- | ------- | ------- | ------------------------------------- | --------------------------------------- | --------------------------------------- |
+| ACoS Calculator      | Active  | 1.5.0   | Campaign tracking, Revenue analysis   | Core functionality complete             | Advanced visualization, Export options  |
+| PPC Campaign Auditor | Beta    | 0.9.0   | Performance metrics, Bid optimization | Basic metrics implemented               | AI-powered suggestions, Trend analysis  |
+| Description Editor   | Active  | 1.5.0   | HTML formatting, Keyword integration  | Core functionality complete             | Enhanced SEO tools, Mobile optimization |
+| Keyword Deduplicator | Active  | 1.5.0   | Bulk processing, Duplicate detection  | Core functionality with pending updates | AI suggestions, Performance tracking    |
+| Competitor Analyzer  | Planned | -       | Market research, Pricing analysis     | In development                          | Data enrichment, Automated monitoring   |
 
 ---
 

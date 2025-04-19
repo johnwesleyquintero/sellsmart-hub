@@ -8,7 +8,7 @@ import {
   FileText,
   Info,
   Upload,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react';
@@ -20,7 +20,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
 } from 'recharts';
 
 // Local/UI Imports (Consistent with other tools)
@@ -49,8 +49,16 @@ interface TrendDataPoint {
 const REQUIRED_COLUMNS = ['keyword', 'date', 'search_volume'];
 // Simple color palette for chart lines
 const LINE_COLORS = [
-  '#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff8042',
-  '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#d0ed57',
+  '#8884d8',
+  '#82ca9d',
+  '#ffc658',
+  '#ff7300',
+  '#ff8042',
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#d0ed57',
 ];
 
 // --- Helper Functions ---
@@ -88,14 +96,17 @@ const processTrendData = async (
     dataByDate[date][keyword] = volume;
   }
 
-   if (Object.keys(dataByDate).length === 0 && rawData.length > 0) {
-       throw new Error("No valid trend data points found after processing. Check keyword, date, and search_volume columns.");
-   }
-   if (parseError) {
-       console.warn("Some rows were skipped due to invalid data during trend processing.");
-       // Optionally throw a less severe error or return a warning flag
-   }
-
+  if (Object.keys(dataByDate).length === 0 && rawData.length > 0) {
+    throw new Error(
+      'No valid trend data points found after processing. Check keyword, date, and search_volume columns.',
+    );
+  }
+  if (parseError) {
+    console.warn(
+      'Some rows were skipped due to invalid data during trend processing.',
+    );
+    // Optionally throw a less severe error or return a warning flag
+  }
 
   const sortedDates = Object.keys(dataByDate).sort();
   const keywordList = Array.from(keywords);
@@ -143,7 +154,8 @@ export default function KeywordTrendAnalyzer() {
               );
             }
 
-            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || [];
+            const actualHeaders =
+              result.meta.fields?.map((h) => h.toLowerCase()) || [];
             const missingHeaders = REQUIRED_COLUMNS.filter(
               (header) => !actualHeaders.includes(header),
             );
@@ -155,7 +167,9 @@ export default function KeywordTrendAnalyzer() {
             }
 
             if (result.data.length === 0) {
-                throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
+              throw new Error(
+                'The uploaded CSV file appears to be empty or contains no data rows.',
+              );
             }
 
             // Process the data (mock API call)
@@ -163,8 +177,8 @@ export default function KeywordTrendAnalyzer() {
               await processTrendData(result.data);
 
             if (processedData.length === 0) {
-                // This case is handled inside processTrendData, but double-check
-                throw new Error("No processable trend data found in the CSV.");
+              // This case is handled inside processTrendData, but double-check
+              throw new Error('No processable trend data found in the CSV.');
             }
 
             setChartData(processedData);
@@ -220,7 +234,11 @@ export default function KeywordTrendAnalyzer() {
     if (chartData.length === 0) {
       const msg = 'No data to export.';
       setError(msg);
-      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Export Error',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
     setError(null);
@@ -246,7 +264,11 @@ export default function KeywordTrendAnalyzer() {
       const message =
         err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Failed to export data: ${message}`);
-      toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+      toast({
+        title: 'Export Failed',
+        description: message,
+        variant: 'destructive',
+      });
     }
   }, [chartData, toast]);
 
@@ -257,7 +279,11 @@ export default function KeywordTrendAnalyzer() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    toast({ title: 'Data Cleared', description: 'All trend analysis results have been removed.', variant: 'default' });
+    toast({
+      title: 'Data Cleared',
+      description: 'All trend analysis results have been removed.',
+      variant: 'default',
+    });
   }, [toast]);
 
   // --- Render ---
@@ -269,9 +295,18 @@ export default function KeywordTrendAnalyzer() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Upload a CSV with columns: `keyword`, `date` (YYYY-MM-DD), `search_volume`.</li>
-            <li>Each row represents the search volume for a specific keyword on a specific date.</li>
-            <li>The tool visualizes the search volume trends for each keyword over time.</li>
+            <li>
+              Upload a CSV with columns: `keyword`, `date` (YYYY-MM-DD),
+              `search_volume`.
+            </li>
+            <li>
+              Each row represents the search volume for a specific keyword on a
+              specific date.
+            </li>
+            <li>
+              The tool visualizes the search volume trends for each keyword over
+              time.
+            </li>
             <li>(Note: Data processing is mocked for this demo).</li>
             <li>Export the processed trend data.</li>
           </ul>
@@ -280,7 +315,9 @@ export default function KeywordTrendAnalyzer() {
 
       {/* Input Card */}
       <DataCard>
-        <CardContent className="p-6"> {/* Explicit padding control */}
+        <CardContent className="p-6">
+          {' '}
+          {/* Explicit padding control */}
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <div className="rounded-full bg-primary/10 p-3">
               <Upload className="h-6 w-6 text-primary" />
@@ -327,7 +364,11 @@ export default function KeywordTrendAnalyzer() {
             <Download className="mr-2 h-4 w-4" />
             Export Results
           </Button>
-          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
             <XCircle className="mr-2 h-4 w-4" />
             Clear Results
           </Button>
@@ -366,14 +407,16 @@ export default function KeywordTrendAnalyzer() {
             <h2 className="text-xl font-semibold border-b pb-3">
               Keyword Trend Analysis ({keywords.length} Keywords)
             </h2>
-            <div className="h-[450px] w-full"> {/* Ensure container has height */}
+            <div className="h-[450px] w-full">
+              {' '}
+              {/* Ensure container has height */}
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={chartData}
                   margin={{
                     top: 5,
                     right: 10, // Adjusted margin
-                    left: 0,  // Adjusted margin
+                    left: 0, // Adjusted margin
                     bottom: 5,
                   }}
                 >
@@ -385,7 +428,13 @@ export default function KeywordTrendAnalyzer() {
                   />
                   <YAxis
                     tick={{ fontSize: 10 }}
-                    label={{ value: 'Search Volume', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 12 }, dx: -5 }}
+                    label={{
+                      value: 'Search Volume',
+                      angle: -90,
+                      position: 'insideLeft',
+                      style: { textAnchor: 'middle', fontSize: 12 },
+                      dx: -5,
+                    }}
                   />
                   <Tooltip
                     contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
@@ -395,7 +444,9 @@ export default function KeywordTrendAnalyzer() {
                     ]}
                     labelFormatter={(label: string) => `Date: ${label}`} // Format date label
                   />
-                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Legend
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  />
                   {keywords.map((key, index) => (
                     <Line
                       key={key}

@@ -28,9 +28,11 @@ export default function SignIn() {
             onClick={async () => {
               try {
                 await signIn('linkedin', { callbackUrl: '/dashboard' });
-              // eslint-disable-next-line sonarjs/no-ignored-exceptions
+                // eslint-disable-next-line sonarjs/no-ignored-exceptions
               } catch (error) {
-                alert('LinkedIn authentication is currently unavailable. Please check back soon or use another login method.');
+                alert(
+                  'LinkedIn authentication is currently unavailable. Please check back soon or use another login method.',
+                );
               }
             }}
             variant="outline"

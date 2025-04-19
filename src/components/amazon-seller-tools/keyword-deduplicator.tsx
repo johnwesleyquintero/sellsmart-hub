@@ -42,7 +42,9 @@ interface CsvInputRow {
 // --- Helper Functions ---
 
 // Extracts and cleans keywords from a string
-const extractKeywordsFromString = (keywordsString: string | null | undefined): string[] => {
+const extractKeywordsFromString = (
+  keywordsString: string | null | undefined,
+): string[] => {
   if (!keywordsString) {
     return [];
   }
@@ -108,7 +110,8 @@ export default function KeywordDeduplicator() {
 
             // Validate required headers
             const requiredHeaders = ['product', 'keywords'];
-            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || []; // Case-insensitive check
+            const actualHeaders =
+              result.meta.fields?.map((h) => h.toLowerCase()) || []; // Case-insensitive check
             const missingHeaders = requiredHeaders.filter(
               (header) => !actualHeaders.includes(header),
             );
@@ -124,7 +127,9 @@ export default function KeywordDeduplicator() {
               .map((row, index) => {
                 const productName = row.product?.trim();
                 if (!productName) {
-                  console.warn(`Skipping row ${index + 1}: Missing product name.`);
+                  console.warn(
+                    `Skipping row ${index + 1}: Missing product name.`,
+                  );
                   return null;
                 }
                 // Pass the raw keywords string for processing
@@ -133,11 +138,15 @@ export default function KeywordDeduplicator() {
               .filter((item): item is ProcessedKeywordData => item !== null); // Filter out null results
 
             if (processedData.length === 0) {
-                if (result.data.length > 0) {
-                    throw new Error("No valid product/keyword data found in the CSV after processing. Ensure 'product' and 'keywords' columns are present and populated.");
-                } else {
-                    throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
-                }
+              if (result.data.length > 0) {
+                throw new Error(
+                  "No valid product/keyword data found in the CSV after processing. Ensure 'product' and 'keywords' columns are present and populated.",
+                );
+              } else {
+                throw new Error(
+                  'The uploaded CSV file appears to be empty or contains no data rows.',
+                );
+              }
             }
 
             setProducts(processedData);
@@ -147,9 +156,11 @@ export default function KeywordDeduplicator() {
               description: `Successfully processed ${processedData.length} products.`,
               variant: 'default',
             });
-
           } catch (err) {
-            const message = err instanceof Error ? err.message : 'An unknown error occurred during processing.';
+            const message =
+              err instanceof Error
+                ? err.message
+                : 'An unknown error occurred during processing.';
             setError(message);
             setProducts([]); // Clear any partial data on error
             toast({
@@ -192,18 +203,29 @@ export default function KeywordDeduplicator() {
     if (!trimmedKeywords) {
       const msg = 'Please enter keywords to process.';
       setError(msg);
-      toast({ title: 'Input Required', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Input Required',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
 
     // Check for duplicates before adding
-    if (products.some(p => p.product.toLowerCase() === trimmedProduct.toLowerCase())) {
-        const msg = `Product "${trimmedProduct}" already exists in the results. Clear existing data or use a different name.`;
-        setError(msg);
-        toast({ title: 'Duplicate Product', description: msg, variant: 'destructive' });
-        return;
+    if (
+      products.some(
+        (p) => p.product.toLowerCase() === trimmedProduct.toLowerCase(),
+      )
+    ) {
+      const msg = `Product "${trimmedProduct}" already exists in the results. Clear existing data or use a different name.`;
+      setError(msg);
+      toast({
+        title: 'Duplicate Product',
+        description: msg,
+        variant: 'destructive',
+      });
+      return;
     }
-
 
     const result = processKeywordData(trimmedProduct, trimmedKeywords);
 
@@ -219,7 +241,11 @@ export default function KeywordDeduplicator() {
     } else {
       const msg = 'No valid keywords were found in the manual input.';
       setError(msg);
-      toast({ title: 'Processing Error', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Processing Error',
+        description: msg,
+        variant: 'destructive',
+      });
     }
   }, [manualKeywords, manualProduct, products, toast]); // Added dependencies
 
@@ -227,7 +253,11 @@ export default function KeywordDeduplicator() {
     if (products.length === 0) {
       const msg = 'No data to export.';
       setError(msg);
-      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Export Error',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
     setError(null);
@@ -251,11 +281,22 @@ export default function KeywordDeduplicator() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // Clean up blob URL
-      toast({ title: 'Export Successful', description: 'Cleaned keywords exported to CSV.', variant: 'default' });
+      toast({
+        title: 'Export Successful',
+        description: 'Cleaned keywords exported to CSV.',
+        variant: 'default',
+      });
     } catch (err) {
-        const message = err instanceof Error ? err.message : 'An unknown error occurred during export.';
-        setError(`Failed to export data: ${message}`);
-        toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'An unknown error occurred during export.';
+      setError(`Failed to export data: ${message}`);
+      toast({
+        title: 'Export Failed',
+        description: message,
+        variant: 'destructive',
+      });
     }
   }, [products, toast]); // Added dependencies
 
@@ -267,7 +308,11 @@ export default function KeywordDeduplicator() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    toast({ title: 'Data Cleared', description: 'All keyword data has been removed.', variant: 'default' });
+    toast({
+      title: 'Data Cleared',
+      description: 'All keyword data has been removed.',
+      variant: 'default',
+    });
   }, [toast]); // Added dependency
 
   // --- Render ---
@@ -279,10 +324,22 @@ export default function KeywordDeduplicator() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Upload a CSV with `product` and comma-separated `keywords` columns.</li>
-            <li>Or, manually enter keywords (comma-separated) and an optional product name.</li>
-            <li>The tool removes duplicate keywords (case-insensitive) for each product.</li>
-            <li>View the original and cleaned keyword lists, plus the number of duplicates removed.</li>
+            <li>
+              Upload a CSV with `product` and comma-separated `keywords`
+              columns.
+            </li>
+            <li>
+              Or, manually enter keywords (comma-separated) and an optional
+              product name.
+            </li>
+            <li>
+              The tool removes duplicate keywords (case-insensitive) for each
+              product.
+            </li>
+            <li>
+              View the original and cleaned keyword lists, plus the number of
+              duplicates removed.
+            </li>
             <li>Export the cleaned results to a new CSV file.</li>
           </ul>
         </div>
@@ -333,8 +390,12 @@ export default function KeywordDeduplicator() {
 
         {/* Manual Entry Card */}
         <DataCard className="flex-1">
-          <CardContent className="p-6"> {/* Explicit CardContent for padding control */}
-            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">Manual Entry</h3>
+          <CardContent className="p-6">
+            {' '}
+            {/* Explicit CardContent for padding control */}
+            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+              Manual Entry
+            </h3>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="manual-product" className="text-sm font-medium">
@@ -351,7 +412,12 @@ export default function KeywordDeduplicator() {
                 />
               </div>
               <div>
-                <Label htmlFor="manual-keywords" className="text-sm font-medium">Keywords*</Label>
+                <Label
+                  htmlFor="manual-keywords"
+                  className="text-sm font-medium"
+                >
+                  Keywords*
+                </Label>
                 <Textarea
                   id="manual-keywords"
                   value={manualKeywords}
@@ -365,7 +431,11 @@ export default function KeywordDeduplicator() {
                   Keywords should be separated by commas.
                 </p>
               </div>
-              <Button onClick={handleManualProcess} className="w-full" disabled={isLoading || !manualKeywords.trim()}>
+              <Button
+                onClick={handleManualProcess}
+                className="w-full"
+                disabled={isLoading || !manualKeywords.trim()}
+              >
                 <Filter className="mr-2 h-4 w-4" />
                 {isLoading ? 'Processing...' : 'Remove Duplicates'}
               </Button>
@@ -381,8 +451,13 @@ export default function KeywordDeduplicator() {
             <Download className="mr-2 h-4 w-4" />
             Export Cleaned Keywords
           </Button>
-          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
-            <XCircle className="mr-2 h-4 w-4" /> {/* Changed icon for consistency */}
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
+            <XCircle className="mr-2 h-4 w-4" />{' '}
+            {/* Changed icon for consistency */}
             Clear Results
           </Button>
         </div>
@@ -408,7 +483,8 @@ export default function KeywordDeduplicator() {
       {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
+          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />{' '}
+          {/* Indeterminate */}
           <p className="text-sm text-muted-foreground">
             Processing keywords...
           </p>
@@ -417,78 +493,96 @@ export default function KeywordDeduplicator() {
 
       {/* Results Section */}
       {products.length > 0 && !isLoading && (
-         <DataCard>
-            <CardContent className="p-4 space-y-6">
-                <h2 className="text-xl font-semibold border-b pb-3">
-                    Deduplication Results ({products.length} Products)
-                </h2>
-                <div className="space-y-4">
-                    {products.map((product, index) => (
-                    <Card key={`${product.product}-${index}`}> {/* Use unique key */}
-                        <CardContent className="p-4">
-                        {/* Header */}
-                        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                            <h3 className="text-lg font-medium break-all">{product.product}</h3>
-                            <Badge
-                            variant={
-                                product.duplicatesRemoved > 0 ? 'default' : 'secondary'
-                            }
-                            className="whitespace-nowrap self-start sm:self-center"
-                            >
-                            {product.duplicatesRemoved > 0
-                                ? `${product.duplicatesRemoved} duplicate${product.duplicatesRemoved > 1 ? 's' : ''} removed`
-                                : 'No duplicates found'}
-                            </Badge>
-                        </div>
+        <DataCard>
+          <CardContent className="p-4 space-y-6">
+            <h2 className="text-xl font-semibold border-b pb-3">
+              Deduplication Results ({products.length} Products)
+            </h2>
+            <div className="space-y-4">
+              {products.map((product, index) => (
+                <Card key={`${product.product}-${index}`}>
+                  {' '}
+                  {/* Use unique key */}
+                  <CardContent className="p-4">
+                    {/* Header */}
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
+                      <h3 className="text-lg font-medium break-all">
+                        {product.product}
+                      </h3>
+                      <Badge
+                        variant={
+                          product.duplicatesRemoved > 0
+                            ? 'default'
+                            : 'secondary'
+                        }
+                        className="whitespace-nowrap self-start sm:self-center"
+                      >
+                        {product.duplicatesRemoved > 0
+                          ? `${product.duplicatesRemoved} duplicate${product.duplicatesRemoved > 1 ? 's' : ''} removed`
+                          : 'No duplicates found'}
+                      </Badge>
+                    </div>
 
-                        {/* Keywords Grid */}
-                        <div className="grid gap-6 md:grid-cols-2">
-                            {/* Original Keywords */}
-                            <div>
-                            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                                Original Keywords ({product.originalKeywords.length})
-                            </h4>
-                            <div className="rounded-lg border bg-muted/30 p-3 min-h-[100px]">
-                                {product.originalKeywords.length > 0 ? (
-                                    <div className="flex flex-wrap gap-1">
-                                    {product.originalKeywords.map((keyword, i) => (
-                                        <Badge key={`orig-${index}-${i}`} variant="outline" className="text-xs">
-                                        {keyword}
-                                        </Badge>
-                                    ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-xs text-muted-foreground italic">No original keywords provided.</p>
-                                )}
+                    {/* Keywords Grid */}
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {/* Original Keywords */}
+                      <div>
+                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                          Original Keywords ({product.originalKeywords.length})
+                        </h4>
+                        <div className="rounded-lg border bg-muted/30 p-3 min-h-[100px]">
+                          {product.originalKeywords.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {product.originalKeywords.map((keyword, i) => (
+                                <Badge
+                                  key={`orig-${index}-${i}`}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {keyword}
+                                </Badge>
+                              ))}
                             </div>
-                            </div>
-
-                            {/* Cleaned Keywords */}
-                            <div>
-                            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                                Cleaned Keywords ({product.cleanedKeywords.length})
-                            </h4>
-                            <div className="rounded-lg border p-3 min-h-[100px]">
-                                {product.cleanedKeywords.length > 0 ? (
-                                    <div className="flex flex-wrap gap-1">
-                                    {product.cleanedKeywords.map((keyword, i) => (
-                                        <Badge key={`clean-${index}-${i}`} variant="secondary" className="text-xs">
-                                        {keyword}
-                                        </Badge>
-                                    ))}
-                                    </div>
-                                ) : (
-                                     <p className="text-xs text-muted-foreground italic">No keywords remaining after deduplication.</p>
-                                )}
-                            </div>
-                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic">
+                              No original keywords provided.
+                            </p>
+                          )}
                         </div>
-                        </CardContent>
-                    </Card>
-                    ))}
-                </div>
-            </CardContent>
-         </DataCard>
+                      </div>
+
+                      {/* Cleaned Keywords */}
+                      <div>
+                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                          Cleaned Keywords ({product.cleanedKeywords.length})
+                        </h4>
+                        <div className="rounded-lg border p-3 min-h-[100px]">
+                          {product.cleanedKeywords.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {product.cleanedKeywords.map((keyword, i) => (
+                                <Badge
+                                  key={`clean-${index}-${i}`}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic">
+                              No keywords remaining after deduplication.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </DataCard>
       )}
     </div>
   );

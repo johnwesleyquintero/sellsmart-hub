@@ -45,9 +45,9 @@ export function ChatInterface() {
       content: input,
       timestamp: Date.now(),
       status: 'sending',
-      retryCount: 0
+      retryCount: 0,
     };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -68,37 +68,50 @@ export function ChatInterface() {
 
       const data = await response.json();
       // Update user message status to sent
-      setMessages(prev => prev.map(msg => 
-        msg === userMessage ? { ...msg, status: 'sent' } : msg
-      ));
-      
-      const assistantMessage: Message = { 
-        role: 'assistant', 
-        content: data.response || "I couldn't generate a response. Please try again.",
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg === userMessage ? { ...msg, status: 'sent' } : msg,
+        ),
+      );
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content:
+          data.response || "I couldn't generate a response. Please try again.",
         timestamp: Date.now(),
-        status: 'sent'
+        status: 'sent',
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Sorry, an unexpected error occurred';
-      
-      // Update user message status to error
-      setMessages(prev => prev.map(msg => 
-        msg === userMessage ? { 
-          ...msg, 
-          status: 'error',
-          error: errorMessage,
-          retryCount: (msg.retryCount || 0) + 1
-        } : msg
-      ));
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Sorry, an unexpected error occurred';
 
-      setMessages(prev => [...prev, { 
-        role: 'assistant',
-        content: errorMessage,
-        timestamp: Date.now(),
-        status: 'error'
-      }]);
+      // Update user message status to error
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg === userMessage
+            ? {
+                ...msg,
+                status: 'error',
+                error: errorMessage,
+                retryCount: (msg.retryCount || 0) + 1,
+              }
+            : msg,
+        ),
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: errorMessage,
+          timestamp: Date.now(),
+          status: 'error',
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }

@@ -9,7 +9,12 @@ interface HeaderProps {
   onExport: () => void;
 }
 
-export function UnifiedDashboardHeader({ isLoading, error, onRefresh, onExport }: HeaderProps) {
+export function UnifiedDashboardHeader({
+  isLoading,
+  error,
+  onRefresh,
+  onExport,
+}: HeaderProps) {
   return (
     <div className="flex justify-between items-center mb-6" aria-live="polite">
       <h1 className="text-2xl font-bold">Amazon Seller Tools Dashboard</h1>
@@ -20,9 +25,17 @@ export function UnifiedDashboardHeader({ isLoading, error, onRefresh, onExport }
             <span className="text-sm text-gray-500">Refreshing...</span>
           </div>
         )}
-        {error && <span className="text-sm text-red-500" role="alert">{error}</span>}
+        {error && (
+          <span className="text-sm text-red-500" role="alert">
+            {error}
+          </span>
+        )}
         <div className="space-x-2">
-          <Button variant="outline" onClick={onRefresh} aria-label="Refresh Dashboard">
+          <Button
+            variant="outline"
+            onClick={onRefresh}
+            aria-label="Refresh Dashboard"
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>

@@ -81,69 +81,87 @@ function calculateMetrics(
 /**
  * Analyzes a single campaign's performance based on calculated metrics.
  */
-function handleNoSalesCase(spend: number): { issues: string[], recommendations: string[] } {
+function handleNoSalesCase(spend: number): {
+  issues: string[];
+  recommendations: string[];
+} {
   const issues = ['No Sales Recorded'];
   const recommendations = [];
-  
+
   if (spend > 0) {
     recommendations.push(
-      'Investigate targeting, product appeal, and listing quality. Consider pausing if spend is significant.'
+      'Investigate targeting, product appeal, and listing quality. Consider pausing if spend is significant.',
     );
   } else {
     recommendations.push(
-      'Campaign has no spend and no sales. Review setup or consider activating if intended.'
+      'Campaign has no spend and no sales. Review setup or consider activating if intended.',
     );
   }
-  
+
   return { issues, recommendations };
 }
 
-function analyzeHighAcos(acos: number): { issues: string[], recommendations: string[] } {
+function analyzeHighAcos(acos: number): {
+  issues: string[];
+  recommendations: string[];
+} {
   return {
     issues: [`High ACoS (${acos.toFixed(1)}%)`],
     recommendations: [
       'Review search term reports and target performance. Reduce bids on unprofitable targets.',
-      'Add negative keywords/ASINs to prevent irrelevant spend.'
-    ]
+      'Add negative keywords/ASINs to prevent irrelevant spend.',
+    ],
   };
 }
 
-function analyzeLowCtr(ctr: number): { issues: string[], recommendations: string[] } {
+function analyzeLowCtr(ctr: number): {
+  issues: string[];
+  recommendations: string[];
+} {
   return {
     issues: [`Low CTR (${ctr.toFixed(2)}%)`],
     recommendations: [
       'Improve ad relevance: check keywords, ad copy (if applicable), and main image.',
-      'Ensure targeting is specific enough.'
-    ]
+      'Ensure targeting is specific enough.',
+    ],
   };
 }
 
-function analyzeLowConversionRate(conversionRate: number): { issues: string[], recommendations: string[] } {
+function analyzeLowConversionRate(conversionRate: number): {
+  issues: string[];
+  recommendations: string[];
+} {
   return {
     issues: [`Low Conversion Rate (${conversionRate.toFixed(1)}%)`],
     recommendations: [
       'Optimize product detail page (title, bullets, description, images, A+ content, price, reviews).',
-      'Ensure keywords/targets align closely with the product benefits and features.'
-    ]
+      'Ensure keywords/targets align closely with the product benefits and features.',
+    ],
   };
 }
 
-function analyzeLowClickVolume(clicks: number): { issues: string[], recommendations: string[] } {
+function analyzeLowClickVolume(clicks: number): {
+  issues: string[];
+  recommendations: string[];
+} {
   return {
     issues: [`Low Click Volume (${clicks})`],
     recommendations: [
       'Consider increasing bids strategically on relevant, high-potential targets.',
-      'Review campaign budget; ensure it is not limiting performance.'
-    ]
+      'Review campaign budget; ensure it is not limiting performance.',
+    ],
   };
 }
 
-function analyzeAutoCampaign(type: string, acos: number): { recommendations: string[] } {
+function analyzeAutoCampaign(
+  type: string,
+  acos: number,
+): { recommendations: string[] } {
   if (type.toLowerCase().includes('auto') && acos < GOOD_AUTO_ACOS_THRESHOLD) {
     return {
       recommendations: [
-        'Harvest high-performing search terms/ASINs from this Auto campaign into Manual campaigns for granular control.'
-      ]
+        'Harvest high-performing search terms/ASINs from this Auto campaign into Manual campaigns for granular control.',
+      ],
     };
   }
   return { recommendations: [] };
@@ -196,7 +214,9 @@ function analyzeCampaignPerformance(
     issues.push('No major performance issues detected.');
   }
   if (recommendations.length === 0) {
-    recommendations.push('Performance looks stable. Continue monitoring key metrics.');
+    recommendations.push(
+      'Performance looks stable. Continue monitoring key metrics.',
+    );
   }
 
   return { issues, recommendations };
@@ -206,7 +226,10 @@ function analyzeCampaignPerformance(
  * Processes raw data parsed from CSV into structured CampaignData.
  * Includes validation and metric calculation.
  */
-function processRawCampaignData(rawData: unknown[]): { data: CampaignData[], skippedRows: number } {
+function processRawCampaignData(rawData: unknown[]): {
+  data: CampaignData[];
+  skippedRows: number;
+} {
   const processedData: CampaignData[] = [];
   let skippedRows = 0;
 
@@ -217,18 +240,34 @@ function processRawCampaignData(rawData: unknown[]): { data: CampaignData[], ski
     const name = typeof item.name === 'string' ? item.name.trim() : null;
     const type = typeof item.type === 'string' ? item.type.trim() : null;
     // Use parseFloat for potentially non-integer numbers
-    const spend = typeof item.spend === 'number' ? item.spend : parseFloat(String(item.spend));
-    const sales = typeof item.sales === 'number' ? item.sales : parseFloat(String(item.sales));
-    const impressions = typeof item.impressions === 'number' ? item.impressions : parseInt(String(item.impressions), 10);
-    const clicks = typeof item.clicks === 'number' ? item.clicks : parseInt(String(item.clicks), 10);
+    const spend =
+      typeof item.spend === 'number'
+        ? item.spend
+        : parseFloat(String(item.spend));
+    const sales =
+      typeof item.sales === 'number'
+        ? item.sales
+        : parseFloat(String(item.sales));
+    const impressions =
+      typeof item.impressions === 'number'
+        ? item.impressions
+        : parseInt(String(item.impressions), 10);
+    const clicks =
+      typeof item.clicks === 'number'
+        ? item.clicks
+        : parseInt(String(item.clicks), 10);
 
     if (
       !name ||
       !type ||
-      isNaN(spend) || spend < 0 ||
-      isNaN(sales) || sales < 0 || // Allow 0 sales
-      isNaN(impressions) || impressions < 0 ||
-      isNaN(clicks) || clicks < 0
+      isNaN(spend) ||
+      spend < 0 ||
+      isNaN(sales) ||
+      sales < 0 || // Allow 0 sales
+      isNaN(impressions) ||
+      impressions < 0 ||
+      isNaN(clicks) ||
+      clicks < 0
     ) {
       console.warn('Skipping invalid row:', item);
       skippedRows++;
@@ -309,7 +348,9 @@ export default function PpcCampaignAuditor() {
           }
 
           try {
-            const { data: processedData, skippedRows } = processRawCampaignData(result.data);
+            const { data: processedData, skippedRows } = processRawCampaignData(
+              result.data,
+            );
 
             if (processedData.length === 0) {
               if (result.data.length > 0) {
@@ -324,8 +365,10 @@ export default function PpcCampaignAuditor() {
             } else {
               setCampaigns(processedData);
               if (skippedRows > 0) {
-                 // Optionally inform user about skipped rows
-                 setError(`Successfully processed ${processedData.length} campaigns. Skipped ${skippedRows} invalid rows.`);
+                // Optionally inform user about skipped rows
+                setError(
+                  `Successfully processed ${processedData.length} campaigns. Skipped ${skippedRows} invalid rows.`,
+                );
               }
             }
           } catch (procError) {
@@ -343,10 +386,10 @@ export default function PpcCampaignAuditor() {
         error: (err: Error) => {
           setError(`Error reading CSV file: ${err.message}`);
           setIsLoading(false);
-           // Reset file input on read error too
-           if (event.target) {
-             event.target.value = '';
-           }
+          // Reset file input on read error too
+          if (event.target) {
+            event.target.value = '';
+          }
         },
       });
     },
@@ -369,7 +412,9 @@ export default function PpcCampaignAuditor() {
       Impressions: campaign.impressions,
       Clicks: campaign.clicks,
       CTR_Percent: campaign.ctr.toFixed(2),
-      ConversionRate_Percent: isFinite(campaign.conversionRate) ? campaign.conversionRate.toFixed(2) : 'N/A', // Handle potential Infinity/NaN if sales/clicks are 0
+      ConversionRate_Percent: isFinite(campaign.conversionRate)
+        ? campaign.conversionRate.toFixed(2)
+        : 'N/A', // Handle potential Infinity/NaN if sales/clicks are 0
       Issues: campaign.issues.join('; '),
       Recommendations: campaign.recommendations.join('; '),
     }));
@@ -410,13 +455,14 @@ export default function PpcCampaignAuditor() {
           <p className="font-medium">CSV Format Requirements:</p>
           <ul className="list-disc list-inside ml-4">
             <li>
-              Required columns (case-insensitive headers): <code>name</code>, <code>type</code>,{' '}
-              <code>spend</code>, <code>sales</code>, <code>impressions</code>,{' '}
-              <code>clicks</code>
+              Required columns (case-insensitive headers): <code>name</code>,{' '}
+              <code>type</code>, <code>spend</code>, <code>sales</code>,{' '}
+              <code>impressions</code>, <code>clicks</code>
             </li>
             <li>
               Numeric columns (spend, sales, impressions, clicks) must contain
-              valid numbers (e.g., 123.45 or 123). Avoid currency symbols or commas within numbers.
+              valid numbers (e.g., 123.45 or 123). Avoid currency symbols or
+              commas within numbers.
             </li>
             <li>
               Example Row:{' '}
@@ -469,10 +515,7 @@ export default function PpcCampaignAuditor() {
                 fileName="sample-ppc-campaign.csv"
               />
               {campaigns.length > 0 && !isLoading && (
-                <Button
-                  variant="outline"
-                  onClick={clearData}
-                >
+                <Button variant="outline" onClick={clearData}>
                   Clear Results
                 </Button>
               )}
@@ -510,8 +553,12 @@ export default function PpcCampaignAuditor() {
 
       {/* Results Section */}
       {campaigns.length > 0 && !isLoading && (
-        <DataCard> {/* Wrap results in DataCard */}
-          <CardContent className="p-4 space-y-6"> {/* Add padding and spacing */}
+        <DataCard>
+          {' '}
+          {/* Wrap results in DataCard */}
+          <CardContent className="p-4 space-y-6">
+            {' '}
+            {/* Add padding and spacing */}
             {/* Results Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b pb-3">
               <h2 className="text-xl font-semibold">
@@ -522,7 +569,6 @@ export default function PpcCampaignAuditor() {
                 Export Audit Report
               </Button>
             </div>
-
             {/* Campaign List */}
             <div className="space-y-4">
               {campaigns.map((campaign, index) => (

@@ -190,7 +190,11 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
       .map((k) => k.trim())
       .filter(Boolean) || [];
   const images = Number(row.images);
-  const bulletPoints = row.bullet_points?.split(';').map(s => s.trim()).filter(Boolean) || [];
+  const bulletPoints =
+    row.bullet_points
+      ?.split(';')
+      .map((s) => s.trim())
+      .filter(Boolean) || [];
 
   // Basic validation within row processing
   if (isNaN(images)) {
@@ -203,16 +207,16 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
   try {
     // keywordAnalysis = await KeywordIntelligence.analyze(keywords);
     // Mock response for demonstration:
-    await new Promise(resolve => setTimeout(resolve, 50)); // Simulate async call
-    keywordAnalysis = keywords.map(kw => ({
-        keyword: kw,
-        // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-        isProhibited: Math.random() > 0.9, // Mock 10% chance of being prohibited
-        // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-        score: Math.floor(Math.random() * 100),
-        // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-        confidence: Math.random(),
-        matchType: 'exact',
+    await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate async call
+    keywordAnalysis = keywords.map((kw) => ({
+      keyword: kw,
+      // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
+      isProhibited: Math.random() > 0.9, // Mock 10% chance of being prohibited
+      // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
+      score: Math.floor(Math.random() * 100),
+      // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
+      confidence: Math.random(),
+      matchType: 'exact',
     }));
   } catch (analysisError) {
     console.error(
@@ -251,7 +255,7 @@ const parseAndProcessCsv = (content: string): Promise<ListingData[]> => {
         try {
           validateCSVData(results);
           if (results.data.length === 0) {
-            throw new Error("CSV contains no valid data rows.");
+            throw new Error('CSV contains no valid data rows.');
           }
           // Process rows concurrently
           const processedData = await Promise.all(
@@ -348,7 +352,7 @@ export default function ListingQualityChecker() {
         });
         setIsLoading(false);
         if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+          fileInputRef.current.value = '';
         }
       };
       reader.readAsText(file);
@@ -358,9 +362,11 @@ export default function ListingQualityChecker() {
 
   // --- MOCK ASIN CHECK ---
   // Replace this with your actual API call logic
-  const fetchAsinDataMock = async (asinToCheck: string): Promise<ListingData> => {
+  const fetchAsinDataMock = async (
+    asinToCheck: string,
+  ): Promise<ListingData> => {
     console.log(`Simulating API call for ASIN: ${asinToCheck}`);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
 
     // Generate mock data (similar to previous version but structured better)
     // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
@@ -375,12 +381,23 @@ export default function ListingQualityChecker() {
     const hasKeywords = Math.random() > 0.3;
 
     const mockRow: CSVRow = {
-        product: `Product (ASIN: ${asinToCheck})`,
-        title: hasTitle ? `Mock Title for ${asinToCheck} - Feature A, Feature B` : '',
-        description: hasDesc ? `This is a mock description for ${asinToCheck}. It highlights key benefits like durability and ease of use. Designed for optimal performance.`.repeat(3) : '',
-        bullet_points: Array.from({ length: numBullets }, (_, i) => `Mock Bullet Point ${i + 1}`).join(';'),
-        images: String(numImages),
-        keywords: hasKeywords ? 'mock keyword, asin check, sample data, quality score' : '',
+      product: `Product (ASIN: ${asinToCheck})`,
+      title: hasTitle
+        ? `Mock Title for ${asinToCheck} - Feature A, Feature B`
+        : '',
+      description: hasDesc
+        ? `This is a mock description for ${asinToCheck}. It highlights key benefits like durability and ease of use. Designed for optimal performance.`.repeat(
+            3,
+          )
+        : '',
+      bullet_points: Array.from(
+        { length: numBullets },
+        (_, i) => `Mock Bullet Point ${i + 1}`,
+      ).join(';'),
+      images: String(numImages),
+      keywords: hasKeywords
+        ? 'mock keyword, asin check, sample data, quality score'
+        : '',
     };
 
     // Process the mock row as if it came from a CSV
@@ -393,17 +410,24 @@ export default function ListingQualityChecker() {
     const trimmedAsin = asin.trim();
     if (!trimmedAsin) {
       setError('Please enter an ASIN');
-      toast({ title: 'Input Required', description: 'Please enter an ASIN to check.', variant: 'destructive' });
+      toast({
+        title: 'Input Required',
+        description: 'Please enter an ASIN to check.',
+        variant: 'destructive',
+      });
       return;
     }
 
     // Basic ASIN format check (optional but helpful)
     if (!/^[A-Z0-9]{10}$/i.test(trimmedAsin)) {
-        setError('Invalid ASIN format. Should be 10 alphanumeric characters.');
-        toast({ title: 'Invalid Format', description: 'ASIN should be 10 letters/numbers.', variant: 'destructive' });
-        return;
+      setError('Invalid ASIN format. Should be 10 alphanumeric characters.');
+      toast({
+        title: 'Invalid Format',
+        description: 'ASIN should be 10 letters/numbers.',
+        variant: 'destructive',
+      });
+      return;
     }
-
 
     setIsLoading(true);
     setError(null);
@@ -413,19 +437,19 @@ export default function ListingQualityChecker() {
       const newListing = await fetchAsinDataMock(trimmedAsin);
 
       // Check if ASIN already exists in the list to avoid duplicates
-      if (listings.some(l => l.product.includes(`(ASIN: ${trimmedAsin})`))) {
-          toast({
-              title: 'ASIN Already Added',
-              description: `Analysis for ASIN ${trimmedAsin} is already displayed.`,
-              variant: 'default',
-          });
+      if (listings.some((l) => l.product.includes(`(ASIN: ${trimmedAsin})`))) {
+        toast({
+          title: 'ASIN Already Added',
+          description: `Analysis for ASIN ${trimmedAsin} is already displayed.`,
+          variant: 'default',
+        });
       } else {
-          setListings((prevListings) => [...prevListings, newListing]);
-          toast({
-              title: 'ASIN Check Complete',
-              description: `Analysis for ${trimmedAsin} added.`,
-              variant: 'default',
-          });
+        setListings((prevListings) => [...prevListings, newListing]);
+        toast({
+          title: 'ASIN Check Complete',
+          description: `Analysis for ${trimmedAsin} added.`,
+          variant: 'default',
+        });
       }
       setAsin(''); // Clear input after successful check
       setError(null);
@@ -452,67 +476,97 @@ export default function ListingQualityChecker() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    toast({ title: 'Data Cleared', description: 'All listing analysis results have been removed.', variant: 'default' });
+    toast({
+      title: 'Data Cleared',
+      description: 'All listing analysis results have been removed.',
+      variant: 'default',
+    });
   }, [toast]);
 
   const handleExport = useCallback(() => {
-      if (listings.length === 0) {
-        setError('No data to export.');
-        toast({ title: 'Export Error', description: 'No analysis results to export.', variant: 'destructive' });
-        return;
-      }
-      setError(null);
+    if (listings.length === 0) {
+      setError('No data to export.');
+      toast({
+        title: 'Export Error',
+        description: 'No analysis results to export.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setError(null);
 
-      // Prepare data for export
-      const exportData = listings.map(l => ({
-          Product: l.product,
-          Score: l.score,
-          Title_Present: l.title ? 'Yes' : 'No',
-          Description_Present: l.description ? 'Yes' : 'No',
-          Bullet_Points_Count: l.bulletPoints?.length ?? 0,
-          Image_Count: l.images ?? 0,
-          Keywords_Count: l.keywords?.length ?? 0,
-          Issues: l.issues.join('; '),
-          Suggestions: l.suggestions.join('; '),
-          // Optionally include raw data if needed
-          // Title: l.title,
-          // Description: l.description,
-          // Bullet_Points: l.bulletPoints?.join('; '),
-          // Keywords: l.keywords?.join(', '),
-      }));
+    // Prepare data for export
+    const exportData = listings.map((l) => ({
+      Product: l.product,
+      Score: l.score,
+      Title_Present: l.title ? 'Yes' : 'No',
+      Description_Present: l.description ? 'Yes' : 'No',
+      Bullet_Points_Count: l.bulletPoints?.length ?? 0,
+      Image_Count: l.images ?? 0,
+      Keywords_Count: l.keywords?.length ?? 0,
+      Issues: l.issues.join('; '),
+      Suggestions: l.suggestions.join('; '),
+      // Optionally include raw data if needed
+      // Title: l.title,
+      // Description: l.description,
+      // Bullet_Points: l.bulletPoints?.join('; '),
+      // Keywords: l.keywords?.join(', '),
+    }));
 
-      try {
-          const csv = Papa.unparse(exportData);
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'listing_quality_analysis.csv');
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          toast({ title: 'Export Successful', description: 'Analysis results exported to CSV.', variant: 'default' });
-      } catch (err) {
-          const message = err instanceof Error ? err.message : 'An unknown error occurred during export.';
-          setError(`Failed to export data: ${message}`);
-          toast({ title: 'Export Failed', description: message, variant: 'destructive' });
-      }
+    try {
+      const csv = Papa.unparse(exportData);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'listing_quality_analysis.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast({
+        title: 'Export Successful',
+        description: 'Analysis results exported to CSV.',
+        variant: 'default',
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'An unknown error occurred during export.';
+      setError(`Failed to export data: ${message}`);
+      toast({
+        title: 'Export Failed',
+        description: message,
+        variant: 'destructive',
+      });
+    }
   }, [listings, toast]);
 
   // --- Render ---
   return (
     <div className="space-y-6">
       {/* Info Box */}
-       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Upload a CSV with listing details (product, title, description, bullet_points, images, keywords).</li>
-            <li>Alternatively, enter an ASIN to fetch and analyze (mock data used for demo).</li>
-            <li>The tool checks for completeness, length requirements, and keyword presence.</li>
-            <li>A quality score (0-100) is calculated based on detected issues.</li>
+            <li>
+              Upload a CSV with listing details (product, title, description,
+              bullet_points, images, keywords).
+            </li>
+            <li>
+              Alternatively, enter an ASIN to fetch and analyze (mock data used
+              for demo).
+            </li>
+            <li>
+              The tool checks for completeness, length requirements, and keyword
+              presence.
+            </li>
+            <li>
+              A quality score (0-100) is calculated based on detected issues.
+            </li>
             <li>View issues and suggestions for each listing.</li>
           </ul>
         </div>
@@ -592,7 +646,8 @@ export default function ListingQualityChecker() {
                   </Button>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Uses mock data for demonstration. Replace with actual API call.
+                  Uses mock data for demonstration. Replace with actual API
+                  call.
                 </p>
               </div>
             </div>
@@ -607,7 +662,11 @@ export default function ListingQualityChecker() {
             <Download className="mr-2 h-4 w-4" />
             Export Results
           </Button>
-          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
             <X className="mr-2 h-4 w-4" />
             Clear Results
           </Button>
@@ -646,7 +705,7 @@ export default function ListingQualityChecker() {
         <DataCard>
           <CardContent className="p-4 space-y-6">
             <h2 className="text-xl font-semibold border-b pb-3">
-                Analysis Results ({listings.length} Listings)
+              Analysis Results ({listings.length} Listings)
             </h2>
             <div className="space-y-4">
               {listings.map((listing, index) => (
@@ -703,12 +762,14 @@ export default function ListingQualityChecker() {
                           <div className="flex justify-between items-center">
                             <span className="text-sm">Bullet Points:</span>
                             <span className="flex items-center text-sm text-right">
-                              {(listing.bulletPoints?.length ?? 0) >= MIN_BULLET_POINTS ? (
+                              {(listing.bulletPoints?.length ?? 0) >=
+                              MIN_BULLET_POINTS ? (
                                 <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
                               ) : (
                                 <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
                               )}
-                              {listing.bulletPoints?.length ?? 0} (Rec: {RECOMMENDED_BULLET_POINTS}+)
+                              {listing.bulletPoints?.length ?? 0} (Rec:{' '}
+                              {RECOMMENDED_BULLET_POINTS}+)
                             </span>
                           </div>
                           {/* Images Check */}
@@ -757,7 +818,8 @@ export default function ListingQualityChecker() {
                             </div>
                           ) : (
                             <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
-                               <CheckCircle className="mr-1 h-4 w-4 flex-shrink-0" /> No major issues found.
+                              <CheckCircle className="mr-1 h-4 w-4 flex-shrink-0" />{' '}
+                              No major issues found.
                             </p>
                           )}
                           {listing.suggestions.length > 0 ? (
@@ -767,14 +829,16 @@ export default function ListingQualityChecker() {
                               </h5>
                               <ul className="list-inside list-disc space-y-1 text-sm text-blue-700 dark:text-blue-300">
                                 {listing.suggestions.map((suggestion, i) => (
-                                  <li key={`suggestion-${index}-${i}`}>{suggestion}</li>
+                                  <li key={`suggestion-${index}-${i}`}>
+                                    {suggestion}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
                           ) : (
-                             <p className="text-sm text-muted-foreground pt-3 border-t border-dashed mt-3">
-                                No specific suggestions at this time.
-                             </p>
+                            <p className="text-sm text-muted-foreground pt-3 border-t border-dashed mt-3">
+                              No specific suggestions at this time.
+                            </p>
                           )}
                         </div>
                       </div>

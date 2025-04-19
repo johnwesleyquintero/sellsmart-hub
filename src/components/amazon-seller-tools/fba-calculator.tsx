@@ -7,7 +7,7 @@ import {
   FileText,
   Info,
   Upload,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react'; // Added useCallback, useRef
@@ -52,7 +52,6 @@ type CsvInputRow = {
   fees?: number | string | null;
 };
 
-
 // --- Helper Functions ---
 
 /**
@@ -90,7 +89,6 @@ const calculateFbaMetrics = (
       margin = -Infinity;
     }
   }
-
 
   return {
     profit,
@@ -137,7 +135,8 @@ export default function FbaCalculator() {
 
             // Validate required headers (case-insensitive)
             const requiredHeaders = ['product', 'cost', 'price', 'fees'];
-            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || [];
+            const actualHeaders =
+              result.meta.fields?.map((h) => h.toLowerCase()) || [];
             const missingHeaders = requiredHeaders.filter(
               (header) => !actualHeaders.includes(header),
             );
@@ -153,13 +152,18 @@ export default function FbaCalculator() {
             const processedResults: FbaCalculationResult[] = result.data
               .map((row, index) => {
                 const productName = row.product?.trim();
-                const costStr = typeof row.cost === 'string' ? row.cost.trim() : row.cost;
-                const priceStr = typeof row.price === 'string' ? row.price.trim() : row.price;
-                const feesStr = typeof row.fees === 'string' ? row.fees.trim() : row.fees;
+                const costStr =
+                  typeof row.cost === 'string' ? row.cost.trim() : row.cost;
+                const priceStr =
+                  typeof row.price === 'string' ? row.price.trim() : row.price;
+                const feesStr =
+                  typeof row.fees === 'string' ? row.fees.trim() : row.fees;
 
                 // Validate product name
                 if (!productName) {
-                  console.warn(`Skipping row ${index + 2}: Missing product name.`);
+                  console.warn(
+                    `Skipping row ${index + 2}: Missing product name.`,
+                  );
                   skippedRowCount++;
                   return null;
                 }
@@ -170,22 +174,33 @@ export default function FbaCalculator() {
                 const fees = Number(feesStr);
 
                 if (isNaN(cost) || cost < 0) {
-                  console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative cost value ('${costStr}').`);
+                  console.warn(
+                    `Skipping row ${index + 2} for "${productName}": Invalid or negative cost value ('${costStr}').`,
+                  );
                   skippedRowCount++;
                   return null;
                 }
                 if (isNaN(price) || price < 0) {
-                  console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative price value ('${priceStr}').`);
+                  console.warn(
+                    `Skipping row ${index + 2} for "${productName}": Invalid or negative price value ('${priceStr}').`,
+                  );
                   skippedRowCount++;
                   return null;
                 }
                 if (isNaN(fees) || fees < 0) {
-                   console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative fees value ('${feesStr}').`);
-                   skippedRowCount++;
-                   return null;
+                  console.warn(
+                    `Skipping row ${index + 2} for "${productName}": Invalid or negative fees value ('${feesStr}').`,
+                  );
+                  skippedRowCount++;
+                  return null;
                 }
 
-                const inputData: FbaCalculationInput = { product: productName, cost, price, fees };
+                const inputData: FbaCalculationInput = {
+                  product: productName,
+                  cost,
+                  price,
+                  fees,
+                };
                 const metrics = calculateFbaMetrics(inputData);
 
                 return { ...inputData, ...metrics };
@@ -193,25 +208,38 @@ export default function FbaCalculator() {
               .filter((item): item is FbaCalculationResult => item !== null); // Filter out null results
 
             if (processedResults.length === 0) {
-                if (result.data.length > 0) {
-                    throw new Error(`No valid data found in the CSV after processing ${result.data.length} rows. Ensure 'product', 'cost', 'price', 'fees' columns are present and contain valid non-negative numbers.`);
-                } else {
-                    throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
-                }
+              if (result.data.length > 0) {
+                throw new Error(
+                  `No valid data found in the CSV after processing ${result.data.length} rows. Ensure 'product', 'cost', 'price', 'fees' columns are present and contain valid non-negative numbers.`,
+                );
+              } else {
+                throw new Error(
+                  'The uploaded CSV file appears to be empty or contains no data rows.',
+                );
+              }
             }
 
             setResults(processedResults);
             const processedMessage = `Processed ${processedResults.length} products`;
-            const skippedMessage = skippedRowCount > 0 ? ` Skipped ${skippedRowCount} invalid rows` : '';
-            setError(skippedRowCount > 0 ? `${processedMessage}.${skippedMessage}` : null);
+            const skippedMessage =
+              skippedRowCount > 0
+                ? ` Skipped ${skippedRowCount} invalid rows`
+                : '';
+            setError(
+              skippedRowCount > 0
+                ? `${processedMessage}.${skippedMessage}`
+                : null,
+            );
             toast({
               title: 'CSV Processed',
               description: `${processedMessage}.${skippedMessage}`,
               variant: 'default',
             });
-
           } catch (err) {
-            const message = err instanceof Error ? err.message : 'An unknown error occurred during processing.';
+            const message =
+              err instanceof Error
+                ? err.message
+                : 'An unknown error occurred during processing.';
             setError(message);
             setResults([]); // Clear any partial data on error
             toast({
@@ -246,13 +274,15 @@ export default function FbaCalculator() {
     [toast], // Added toast dependency
   );
 
-
-
   const handleExport = useCallback(() => {
     if (results.length === 0) {
       const msg = 'No data to export.';
       setError(msg);
-      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Export Error',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
     setError(null);
@@ -265,7 +295,9 @@ export default function FbaCalculator() {
       Fees: item.fees.toFixed(2),
       Profit: item.profit.toFixed(2),
       ROI_Percent: isFinite(item.roi) ? item.roi.toFixed(2) : 'Infinity', // Handle Infinity
-      Margin_Percent: isFinite(item.margin) ? item.margin.toFixed(2) : 'Infinity', // Handle Infinity
+      Margin_Percent: isFinite(item.margin)
+        ? item.margin.toFixed(2)
+        : 'Infinity', // Handle Infinity
     }));
 
     try {
@@ -279,11 +311,22 @@ export default function FbaCalculator() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // Clean up blob URL
-      toast({ title: 'Export Successful', description: 'FBA calculation results exported to CSV.', variant: 'default' });
+      toast({
+        title: 'Export Successful',
+        description: 'FBA calculation results exported to CSV.',
+        variant: 'default',
+      });
     } catch (err) {
-        const message = err instanceof Error ? err.message : 'An unknown error occurred during export.';
-        setError(`Failed to export data: ${message}`);
-        toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'An unknown error occurred during export.';
+      setError(`Failed to export data: ${message}`);
+      toast({
+        title: 'Export Failed',
+        description: message,
+        variant: 'destructive',
+      });
     }
   }, [results, toast]); // Added dependencies
 
@@ -294,7 +337,11 @@ export default function FbaCalculator() {
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Reset file input
     }
-    toast({ title: 'Data Cleared', description: 'All calculation results have been removed.', variant: 'default' });
+    toast({
+      title: 'Data Cleared',
+      description: 'All calculation results have been removed.',
+      variant: 'default',
+    });
   }, [toast]); // Added dependency
 
   // --- Render ---
@@ -308,9 +355,15 @@ export default function FbaCalculator() {
           <ul className="list-disc list-inside ml-4">
             <li>Upload a CSV file with columns: product, cost, price, fees</li>
             <li>Or, manually enter details for a single product.</li>
-            <li>The tool calculates Profit, Return on Investment (ROI), and Profit Margin.</li>
+            <li>
+              The tool calculates Profit, Return on Investment (ROI), and Profit
+              Margin.
+            </li>
             <li>Export the results to a new CSV file.</li>
-            <li>Ensure all monetary values (`cost`, `price`, `fees`) are non-negative numbers.</li>
+            <li>
+              Ensure all monetary values (`cost`, `price`, `fees`) are
+              non-negative numbers.
+            </li>
           </ul>
         </div>
       </div>
@@ -360,38 +413,71 @@ export default function FbaCalculator() {
 
         {/* Manual Entry Card */}
         <DataCard>
-          <CardContent className="p-6"> {/* Explicit CardContent for padding control */}
-            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">Manual Calculation</h3>
-
+          <CardContent className="p-6">
+            {' '}
+            {/* Explicit CardContent for padding control */}
+            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+              Manual Calculation
+            </h3>
             <ToolForm
               manualInputs={[
-                { name: 'product', label: 'Product Name*', type: 'text', placeholder: 'Enter product name', required: true },
-                { name: 'cost', label: 'Product Cost ($)*', type: 'number', placeholder: 'e.g., 10.50', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
-                { name: 'price', label: 'Selling Price ($)*', type: 'number', placeholder: 'e.g., 29.99', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
-                { name: 'fees', label: 'Amazon Fees ($)*', type: 'number', placeholder: 'e.g., 5.75', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
+                {
+                  name: 'product',
+                  label: 'Product Name*',
+                  type: 'text',
+                  placeholder: 'Enter product name',
+                  required: true,
+                },
+                {
+                  name: 'cost',
+                  label: 'Product Cost ($)*',
+                  type: 'number',
+                  placeholder: 'e.g., 10.50',
+                  required: true,
+                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
+                },
+                {
+                  name: 'price',
+                  label: 'Selling Price ($)*',
+                  type: 'number',
+                  placeholder: 'e.g., 29.99',
+                  required: true,
+                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
+                },
+                {
+                  name: 'fees',
+                  label: 'Amazon Fees ($)*',
+                  type: 'number',
+                  placeholder: 'e.g., 5.75',
+                  required: true,
+                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
+                },
               ]}
               onFileUpload={(file: File) => {
-                
                 if (!file) {
                   console.error('No file provided to onFileUpload');
                   return;
                 }
 
                 // Correct the function signature to match expected type
-                const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+                const event = {
+                  target: { files: [file] },
+                } as unknown as React.ChangeEvent<HTMLInputElement>;
                 handleFileUpload(event);
               }}
               isLoading={isLoading}
               csvRequirements={['product', 'cost', 'price', 'fees']}
             />
-             </CardContent>
-             <div className="bg-muted/20 p-4 rounded-b-lg">
-                <h4 className="font-semibold mb-2 text-sm">How to use this calculator:</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>Enter product details in the form</li>
-                    <li>View calculated profit, ROI, and profit margin</li>
-                </ol>
-            </div>
+          </CardContent>
+          <div className="bg-muted/20 p-4 rounded-b-lg">
+            <h4 className="font-semibold mb-2 text-sm">
+              How to use this calculator:
+            </h4>
+            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+              <li>Enter product details in the form</li>
+              <li>View calculated profit, ROI, and profit margin</li>
+            </ol>
+          </div>
         </DataCard>
       </div>
 
@@ -402,7 +488,11 @@ export default function FbaCalculator() {
             <Download className="mr-2 h-4 w-4" />
             Export Results
           </Button>
-          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
             <XCircle className="mr-2 h-4 w-4" />
             Clear Results
           </Button>
@@ -429,17 +519,18 @@ export default function FbaCalculator() {
       {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
-          <p className="text-sm text-muted-foreground">
-            Processing data...
-          </p>
+          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />{' '}
+          {/* Indeterminate */}
+          <p className="text-sm text-muted-foreground">Processing data...</p>
         </div>
       )}
 
       {/* Results Table */}
       {results.length > 0 && !isLoading && (
         <DataCard>
-          <CardContent className="p-0"> {/* Remove default padding for table */}
+          <CardContent className="p-0">
+            {' '}
+            {/* Remove default padding for table */}
             <h3 className="text-lg font-semibold p-4 border-b">
               Calculation Results ({results.length} Products)
             </h3>
@@ -447,43 +538,90 @@ export default function FbaCalculator() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="px-4 py-3 text-left font-medium whitespace-nowrap">Product</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Cost ($)</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Price ($)</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Fees ($)</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Profit ($)</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">ROI (%)</TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Margin (%)</TableHead>
-                    <TableHead className="px-4 py-3 text-center font-medium whitespace-nowrap">Profitability (Margin)</TableHead>
+                    <TableHead className="px-4 py-3 text-left font-medium whitespace-nowrap">
+                      Product
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Cost ($)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Price ($)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Fees ($)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Profit ($)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      ROI (%)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      Margin (%)
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-center font-medium whitespace-nowrap">
+                      Profitability (Margin)
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {results.map((item, index) => {
-                    const profitColor = item.profit < 0 ? 'text-red-500' : 'text-green-500';
-                    const roiDisplay = isFinite(item.roi) ? `${item.roi.toFixed(2)}%` : '∞';
-                    const marginDisplay = isFinite(item.margin) ? `${item.margin.toFixed(2)}%` : '∞';
+                    const profitColor =
+                      item.profit < 0 ? 'text-red-500' : 'text-green-500';
+                    const roiDisplay = isFinite(item.roi)
+                      ? `${item.roi.toFixed(2)}%`
+                      : '∞';
+                    const marginDisplay = isFinite(item.margin)
+                      ? `${item.margin.toFixed(2)}%`
+                      : '∞';
                     // Cap margin at 100 for progress bar, treat negative as 0
-                    const progressValue = Math.max(0, Math.min(item.margin, 100));
+                    const progressValue = Math.max(
+                      0,
+                      Math.min(item.margin, 100),
+                    );
 
                     return (
-                      <TableRow key={`${item.product}-${index}`} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                        <TableCell className="px-4 py-3 font-medium">{item.product}</TableCell>
-                        <TableCell className="px-4 py-3 text-right">{item.cost.toFixed(2)}</TableCell>
-                        <TableCell className="px-4 py-3 text-right">{item.price.toFixed(2)}</TableCell>
-                        <TableCell className="px-4 py-3 text-right">{item.fees.toFixed(2)}</TableCell>
-                        <TableCell className={`px-4 py-3 text-right font-semibold ${profitColor}`}>
+                      <TableRow
+                        key={`${item.product}-${index}`}
+                        className="border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+                      >
+                        <TableCell className="px-4 py-3 font-medium">
+                          {item.product}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          {item.cost.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          {item.price.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          {item.fees.toFixed(2)}
+                        </TableCell>
+                        <TableCell
+                          className={`px-4 py-3 text-right font-semibold ${profitColor}`}
+                        >
                           {item.profit.toFixed(2)}
                         </TableCell>
-                        <TableCell className={`px-4 py-3 text-right ${item.roi < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                        <TableCell
+                          className={`px-4 py-3 text-right ${item.roi < 0 ? 'text-red-500' : 'text-green-500'}`}
+                        >
                           {roiDisplay}
                         </TableCell>
-                        <TableCell className={`px-4 py-3 text-right ${item.margin < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                        <TableCell
+                          className={`px-4 py-3 text-right ${item.margin < 0 ? 'text-red-500' : 'text-green-500'}`}
+                        >
                           {marginDisplay}
                         </TableCell>
                         <TableCell className="px-4 py-3">
-                          <div className="w-full min-w-[100px]"> {/* Ensure progress bar has some width */}
+                          <div className="w-full min-w-[100px]">
+                            {' '}
+                            {/* Ensure progress bar has some width */}
                             <Progress
-                              value={isFinite(progressValue) ? Math.max(0, Math.min(item.margin, 100)) : 0}
+                              value={
+                                isFinite(progressValue)
+                                  ? Math.max(0, Math.min(item.margin, 100))
+                                  : 0
+                              }
                               className="h-2"
                               // Optional: Add color based on value
                               // indicatorClassName={progressValue < 10 ? 'bg-red-500' : progressValue < 25 ? 'bg-yellow-500' : 'bg-green-500'}
@@ -503,18 +641,23 @@ export default function FbaCalculator() {
       {/* How to Use Section (Optional: Can be inside a DataCard too) */}
       {!isLoading && (
         <Card className="bg-muted/20">
-            <CardContent className="p-4">
-                <h4 className="font-semibold mb-2 text-sm">How to use this calculator:</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                <li>Upload a CSV file with columns: product, cost, price, fees</li>
-                <li>Or manually enter product details in the form</li>
-                <li>View calculated profit, ROI, and profit margin</li>
-                <li>
-                    Use the results to make informed decisions about your FBA products
-                </li>
-                <li>Export the results to CSV for further analysis</li>
-                </ol>
-            </CardContent>
+          <CardContent className="p-4">
+            <h4 className="font-semibold mb-2 text-sm">
+              How to use this calculator:
+            </h4>
+            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+              <li>
+                Upload a CSV file with columns: product, cost, price, fees
+              </li>
+              <li>Or manually enter product details in the form</li>
+              <li>View calculated profit, ROI, and profit margin</li>
+              <li>
+                Use the results to make informed decisions about your FBA
+                products
+              </li>
+              <li>Export the results to CSV for further analysis</li>
+            </ol>
+          </CardContent>
         </Card>
       )}
     </div>

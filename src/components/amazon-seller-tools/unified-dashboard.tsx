@@ -1,7 +1,18 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCallback, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Import existing tool components
@@ -35,9 +46,39 @@ interface DashboardLayout {
 }
 
 const sampleMetrics: DashboardMetrics[] = [
-  { date: '2024-01', sales: 12000, profit: 3600, acos: 25, impressions: 50000, clicks: 2500, conversion_rate: 4.2, inventory_level: 850, review_rating: 4.5 },
-  { date: '2024-02', sales: 15000, profit: 4500, acos: 22, impressions: 55000, clicks: 2750, conversion_rate: 4.5, inventory_level: 720, review_rating: 4.6 },
-  { date: '2024-03', sales: 18000, profit: 5400, acos: 20, impressions: 60000, clicks: 3000, conversion_rate: 4.8, inventory_level: 650, review_rating: 4.7 },
+  {
+    date: '2024-01',
+    sales: 12000,
+    profit: 3600,
+    acos: 25,
+    impressions: 50000,
+    clicks: 2500,
+    conversion_rate: 4.2,
+    inventory_level: 850,
+    review_rating: 4.5,
+  },
+  {
+    date: '2024-02',
+    sales: 15000,
+    profit: 4500,
+    acos: 22,
+    impressions: 55000,
+    clicks: 2750,
+    conversion_rate: 4.5,
+    inventory_level: 720,
+    review_rating: 4.6,
+  },
+  {
+    date: '2024-03',
+    sales: 18000,
+    profit: 5400,
+    acos: 20,
+    impressions: 60000,
+    clicks: 3000,
+    conversion_rate: 4.8,
+    inventory_level: 650,
+    review_rating: 4.7,
+  },
 ];
 
 const defaultLayout: DashboardLayout[] = [
@@ -58,7 +99,7 @@ export default function UnifiedDashboard() {
     setIsLoading(true);
     setError(null);
     // Implement real-time data refresh logic here
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulated API call
     // Update metrics with new data
     setIsLoading(false);
   }, []);
@@ -94,30 +135,40 @@ export default function UnifiedDashboard() {
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold mb-2">Conversion Rate</h3>
-                <div className="text-3xl font-bold text-blue-600">{metrics[metrics.length - 1].conversion_rate}%</div>
+                <div className="text-3xl font-bold text-blue-600">
+                  {metrics[metrics.length - 1].conversion_rate}%
+                </div>
                 <div className="text-sm text-gray-500 mt-1">Last 30 Days</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold mb-2">Inventory Status</h3>
-                <div className="text-3xl font-bold text-green-600">{metrics[metrics.length - 1].inventory_level}</div>
-                <div className="text-sm text-gray-500 mt-1">Units Available</div>
+                <div className="text-3xl font-bold text-green-600">
+                  {metrics[metrics.length - 1].inventory_level}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  Units Available
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold mb-2">Review Rating</h3>
-                <div className="text-3xl font-bold text-yellow-600">{metrics[metrics.length - 1].review_rating}</div>
+                <div className="text-3xl font-bold text-yellow-600">
+                  {metrics[metrics.length - 1].review_rating}
+                </div>
                 <div className="text-sm text-gray-500 mt-1">Average Rating</div>
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Sales & Profit Trends</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Sales & Profit Trends
+                </h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={metrics}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -155,7 +206,11 @@ export default function UnifiedDashboard() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="impressions" fill="#8884d8" name="Impressions" />
+                    <Bar
+                      dataKey="impressions"
+                      fill="#8884d8"
+                      name="Impressions"
+                    />
                     <Bar dataKey="clicks" fill="#82ca9d" name="Clicks" />
                   </BarChart>
                 </ResponsiveContainer>

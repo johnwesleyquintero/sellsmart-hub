@@ -174,7 +174,8 @@ export default function KeywordAnalyzer() {
             }
 
             const requiredHeaders = ['product', 'keywords'];
-            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || []; // Case-insensitive check
+            const actualHeaders =
+              result.meta.fields?.map((h) => h.toLowerCase()) || []; // Case-insensitive check
             const missingHeaders = requiredHeaders.filter(
               (header) => !actualHeaders.includes(header),
             );
@@ -186,7 +187,9 @@ export default function KeywordAnalyzer() {
             }
 
             if (result.data.length === 0) {
-                throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
+              throw new Error(
+                'The uploaded CSV file appears to be empty or contains no data rows.',
+              );
             }
 
             // Process rows concurrently
@@ -201,10 +204,12 @@ export default function KeywordAnalyzer() {
 
             if (finalData.length === 0) {
               if (result.data.length > 0) {
-                 throw new Error("No valid product/keyword data found in the CSV after processing. Ensure 'product' and 'keywords' columns are present and populated.");
+                throw new Error(
+                  "No valid product/keyword data found in the CSV after processing. Ensure 'product' and 'keywords' columns are present and populated.",
+                );
               } else {
-                 // This case is already handled above, but kept for robustness
-                 throw new Error("CSV contains no processable data.");
+                // This case is already handled above, but kept for robustness
+                throw new Error('CSV contains no processable data.');
               }
             }
 
@@ -259,7 +264,11 @@ export default function KeywordAnalyzer() {
     if (!trimmedKeywords) {
       const msg = 'Please enter keywords to analyze.';
       setError(msg);
-      toast({ title: 'Input Required', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Input Required',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -318,7 +327,11 @@ export default function KeywordAnalyzer() {
     if (products.length === 0) {
       const msg = 'No data to export.';
       setError(msg);
-      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
+      toast({
+        title: 'Export Error',
+        description: msg,
+        variant: 'destructive',
+      });
       return;
     }
     setError(null);
@@ -347,7 +360,11 @@ export default function KeywordAnalyzer() {
       const message =
         err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Failed to export data: ${message}`);
-      toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+      toast({
+        title: 'Export Failed',
+        description: message,
+        variant: 'destructive',
+      });
     }
   }, [products, toast]); // Added toast dependency
 
@@ -358,7 +375,11 @@ export default function KeywordAnalyzer() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    toast({ title: 'Data Cleared', description: 'All analysis results have been removed.', variant: 'default' });
+    toast({
+      title: 'Data Cleared',
+      description: 'All analysis results have been removed.',
+      variant: 'default',
+    });
   }, [toast]); // Added toast dependency
 
   // --- Render ---
@@ -370,10 +391,21 @@ export default function KeywordAnalyzer() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Upload a CSV with `product` and comma-separated `keywords` columns. Optional: `searchVolume`, `competition`.</li>
-            <li>Or, manually enter comma-separated keywords for quick analysis.</li>
-            <li>The tool analyzes each keyword (using a mock scoring system for demo).</li>
-            <li>View keyword scores visually and identify potentially strong keywords (suggestions).</li>
+            <li>
+              Upload a CSV with `product` and comma-separated `keywords`
+              columns. Optional: `searchVolume`, `competition`.
+            </li>
+            <li>
+              Or, manually enter comma-separated keywords for quick analysis.
+            </li>
+            <li>
+              The tool analyzes each keyword (using a mock scoring system for
+              demo).
+            </li>
+            <li>
+              View keyword scores visually and identify potentially strong
+              keywords (suggestions).
+            </li>
             <li>Export the detailed analysis results to a CSV file.</li>
           </ul>
         </div>
@@ -383,7 +415,9 @@ export default function KeywordAnalyzer() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* CSV Upload Card */}
         <DataCard>
-          <CardContent className="p-6"> {/* Explicit padding control */}
+          <CardContent className="p-6">
+            {' '}
+            {/* Explicit padding control */}
             <div className="flex flex-col items-center justify-center gap-4 text-center">
               <div className="rounded-full bg-primary/10 p-3">
                 <Upload className="h-6 w-6 text-primary" />
@@ -425,13 +459,18 @@ export default function KeywordAnalyzer() {
 
         {/* Manual Analysis Card */}
         <DataCard>
-          <CardContent className="p-6"> {/* Explicit padding control */}
+          <CardContent className="p-6">
+            {' '}
+            {/* Explicit padding control */}
             <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
               Manual Keyword Analysis
             </h3>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="manual-keywords" className="text-sm font-medium">
+                <Label
+                  htmlFor="manual-keywords"
+                  className="text-sm font-medium"
+                >
                   Keywords*
                 </Label>
                 <div className="flex flex-col sm:flex-row gap-2 mt-1">
@@ -442,6 +481,7 @@ export default function KeywordAnalyzer() {
                     placeholder="Enter keywords, comma-separated"
                     className="flex-grow"
                     disabled={isLoading}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setManualKeywords(e.target.value)}
                   />
                   <Button
                     onClick={handleManualAnalysis}
@@ -468,7 +508,11 @@ export default function KeywordAnalyzer() {
             <Download className="mr-2 h-4 w-4" />
             Export Analysis
           </Button>
-          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
             <XCircle className="mr-2 h-4 w-4" />
             Clear Results
           </Button>
@@ -502,14 +546,18 @@ export default function KeywordAnalyzer() {
 
       {/* Results Section */}
       {products.length > 0 && !isLoading && (
-        <DataCard> {/* Wrap all results */}
+        <DataCard>
+          {' '}
+          {/* Wrap all results */}
           <CardContent className="p-4 space-y-6">
             <h2 className="text-xl font-semibold border-b pb-3">
               Analysis Results ({products.length} Products/Entries)
             </h2>
             <div className="space-y-4">
               {products.map((product, index) => (
-                <Card key={`${product.product}-${index}`}> {/* Unique key */}
+                <Card key={`${product.product}-${index}`}>
+                  {' '}
+                  {/* Unique key */}
                   <CardContent className="p-4">
                     {/* Header */}
                     <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
@@ -534,13 +582,8 @@ export default function KeywordAnalyzer() {
                                 Competition:
                               </span>
                               <Badge
-                                variant={
-                                  product.competition === 'High'
-                                    ? 'destructive'
-                                    : product.competition === 'Medium'
-                                      ? 'secondary'
-                                      : 'default'
-                                }
+                                variant={getCompetitionVariant(product.competition)}
+                              
                               >
                                 {product.competition}
                               </Badge>
@@ -559,24 +602,28 @@ export default function KeywordAnalyzer() {
                         </h4>
                         <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-3 min-h-[50px]">
                           {product.keywords.length > 0 ? (
-                             product.keywords.map((keyword, i) => (
-                                <Badge
-                                  key={`orig-${index}-${i}`}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {keyword}
-                                </Badge>
-                              ))
+                            product.keywords.map((keyword, i) => (
+                              <Badge
+                                key={`orig-${index}-${i}`}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {keyword}
+                              </Badge>
+                            ))
                           ) : (
-                            <p className="text-xs text-muted-foreground italic">No keywords provided.</p>
+                            <p className="text-xs text-muted-foreground italic">
+                              No keywords provided.
+                            </p>
                           )}
                         </div>
                       </div>
 
                       {/* Keyword Analysis Chart */}
                       {product.analysis && product.analysis.length > 0 ? (
-                        <div className="h-80 w-full"> {/* Fixed height container */}
+                        <div className="h-80 w-full">
+                          {' '}
+                          {/* Fixed height container */}
                           <h4 className="mb-2 text-sm font-medium text-muted-foreground">
                             Keyword Analysis Scores
                           </h4>
@@ -602,9 +649,15 @@ export default function KeywordAnalyzer() {
                                 height={60}
                                 interval={0}
                               />
-                              <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                              <YAxis
+                                tick={{ fontSize: 10 }}
+                                domain={[0, 100]}
+                              />
                               <Tooltip
-                                contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
+                                contentStyle={{
+                                  fontSize: '12px',
+                                  padding: '5px 10px',
+                                }}
                                 formatter={(value: number) => [
                                   `${value.toFixed(0)}`, // Simplified display
                                   'Score',
@@ -630,33 +683,36 @@ export default function KeywordAnalyzer() {
                           </ResponsiveContainer>
                         </div>
                       ) : (
-                         <div>
-                            <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                                Keyword Analysis Scores
-                            </h4>
-                            <p className="text-sm text-muted-foreground italic">No analysis data available.</p>
-                         </div>
+                        <div>
+                          <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                            Keyword Analysis Scores
+                          </h4>
+                          <p className="text-sm text-muted-foreground italic">
+                            No analysis data available.
+                          </p>
+                        </div>
                       )}
 
                       {/* Suggestions (Optional) */}
-                      {product.suggestions && product.suggestions.length > 0 && (
-                        <div className="pt-4 border-t border-dashed">
-                          <h4 className="mb-2 text-sm font-medium text-blue-600 dark:text-blue-400">
-                            Suggested Keywords (Score &gt; 70)
-                          </h4>
-                          <div className="flex flex-wrap gap-1">
-                            {product.suggestions.map((keyword, i) => (
-                              <Badge
-                                key={`sugg-${index}-${i}`}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {keyword}
-                              </Badge>
-                            ))}
+                      {product.suggestions &&
+                        product.suggestions.length > 0 && (
+                          <div className="pt-4 border-t border-dashed">
+                            <h4 className="mb-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                              Suggested Keywords (Score &gt; 70)
+                            </h4>
+                            <div className="flex flex-wrap gap-1">
+                              {product.suggestions.map((keyword, i) => (
+                                <Badge
+                                  key={`sugg-${index}-${i}`}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   </CardContent>
                 </Card>
