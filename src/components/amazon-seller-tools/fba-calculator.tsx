@@ -419,7 +419,7 @@ export default function FbaCalculator() {
             <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
               Manual Calculation
             </h3>
-            <ManualFbaForm 
+            <ManualFbaForm
               initialValues={manualInput}
               onSubmit={(values) => {
                 const metrics = calculateFbaMetrics(values);
@@ -603,9 +603,6 @@ export default function FbaCalculator() {
           </CardContent>
         </DataCard>
       )}
-
-
-
-    </div>  
+    </div>
   );
 }

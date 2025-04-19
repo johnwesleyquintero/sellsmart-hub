@@ -17,21 +17,22 @@ export default function ManualFbaForm({
   onReset,
 }: ManualFbaFormProps) {
   const { toast } = useToast();
-  const [values, setValues] = React.useState<FbaCalculationInput>(initialValues);
+  const [values, setValues] =
+    React.useState<FbaCalculationInput>(initialValues);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setValues((prev: any) => ({
       ...prev,
-      [name]: name === 'product' ? value : Number(value)
+      [name]: name === 'product' ? value : Number(value),
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Validate inputs
     if (!values.product.trim()) {
       toast({

@@ -542,7 +542,7 @@ export default function AcosCalculator() {
                     margin={{ top: 5, right: 30, left: 30, bottom: 60 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
+                    <XAxis
                       dataKey="campaign"
                       tick={{ fontSize: 10 }}
                       angle={-45}
@@ -553,7 +553,10 @@ export default function AcosCalculator() {
                     <YAxis yAxisId="left" />
                     <YAxis yAxisId="right" orientation="right" />
                     <Tooltip
-                      formatter={(value: number | string, name: keyof typeof chartConfig) => formatValue(value, name)}
+                      formatter={(
+                        value: number | string,
+                        name: keyof typeof chartConfig,
+                      ) => formatValue(value, name)}
                       labelFormatter={(label) => `Campaign: ${label || ''}`}
                     />
                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
