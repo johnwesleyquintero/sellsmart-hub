@@ -29,6 +29,7 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
+  Line,
   LineChart,
   ResponsiveContainer,
   Tooltip,
@@ -530,17 +531,51 @@ export default function AcosCalculator() {
 
           {/* Line Chart for ACoS vs ROAS Trend */}
           <DataCard>
-            <h3 className="text-lg font-semibold mb-4 text-center">
-              ACoS vs ROAS Trend
-            </h3>
-            <ChartContainer config={chartConfig} className="h-[400px] w-full">
-              <ResponsiveContainer>
-                <LineChart
-                  data={campaigns}
-                  margin={{ top: 5, right: 30, left: 30, bottom: 60 }}
-                />
-              </ResponsiveContainer>
-            </ChartContainer>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                ACoS vs ROAS Trend
+              </h3>
+              <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                <ResponsiveContainer>
+                  <LineChart
+                    data={campaigns}
+                    margin={{ top: 5, right: 30, left: 30, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="campaign"
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={70}
+                      interval={0}
+                    />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip
+                      formatter={(value: number | string, name: keyof typeof chartConfig) => formatValue(value, name)}
+                      labelFormatter={(label) => `Campaign: ${label || ''}`}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="acos"
+                      stroke="#8884d8"
+                      name="ACoS (%)"
+                      activeDot={{ r: 8 }}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="roas"
+                      stroke="#82ca9d"
+                      name="ROAS (x)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
           </DataCard>
         </div>
       )}
