@@ -517,9 +517,7 @@ export default function KeywordDeduplicator() {
                         }
                         className="whitespace-nowrap self-start sm:self-center"
                       >
-                        {product.duplicatesRemoved > 0
-                          ? `${product.duplicatesRemoved} duplicate${product.duplicatesRemoved > 1 ? 's' : ''} removed`
-                          : 'No duplicates found'}
+                        {getDuplicateMessage(product.duplicatesRemoved)}
                       </Badge>
                     </div>
 

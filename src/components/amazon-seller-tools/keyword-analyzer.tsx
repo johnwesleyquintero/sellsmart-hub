@@ -486,7 +486,7 @@ export default function KeywordAnalyzer() {
                   <Button
                     onClick={handleManualAnalysis}
                     disabled={isLoading || !manualKeywords.trim()}
-                    className="w-full sm:w-auto flex-shrink-0" // Prevent button shrinking too much
+                    className="flex-shrink-0 w-full sm:w-auto" // Prevent button shrinking too much
                   >
                     <Search className="mr-2 h-4 w-4" />
                     Analyze

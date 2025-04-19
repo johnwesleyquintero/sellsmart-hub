@@ -100,10 +100,12 @@ const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
   }
 };
 
+type ListingScoreResult = Pick<ListingData, 'score' | 'issues' | 'suggestions'>;
+
 // Simplified scoring logic - can be expanded significantly
 const calculateScoreAndIssues = (
   data: Omit<ListingData, 'score' | 'issues' | 'suggestions'>,
-): Pick<ListingData, 'score' | 'issues' | 'suggestions'> => {
+): ListingScoreResult => {
   const issues: string[] = [];
   const suggestions: string[] = [];
   let score = 100; // Start with a perfect score
