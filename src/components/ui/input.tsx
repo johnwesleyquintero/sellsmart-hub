@@ -13,6 +13,7 @@ const Input = React.forwardRef<
     name?: string;
     placeholder?: string;
     required?: boolean;
+    disabled?: boolean;
   }
 >(
   (
@@ -26,6 +27,7 @@ const Input = React.forwardRef<
       name,
       placeholder,
       required,
+      disabled,
       ...props
     },
     ref,

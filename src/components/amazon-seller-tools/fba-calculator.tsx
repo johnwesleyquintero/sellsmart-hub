@@ -224,10 +224,12 @@ export default function FbaCalculator() {
             }
 
             setResults(processedResults);
-            setError(skippedRowCount > 0 ? `Processed ${processedResults.length} products. Skipped ${skippedRowCount} invalid rows.` : null); // Inform about skipped rows as a non-blocking error/info
+            const processedMessage = `Processed ${processedResults.length} products`;
+            const skippedMessage = skippedRowCount > 0 ? ` Skipped ${skippedRowCount} invalid rows` : '';
+            setError(skippedRowCount > 0 ? `${processedMessage}.${skippedMessage}` : null);
             toast({
               title: 'CSV Processed',
-              description: `Successfully calculated FBA metrics for ${processedResults.length} products.${skippedRowCount > 0 ? ` Skipped ${skippedRowCount} invalid rows.` : ''}`,
+              description: `${processedMessage}.${skippedMessage}`,
               variant: 'default',
             });
 
@@ -459,7 +461,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="Enter product name"
                   className="mt-1"
-                  disabled={isLoading} as="any"
+                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -474,7 +476,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 10.50"
                   className="mt-1"
-                  disabled={isLoading} as="any"
+                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -489,7 +491,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 29.99"
                   className="mt-1"
-                  disabled={isLoading} as="any"
+                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -504,7 +506,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 5.75"
                   className="mt-1"
-                  disabled={isLoading} as="any"
+                  disabled={isLoading}
                 />
               </div>
               <Button

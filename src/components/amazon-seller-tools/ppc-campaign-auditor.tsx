@@ -1,5 +1,6 @@
 'use client';
 
+import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertCircle,
   Download,
@@ -13,7 +14,6 @@ import { useCallback, useRef, useState } from 'react';
 
 // Local/UI Imports
 import { Button } from '@/components/ui/button';
-import { CardContent } from '@/components/ui/card'; // Import CardContent for DataCard
 import { Progress } from '@/components/ui/progress';
 import CampaignCard from './CampaignCard';
 import DataCard from './DataCard'; // Import DataCard
@@ -29,13 +29,16 @@ const GOOD_AUTO_ACOS_THRESHOLD = 20; // %
 // --- Types ---
 // Raw data structure expected from CSV after PapaParse dynamicTyping
 interface RawCampaignData {
-  name?: string | null;
-  type?: string | null;
-  spend?: number | string | null;
-  sales?: number | string | null;
-  impressions?: number | string | null;
-  clicks?: number | string | null;
+  name?: StringOrNull;
+  type?: StringOrNull;
+  spend?: NumberOrStringOrNull;
+  sales?: NumberOrStringOrNull;
+  impressions?: NumberOrStringOrNull;
+  clicks?: NumberOrStringOrNull;
 }
+
+type StringOrNull = string | null;
+type NumberOrStringOrNull = number | string | null;
 
 // Processed and validated data structure
 export type CampaignData = {
@@ -74,87 +77,122 @@ function calculateMetrics(
 /**
  * Analyzes a single campaign's performance based on calculated metrics.
  */
+function handleNoSalesCase(spend: number): { issues: string[], recommendations: string[] } {
+  const issues = ['No Sales Recorded'];
+  const recommendations = [];
+  
+  if (spend > 0) {
+    recommendations.push(
+      'Investigate targeting, product appeal, and listing quality. Consider pausing if spend is significant.'
+    );
+  } else {
+    recommendations.push(
+      'Campaign has no spend and no sales. Review setup or consider activating if intended.'
+    );
+  }
+  
+  return { issues, recommendations };
+}
+
+function analyzeHighAcos(acos: number): { issues: string[], recommendations: string[] } {
+  return {
+    issues: [`High ACoS (${acos.toFixed(1)}%)`],
+    recommendations: [
+      'Review search term reports and target performance. Reduce bids on unprofitable targets.',
+      'Add negative keywords/ASINs to prevent irrelevant spend.'
+    ]
+  };
+}
+
+function analyzeLowCtr(ctr: number): { issues: string[], recommendations: string[] } {
+  return {
+    issues: [`Low CTR (${ctr.toFixed(2)}%)`],
+    recommendations: [
+      'Improve ad relevance: check keywords, ad copy (if applicable), and main image.',
+      'Ensure targeting is specific enough.'
+    ]
+  };
+}
+
+function analyzeLowConversionRate(conversionRate: number): { issues: string[], recommendations: string[] } {
+  return {
+    issues: [`Low Conversion Rate (${conversionRate.toFixed(1)}%)`],
+    recommendations: [
+      'Optimize product detail page (title, bullets, description, images, A+ content, price, reviews).',
+      'Ensure keywords/targets align closely with the product benefits and features.'
+    ]
+  };
+}
+
+function analyzeLowClickVolume(clicks: number): { issues: string[], recommendations: string[] } {
+  return {
+    issues: [`Low Click Volume (${clicks})`],
+    recommendations: [
+      'Consider increasing bids strategically on relevant, high-potential targets.',
+      'Review campaign budget; ensure it is not limiting performance.'
+    ]
+  };
+}
+
+function analyzeAutoCampaign(type: string, acos: number): { recommendations: string[] } {
+  if (type.toLowerCase().includes('auto') && acos < GOOD_AUTO_ACOS_THRESHOLD) {
+    return {
+      recommendations: [
+        'Harvest high-performing search terms/ASINs from this Auto campaign into Manual campaigns for granular control.'
+      ]
+    };
+  }
+  return { recommendations: [] };
+}
+
 function analyzeCampaignPerformance(
   campaign: Omit<CampaignData, 'issues' | 'recommendations'>,
 ): { issues: string[]; recommendations: string[] } {
   const issues: string[] = [];
   const recommendations: string[] = [];
-  const { acos, ctr, conversionRate, clicks, type, spend } = campaign; // Added spend for context
+  const { acos, ctr, conversionRate, clicks, type, spend } = campaign;
 
   if (!isFinite(acos)) {
-    // Handle campaigns with zero sales first
-    issues.push('No Sales Recorded');
-    if (spend > 0) {
-      recommendations.push(
-        'Investigate targeting, product appeal, and listing quality. Consider pausing if spend is significant.',
-      );
-    } else {
-      recommendations.push(
-        'Campaign has no spend and no sales. Review setup or consider activating if intended.',
-      );
-    }
-  } else {
-    // Analyze campaigns with sales
-    if (acos > HIGH_ACOS_THRESHOLD) {
-      issues.push(`High ACoS (${acos.toFixed(1)}%)`);
-      recommendations.push(
-        'Review search term reports and target performance. Reduce bids on unprofitable targets.',
-      );
-      recommendations.push(
-        'Add negative keywords/ASINs to prevent irrelevant spend.',
-      );
-    }
-
-    if (ctr < LOW_CTR_THRESHOLD) {
-      issues.push(`Low CTR (${ctr.toFixed(2)}%)`);
-      recommendations.push(
-        'Improve ad relevance: check keywords, ad copy (if applicable), and main image.',
-      );
-      recommendations.push('Ensure targeting is specific enough.');
-    }
-
-    // Assuming original conversionRate calculation (Sales/Clicks * 100)
-    if (conversionRate < LOW_CONVERSION_RATE_THRESHOLD) {
-      issues.push(`Low Conversion Rate (${conversionRate.toFixed(1)}%)`);
-      recommendations.push(
-        'Optimize product detail page (title, bullets, description, images, A+ content, price, reviews).',
-      );
-      recommendations.push(
-        'Ensure keywords/targets align closely with the product benefits and features.',
-      );
-    }
-
-    if (clicks < LOW_CLICK_VOLUME_THRESHOLD) {
-      issues.push(`Low Click Volume (${clicks})`);
-      recommendations.push(
-        'Consider increasing bids strategically on relevant, high-potential targets.',
-      );
-      recommendations.push(
-        'Review campaign budget; ensure it is not limiting performance.',
-      );
-    }
-
-    if (
-      type.toLowerCase().includes('auto') && // Check if type contains 'auto'
-      acos < GOOD_AUTO_ACOS_THRESHOLD
-    ) {
-      recommendations.push(
-        'Harvest high-performing search terms/ASINs from this Auto campaign into Manual campaigns for granular control.',
-      );
-    }
+    const noSalesResult = handleNoSalesCase(spend);
+    issues.push(...noSalesResult.issues);
+    recommendations.push(...noSalesResult.recommendations);
+    return { issues, recommendations };
   }
 
-  // Add default messages if no specific issues/recommendations were found (and there were sales)
-  if (issues.length === 0 && isFinite(acos)) {
+  // Analyze campaigns with sales
+  if (acos > HIGH_ACOS_THRESHOLD) {
+    const highAcosResult = analyzeHighAcos(acos);
+    issues.push(...highAcosResult.issues);
+    recommendations.push(...highAcosResult.recommendations);
+  }
+
+  if (ctr < LOW_CTR_THRESHOLD) {
+    const lowCtrResult = analyzeLowCtr(ctr);
+    issues.push(...lowCtrResult.issues);
+    recommendations.push(...lowCtrResult.recommendations);
+  }
+
+  if (conversionRate < LOW_CONVERSION_RATE_THRESHOLD) {
+    const lowConvResult = analyzeLowConversionRate(conversionRate);
+    issues.push(...lowConvResult.issues);
+    recommendations.push(...lowConvResult.recommendations);
+  }
+
+  if (clicks < LOW_CLICK_VOLUME_THRESHOLD) {
+    const lowClickResult = analyzeLowClickVolume(clicks);
+    issues.push(...lowClickResult.issues);
+    recommendations.push(...lowClickResult.recommendations);
+  }
+
+  const autoCampaignResult = analyzeAutoCampaign(type, acos);
+  recommendations.push(...autoCampaignResult.recommendations);
+
+  // Add default messages if no specific issues/recommendations were found
+  if (issues.length === 0) {
     issues.push('No major performance issues detected.');
   }
-  if (recommendations.length === 0 && isFinite(acos)) {
-    recommendations.push(
-      'Performance looks stable. Continue monitoring key metrics.',
-    );
-  } else if (recommendations.length === 0 && !isFinite(acos) && spend === 0) {
-    // Add a recommendation if no sales, no spend, and no other recommendations
-    recommendations.push('Review campaign setup and targeting before activation.');
+  if (recommendations.length === 0) {
+    recommendations.push('Performance looks stable. Continue monitoring key metrics.');
   }
 
   return { issues, recommendations };
