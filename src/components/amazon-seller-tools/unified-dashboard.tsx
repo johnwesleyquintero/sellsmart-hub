@@ -1,9 +1,8 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, RefreshCw } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Import existing tool components
 import AcosCalculator from './acos-calculator';
@@ -71,23 +70,12 @@ export default function UnifiedDashboard() {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Amazon Seller Tools Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          {isLoading && <span className="text-sm text-gray-500">Refreshing...</span>}
-          {error && <span className="text-sm text-red-500">{error}</span>}
-          <div className="space-x-2">
-            <Button variant="outline" onClick={handleRefresh}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-          </div>
-        </div>
-      </div>
+      <UnifiedDashboardHeader
+        isLoading={isLoading}
+        error={error}
+        onRefresh={handleRefresh}
+        onExport={handleExport}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-8">

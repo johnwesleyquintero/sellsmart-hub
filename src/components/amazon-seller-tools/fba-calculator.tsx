@@ -3,12 +3,11 @@
 import { useToast } from '@/hooks/use-toast'; // Added for user feedback
 import {
   AlertCircle,
-  Calculator,
   Download,
   FileText,
   Info,
   Upload,
-  XCircle, // Added for error dismiss and clear button
+  XCircle
 } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react'; // Added useCallback, useRef
@@ -16,8 +15,6 @@ import React, { useCallback, useRef, useState } from 'react'; // Added useCallba
 // Local/UI Imports
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import {
   Table,
@@ -29,6 +26,7 @@ import {
 } from '@/components/ui/table';
 import DataCard from './DataCard'; // Use consistent DataCard
 import SampleCsvButton from './sample-csv-button'; // Add sample button
+import ToolForm from './shared/ToolForm';
 
 // --- Types ---
 // Input structure expected from CSV or manual entry
@@ -55,31 +53,10 @@ type CsvInputRow = {
 };
 
 
-// Local/UI Imports
-
-// --- Types ---
-// Input structure expected from CSV or manual entry
-interface FbaCalculationInput {
-  product: string;
-  cost: number;
-  price: number;
-  fees: number;
-}
-
-// Result structure including calculated metrics
-interface FbaCalculationResult extends FbaCalculationInput {
-  profit: number;
-  roi: number; // Return on Investment (%)
-  margin: number; // Profit Margin (%)
-}
-
-// Type for raw CSV row after parsing
-
 // --- Helper Functions ---
 
 /**
  * Calculates profit, ROI, and margin for a single product.
- * Handles potential division by zero.
  */
 const calculateFbaMetrics = (
   input: FbaCalculationInput,
@@ -129,7 +106,7 @@ export default function FbaCalculator() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Simplified state for manual input form
-  const [manualInput, setManualInput] = useState<FbaCalculationInput>({
+  const [, setManualInput] = useState<FbaCalculationInput>({
     product: '',
     cost: 0,
     price: 0,
@@ -269,72 +246,7 @@ export default function FbaCalculator() {
     [toast], // Added toast dependency
   );
 
-  const handleManualCalculation = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent form submission if it were inside a form
-    setError(null);
 
-    const { product, cost, price, fees } = manualInput;
-    const trimmedProduct = product.trim();
-
-    // Validation
-    if (!trimmedProduct) {
-      const msg = 'Product name cannot be empty.';
-      setError(msg);
-      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
-      return;
-    }
-    // cost, price, fees are already numbers due to handleInputChange, check if they are positive/non-negative
-    if (cost <= 0) {
-      const msg = 'Product Cost must be a positive number.';
-      setError(msg);
-      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
-      return;
-    }
-    if (price <= 0) {
-      const msg = 'Selling Price must be a positive number.';
-      setError(msg);
-      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
-      return;
-    }
-     if (fees < 0) {
-       const msg = 'Amazon Fees cannot be negative.';
-       setError(msg);
-       toast({ title: 'Input Error', description: msg, variant: 'destructive' });
-       return;
-     }
-    // Optional: Check if price covers cost + fees
-    if (price <= cost + fees) {
-        toast({
-            title: 'Potential Loss',
-            description: 'Warning: Selling price does not cover cost and fees.',
-            variant: 'default', // Use a warning variant if available
-        });
-    }
-
-    const inputData: FbaCalculationInput = { product: trimmedProduct, cost, price, fees };
-    const metrics = calculateFbaMetrics(inputData);
-    const newResult: FbaCalculationResult = { ...inputData, ...metrics };
-
-    setResults((prevResults) => [...prevResults, newResult]);
-
-    // Reset form
-    setManualInput({ product: '', cost: 0, price: 0, fees: 0 });
-    toast({
-        title: 'Calculation Added',
-        description: `Added calculation for "${trimmedProduct}".`,
-        variant: 'default',
-    });
-
-  }, [manualInput, toast]); // Added dependencies
-
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setManualInput((prev) => ({
-      ...prev,
-      // For numeric fields, convert to number, default to 0 if conversion fails or empty
-      [name]: name === 'product' ? value : (Number(value) || 0),
-    }));
-  }, []); // No dependencies
 
   const handleExport = useCallback(() => {
     if (results.length === 0) {
@@ -394,7 +306,7 @@ export default function FbaCalculator() {
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
-            <li>Upload a CSV with `product`, `cost`, `price`, and `fees` columns.</li>
+            <li>Upload a CSV file with columns: product, cost, price, fees</li>
             <li>Or, manually enter details for a single product.</li>
             <li>The tool calculates Profit, Return on Investment (ROI), and Profit Margin.</li>
             <li>Export the results to a new CSV file.</li>
@@ -450,75 +362,36 @@ export default function FbaCalculator() {
         <DataCard>
           <CardContent className="p-6"> {/* Explicit CardContent for padding control */}
             <h3 className="text-lg font-medium mb-4 text-center sm:text-left">Manual Calculation</h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="manual-product" className="text-sm font-medium">Product Name*</Label>
-                <Input
-                  id="manual-product"
-                  name="product" // Match state key
-                  type="text"
-                  value={manualInput.product}
-                  onChange={handleInputChange}
-                  placeholder="Enter product name"
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <Label htmlFor="manual-cost" className="text-sm font-medium">Product Cost ($)*</Label>
-                <Input
-                  id="manual-cost"
-                  name="cost" // Match state key
-                  type="number"
-                  min="0.01" // Cost should be positive
-                  step="0.01"
-                  value={manualInput.cost || ''} // Show empty string instead of 0 initially
-                  onChange={handleInputChange}
-                  placeholder="e.g., 10.50"
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <Label htmlFor="manual-price" className="text-sm font-medium">Selling Price ($)*</Label>
-                <Input
-                  id="manual-price"
-                  name="price" // Match state key
-                  type="number"
-                  min="0.01" // Price should be positive
-                  step="0.01"
-                  value={manualInput.price || ''} // Show empty string instead of 0 initially
-                  onChange={handleInputChange}
-                  placeholder="e.g., 29.99"
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <Label htmlFor="manual-fees" className="text-sm font-medium">Amazon Fees ($)*</Label>
-                <Input
-                  id="manual-fees"
-                  name="fees" // Match state key
-                  type="number"
-                  min="0" // Fees can be zero
-                  step="0.01"
-                  value={manualInput.fees || ''} // Show empty string instead of 0 initially
-                  onChange={handleInputChange}
-                  placeholder="e.g., 5.75"
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-              </div>
-              <Button
-                onClick={handleManualCalculation}
-                className="w-full"
-                disabled={isLoading || !manualInput.product || manualInput.cost <= 0 || manualInput.price <= 0 || manualInput.fees < 0}
-              >
-                <Calculator className="mr-2 h-4 w-4" />
-                {isLoading ? 'Calculating...' : 'Calculate & Add'}
-              </Button>
+
+            <ToolForm
+              manualInputs={[
+                { name: 'product', label: 'Product Name*', type: 'text', placeholder: 'Enter product name', required: true },
+                { name: 'cost', label: 'Product Cost ($)*', type: 'number', placeholder: 'e.g., 10.50', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
+                { name: 'price', label: 'Selling Price ($)*', type: 'number', placeholder: 'e.g., 29.99', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
+                { name: 'fees', label: 'Amazon Fees ($)*', type: 'number', placeholder: 'e.g., 5.75', required: true, pattern: '[0-9]+(\.[0-9][0-9]?)?' },
+              ]}
+              onFileUpload={(file: File) => {
+                
+                if (!file) {
+                  console.error('No file provided to onFileUpload');
+                  return;
+                }
+
+                // Correct the function signature to match expected type
+                const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+                handleFileUpload(event);
+              }}
+              isLoading={isLoading}
+              csvRequirements={['product', 'cost', 'price', 'fees']}
+            />
+             </CardContent>
+             <div className="bg-muted/20 p-4 rounded-b-lg">
+                <h4 className="font-semibold mb-2 text-sm">How to use this calculator:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Enter product details in the form</li>
+                    <li>View calculated profit, ROI, and profit margin</li>
+                </ol>
             </div>
-          </CardContent>
         </DataCard>
       </div>
 
@@ -610,7 +483,7 @@ export default function FbaCalculator() {
                         <TableCell className="px-4 py-3">
                           <div className="w-full min-w-[100px]"> {/* Ensure progress bar has some width */}
                             <Progress
-                              value={isFinite(progressValue) ? progressValue : 0}
+                              value={isFinite(progressValue) ? Math.max(0, Math.min(item.margin, 100)) : 0}
                               className="h-2"
                               // Optional: Add color based on value
                               // indicatorClassName={progressValue < 10 ? 'bg-red-500' : progressValue < 25 ? 'bg-yellow-500' : 'bg-green-500'}

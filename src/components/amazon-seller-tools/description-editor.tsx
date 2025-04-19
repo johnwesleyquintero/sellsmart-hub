@@ -383,10 +383,11 @@ export default function DescriptionEditor() {
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="new-product-name" className="text-sm font-medium">Product Name*</Label>
+
                   <Input
                     id="new-product-name"
                     value={newProduct.product}
-                    onChange={(e) => setNewProduct({ ...newProduct, product: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewProduct({ ...newProduct, product: e.target.value })}
                     placeholder="Enter unique product name"
                     required
                     className="mt-1"
@@ -397,7 +398,7 @@ export default function DescriptionEditor() {
                   <Input
                     id="new-product-asin"
                     value={newProduct.asin}
-                    onChange={(e) => setNewProduct({ ...newProduct, asin: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewProduct({ ...newProduct, asin: e.target.value })}
                     placeholder="Enter Amazon ASIN"
                     className="mt-1"
                   />
@@ -407,7 +408,7 @@ export default function DescriptionEditor() {
                   <Textarea
                     id="new-product-description"
                     value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewProduct({ ...newProduct, description: e.target.value })}
                     placeholder="Enter product description"
                     rows={4} // Adjusted rows
                     required

@@ -1,4 +1,7 @@
+// Move 'use client' directive to the top of the file
 'use client';
+
+console.log('PpcCampaignAuditor component loaded');
 
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -18,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import CampaignCard from './CampaignCard';
 import DataCard from './DataCard'; // Import DataCard
 import SampleCsvButton from './sample-csv-button';
+console.log('DataCard component loaded');
 
 // --- Constants for Analysis ---
 const HIGH_ACOS_THRESHOLD = 30; // %
@@ -253,6 +257,7 @@ function processRawCampaignData(rawData: unknown[]): { data: CampaignData[], ski
 }
 
 // --- Component ---
+console.log('PpcCampaignAuditor component rendered');
 export default function PpcCampaignAuditor() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
