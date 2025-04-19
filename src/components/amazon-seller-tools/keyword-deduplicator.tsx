@@ -90,7 +90,8 @@ export default function KeywordDeduplicator() {
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+      const target = event.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (!file) return;
 
       setIsLoading(true);
@@ -171,8 +172,8 @@ export default function KeywordDeduplicator() {
           } finally {
             setIsLoading(false);
             // Reset file input value to allow re-uploading the same file
-            if (event.target) {
-              event.target.value = '';
+            if (target) {
+              target.value = '';
             }
           }
         },
@@ -186,8 +187,8 @@ export default function KeywordDeduplicator() {
             variant: 'destructive',
           });
           // Reset file input on read error too
-          if (event.target) {
-            event.target.value = '';
+          if (fileInputRef.current) {
+            (fileInputRef.current as HTMLInputElement).value = '';
           }
         },
       });
@@ -198,6 +199,7 @@ export default function KeywordDeduplicator() {
   const handleManualProcess = useCallback(() => {
     setError(null); // Clear previous errors
     const trimmedKeywords = manualKeywords.trim();
+
     const trimmedProduct = manualProduct.trim() || 'Manual Entry'; // Default name if empty
 
     if (!trimmedKeywords) {
@@ -405,7 +407,9 @@ export default function KeywordDeduplicator() {
                   id="manual-product"
                   type="text"
                   value={manualProduct}
-                  onChange={(e) => setManualProduct(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setManualProduct(e.target.value)
+                  }
                   placeholder="Enter product name (e.g., T-Shirt)"
                   className="mt-1"
                   disabled={isLoading}
@@ -517,7 +521,9 @@ export default function KeywordDeduplicator() {
                         }
                         className="whitespace-nowrap self-start sm:self-center"
                       >
-                        {getDuplicateMessage(product.duplicatesRemoved)}
+                        {product.duplicatesRemoved > 0
+                          ? `Removed ${product.duplicatesRemoved} duplicates`
+                          : 'No duplicates found'}
                       </Badge>
                     </div>
 

@@ -313,7 +313,8 @@ export default function ListingQualityChecker() {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          const content = e.target?.result;
+          const target = e.target as FileReader;
+          const content = target.result;
           if (typeof content !== 'string') {
             throw new Error('Invalid file content');
           }
@@ -609,7 +610,7 @@ export default function ListingQualityChecker() {
                   />
                 </label>
                 <SampleCsvButton
-                  dataType="listing-quality" // You'll need to add this type to your sample data generator
+                  dataType="keyword" // Changed to match SampleDataType
                   fileName="sample-listing-quality.csv"
                   className="mt-4"
                 />
@@ -633,7 +634,9 @@ export default function ListingQualityChecker() {
                   <Input
                     id="asin-input"
                     value={asin}
-                    onChange={(e) => setAsin(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setAsin(e.target.value)
+                    }
                     placeholder="Enter ASIN (e.g., B08N5KWB9H)"
                     className="flex-grow"
                     disabled={isLoading}

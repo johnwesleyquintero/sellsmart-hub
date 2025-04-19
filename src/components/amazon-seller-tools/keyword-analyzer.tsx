@@ -35,6 +35,20 @@ import { Progress } from '@/components/ui/progress';
 import DataCard from './DataCard'; // Use consistent DataCard
 import SampleCsvButton from './sample-csv-button';
 
+// --- Helper Function ---
+const getCompetitionVariant = (competition: 'Low' | 'Medium' | 'High') => {
+  switch (competition) {
+    case 'Low':
+      return 'default';
+    case 'Medium':
+      return 'outline';
+    case 'High':
+      return 'destructive';
+    default:
+      return 'default';
+  }
+};
+
 // --- Mock Keyword Intelligence (Placeholder - Replace with actual implementation) ---
 interface KeywordIntelligence {
   analyzeBatch(
@@ -477,11 +491,12 @@ export default function KeywordAnalyzer() {
                   <Input
                     id="manual-keywords"
                     value={manualKeywords}
-                    onChange={(e) => setManualKeywords(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setManualKeywords(e.target.value)
+                    }
                     placeholder="Enter keywords, comma-separated"
                     className="flex-grow"
                     disabled={isLoading}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setManualKeywords(e.target.value)}
                   />
                   <Button
                     onClick={handleManualAnalysis}
@@ -582,8 +597,9 @@ export default function KeywordAnalyzer() {
                                 Competition:
                               </span>
                               <Badge
-                                variant={getCompetitionVariant(product.competition)}
-                              
+                                variant={getCompetitionVariant(
+                                  product.competition,
+                                )}
                               >
                                 {product.competition}
                               </Badge>
