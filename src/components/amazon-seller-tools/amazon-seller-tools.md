@@ -31,17 +31,17 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 
 | Tool                     | Status    | Version |
 | ------------------------ | --------- | ------- |
-| FBA Calculator           | ✅ Active | 2.0.0   |
-| Keyword Analyzer         | ✅ Active | 2.0.0   |
-| Listing Quality Checker  | ✅ Active | 1.5.0   |
-| PPC Campaign Auditor     | ✅ Active | 2.0.0   |
-| Description Editor       | ✅ Active | 1.5.0   |
-| Keyword Deduplicator     | ✅ Active | 1.5.0   |
-| ACoS Calculator          | ✅ Active | 1.5.0   |
-| Sales Estimator          | ✅ Active | 1.0.0   |
+| FBA Calculator           | ✅ Active | 1.0.0   |
+| Keyword Analyzer         | ✅ Active | 1.0.0   |
+| Listing Quality Checker  | 🚧 Beta   | 0.5.0   |
+| PPC Campaign Auditor     | 🚧 Beta   | 0.5.0   |
+| Description Editor       | 🚧 Beta   | 0.5.0   |
+| Keyword Deduplicator     | ✅ Active | 1.0.0   |
+| ACoS Calculator          | ✅ Active | 1.0.0   |
+| Sales Estimator          | 🚧 Beta   | 0.1.0   |
 | Competitor Analyzer      | ✅ Active | 1.0.0   |
-| Keyword Trend Analyzer   | ✅ Active | 1.0.0   |
-| Profit Margin Calculator | ✅ Active | 1.0.0   |
+| Keyword Trend Analyzer   | 🚧 Beta   | 0.1.0   |
+| Profit Margin Calculator | 🚧 Beta   | 0.1.0   |
 
 </details>
 

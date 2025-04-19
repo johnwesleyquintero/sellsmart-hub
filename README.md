@@ -155,13 +155,13 @@ cp .env.example .env
 
 ## Tools Documentation
 
-| Tool Name                | Core Implementation | Enhancements Needed                    | Documentation Link                          |
-| ------------------------ | ------------------- | -------------------------------------- | ------------------------------------------- |
-| ACoS Calculator          | Complete            | Input validation, Export functionality | [/docs/amazon-tools/acos-calculator.md]     |
-| PPC Campaign Auditor     | Planned             | Core functionality, Visualization      | [/docs/amazon-tools/ppc-auditor.md]         |
-| Profit Margin Calculator | Complete            | Unit tests, Error handling             | [/docs/amazon-tools/profit-analyzer.md]     |
-| Competitor Analyzer      | In Progress         | Pricing analysis, Data enrichment      | [/docs/amazon-tools/competitor-analyzer.md] |
-| Keyword Trend Analyzer   | Planned             | Core functionality, Seasonal analysis  | [/docs/amazon-tools/keyword-trends.md]      |
+| Tool Name            | Status    | Version | Core Features                                          | Implementation Status                   | Planned Enhancements                    |
+| -------------------- | --------- | ------- | ----------------------------------------------------- | -------------------------------------- | -------------------------------------- |
+| ACoS Calculator      | Active    | 1.5.0   | Campaign tracking, Revenue analysis                    | Core functionality complete             | Advanced visualization, Export options  |
+| PPC Campaign Auditor | Beta      | 0.9.0   | Performance metrics, Bid optimization                  | Basic metrics implemented               | AI-powered suggestions, Trend analysis  |
+| Description Editor   | Active    | 1.5.0   | HTML formatting, Keyword integration                   | Core functionality complete             | Enhanced SEO tools, Mobile optimization |
+| Keyword Deduplicator | Active    | 1.5.0   | Bulk processing, Duplicate detection                  | Core functionality with pending updates | AI suggestions, Performance tracking    |
+| Competitor Analyzer  | Planned   | -       | Market research, Pricing analysis                     | In development                         | Data enrichment, Automated monitoring   |
 
 ---
 

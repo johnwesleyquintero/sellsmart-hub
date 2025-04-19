@@ -21,21 +21,47 @@ interface DashboardMetrics {
   acos: number;
   impressions: number;
   clicks: number;
+  conversion_rate: number;
+  inventory_level: number;
+  review_rating: number;
+}
+
+interface DashboardLayout {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  component: string;
 }
 
 const sampleMetrics: DashboardMetrics[] = [
-  { date: '2024-01', sales: 12000, profit: 3600, acos: 25, impressions: 50000, clicks: 2500 },
-  { date: '2024-02', sales: 15000, profit: 4500, acos: 22, impressions: 55000, clicks: 2750 },
-  { date: '2024-03', sales: 18000, profit: 5400, acos: 20, impressions: 60000, clicks: 3000 },
+  { date: '2024-01', sales: 12000, profit: 3600, acos: 25, impressions: 50000, clicks: 2500, conversion_rate: 4.2, inventory_level: 850, review_rating: 4.5 },
+  { date: '2024-02', sales: 15000, profit: 4500, acos: 22, impressions: 55000, clicks: 2750, conversion_rate: 4.5, inventory_level: 720, review_rating: 4.6 },
+  { date: '2024-03', sales: 18000, profit: 5400, acos: 20, impressions: 60000, clicks: 3000, conversion_rate: 4.8, inventory_level: 650, review_rating: 4.7 },
+];
+
+const defaultLayout: DashboardLayout[] = [
+  { id: 'sales', x: 0, y: 0, w: 6, h: 2, component: 'SalesChart' },
+  { id: 'ppc', x: 6, y: 0, w: 6, h: 2, component: 'PPCChart' },
+  { id: 'inventory', x: 0, y: 2, w: 4, h: 2, component: 'InventoryStatus' },
+  { id: 'reviews', x: 4, y: 2, w: 4, h: 2, component: 'ReviewsMetrics' },
+  { id: 'conversion', x: 8, y: 2, w: 4, h: 2, component: 'ConversionMetrics' },
 ];
 
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [metrics] = useState<DashboardMetrics[]>(sampleMetrics);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     // Implement real-time data refresh logic here
-    console.log('Refreshing dashboard data...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+    // Update metrics with new data
+    setIsLoading(false);
   }, []);
 
   const handleExport = useCallback(() => {
@@ -47,15 +73,19 @@ export default function UnifiedDashboard() {
     <div className="container mx-auto p-4 space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Amazon Seller Tools Dashboard</h1>
-        <div className="space-x-2">
-          <Button variant="outline" onClick={handleRefresh}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+        <div className="flex items-center space-x-4">
+          {isLoading && <span className="text-sm text-gray-500">Refreshing...</span>}
+          {error && <span className="text-sm text-red-500">{error}</span>}
+          <div className="space-x-2">
+            <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -72,7 +102,31 @@ export default function UnifiedDashboard() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold mb-2">Conversion Rate</h3>
+                <div className="text-3xl font-bold text-blue-600">{metrics[metrics.length - 1].conversion_rate}%</div>
+                <div className="text-sm text-gray-500 mt-1">Last 30 Days</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold mb-2">Inventory Status</h3>
+                <div className="text-3xl font-bold text-green-600">{metrics[metrics.length - 1].inventory_level}</div>
+                <div className="text-sm text-gray-500 mt-1">Units Available</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold mb-2">Review Rating</h3>
+                <div className="text-3xl font-bold text-yellow-600">{metrics[metrics.length - 1].review_rating}</div>
+                <div className="text-sm text-gray-500 mt-1">Average Rating</div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold mb-4">Sales & Profit Trends</h3>

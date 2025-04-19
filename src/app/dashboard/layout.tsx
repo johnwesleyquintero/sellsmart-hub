@@ -1,5 +1,7 @@
 'use client';
 
+import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
+import { DashboardSidebar } from '@/components/ui/dashboard-sidebar';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { AuthDisplay } from './auth-display';
@@ -25,10 +27,16 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-white">
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <AuthDisplay />
-        {children}
-      </main>
+      <div className="flex">
+        <DashboardSidebar isDashboardPage={true} />
+        <main className="flex-1 px-4 sm:px-6 lg:px-8">
+          <div className="py-6">
+            <DashboardBreadcrumb />
+            <AuthDisplay />
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

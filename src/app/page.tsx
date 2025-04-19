@@ -1,9 +1,9 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import Header from '@/components/header';
 import Footer from '@/components/footer';
+import Header from '@/components/header';
 import { ChatInterface } from '@/components/ui/chat-interface';
+import dynamic from 'next/dynamic';
 
 const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
   ssr: false,
@@ -14,8 +14,8 @@ const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
 const HeroSection = dynamic(() => import('@/components/hero-section'), {
   ssr: false,
 });
-const FeaturedToolsSection = dynamic(
-  () => import('@/components/featured-tools-section'),
+const UnifiedDashboard = dynamic(
+  () => import('@/components/amazon-seller-tools/unified-dashboard'),
   { ssr: false },
 );
 const ProjectsSection = dynamic(() => import('@/components/projects-section'), {
@@ -43,7 +43,7 @@ export default function Home() {
         <Header />
         <ErrorBoundary>
           <HeroSection />
-          <FeaturedToolsSection />
+          <UnifiedDashboard />
           <ProjectsSection />
           <AboutSection />
           <CertificationsSection />
