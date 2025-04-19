@@ -19,6 +19,7 @@ import {
   Info,
   Upload,
   X,
+  XCircle, // Added XCircle for error dismiss button
 } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
@@ -111,7 +112,10 @@ const calculateLocalMetrics = (
     if (adSpend > 0) {
       return sales / adSpend;
     }
-    return sales > 0 ? Infinity : 0;
+    if (sales > 0) {
+      return Infinity;
+    }
+    return 0;
   };
   const roas = calculateROAS();
 
@@ -125,6 +129,8 @@ const calculateLocalMetrics = (
   // Using clicks as a proxy if orders aren't available.
   const calculateConversionRate = () => {
     if (safeClicks > 0) {
+      // If sales represent revenue, this is Revenue Per Click * 100, not true Conversion Rate.
+      // For true Conversion Rate (Orders/Clicks), you'd need the number of orders.
       return (sales / safeClicks) * 100;
     }
     return 0;
@@ -177,66 +183,97 @@ export default function AcosCalculator() {
       );
     };
 
+    // Validate and sanitize each row
     const processedData: CampaignData[] = parsedData
       .filter(isPotentialCampaignData)
-      .map((item) => {
-        // Ensure values are correctly typed before calculation
-        const campaignName = String(item.campaign ?? '');
-        const adSpend = Number(item.adSpend ?? 0);
-        const sales = Number(item.sales ?? 0);
-        const impressions =
-          item.impressions !== undefined ? Number(item.impressions) : undefined;
-        const clicks =
-          item.clicks !== undefined ? Number(item.clicks) : undefined;
+      .map((item, index) => {
+        try {
+          // Sanitize and validate campaign name
+          const campaignName = String(item.campaign ?? '').trim();
+          if (!campaignName) {
+            throw new Error(`Row ${index + 1}: Campaign name is required`);
+          }
 
-        // Validate numeric types after conversion
-        if (isNaN(adSpend) || adSpend < 0 || isNaN(sales) || sales < 0) {
-          console.warn(
-            `Skipping invalid row for campaign "${campaignName}": Invalid adSpend or sales.`,
-          );
-          return null; // Skip invalid rows
-        }
-        if (
-          impressions !== undefined &&
-          (isNaN(impressions) || impressions < 0)
-        ) {
-          console.warn(
-            `Skipping invalid row for campaign "${campaignName}": Invalid impressions.`,
-          );
-          return null;
-        }
-        if (clicks !== undefined && (isNaN(clicks) || clicks < 0)) {
-          console.warn(
-            `Skipping invalid row for campaign "${campaignName}": Invalid clicks.`,
-          );
-          return null;
-        }
+          // Sanitize and validate numeric values
+          const rawAdSpend =
+            item.adSpend !== undefined ? String(item.adSpend) : '';
+          const rawSales = item.sales !== undefined ? String(item.sales) : '';
+          const rawImpressions =
+            item.impressions !== undefined
+              ? String(item.impressions)
+              : undefined;
+          const rawClicks =
+            item.clicks !== undefined ? String(item.clicks) : undefined;
 
-        const metrics = calculateLocalMetrics(
-          adSpend,
-          sales,
-          impressions,
-          clicks,
-        );
+          // Convert to numbers after sanitization
+          const adSpend = Number(rawAdSpend);
+          const sales = Number(rawSales);
+          const impressions =
+            rawImpressions !== undefined ? Number(rawImpressions) : undefined;
+          const clicks =
+            rawClicks !== undefined ? Number(rawClicks) : undefined;
 
-        return {
-          campaign: campaignName,
-          adSpend,
-          sales,
-          impressions,
-          clicks,
-          ...metrics,
-        };
+          // Validate numeric values
+          if (isNaN(adSpend) || adSpend < 0) {
+            throw new Error(
+              `Row ${index + 1}: Invalid Ad Spend value ('${rawAdSpend}')`,
+            );
+          }
+          if (isNaN(sales) || sales < 0) {
+            throw new Error(
+              `Row ${index + 1}: Invalid Sales value ('${rawSales}')`,
+            );
+          }
+          if (
+            impressions !== undefined &&
+            (isNaN(impressions) || impressions < 0)
+          ) {
+            throw new Error(
+              `Row ${index + 1}: Invalid Impressions value ('${rawImpressions}')`,
+            );
+          }
+          if (clicks !== undefined && (isNaN(clicks) || clicks < 0)) {
+            throw new Error(
+              `Row ${index + 1}: Invalid Clicks value ('${rawClicks}')`,
+            );
+          }
+
+          // Calculate metrics with validated data
+          const metrics = calculateLocalMetrics(
+            adSpend,
+            sales,
+            impressions,
+            clicks,
+          );
+
+          return {
+            campaign: campaignName,
+            adSpend: adSpend,
+            sales: sales,
+            impressions: impressions,
+            clicks: clicks,
+            ...metrics,
+          };
+        } catch (error) {
+          console.error(error);
+          return null; // Skip invalid rows but continue processing
+        }
       })
       .filter((item): item is NonNullable<typeof item> => item !== null); // Use NonNullable to properly type the filter
 
-    if (processedData.length === 0 && parsedData.length > 0) {
-      // Only throw error if the original CSV had data but none was valid
+    // Filter out null values and check if we have any valid data
+    const validData = processedData.filter(
+      (item): item is NonNullable<typeof item> => item !== null,
+    );
+
+    if (validData.length === 0 && parsedData.length > 0) {
       throw new Error(
-        'No valid campaign data found after processing. Check CSV columns (campaign, adSpend, sales) and ensure numeric values are correct.',
+        'No valid campaign data found after processing. Please check the CSV format and ensure all required fields are present with valid values.',
       );
     }
-    return processedData;
+
+    // Return only valid data
+    return validData;
   }, []);
 
   // Centralized file processing logic for react-dropzone
@@ -249,10 +286,10 @@ export default function AcosCalculator() {
       setError(null); // Clear previous errors
 
       Papa.parse(file, {
-        // No need for <CampaignData> here, process later
         header: true,
-        dynamicTyping: true, // Let PapaParse try converting types
-        skipEmptyLines: true,
+        dynamicTyping: false, // Handle type conversion manually for better control
+        skipEmptyLines: 'greedy', // Skip empty lines and lines with only delimiters
+        transform: (value) => value.trim(), // Trim whitespace from all values
         complete: (result) => {
           setIsLoading(false); // Ensure loading stops
           if (result.errors.length > 0) {
@@ -302,63 +339,89 @@ export default function AcosCalculator() {
     disabled: isLoading,
   });
 
-  // Handle manual input changes
+  // Handle manual input changes with debounced validation
   const handleManualInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-      // Allow only numbers and a single decimal for numeric fields
-      // Regex allows empty string, digits, and optionally one decimal point
+
+      // Sanitize input based on field type
+      let sanitizedValue = value;
       if (name === 'adSpend' || name === 'sales') {
-        if (value === '' || /^\d+(\.\d+)?$/.test(value)) {
-          setManualCampaign((prev) => ({ ...prev, [name]: value }));
-        }
-      } else {
-        setManualCampaign((prev) => ({ ...prev, [name]: value }));
+        // Remove non-numeric characters except decimal point and ensure only one decimal point
+        sanitizedValue = value
+          .replace(/[^\d.]/g, '') // Allow only digits and dot
+          .replace(/(\..*)\./g, '$1') // Allow only one dot
+          .replace(/^\./, '0.') // Prepend 0 if starts with dot
+          .replace(/^0+(?=\d)/, ''); // Remove leading zeros unless it's the only digit before dot
+
+        // Removed the slow regex validation check here
+      } else if (name === 'campaign') {
+        // Trim whitespace and limit length for campaign name
+        sanitizedValue = value.trimStart().slice(0, 100); // Trim only start to allow spaces within name
       }
+
+      setManualCampaign((prev) => ({ ...prev, [name]: sanitizedValue }));
+      setError(null); // Clear error when user starts typing
     },
     [],
   );
 
   const handleManualCalculate = useCallback(() => {
     setError(null); // Clear previous errors
+    setIsLoading(true); // Show loading state during calculation
 
-    if (!isManualInputValid) {
-      // Determine specific error message
-      if (!manualCampaign.campaign.trim()) {
-        setError('Please enter a campaign name.');
-      } else if (
-        isNaN(Number.parseFloat(manualCampaign.adSpend)) ||
-        Number.parseFloat(manualCampaign.adSpend) < 0
-      ) {
-        setError('Ad Spend must be a valid non-negative number.');
-      } else if (
-        isNaN(Number.parseFloat(manualCampaign.sales)) ||
-        Number.parseFloat(manualCampaign.sales) < 0 // Allow 0 sales now
-      ) {
-        setError('Sales amount must be a valid non-negative number.');
-      } else {
-        setError('Please ensure all fields are filled correctly.');
+    try {
+      if (!isManualInputValid) {
+        // Enhanced validation with specific error messages
+        if (!manualCampaign.campaign.trim()) {
+          throw new Error('Please enter a campaign name.');
+        }
+
+        const adSpend = Number.parseFloat(manualCampaign.adSpend);
+        if (isNaN(adSpend) || adSpend < 0) {
+          throw new Error('Ad Spend must be a valid non-negative number.');
+        }
+
+        const sales = Number.parseFloat(manualCampaign.sales);
+        if (isNaN(sales) || sales < 0) {
+          throw new Error('Sales amount must be a valid non-negative number.');
+        }
+
+        // Additional validation for reasonable limits (optional)
+        // if (adSpend > 1000000) {
+        //   throw new Error('Ad Spend value seems unusually high. Please verify.');
+        // }
+        // if (sales > 10000000) {
+        //   throw new Error('Sales value seems unusually high. Please verify.');
+        // }
+        // If it reaches here, it means the basic check passed but something else is wrong
+        throw new Error('Invalid input. Please check values.');
       }
-      return;
+
+      const adSpend = Number.parseFloat(manualCampaign.adSpend);
+      const sales = Number.parseFloat(manualCampaign.sales);
+
+      // Calculate metrics using the utility function
+      const metrics = calculateLocalMetrics(adSpend, sales); // Only pass required args
+
+      const newCampaign: CampaignData = {
+        campaign: manualCampaign.campaign.trim(),
+        adSpend,
+        sales,
+        ...metrics,
+      };
+
+      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
+      // Reset the form
+      setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    const adSpend = Number.parseFloat(manualCampaign.adSpend);
-    const sales = Number.parseFloat(manualCampaign.sales);
-
-    // Calculate metrics using the utility function
-    const metrics = calculateLocalMetrics(adSpend, sales); // Only pass required args
-
-    const newCampaign: CampaignData = {
-      campaign: manualCampaign.campaign.trim(),
-      adSpend,
-      sales,
-      ...metrics,
-    };
-
-    setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
-    // Reset the form
-    setManualCampaign({ campaign: '', adSpend: '', sales: '' });
-  }, [isManualInputValid, manualCampaign]); // Added dependencies
+  }, [manualCampaign, isManualInputValid]);
 
   const handleExport = useCallback(() => {
     if (campaigns.length === 0) {
@@ -736,7 +799,7 @@ export default function AcosCalculator() {
             className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
             aria-label="Dismiss error" // Added aria-label
           >
-            <X className="h-4 w-4" />
+            <XCircle className="h-4 w-4" /> {/* Changed to XCircle */}
             <span className="sr-only">Dismiss error</span>
           </Button>
         </div>
@@ -882,41 +945,30 @@ export default function AcosCalculator() {
   );
 }
 
+// Helper function to format tooltip values
 const formatValue = (
   value: number | string,
   name: keyof typeof chartConfig,
-) => {
-  if ((name === 'acos' || name === 'roas') && value === Infinity) {
-    return ['Infinite', chartConfig[name]?.label ?? ''];
+): string => {
+  if (typeof value === 'string') return value;
+  if (!isFinite(value)) return '∞';
+
+  let decimals = 0;
+  let prefix = '';
+  let suffix = ''; // Declare suffix once with let
+
+  // Determine decimals and suffix based on metric type
+  if (name === 'acos' || name === 'ctr' || name === 'conversionRate') {
+    decimals = 1;
+    suffix = '%';
+  } else if (name === 'roas') {
+    decimals = 2;
+    suffix = 'x'; // ROAS is typically shown as a multiplier
+  } else if (name === 'cpc') {
+    decimals = 2;
+    prefix = '$';
   }
-  if (typeof value === 'number' && isFinite(value)) {
-    const suffix = getSuffix(name);
-    const prefix = getPrefix(name);
-    const decimals = getDecimals(name);
-    return [
-      `${prefix}${value.toFixed(decimals)}${suffix}`,
-      chartConfig[name]?.label ?? '',
-    ];
-  }
-  return [String(value), chartConfig[name]?.label ?? ''];
-};
 
-const getSuffix = (name: keyof typeof chartConfig) => {
-  const label = chartConfig[name]?.label ?? '';
-  if (label.includes('%')) return '%';
-  if (label.includes('(x)')) return 'x';
-  return '';
-};
-
-const getPrefix = (name: keyof typeof chartConfig) => {
-  const label = chartConfig[name]?.label ?? '';
-  return label.includes('($)') ? '$' : '';
-};
-
-const getDecimals = (name: keyof typeof chartConfig) => {
-  const label = chartConfig[name]?.label ?? '';
-  if (label.includes('%')) return 2;
-  if (label.includes('(x)')) return 2;
-  if (label.includes('($)')) return 2;
-  return 0;
+  // Format the number
+  return `${prefix}${value.toFixed(decimals)}${suffix}`;
 };

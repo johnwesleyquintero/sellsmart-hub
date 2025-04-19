@@ -20,7 +20,7 @@ tags:
 
 ## 🌟 Introduction
 
-A comprehensive suite of React-based tools designed to help Amazon sellers optimize their listings, analyze performance, and maximize profitability. Each tool is built with TypeScript and follows modern React best practices, featuring CSV data processing capabilities for bulk operations and real-time data visualization.
+A suite of React-based tools designed to help Amazon sellers optimize their listings and analyze performance. These tools are built with TypeScript and follow modern React best practices, featuring data processing capabilities and data visualization. Note that the Product Score Calculation and Optimal Price Calculation tools are currently under development and not yet available.
 
 ### Featured React Components (CSV-Powered)
 
@@ -65,18 +65,13 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 **Status**: ✅ Active  
 **Version**: 2.0.0
 
-🔍 **Description**: Advanced keyword research and optimization tool with AI-powered suggestions.
+🔍 **Description**: A tool for analyzing and managing keywords.
 
 **Features**:
 
-- Bulk keyword analysis via CSV
-- AI-powered search volume metrics
-- Advanced competition analysis
-- Smart keyword suggestions
-- Enhanced export functionality
-- Product-specific keyword tracking
-- Performance badges with trend indicators
-- Historical data comparison
+- Keyword filtering
+- Column visibility toggling
+- Sorting
 
 ### 3. Listing Quality Checker
 
@@ -98,21 +93,16 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 
 ### 4. PPC Campaign Auditor
 
-**Status**: ✅ Active  
+**Status**: ✅ Active (Beta - v0.9.0)
 **Version**: 2.0.0
 
-🔍 **Description**: Advanced PPC campaign performance analysis with AI optimization.
+🔍 **Description**: A tool for analyzing PPC campaign performance.
 
 **Features**:
 
-- Real-time campaign performance metrics
-- AI-powered bid optimization
-- Advanced keyword performance analysis
-- Dynamic ROI tracking
-- Interactive trend visualization
-- Automated CSV import/export
-- Smart performance indicators
-- Budget optimization suggestions
+- Campaign filtering
+- Column visibility toggling
+- Sorting
 
 ### 5. Description Editor
 
@@ -151,13 +141,32 @@ A comprehensive suite of React-based tools designed to help Amazon sellers optim
 
 ### 7. ACoS Calculator
 
-**Status**: ✅ Active  
-**Version**: 1.5.0
+**Status**: ✅ Active
+**Version**: 2.0.0
 
-🔍 **Description**: Comprehensive advertising analysis with predictive metrics.
+🔍 **Description**: Comprehensive advertising analysis with predictive metrics and historical trend analysis.
 
 **Features**:
 
 - Advanced campaign tracking
 - Predictive revenue analysis
 - Real-time performance metrics
+- Historical trend analysis with visualization
+- Enhanced CSV import/export for bulk data
+- Customizable reporting periods
+- Performance benchmarking against industry standards
+
+**Use Case:**
+
+- Optimize bids based on real-time ACoS data to maximize profitability.
+
+**Limitations:**
+
+- The ACoS Calculator relies heavily on CSV data imports for bulk analysis. Users must ensure that their CSV files adhere to the expected format to avoid processing errors.
+- While the tool offers predictive revenue analysis, the accuracy of predictions can vary based on the quality and completeness of input data.
+- The ACoS Calculator may not accurately reflect data for campaigns with very low spend.
+
+**Known Bugs:**
+
+- There have been reports of errors during CSV parsing, especially when the CSV contains unexpected or malformed data. Users should verify their CSV format and data integrity before uploading.
+- Some users have experienced discrepancies in real-time performance metrics due to data synchronization issues.
