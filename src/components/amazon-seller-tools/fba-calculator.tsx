@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react'; // Added useCallback, useRef
+import ManualFbaForm from './ManualFbaForm';
 
 // Local/UI Imports
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
   Table,
@@ -26,11 +27,10 @@ import {
 } from '@/components/ui/table';
 import DataCard from './DataCard'; // Use consistent DataCard
 import SampleCsvButton from './sample-csv-button'; // Add sample button
-import ToolForm from './shared/ToolForm';
 
 // --- Types ---
 // Input structure expected from CSV or manual entry
-interface FbaCalculationInput {
+export interface FbaCalculationInput {
   product: string;
   cost: number;
   price: number;
@@ -104,7 +104,7 @@ export default function FbaCalculator() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Simplified state for manual input form
-  const [, setManualInput] = useState<FbaCalculationInput>({
+  const [manualInput, setManualInput] = useState<FbaCalculationInput>({
     product: '',
     cost: 0,
     price: 0,
@@ -419,54 +419,20 @@ export default function FbaCalculator() {
             <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
               Manual Calculation
             </h3>
-            <ToolForm
-              manualInputs={[
-                {
-                  name: 'product',
-                  label: 'Product Name*',
-                  type: 'text',
-                  placeholder: 'Enter product name',
-                  required: true,
-                },
-                {
-                  name: 'cost',
-                  label: 'Product Cost ($)*',
-                  type: 'number',
-                  placeholder: 'e.g., 10.50',
-                  required: true,
-                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
-                },
-                {
-                  name: 'price',
-                  label: 'Selling Price ($)*',
-                  type: 'number',
-                  placeholder: 'e.g., 29.99',
-                  required: true,
-                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
-                },
-                {
-                  name: 'fees',
-                  label: 'Amazon Fees ($)*',
-                  type: 'number',
-                  placeholder: 'e.g., 5.75',
-                  required: true,
-                  pattern: '[0-9]+(\.[0-9][0-9]?)?',
-                },
-              ]}
-              onFileUpload={(file: File) => {
-                if (!file) {
-                  console.error('No file provided to onFileUpload');
-                  return;
-                }
-
-                // Correct the function signature to match expected type
-                const event = {
-                  target: { files: [file] },
-                } as unknown as React.ChangeEvent<HTMLInputElement>;
-                handleFileUpload(event);
+            <ManualFbaForm 
+              initialValues={manualInput}
+              onSubmit={(values) => {
+                const metrics = calculateFbaMetrics(values);
+                setResults([{ ...values, ...metrics }]);
+                toast({
+                  title: 'Calculation Complete',
+                  description: `Calculated metrics for ${values.product}`,
+                  variant: 'default',
+                });
               }}
-              isLoading={isLoading}
-              csvRequirements={['product', 'cost', 'price', 'fees']}
+              onReset={() => {
+                setManualInput({ product: '', cost: 0, price: 0, fees: 0 });
+              }}
             />
           </CardContent>
           <div className="bg-muted/20 p-4 rounded-b-lg">
@@ -638,28 +604,8 @@ export default function FbaCalculator() {
         </DataCard>
       )}
 
-      {/* How to Use Section (Optional: Can be inside a DataCard too) */}
-      {!isLoading && (
-        <Card className="bg-muted/20">
-          <CardContent className="p-4">
-            <h4 className="font-semibold mb-2 text-sm">
-              How to use this calculator:
-            </h4>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-              <li>
-                Upload a CSV file with columns: product, cost, price, fees
-              </li>
-              <li>Or manually enter product details in the form</li>
-              <li>View calculated profit, ROI, and profit margin</li>
-              <li>
-                Use the results to make informed decisions about your FBA
-                products
-              </li>
-              <li>Export the results to CSV for further analysis</li>
-            </ol>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+
+
+    </div>  
   );
 }
