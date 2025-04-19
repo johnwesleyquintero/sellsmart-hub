@@ -1,6 +1,9 @@
 'use client';
 
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Badge,
   Button,
   CardContent,
@@ -12,6 +15,11 @@ import {
 import { MetricKey } from '@/lib/amazon-tools/types';
 import { getAcosRating } from '@/lib/calculations/acos-utils';
 import {
+  campaignHeaders,
+  validateCampaignRow,
+} from '@/lib/hooks/use-campaign-validator';
+import { useCsvParser } from '@/lib/hooks/use-csv-parser';
+import {
   AlertCircle,
   Calculator,
   Download,
@@ -19,7 +27,7 @@ import {
   Info,
   Upload,
   X,
-  XCircle, // Added XCircle for error dismiss button
+  XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
@@ -169,166 +177,37 @@ export default function AcosCalculator() {
     );
   }, [manualCampaign]);
 
-  const processParsedCsvData = useCallback((parsedData: unknown[]) => {
-    // Type guard to check if an object has the required properties
-    const isPotentialCampaignData = (
-      item: unknown,
-    ): item is Partial<CampaignData> => {
-      return (
-        typeof item === 'object' &&
-        item !== null &&
-        'campaign' in item &&
-        'adSpend' in item &&
-        'sales' in item
-      );
-    };
+  // Removed unused processParsedCsvData function
 
-    // Validate and sanitize each row
-    const processedData: CampaignData[] = parsedData
-      .filter(isPotentialCampaignData)
-      .map((item, index) => {
-        try {
-          // Sanitize and validate campaign name
-          const campaignName = String(item.campaign ?? '').trim();
-          if (!campaignName) {
-            throw new Error(`Row ${index + 1}: Campaign name is required`);
-          }
-
-          // Sanitize and validate numeric values
-          const rawAdSpend =
-            item.adSpend !== undefined ? String(item.adSpend) : '';
-          const rawSales = item.sales !== undefined ? String(item.sales) : '';
-          const rawImpressions =
-            item.impressions !== undefined
-              ? String(item.impressions)
-              : undefined;
-          const rawClicks =
-            item.clicks !== undefined ? String(item.clicks) : undefined;
-
-          // Convert to numbers after sanitization
-          const adSpend = Number(rawAdSpend);
-          const sales = Number(rawSales);
-          const impressions =
-            rawImpressions !== undefined ? Number(rawImpressions) : undefined;
-          const clicks =
-            rawClicks !== undefined ? Number(rawClicks) : undefined;
-
-          // Validate numeric values
-          if (isNaN(adSpend) || adSpend < 0) {
-            throw new Error(
-              `Row ${index + 1}: Invalid Ad Spend value ('${rawAdSpend}')`,
-            );
-          }
-          if (isNaN(sales) || sales < 0) {
-            throw new Error(
-              `Row ${index + 1}: Invalid Sales value ('${rawSales}')`,
-            );
-          }
-          if (
-            impressions !== undefined &&
-            (isNaN(impressions) || impressions < 0)
-          ) {
-            throw new Error(
-              `Row ${index + 1}: Invalid Impressions value ('${rawImpressions}')`,
-            );
-          }
-          if (clicks !== undefined && (isNaN(clicks) || clicks < 0)) {
-            throw new Error(
-              `Row ${index + 1}: Invalid Clicks value ('${rawClicks}')`,
-            );
-          }
-
-          // Calculate metrics with validated data
-          const metrics = calculateLocalMetrics(
-            adSpend,
-            sales,
-            impressions,
-            clicks,
-          );
-
-          return {
-            campaign: campaignName,
-            adSpend: adSpend,
-            sales: sales,
-            impressions: impressions,
-            clicks: clicks,
-            ...metrics,
-          };
-        } catch (error) {
-          console.error(error);
-          return null; // Skip invalid rows but continue processing
-        }
-      })
-      .filter((item): item is NonNullable<typeof item> => item !== null); // Use NonNullable to properly type the filter
-
-    // Filter out null values and check if we have any valid data
-    const validData = processedData.filter(
-      (item): item is NonNullable<typeof item> => item !== null,
-    );
-
-    if (validData.length === 0 && parsedData.length > 0) {
-      throw new Error(
-        'No valid campaign data found after processing. Please check the CSV format and ensure all required fields are present with valid values.',
-      );
-    }
-
-    // Return only valid data
-    return validData;
-  }, []);
+  // Use the CSV parser hook
+  const csvParser = useCsvParser<CampaignData>({
+    requiredHeaders: campaignHeaders.required,
+    validateRow: validateCampaignRow,
+  });
 
   // Centralized file processing logic for react-dropzone
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0]; // Process only the first file
       if (!file) return;
 
-      setIsLoading(true);
-      setError(null); // Clear previous errors
+      try {
+        const result = await csvParser.parseFile(file);
+        setCampaigns(result.data);
 
-      Papa.parse(file, {
-        header: true,
-        dynamicTyping: false, // Handle type conversion manually for better control
-        skipEmptyLines: 'greedy', // Skip empty lines and lines with only delimiters
-        transform: (value) => value.trim(), // Trim whitespace from all values
-        complete: (result) => {
-          setIsLoading(false); // Ensure loading stops
-          if (result.errors.length > 0) {
-            setError(
-              `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
-            );
-            return;
-          }
-
-          // Validate required headers
-          const requiredHeaders = ['campaign', 'adSpend', 'sales'];
-          const actualHeaders = result.meta.fields || [];
-          const missingHeaders = requiredHeaders.filter(
-            (header) => !actualHeaders.includes(header),
+        // Show warning if some rows were skipped
+        if (result.skippedRows.length > 0) {
+          setError(
+            `Processed with warnings: ${result.skippedRows.length} rows were skipped due to invalid data.`,
           );
-
-          if (missingHeaders.length > 0) {
-            setError(
-              `Missing required columns in CSV: ${missingHeaders.join(', ')}. Please include campaign, adSpend, and sales.`,
-            );
-            return;
-          }
-
-          try {
-            const processedData = processParsedCsvData(result.data); // Process the raw data
-            setCampaigns(processedData);
-          } catch (err) {
-            setError(
-              `Failed to process CSV data: ${err instanceof Error ? err.message : String(err)}.`,
-            );
-          }
-        },
-        error: (error: Error) => {
-          setIsLoading(false);
-          setError(`Error parsing CSV file: ${error.message}`);
-        },
-      });
+        } else {
+          setError(null);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     },
-    [processParsedCsvData], // Dependency injection
+    [csvParser],
   );
 
   // Setup react-dropzone
@@ -476,6 +355,25 @@ export default function AcosCalculator() {
   // --- Render ---
   return (
     <div className="space-y-6">
+      {/* Error Alert */}
+      {error && (
+        <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}> {/* Changed 'warning' to 'default' */}
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>
+            {error.includes('warnings') ? 'Warning' : 'Error'}
+          </AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-2"
+            onClick={() => setError(null)}
+          >
+            <XCircle className="h-4 w-4" />
+          </Button>
+        </Alert>
+      )}
+
       {/* Action Buttons Row */}
       <div className="flex flex-wrap items-center gap-2 mb-6">
         {/* Sample CSV Button is now part of the Upload Card */}
@@ -972,3 +870,4 @@ const formatValue = (
   // Format the number
   return `${prefix}${value.toFixed(decimals)}${suffix}`;
 };
+

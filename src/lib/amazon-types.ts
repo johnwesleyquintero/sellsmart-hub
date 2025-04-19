@@ -63,6 +63,17 @@ export interface ProductData {
   weight?: number;
   salesVelocity?: number;
 }
+
+export interface ProductListingData {
+  title: string;
+  bulletPoints: string[];
+  description: string;
+  imageCount: number;
+  rating: number;
+  reviewCount: number;
+  hasAPlusContent: boolean;
+  fulfillmentType: 'FBA' | 'FBM';
+}
 export interface ProductScoreParams {
   conversionRate: number;
   sessions: number;
