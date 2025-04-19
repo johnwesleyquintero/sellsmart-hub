@@ -1,8 +1,19 @@
 'use client';
 
-import { ProductCategory, ProductData } from '@/lib/amazon-tools/types';
-import React from 'react';
+import { useToast } from '@/hooks/use-toast'; // Added for user feedback
+import {
+  AlertCircle,
+  Calculator,
+  Download,
+  FileText,
+  Info,
+  Upload,
+  XCircle, // Added for error dismiss and clear button
+} from 'lucide-react';
+import Papa from 'papaparse';
+import React, { useCallback, useRef, useState } from 'react'; // Added useCallback, useRef
 
+// Local/UI Imports
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,432 +27,578 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AlertCircle, Download, FileUp, Info, Upload } from 'lucide-react';
-import Papa from 'papaparse';
-import { useRef, useState } from 'react';
-interface FBAData {
+import DataCard from './DataCard'; // Use consistent DataCard
+import SampleCsvButton from './sample-csv-button'; // Add sample button
+
+// --- Types ---
+// Input structure expected from CSV or manual entry
+interface FbaCalculationInput {
   product: string;
   cost: number;
   price: number;
   fees: number;
-  category: ProductCategory;
 }
 
+// Result structure including calculated metrics
+interface FbaCalculationResult extends FbaCalculationInput {
+  profit: number;
+  roi: number; // Return on Investment (%)
+  margin: number; // Profit Margin (%)
+}
+
+// Type for raw CSV row after parsing
+interface CsvInputRow {
+  product?: string | null;
+  cost?: number | string | null;
+  price?: number | string | null;
+  fees?: number | string | null;
+}
+
+// --- Helper Functions ---
+
+/**
+ * Calculates profit, ROI, and margin for a single product.
+ * Handles potential division by zero.
+ */
+const calculateFbaMetrics = (
+  input: FbaCalculationInput,
+): Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'> => {
+  const { cost, price, fees } = input;
+
+  const profit = price - cost - fees;
+  // ROI: Handle zero cost to avoid division by zero (returns Infinity if profit > 0, 0 if profit = 0, -Infinity if profit < 0)
+  const roi = cost > 0 ? (profit / cost) * 100 : (profit > 0 ? Infinity : (profit < 0 ? -Infinity : 0));
+  // Margin: Handle zero price to avoid division by zero (returns 0 if profit is also 0, otherwise +/- Infinity)
+  const margin = price > 0 ? (profit / price) * 100 : (profit === 0 ? 0 : (profit > 0 ? Infinity : -Infinity));
+
+
+  return {
+    profit,
+    roi,
+    margin,
+  };
+};
+
+// --- Component ---
 export default function FbaCalculator() {
-  const [csvData, setCsvData] = useState<ProductData[]>([]);
-  const [results, setResults] = useState<ProductData[]>([]);
+  const { toast } = useToast();
+  const [results, setResults] = useState<FbaCalculationResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [manualProduct, setManualProduct] = useState<ProductData>({
-    productId: '',
-    dimensions: { length: 0, width: 0, height: 0 },
-    weight: 0,
-    storageDuration: 0,
-    unitsSold: 0,
-    referralFeePercentage: 0,
+  // Simplified state for manual input form
+  const [manualInput, setManualInput] = useState<FbaCalculationInput>({
     product: '',
     cost: 0,
     price: 0,
     fees: 0,
-    category: 'General',
   });
-  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
-    setIsLoading(true);
-    const file = event.target.files?.[0];
-    if (!file) {
-      setIsLoading(false);
-      return;
-    }
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    Papa.parse<FBAData>(file, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        if (result.errors.length > 0) {
-          setError(
-            `Error parsing CSV file: ${result.errors[0].message}. Please check the format.`,
-          );
-          setIsLoading(false);
-          return;
-        }
+      setIsLoading(true);
+      setError(null);
+      setResults([]); // Clear previous results
 
-        try {
-          const validData = result.data
-            .filter((item: FBAData) => {
-              return (
-                item.product &&
-                !isNaN(Number(item.cost)) &&
-                !isNaN(Number(item.price)) &&
-                !isNaN(Number(item.fees))
+      Papa.parse<CsvInputRow>(file, {
+        header: true,
+        dynamicTyping: false, // Parse everything as string initially for better validation control
+        skipEmptyLines: true,
+        complete: (result) => {
+          try {
+            if (result.errors.length > 0) {
+              throw new Error(
+                `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`,
               );
-            })
-            .map(
-              (item: FBAData): ProductData => ({
-                productId: window.crypto
-                  .getRandomValues(new Uint32Array(1))[0]
-                  .toString(36)
-                  .padStart(12, '0'),
-                dimensions: { length: 0, width: 0, height: 0 },
-                weight: 0,
-                storageDuration: 0,
-                unitsSold: 0,
-                referralFeePercentage: 0,
-                product: String(item.product),
-                cost: Number(item.cost),
-                price: Number(item.price),
-                fees: Number(item.fees),
-                category: 'General' as ProductCategory,
-              }),
+            }
+
+            // Validate required headers (case-insensitive)
+            const requiredHeaders = ['product', 'cost', 'price', 'fees'];
+            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || [];
+            const missingHeaders = requiredHeaders.filter(
+              (header) => !actualHeaders.includes(header),
             );
 
-          if (validData.length === 0) {
-            setError(
-              'No valid data found in CSV. Please ensure your CSV has columns: product, cost, price, fees',
-            );
+            if (missingHeaders.length > 0) {
+              throw new Error(
+                `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${result.meta.fields?.join(', ') || 'None'}`,
+              );
+            }
+
+            let skippedRowCount = 0;
+            // Process the parsed data
+            const processedResults: FbaCalculationResult[] = result.data
+              .map((row, index) => {
+                const productName = row.product?.trim();
+                const costStr = row.cost?.trim();
+                const priceStr = row.price?.trim();
+                const feesStr = row.fees?.trim();
+
+                // Validate product name
+                if (!productName) {
+                  console.warn(`Skipping row ${index + 2}: Missing product name.`);
+                  skippedRowCount++;
+                  return null;
+                }
+
+                // Validate and convert numeric values
+                const cost = Number(costStr);
+                const price = Number(priceStr);
+                const fees = Number(feesStr);
+
+                if (isNaN(cost) || cost < 0) {
+                  console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative cost value ('${costStr}').`);
+                  skippedRowCount++;
+                  return null;
+                }
+                if (isNaN(price) || price < 0) {
+                  console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative price value ('${priceStr}').`);
+                  skippedRowCount++;
+                  return null;
+                }
+                if (isNaN(fees) || fees < 0) {
+                   console.warn(`Skipping row ${index + 2} for "${productName}": Invalid or negative fees value ('${feesStr}').`);
+                   skippedRowCount++;
+                   return null;
+                }
+
+                const inputData: FbaCalculationInput = { product: productName, cost, price, fees };
+                const metrics = calculateFbaMetrics(inputData);
+
+                return { ...inputData, ...metrics };
+              })
+              .filter((item): item is FbaCalculationResult => item !== null); // Filter out null results
+
+            if (processedResults.length === 0) {
+                if (result.data.length > 0) {
+                    throw new Error(`No valid data found in the CSV after processing ${result.data.length} rows. Ensure 'product', 'cost', 'price', 'fees' columns are present and contain valid non-negative numbers.`);
+                } else {
+                    throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
+                }
+            }
+
+            setResults(processedResults);
+            setError(skippedRowCount > 0 ? `Processed ${processedResults.length} products. Skipped ${skippedRowCount} invalid rows.` : null); // Inform about skipped rows as a non-blocking error/info
+            toast({
+              title: 'CSV Processed',
+              description: `Successfully calculated FBA metrics for ${processedResults.length} products.${skippedRowCount > 0 ? ` Skipped ${skippedRowCount} invalid rows.` : ''}`,
+              variant: 'default',
+            });
+
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'An unknown error occurred during processing.';
+            setError(message);
+            setResults([]); // Clear any partial data on error
+            toast({
+              title: 'Processing Failed',
+              description: message,
+              variant: 'destructive',
+            });
+          } finally {
             setIsLoading(false);
-            return;
+            // Reset file input value to allow re-uploading the same file
+            if (event.target) {
+              event.target.value = '';
+            }
           }
-
-          setCsvData(validData);
-          calculateProfit(validData);
+        },
+        error: (err: Error) => {
+          setError(`Error reading CSV file: ${err.message}`);
           setIsLoading(false);
-        } catch {
-          setError(
-            'Failed to process CSV data. Please ensure your CSV has columns: product, cost, price, fees',
-          );
-          setIsLoading(false);
-        }
-      },
-      error: (error) => {
-        setError(`Error parsing CSV file: ${error.message}`);
-        setIsLoading(false);
-      },
-    });
+          setResults([]);
+          toast({
+            title: 'Upload Failed',
+            description: `Error reading CSV file: ${err.message}`,
+            variant: 'destructive',
+          });
+          // Reset file input on read error too
+          if (event.target) {
+            event.target.value = '';
+          }
+        },
+      });
+    },
+    [toast], // Added toast dependency
+  );
 
-    // Reset the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
+  const handleManualCalculation = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent form submission if it were inside a form
+    setError(null);
 
-  const calculateProfit = (data: ProductData[]) => {
-    const calculatedResults = data.map((item: ProductData) => {
-      const profit = item.price - item.cost - item.fees;
-      const roi = (profit / item.cost) * 100;
-      const margin = (profit / item.price) * 100;
-      return { ...item, profit, roi, margin };
-    });
-    setResults(calculatedResults);
-  };
+    const { product, cost, price, fees } = manualInput;
+    const trimmedProduct = product.trim();
 
-  const handleManualCalculation = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (
-      !manualProduct.product ||
-      manualProduct.cost <= 0 ||
-      manualProduct.price <= 0
-    ) {
-      setError('Please fill in all fields with valid values');
+    // Validation
+    if (!trimmedProduct) {
+      const msg = 'Product name cannot be empty.';
+      setError(msg);
+      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
       return;
     }
+    // cost, price, fees are already numbers due to handleInputChange, check if they are positive/non-negative
+    if (cost <= 0) {
+      const msg = 'Product Cost must be a positive number.';
+      setError(msg);
+      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
+      return;
+    }
+    if (price <= 0) {
+      const msg = 'Selling Price must be a positive number.';
+      setError(msg);
+      toast({ title: 'Input Error', description: msg, variant: 'destructive' });
+      return;
+    }
+     if (fees < 0) {
+       const msg = 'Amazon Fees cannot be negative.';
+       setError(msg);
+       toast({ title: 'Input Error', description: msg, variant: 'destructive' });
+       return;
+     }
+    // Optional: Check if price covers cost + fees
+    if (price <= cost + fees) {
+        toast({
+            title: 'Potential Loss',
+            description: 'Warning: Selling price does not cover cost and fees.',
+            variant: 'default', // Use a warning variant if available
+        });
+    }
 
-    setError(null);
-    const newManualProduct: ProductData = {
-      productId: window.crypto
-        .getRandomValues(new Uint32Array(1))[0]
-        .toString(36)
-        .padStart(12, '0'),
-      dimensions: { length: 0, width: 0, height: 0 },
-      weight: 0,
-      storageDuration: 0,
-      unitsSold: 0,
-      referralFeePercentage: 0,
-      product: manualProduct.product,
-      cost: manualProduct.cost,
-      price: manualProduct.price,
-      fees: manualProduct.fees,
-      category: 'unknown' as ProductCategory,
-    };
-    const newData = [...csvData, newManualProduct];
-    setCsvData(newData);
-    calculateProfit(newData);
+    const inputData: FbaCalculationInput = { product: trimmedProduct, cost, price, fees };
+    const metrics = calculateFbaMetrics(inputData);
+    const newResult: FbaCalculationResult = { ...inputData, ...metrics };
+
+    setResults((prevResults) => [...prevResults, newResult]);
 
     // Reset form
-    setManualProduct({
-      productId: '',
-      dimensions: { length: 0, width: 0, height: 0 },
-      weight: 0,
-      storageDuration: 0,
-      unitsSold: 0,
-      referralFeePercentage: 0,
-      product: '',
-      cost: 0,
-      price: 0,
-      fees: 0,
-      category: 'General' as ProductCategory,
+    setManualInput({ product: '', cost: 0, price: 0, fees: 0 });
+    toast({
+        title: 'Calculation Added',
+        description: `Added calculation for "${trimmedProduct}".`,
+        variant: 'default',
     });
-  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
-    const name = target.name;
-    const value = target.value;
-    setManualProduct({
-      ...manualProduct,
-      [name]: name === 'product' ? value : Number.parseFloat(value) || 0,
-    });
-  };
+  }, [manualInput, toast]); // Added dependencies
 
-  const handleExport = () => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setManualInput((prev) => ({
+      ...prev,
+      // For numeric fields, convert to number, default to 0 if conversion fails or empty
+      [name]: name === 'product' ? value : (Number(value) || 0),
+    }));
+  }, []); // No dependencies
+
+  const handleExport = useCallback(() => {
     if (results.length === 0) {
-      setError('No data to export');
+      const msg = 'No data to export.';
+      setError(msg);
+      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
       return;
     }
+    setError(null);
 
-    // Create CSV content
-    const csv = Papa.unparse(results);
+    // Prepare data for CSV export, formatting numbers
+    const exportData = results.map((item) => ({
+      Product: item.product,
+      Cost: item.cost.toFixed(2),
+      Price: item.price.toFixed(2),
+      Fees: item.fees.toFixed(2),
+      Profit: item.profit.toFixed(2),
+      ROI_Percent: isFinite(item.roi) ? item.roi.toFixed(2) : 'Infinity', // Handle Infinity
+      Margin_Percent: isFinite(item.margin) ? item.margin.toFixed(2) : 'Infinity', // Handle Infinity
+    }));
 
-    // Create a blob and download link
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'fba_calculator_results.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    try {
+      const csv = Papa.unparse(exportData);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'fba_calculator_results.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Clean up blob URL
+      toast({ title: 'Export Successful', description: 'FBA calculation results exported to CSV.', variant: 'default' });
+    } catch (err) {
+        const message = err instanceof Error ? err.message : 'An unknown error occurred during export.';
+        setError(`Failed to export data: ${message}`);
+        toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+    }
+  }, [results, toast]); // Added dependencies
 
-  const clearData = () => {
-    setCsvData([]);
+  const clearData = useCallback(() => {
     setResults([]);
     setError(null);
+    setManualInput({ product: '', cost: 0, price: 0, fees: 0 }); // Reset manual form
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = ''; // Reset file input
     }
-  };
+    toast({ title: 'Data Cleared', description: 'All calculation results have been removed.', variant: 'default' });
+  }, [toast]); // Added dependency
 
+  // --- Render ---
   return (
     <div className="space-y-6">
+      {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
-          <p className="font-medium">CSV Format Requirements:</p>
-          <p>
-            Your CSV file should have the following columns:{' '}
-            <code>product</code>, <code>cost</code>, <code>price</code>,{' '}
-            <code>fees</code>
-          </p>
-          <p className="mt-1">
-            Example: <code>product,cost,price,fees</code>
-            <br />
-            <code>Wireless Earbuds,22.50,49.99,7.25</code>
-          </p>
+          <p className="font-medium">How it Works:</p>
+          <ul className="list-disc list-inside ml-4">
+            <li>Upload a CSV with `product`, `cost`, `price`, and `fees` columns.</li>
+            <li>Or, manually enter details for a single product.</li>
+            <li>The tool calculates Profit, Return on Investment (ROI), and Profit Margin.</li>
+            <li>Export the results to a new CSV file.</li>
+            <li>Ensure all monetary values (`cost`, `price`, `fees`) are non-negative numbers.</li>
+          </ul>
         </div>
       </div>
 
+      {/* Input Section */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Upload CSV</h3>
-            <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center">
-              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground mb-2">
-                Upload a CSV file with columns: product, cost, price, fees
+        {/* CSV Upload Card */}
+        <DataCard>
+          {/* CardContent is implicitly handled by DataCard, adjust padding via className if needed */}
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Upload FBA Data CSV</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Bulk calculate profit metrics from a CSV file
               </p>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" className="relative">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    ref={fileInputRef}
-                  />
-                  <FileUp className="mr-2 h-4 w-4" />
-                  Choose File
-                </Button>
-                {results.length > 0 && (
-                  <Button variant="outline" onClick={clearData}>
-                    Clear Data
-                  </Button>
-                )}
+            </div>
+            <div className="w-full">
+              <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
+                <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                <span className="text-sm font-medium">
+                  Click or drag CSV file here
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  (Requires: product, cost, price, fees)
+                </span>
+                <input
+                  type="file"
+                  accept=".csv, text/csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                  ref={fileInputRef}
+                />
+              </label>
+              <div className="flex justify-center mt-4">
+                <SampleCsvButton
+                  dataType="fba" // Ensure this type exists in your sample data generator
+                  fileName="sample-fba-calculator.csv"
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </DataCard>
 
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Manual Entry</h3>
+        {/* Manual Entry Card */}
+        <DataCard>
+          <CardContent className="p-6"> {/* Explicit CardContent for padding control */}
+            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">Manual Calculation</h3>
             <div className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="product">Product Name</Label>
+              <div>
+                <Label htmlFor="manual-product" className="text-sm font-medium">Product Name*</Label>
                 <Input
-                  id="product"
+                  id="manual-product"
+                  name="product" // Match state key
                   type="text"
-                  value={manualProduct.product}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleInputChange(e);
-                  }}
+                  value={manualInput.product}
+                  onChange={handleInputChange}
                   placeholder="Enter product name"
-                  name="product"
+                  className="mt-1"
+                  disabled={isLoading}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="cost">Product Cost ($)</Label>
+              <div>
+                <Label htmlFor="manual-cost" className="text-sm font-medium">Product Cost ($)*</Label>
                 <Input
-                  id="cost"
+                  id="manual-cost"
+                  name="cost" // Match state key
                   type="number"
-                  min="0"
+                  min="0.01" // Cost should be positive
                   step="0.01"
-                  value={manualProduct.cost}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleInputChange(e);
-                  }}
-                  placeholder="Enter product cost"
+                  value={manualInput.cost || ''} // Show empty string instead of 0 initially
+                  onChange={handleInputChange}
+                  placeholder="e.g., 10.50"
+                  className="mt-1"
+                  disabled={isLoading}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="price">Selling Price ($)</Label>
+              <div>
+                <Label htmlFor="manual-price" className="text-sm font-medium">Selling Price ($)*</Label>
                 <Input
-                  id="price"
+                  id="manual-price"
+                  name="price" // Match state key
                   type="number"
-                  min="0"
+                  min="0.01" // Price should be positive
                   step="0.01"
-                  value={manualProduct.price}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleInputChange(e);
-                  }}
-                  placeholder="Enter selling price"
+                  value={manualInput.price || ''} // Show empty string instead of 0 initially
+                  onChange={handleInputChange}
+                  placeholder="e.g., 29.99"
+                  className="mt-1"
+                  disabled={isLoading}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="fees">Amazon Fees ($)</Label>
+              <div>
+                <Label htmlFor="manual-fees" className="text-sm font-medium">Amazon Fees ($)*</Label>
                 <Input
-                  id="fees"
-                  name="fees"
+                  id="manual-fees"
+                  name="fees" // Match state key
                   type="number"
-                  min="0"
+                  min="0" // Fees can be zero
                   step="0.01"
-                  value={manualProduct.fees}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleInputChange(e);
-                  }}
-                  placeholder="Enter FBA fees"
+                  value={manualInput.fees || ''} // Show empty string instead of 0 initially
+                  onChange={handleInputChange}
+                  placeholder="e.g., 5.75"
+                  className="mt-1"
+                  disabled={isLoading}
                 />
               </div>
-              <Button onClick={handleManualCalculation} className="w-full">
-                Calculate
+              <Button
+                onClick={handleManualCalculation}
+                className="w-full"
+                disabled={isLoading || !manualInput.product || manualInput.cost <= 0 || manualInput.price <= 0 || manualInput.fees < 0}
+              >
+                <Calculator className="mr-2 h-4 w-4" />
+                {isLoading ? 'Calculating...' : 'Calculate & Add'}
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </DataCard>
       </div>
 
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 p-3 rounded-lg flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
-          {error}
+      {/* Action Buttons (Export/Clear) */}
+      {results.length > 0 && !isLoading && (
+        <div className="flex justify-end gap-2 mb-6">
+          <Button variant="outline" onClick={handleExport} disabled={isLoading}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Results
+          </Button>
+          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+            <XCircle className="mr-2 h-4 w-4" />
+            Clear Results
+          </Button>
         </div>
       )}
 
+      {/* Error Display */}
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <span className="flex-grow break-words">{error}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setError(null)}
+            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
+            aria-label="Dismiss error"
+          >
+            <XCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Loading Indicator */}
       {isLoading && (
         <div className="space-y-2 py-4 text-center">
-          <Progress value={45} className="h-2" />
-          <p className="text-sm text-muted-foreground">Processing data...</p>
+          <Progress value={undefined} className="h-2 w-1/2 mx-auto" /> {/* Indeterminate */}
+          <p className="text-sm text-muted-foreground">
+            Processing data...
+          </p>
         </div>
       )}
 
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Results</h3>
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export CSV
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="text-right">Cost ($)</TableHead>
-                  <TableHead className="text-right">Price ($)</TableHead>
-                  <TableHead className="text-right">Fees ($)</TableHead>
-                  <TableHead className="text-right">Profit ($)</TableHead>
-                  <TableHead className="text-right">ROI (%)</TableHead>
-                  <TableHead className="text-right">Margin (%)</TableHead>
-                  <TableHead>Profitability</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">
-                      {item.product}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.cost.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.price.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.fees.toFixed(2)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-semibold ${item.profit && item.profit < 0 ? 'text-red-500' : 'text-green-500'}`}
-                    >
-                      {item.profit?.toFixed(2)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right ${item.roi && item.roi < 0 ? 'text-red-500' : 'text-green-500'}`}
-                    >
-                      {item.roi?.toFixed(2)}%
-                    </TableCell>
-                    <TableCell
-                      className={`text-right ${item.margin && item.margin < 0 ? 'text-red-500' : 'text-green-500'}`}
-                    >
-                      {item.margin?.toFixed(2)}%
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-full">
-                        <Progress
-                          value={
-                            item.margin && item.margin > 0
-                              ? Math.min(item.margin, 100)
-                              : 0
-                          }
-                          className="h-2"
-                        />
-                      </div>
-                    </TableCell>
+      {/* Results Table */}
+      {results.length > 0 && !isLoading && (
+        <DataCard>
+          <CardContent className="p-0"> {/* Remove default padding for table */}
+            <h3 className="text-lg font-semibold p-4 border-b">
+              Calculation Results ({results.length} Products)
+            </h3>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="px-4 py-3 text-left font-medium whitespace-nowrap">Product</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Cost ($)</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Price ($)</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Fees ($)</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Profit ($)</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">ROI (%)</TableHead>
+                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">Margin (%)</TableHead>
+                    <TableHead className="px-4 py-3 text-center font-medium whitespace-nowrap">Profitability (Margin)</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {results.map((item, index) => {
+                    const profitColor = item.profit < 0 ? 'text-red-500' : 'text-green-500';
+                    const roiDisplay = isFinite(item.roi) ? `${item.roi.toFixed(2)}%` : '∞';
+                    const marginDisplay = isFinite(item.margin) ? `${item.margin.toFixed(2)}%` : '∞';
+                    // Cap margin at 100 for progress bar, treat negative as 0
+                    const progressValue = Math.max(0, Math.min(item.margin, 100));
+
+                    return (
+                      <TableRow key={`${item.product}-${index}`} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                        <TableCell className="px-4 py-3 font-medium">{item.product}</TableCell>
+                        <TableCell className="px-4 py-3 text-right">{item.cost.toFixed(2)}</TableCell>
+                        <TableCell className="px-4 py-3 text-right">{item.price.toFixed(2)}</TableCell>
+                        <TableCell className="px-4 py-3 text-right">{item.fees.toFixed(2)}</TableCell>
+                        <TableCell className={`px-4 py-3 text-right font-semibold ${profitColor}`}>
+                          {item.profit.toFixed(2)}
+                        </TableCell>
+                        <TableCell className={`px-4 py-3 text-right ${item.roi < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                          {roiDisplay}
+                        </TableCell>
+                        <TableCell className={`px-4 py-3 text-right ${item.margin < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                          {marginDisplay}
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <div className="w-full min-w-[100px]"> {/* Ensure progress bar has some width */}
+                            <Progress
+                              value={isFinite(progressValue) ? progressValue : 0}
+                              className="h-2"
+                              // Optional: Add color based on value
+                              // indicatorClassName={progressValue < 10 ? 'bg-red-500' : progressValue < 25 ? 'bg-yellow-500' : 'bg-green-500'}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </DataCard>
       )}
 
-      <div className="bg-muted/50 p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">How to use this calculator:</h4>
-        <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-          <li>Upload a CSV file with columns: product, cost, price, fees</li>
-          <li>Or manually enter product details in the form</li>
-          <li>View calculated profit, ROI, and profit margin</li>
-          <li>
-            Use the results to make informed decisions about your FBA products
-          </li>
-          <li>Export the results to CSV for further analysis</li>
-        </ol>
-      </div>
+      {/* How to Use Section (Optional: Can be inside a DataCard too) */}
+      {!isLoading && (
+        <Card className="bg-muted/20">
+            <CardContent className="p-4">
+                <h4 className="font-semibold mb-2 text-sm">How to use this calculator:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                <li>Upload a CSV file with columns: product, cost, price, fees</li>
+                <li>Or manually enter product details in the form</li>
+                <li>View calculated profit, ROI, and profit margin</li>
+                <li>
+                    Use the results to make informed decisions about your FBA products
+                </li>
+                <li>Export the results to CSV for further analysis</li>
+                </ol>
+            </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

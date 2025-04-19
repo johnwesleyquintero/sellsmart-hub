@@ -1,4 +1,17 @@
-import React, { useCallback, useState } from 'react';
+// src/components/amazon-seller-tools/keyword-trend-analyzer.tsx
+'use client';
+
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertCircle,
+  Download,
+  FileText,
+  Info,
+  Upload,
+  XCircle
+} from 'lucide-react';
+import Papa from 'papaparse';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   CartesianGrid,
   Legend,
@@ -7,83 +20,399 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis,
+  YAxis
 } from 'recharts';
-import CsvUploader from './CsvUploader';
 
-interface CsvRow {
-  id: string;
-  impressions: number;
-  clicks: number;
+// Local/UI Imports (Consistent with other tools)
+import { Button } from '@/components/ui/button';
+import { CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import DataCard from './DataCard';
+import SampleCsvButton from './sample-csv-button'; // Assuming this exists and works
+
+// --- Types ---
+
+// Expected input row from CSV
+interface CsvInputRow {
+  keyword?: string | null;
+  date?: string | null; // Expecting a sortable date format (e.g., YYYY-MM-DD)
+  search_volume?: number | string | null;
 }
 
-interface ChartDataPoint {
-  name: string;
-  [key: string]: number | string;
+// Structure for chart data (dates as rows, keywords as columns)
+interface TrendDataPoint {
+  date: string; // The date for this data point
+  [keyword: string]: string | number; // Each keyword gets its own column with its search volume
 }
 
-const KeywordTrendAnalyzer: React.FC = () => {
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+// --- Constants ---
+const REQUIRED_COLUMNS = ['keyword', 'date', 'search_volume'];
+// Simple color palette for chart lines
+const LINE_COLORS = [
+  '#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff8042',
+  '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#d0ed57',
+];
 
-  const handleFileUpload = useCallback(async (data: CsvRow[]) => {
-    try {
-      const response = await fetch('/api/amazon/keyword-trends', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ csvData: data }),
-      });
+// --- Helper Functions ---
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+/**
+ * Mock function to simulate fetching and processing trend data.
+ * Transforms CSV rows into a structure suitable for the LineChart.
+ */
+const processTrendData = async (
+  rawData: CsvInputRow[],
+): Promise<{ chartData: TrendDataPoint[]; keywords: string[] }> => {
+  await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate network delay
 
-      const trendData: ChartDataPoint[] = await response.json();
-      setChartData(trendData);
-    } catch (error: unknown) {
-      console.error('Failed to process CSV data:', error);
+  const dataByDate: { [date: string]: { [keyword: string]: number } } = {};
+  const keywords = new Set<string>();
+  let parseError = false;
+
+  for (const row of rawData) {
+    const keyword = row.keyword?.trim();
+    const date = row.date?.trim();
+    const volumeStr = row.search_volume;
+    const volume = Number(volumeStr);
+
+    if (!keyword || !date || isNaN(volume) || volume < 0) {
+      console.warn('Skipping invalid trend data row:', row);
+      parseError = true; // Flag if any row had issues
+      continue;
     }
-  }, []);
 
+    keywords.add(keyword);
+
+    if (!dataByDate[date]) {
+      dataByDate[date] = {};
+    }
+    dataByDate[date][keyword] = volume;
+  }
+
+   if (Object.keys(dataByDate).length === 0 && rawData.length > 0) {
+       throw new Error("No valid trend data points found after processing. Check keyword, date, and search_volume columns.");
+   }
+   if (parseError) {
+       console.warn("Some rows were skipped due to invalid data during trend processing.");
+       // Optionally throw a less severe error or return a warning flag
+   }
+
+
+  const sortedDates = Object.keys(dataByDate).sort();
+  const keywordList = Array.from(keywords);
+
+  const chartData: TrendDataPoint[] = sortedDates.map((date) => {
+    const point: TrendDataPoint = { date };
+    keywordList.forEach((kw) => {
+      // Use 0 or null for missing data points on a specific date
+      point[kw] = dataByDate[date][kw] ?? 0;
+    });
+    return point;
+  });
+
+  return { chartData, keywords: keywordList };
+};
+
+// --- Component ---
+export default function KeywordTrendAnalyzer() {
+  const { toast } = useToast();
+  const [chartData, setChartData] = useState<TrendDataPoint[]>([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      setIsLoading(true);
+      setError(null);
+      setChartData([]); // Clear previous results
+      setKeywords([]);
+
+      Papa.parse<CsvInputRow>(file, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: false, // Parse as strings initially for better validation
+        complete: async (result) => {
+          try {
+            if (result.errors.length > 0) {
+              throw new Error(
+                `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`,
+              );
+            }
+
+            const actualHeaders = result.meta.fields?.map(h => h.toLowerCase()) || [];
+            const missingHeaders = REQUIRED_COLUMNS.filter(
+              (header) => !actualHeaders.includes(header),
+            );
+
+            if (missingHeaders.length > 0) {
+              throw new Error(
+                `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${actualHeaders.join(', ') || 'None'}`,
+              );
+            }
+
+            if (result.data.length === 0) {
+                throw new Error("The uploaded CSV file appears to be empty or contains no data rows.");
+            }
+
+            // Process the data (mock API call)
+            const { chartData: processedData, keywords: foundKeywords } =
+              await processTrendData(result.data);
+
+            if (processedData.length === 0) {
+                // This case is handled inside processTrendData, but double-check
+                throw new Error("No processable trend data found in the CSV.");
+            }
+
+            setChartData(processedData);
+            setKeywords(foundKeywords);
+            setError(null); // Clear previous non-critical errors
+            toast({
+              title: 'Analysis Complete',
+              description: `Successfully analyzed trends for ${foundKeywords.length} keywords over ${processedData.length} dates.`,
+              variant: 'default',
+            });
+          } catch (err) {
+            const message =
+              err instanceof Error
+                ? err.message
+                : 'An unknown error occurred during processing.';
+            setError(message);
+            setChartData([]);
+            setKeywords([]);
+            toast({
+              title: 'Processing Failed',
+              description: message,
+              variant: 'destructive',
+            });
+          } finally {
+            setIsLoading(false);
+            // Reset file input
+            if (event.target) {
+              event.target.value = '';
+            }
+          }
+        },
+        error: (err: Error) => {
+          setError(`Error reading CSV file: ${err.message}`);
+          setIsLoading(false);
+          setChartData([]);
+          setKeywords([]);
+          toast({
+            title: 'Upload Failed',
+            description: `Error reading CSV file: ${err.message}`,
+            variant: 'destructive',
+          });
+          // Reset file input on read error too
+          if (event.target) {
+            event.target.value = '';
+          }
+        },
+      });
+    },
+    [toast],
+  );
+
+  const handleExport = useCallback(() => {
+    if (chartData.length === 0) {
+      const msg = 'No data to export.';
+      setError(msg);
+      toast({ title: 'Export Error', description: msg, variant: 'destructive' });
+      return;
+    }
+    setError(null);
+
+    // Export the processed chart data
+    try {
+      const csv = Papa.unparse(chartData);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'keyword_trends_analysis.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast({
+        title: 'Export Successful',
+        description: 'Keyword trend analysis exported to CSV.',
+        variant: 'default',
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(`Failed to export data: ${message}`);
+      toast({ title: 'Export Failed', description: message, variant: 'destructive' });
+    }
+  }, [chartData, toast]);
+
+  const clearData = useCallback(() => {
+    setChartData([]);
+    setKeywords([]);
+    setError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    toast({ title: 'Data Cleared', description: 'All trend analysis results have been removed.', variant: 'default' });
+  }, [toast]);
+
+  // --- Render ---
   return (
-    <div>
-      <CsvUploader
-        onUploadSuccess={(data) => handleFileUpload(data)}
-        isLoading={false}
-        onClear={() => setChartData([])}
-        hasData={chartData.length > 0}
-      />
-      {chartData.length > 0 && (
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {Object.keys(chartData[0])
-              .filter((key) => key !== 'name')
-              .map((key) => (
-                <Line
-                  key={key}
-                  type="monotone"
-                  dataKey={key}
-                  stroke={`#${Math.floor(sampleValue * 16777215).toString(16)}`}
+    <div className="space-y-6">
+      {/* Info Box */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+        <div className="text-sm text-blue-700 dark:text-blue-300">
+          <p className="font-medium">How it Works:</p>
+          <ul className="list-disc list-inside ml-4">
+            <li>Upload a CSV with columns: `keyword`, `date` (YYYY-MM-DD), `search_volume`.</li>
+            <li>Each row represents the search volume for a specific keyword on a specific date.</li>
+            <li>The tool visualizes the search volume trends for each keyword over time.</li>
+            <li>(Note: Data processing is mocked for this demo).</li>
+            <li>Export the processed trend data.</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Input Card */}
+      <DataCard>
+        <CardContent className="p-6"> {/* Explicit padding control */}
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Upload Keyword Trend Data</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Analyze search volume trends from a CSV file
+              </p>
+            </div>
+            <div className="w-full max-w-md">
+              <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
+                <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                <span className="text-sm font-medium">
+                  Click or drag CSV file here
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  (Requires: {REQUIRED_COLUMNS.join(', ')})
+                </span>
+                <input
+                  type="file"
+                  accept=".csv, text/csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                  ref={fileInputRef}
                 />
-              ))}
-          </LineChart>
-        </ResponsiveContainer>
+              </label>
+              <div className="flex justify-center mt-4">
+                <SampleCsvButton
+                  dataType="keyword" // Or a more specific type like 'keyword-trend' if added
+                  fileName="sample-keyword-trends.csv"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </DataCard>
+
+      {/* Action Buttons (Export/Clear) */}
+      {chartData.length > 0 && !isLoading && (
+        <div className="flex justify-end gap-2 mb-6">
+          <Button variant="outline" onClick={handleExport} disabled={isLoading}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Results
+          </Button>
+          <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+            <XCircle className="mr-2 h-4 w-4" />
+            Clear Results
+          </Button>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <span className="flex-grow break-words">{error}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setError(null)}
+            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
+            aria-label="Dismiss error"
+          >
+            <XCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {isLoading && (
+        <div className="space-y-2 py-4 text-center">
+          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />
+          <p className="text-sm text-muted-foreground">Analyzing trends...</p>
+        </div>
+      )}
+
+      {/* Results Section */}
+      {chartData.length > 0 && !isLoading && (
+        <DataCard>
+          <CardContent className="p-4 space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-3">
+              Keyword Trend Analysis ({keywords.length} Keywords)
+            </h2>
+            <div className="h-[450px] w-full"> {/* Ensure container has height */}
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    top: 5,
+                    right: 10, // Adjusted margin
+                    left: 0,  // Adjusted margin
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 10 }}
+                    // Consider adding angle={-30} textAnchor="end" height={50} if dates overlap
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10 }}
+                    label={{ value: 'Search Volume', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 12 }, dx: -5 }}
+                  />
+                  <Tooltip
+                    contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
+                    formatter={(value: number, name: string) => [
+                      value.toLocaleString(), // Format number
+                      name, // Keyword name
+                    ]}
+                    labelFormatter={(label: string) => `Date: ${label}`} // Format date label
+                  />
+                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  {keywords.map((key, index) => (
+                    <Line
+                      key={key}
+                      type="monotone"
+                      dataKey={key}
+                      stroke={LINE_COLORS[index % LINE_COLORS.length]} // Cycle through colors
+                      strokeWidth={2}
+                      dot={false} // Hide dots for cleaner lines with many points
+                      name={key} // Use keyword as the legend name
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </DataCard>
       )}
     </div>
   );
-};
-
-// Replace Math.random() with crypto-safe alternative
-const randomBuffer = new Uint32Array(1);
-window.crypto.getRandomValues(randomBuffer);
-const sampleValue = randomBuffer[0] / 4294967295;
-const generateColor = () =>
-  `#${Math.floor(sampleValue * 16777215).toString(16)}`;
-
-export default KeywordTrendAnalyzer;
+}
