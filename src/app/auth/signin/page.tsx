@@ -25,7 +25,14 @@ export default function SignIn() {
 
           <Button
             className="w-full flex items-center justify-center gap-2"
-            onClick={() => signIn('linkedin', { callbackUrl: '/dashboard' })}
+            onClick={async () => {
+              try {
+                await signIn('linkedin', { callbackUrl: '/dashboard' });
+              // eslint-disable-next-line sonarjs/no-ignored-exceptions
+              } catch (error) {
+                alert('LinkedIn authentication is currently unavailable. Please check back soon or use another login method.');
+              }
+            }}
             variant="outline"
           >
             <Linkedin className="w-5 h-5" />
