@@ -47,12 +47,33 @@ interface FbaCalculationResult extends FbaCalculationInput {
 }
 
 // Type for raw CSV row after parsing
-interface CsvInputRow {
+type CsvInputRow = {
   product?: string | null;
   cost?: number | string | null;
   price?: number | string | null;
   fees?: number | string | null;
+};
+
+
+// Local/UI Imports
+
+// --- Types ---
+// Input structure expected from CSV or manual entry
+interface FbaCalculationInput {
+  product: string;
+  cost: number;
+  price: number;
+  fees: number;
 }
+
+// Result structure including calculated metrics
+interface FbaCalculationResult extends FbaCalculationInput {
+  profit: number;
+  roi: number; // Return on Investment (%)
+  margin: number; // Profit Margin (%)
+}
+
+// Type for raw CSV row after parsing
 
 // --- Helper Functions ---
 
@@ -67,9 +88,31 @@ const calculateFbaMetrics = (
 
   const profit = price - cost - fees;
   // ROI: Handle zero cost to avoid division by zero (returns Infinity if profit > 0, 0 if profit = 0, -Infinity if profit < 0)
-  const roi = cost > 0 ? (profit / cost) * 100 : (profit > 0 ? Infinity : (profit < 0 ? -Infinity : 0));
+  let roi;
+  if (cost > 0) {
+    roi = (profit / cost) * 100;
+  } else {
+    if (profit > 0) {
+      roi = Infinity;
+    } else if (profit < 0) {
+      roi = -Infinity;
+    } else {
+      roi = 0;
+    }
+  }
   // Margin: Handle zero price to avoid division by zero (returns 0 if profit is also 0, otherwise +/- Infinity)
-  const margin = price > 0 ? (profit / price) * 100 : (profit === 0 ? 0 : (profit > 0 ? Infinity : -Infinity));
+  let margin;
+  if (price > 0) {
+    margin = (profit / price) * 100;
+  } else {
+    if (profit === 0) {
+      margin = 0;
+    } else if (profit > 0) {
+      margin = Infinity;
+    } else {
+      margin = -Infinity;
+    }
+  }
 
 
   return {
@@ -133,9 +176,9 @@ export default function FbaCalculator() {
             const processedResults: FbaCalculationResult[] = result.data
               .map((row, index) => {
                 const productName = row.product?.trim();
-                const costStr = row.cost?.trim();
-                const priceStr = row.price?.trim();
-                const feesStr = row.fees?.trim();
+                const costStr = typeof row.cost === 'string' ? row.cost.trim() : row.cost;
+                const priceStr = typeof row.price === 'string' ? row.price.trim() : row.price;
+                const feesStr = typeof row.fees === 'string' ? row.fees.trim() : row.fees;
 
                 // Validate product name
                 if (!productName) {
@@ -416,7 +459,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="Enter product name"
                   className="mt-1"
-                  disabled={isLoading}
+                  disabled={isLoading} as="any"
                 />
               </div>
               <div>
@@ -431,7 +474,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 10.50"
                   className="mt-1"
-                  disabled={isLoading}
+                  disabled={isLoading} as="any"
                 />
               </div>
               <div>
@@ -446,7 +489,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 29.99"
                   className="mt-1"
-                  disabled={isLoading}
+                  disabled={isLoading} as="any"
                 />
               </div>
               <div>
@@ -461,7 +504,7 @@ export default function FbaCalculator() {
                   onChange={handleInputChange}
                   placeholder="e.g., 5.75"
                   className="mt-1"
-                  disabled={isLoading}
+                  disabled={isLoading} as="any"
                 />
               </div>
               <Button
