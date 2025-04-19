@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET as string,
     }),
     LinkedInProvider({
-      clientId: process.env.LINKEDIN_CLIENT_ID as string,
+      clientId: process.env.LINKEDIN_CLIENT_ID || 'your_linkedin_client_id',
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
       authorization: {
         params: { scope: 'openid profile email' },

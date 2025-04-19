@@ -10,7 +10,7 @@ const handler = NextAuth({
       clientSecret: process.env.GITHUB_SECRET || '',
     }),
     LinkedInProvider({
-      clientId: process.env.LINKEDIN_CLIENT_ID || '',
+      clientId: process.env.LINKEDIN_CLIENT_ID || 'your_linkedin_client_id',
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
       authorization: {
         params: { scope: 'openid profile email w_member_social' },
