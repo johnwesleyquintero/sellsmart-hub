@@ -8,27 +8,32 @@ interface Message {
   content: string;
   timestamp: number;
   status?: 'sending' | 'sent' | 'error' | 'read';
-  isTyping?: boolean; // Keep only one instance of isTyping
+  isTyping?: boolean;
   error?: string;
   retryCount?: number;
+  personalInfo?: {
+    name: string;
+    email: string;
+  };
 }
 
 // Helper function to update message status by timestamp
-const updateMessageStatus = (
-  timestamp: number,
-  role: 'user' | 'assistant',
-  updates: Partial<Message>,
-) => (prev: Message[]): Message[] => {
-  return prev.map((msg) =>
-    msg.timestamp === timestamp && msg.role === role ? { ...msg, ...updates } : msg,
-  );
-};
+const updateMessageStatus =
+  (timestamp: number, role: 'user' | 'assistant', updates: Partial<Message>) =>
+  (prev: Message[]): Message[] => {
+    return prev.map((msg) =>
+      msg.timestamp === timestamp && msg.role === role
+        ? { ...msg, ...updates }
+        : msg,
+    );
+  };
 
 // Helper function to remove a message by timestamp
-const removeMessageByTimestamp = (timestamp: number) => (prev: Message[]): Message[] => {
-    return prev.filter(msg => msg.timestamp !== timestamp);
-};
-
+const removeMessageByTimestamp =
+  (timestamp: number) =>
+  (prev: Message[]): Message[] => {
+    return prev.filter((msg) => msg.timestamp !== timestamp);
+  };
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,7 +55,10 @@ export function ChatInterface() {
           localStorage.removeItem('chatMessages');
         }
       } catch (error) {
-        console.error('Failed to parse chat messages from localStorage:', error);
+        console.error(
+          'Failed to parse chat messages from localStorage:',
+          error,
+        );
         localStorage.removeItem('chatMessages');
       }
     }
@@ -110,7 +118,9 @@ export function ChatInterface() {
         const data = await response.json();
         // Update user message status to sent
         setMessages(
-          updateMessageStatus(userMessage.timestamp, 'user', { status: 'sent' }),
+          updateMessageStatus(userMessage.timestamp, 'user', {
+            status: 'sent',
+          }),
         );
 
         const assistantMessage: Message = {
@@ -135,7 +145,6 @@ export function ChatInterface() {
             }),
           );
         }, 1500); // Adjust delay as needed
-
       } catch (error) {
         console.error('Chat error:', error);
         const errorMessage =
@@ -160,17 +169,16 @@ export function ChatInterface() {
 
   const handleRetry = useCallback(
     async (messageToRetry: Message) => {
-        if (messageToRetry.status !== 'error' || !messageToRetry.content) return;
+      if (messageToRetry.status !== 'error' || !messageToRetry.content) return;
 
-        // Remove the failed message before retrying using the helper function
-        setMessages(removeMessageByTimestamp(messageToRetry.timestamp));
+      // Remove the failed message before retrying using the helper function
+      setMessages(removeMessageByTimestamp(messageToRetry.timestamp));
 
-        // Resubmit the original content
-        await handleSubmit(undefined, messageToRetry.content);
+      // Resubmit the original content
+      await handleSubmit(undefined, messageToRetry.content);
     },
     [handleSubmit], // Dependency for useCallback
   );
-
 
   return (
     <>
