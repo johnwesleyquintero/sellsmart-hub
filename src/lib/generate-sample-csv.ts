@@ -394,15 +394,39 @@ export function downloadSampleCsv(
   dataType: SampleDataType,
   fileName?: string,
 ): void {
-  const csv = generateSampleCsv(dataType);
-  if (!csv) return;
+  try {
+    console.log(`[CSV Download] Starting download for type: ${dataType}`);
+    
+    const csv = generateSampleCsv(dataType);
+    if (!csv) {
+      console.error('[CSV Download] Generated CSV string is empty, aborting download.');
+      return;
+    }
+    console.log(`[CSV Download] Successfully generated CSV with ${csv.split('\n').length} rows`);
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', fileName || `sample-${dataType}-data.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    console.log('[CSV Download] Created Blob URL for download');
+
+    const link = document.createElement('a');
+    const downloadName = fileName || `sample-${dataType}-data.csv`;
+    link.href = url;
+    link.setAttribute('download', downloadName);
+    console.log(`[CSV Download] Initiating download with filename: ${downloadName}`);
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up the URL object to prevent memory leaks
+    URL.revokeObjectURL(url);
+    console.log('[CSV Download] Completed download and cleaned up resources');
+  } catch (unknownError: unknown) {
+    const error =
+      unknownError instanceof Error
+        ? unknownError
+        : new Error(`An unknown error occurred: ${String(unknownError)}`);
+    console.error('[CSV Download] Error during download:', error.message);
+    throw new Error(`Failed to download CSV: ${error.message}`);
+  }
 }

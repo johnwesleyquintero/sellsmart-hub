@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
 import { downloadSampleCsv } from '@/lib/generate-sample-csv';
+import { Download } from 'lucide-react';
 
 type SampleDataType = 'fba' | 'keyword' | 'ppc' | 'keyword-dedup' | 'acos';
 
@@ -18,6 +18,7 @@ interface SampleCsvButtonProps {
     | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
+  onClick?: () => void;
 }
 
 export default function SampleCsvButton({
