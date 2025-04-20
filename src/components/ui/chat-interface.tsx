@@ -7,9 +7,10 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  status?: 'sending' | 'sent' | 'error';
+  status?: 'sending' | 'sent' | 'error' | 'read';
   error?: string;
   retryCount?: number;
+  isTyping?: boolean;
 }
 
 export function ChatInterface() {
@@ -46,6 +47,7 @@ export function ChatInterface() {
       timestamp: Date.now(),
       status: 'sending',
       retryCount: 0,
+      personalInfo: { name: '', email: '' } // Initialize with default values
     };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
@@ -80,7 +82,19 @@ export function ChatInterface() {
           data.response || "I couldn't generate a response. Please try again.",
         timestamp: Date.now(),
         status: 'sent',
+        isTyping: true,
       };
+      
+      // Simulate typing indicator
+      setTimeout(() => {
+        setMessages(prev => 
+          prev.map(msg => 
+            msg === assistantMessage 
+              ? { ...msg, isTyping: false, status: 'read' } 
+              : msg
+          )
+        );
+      }, 1500);
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
@@ -156,10 +170,10 @@ export function ChatInterface() {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} transition-all duration-300 ${message.status === 'sending' ? 'opacity-80' : 'opacity-100'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'} relative`}
+                    className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'} relative transition-all duration-300 ${message.isTyping ? 'animate-pulse' : ''}`}
                   >
                     <div className="absolute -bottom-4 right-0 text-xs text-gray-500">
                       {new Date(message.timestamp).toLocaleTimeString()}
