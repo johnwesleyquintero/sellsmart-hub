@@ -354,7 +354,7 @@ export default function AcosCalculator() {
             interval={0}
             tick={{ fontSize: 10 }}
           />
-          <YAxis tick={{ fontSize: 10 }} />
+          <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
           <Tooltip
             contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
             // --- FIX for TypeScript Error 2322 ---
