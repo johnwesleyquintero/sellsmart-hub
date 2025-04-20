@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     - Soft Skills: ${portfolioContext.personalContext.skills.soft.join(', ')}
     
     Amazon Expertise:
-    - Certifications: ${portfolioContext.personalContext.amazonExpertise.certifications.map(c => c.name).join(', ')}
+    - Certifications: ${portfolioContext.personalContext.amazonExpertise.certifications.map((c) => c.name).join(', ')}
     - Areas: ${portfolioContext.personalContext.amazonExpertise.areasOfExpertise.join(', ')}
     
     Web App Information:
