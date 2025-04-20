@@ -1,7 +1,6 @@
 import { useIsMobile } from '@/app/hooks/use-mobile';
-import { Card } from '@/components/ui';
+import { Card, Input } from '@/components/ui';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Tooltip,
@@ -378,6 +377,7 @@ export function CompetitorAnalyzer() {
             </div>
             <Input
               id="seller-csv"
+              accept=".csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleFileUpload(
                   e,
@@ -407,6 +407,7 @@ export function CompetitorAnalyzer() {
             </div>
             <Input
               id="competitor-csv"
+              accept=".csv"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 handleFileUpload(
                   e,

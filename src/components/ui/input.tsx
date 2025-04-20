@@ -2,20 +2,19 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const Input = React.forwardRef<
-  HTMLInputElement,
-  React.HTMLAttributes<HTMLInputElement> & {
-    value?: string | number;
-    type?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    min?: string | number;
-    step?: string | number;
-    name?: string;
-    placeholder?: string;
-    required?: boolean;
-    disabled?: boolean;
-  }
->(
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  value?: string | number;
+  type?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  min?: string | number;
+  step?: string | number;
+  name?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
