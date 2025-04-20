@@ -90,7 +90,7 @@ const blogPosts = [
     id: 8,
     title: 'Amazon Seller Tools',
     summary: 'A guide to using Amazon Seller Tools.',
-    image: '/images/blog/amazon-seller-tools.svg',
+    image: '/images/blog/Amazon Seller Tools Suite.svg',
     date: 'April 16, 2025',
     tags: ['Amazon', 'Seller Tools'],
     url: '/blog/amazon-seller-tools',

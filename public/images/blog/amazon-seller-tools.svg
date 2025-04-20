@@ -1,79 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
   <!-- Background with gradient -->
   <defs>
-    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2563EB" />
-      <stop offset="100%" stop-color="#7C3AED" />
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e5e7eb;stop-opacity:1" />
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-      <feOffset dx="0" dy="2" result="offsetblur" />
-      <feMerge>
-        <feMergeNode in="offsetblur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
+    <!-- Tool icon gradients -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="630" fill="url(#bg-gradient)" />
+  <!-- Main background -->
+  <rect width="800" height="400" fill="url(#bgGradient)" />
   
-  <!-- Decorative elements -->
-  <circle cx="150" cy="150" r="80" fill="#ffffff" fill-opacity="0.1" />
-  <circle cx="1050" cy="480" r="120" fill="#ffffff" fill-opacity="0.1" />
-  
-  <!-- Tools Dashboard Illustration -->
-  <g transform="translate(150, 200)" filter="url(#shadow)">
-    <!-- Dashboard frame -->
-    <rect x="0" y="0" width="350" height="250" fill="#ffffff" rx="10" />
+  <!-- Decorative circles -->
+  <circle cx="100" cy="50" r="80" fill="#3b82f6" opacity="0.1" />
+  <circle cx="700" cy="350" r="100" fill="#10b981" opacity="0.1" />
+
+  <g transform="translate(100,50)">
+    <!-- Title Section with enhanced typography -->
+    <text x="300" y="50" font-family="Arial" font-size="28" font-weight="bold" text-anchor="middle" fill="#1e40af">
+      Amazon Seller Tools Suite
+    </text>
     
-    <!-- Tool icons -->
-    <rect x="70" y="50" width="50" height="50" rx="5" fill="#4F46E5" />
-    <rect x="150" y="50" width="50" height="50" rx="5" fill="#7C3AED" />
-    <rect x="230" y="50" width="50" height="50" rx="5" fill="#4F46E5" />
+    <!-- Tool Icons with modern styling -->
+    <g transform="translate(0,100)">
+      <!-- Calculator Icon -->
+      <g transform="translate(50,0)">
+        <rect width="100" height="100" rx="15" fill="url(#blueGradient)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))" />
+        <text x="50" y="45" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">FBA</text>
+        <text x="50" y="65" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Calculator</text>
+      </g>
+      
+      <!-- Keyword Icon -->
+      <g transform="translate(170,0)">
+        <rect width="100" height="100" rx="15" fill="url(#greenGradient)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))" />
+        <text x="50" y="45" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Keyword</text>
+        <text x="50" y="65" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Research</text>
+      </g>
+      
+      <!-- PPC Icon -->
+      <g transform="translate(290,0)">
+        <rect width="100" height="100" rx="15" fill="url(#redGradient)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))" />
+        <text x="50" y="55" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">PPC</text>
+      </g>
+      
+      <!-- Analytics Icon -->
+      <g transform="translate(410,0)">
+        <rect width="100" height="100" rx="15" fill="url(#yellowGradient)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))" />
+        <text x="50" y="55" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Analytics</text>
+      </g>
+    </g>
     
-    <rect x="70" y="130" width="50" height="50" rx="5" fill="#7C3AED" />
-    <rect x="150" y="130" width="50" height="50" rx="5" fill="#4F46E5" />
-    <rect x="230" y="130" width="50" height="50" rx="5" fill="#7C3AED" />
+    <!-- Status Indicators with modern styling -->
+    <g transform="translate(50,230)">
+      <g>
+        <circle cx="15" cy="0" r="6" fill="#10b981" />
+        <text x="35" y="5" font-family="Arial" font-size="14" fill="#374151">Active</text>
+      </g>
+      
+      <g transform="translate(120,0)">
+        <circle cx="15" cy="0" r="6" fill="#f59e0b" />
+        <text x="35" y="5" font-family="Arial" font-size="14" fill="#374151">Beta</text>
+      </g>
+      
+      <g transform="translate(240,0)">
+        <circle cx="15" cy="0" r="6" fill="#ef4444" />
+        <text x="35" y="5" font-family="Arial" font-size="14" fill="#374151">Issues</text>
+      </g>
+    </g>
     
-    <!-- Dashboard title -->
-    <text x="175" y="30" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#333">Amazon Seller Tools</text>
-    
-    <!-- Metrics -->
-    <text x="175" y="230" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">ACoS Calculator • Keyword Analyzer • Profit Margin</text>
+    <!-- Development Timeline with modern styling -->
+    <g transform="translate(50,280)">
+      <line x1="0" y1="0" x2="400" y2="0" stroke="#d1d5db" stroke-width="2" />
+      <g>
+        <circle cx="100" cy="0" r="8" fill="#3b82f6" />
+        <text x="100" y="25" font-family="Arial" font-size="12" text-anchor="middle" fill="#374151">v1.0</text>
+      </g>
+      <g>
+        <circle cx="200" cy="0" r="8" fill="#3b82f6" />
+        <text x="200" y="25" font-family="Arial" font-size="12" text-anchor="middle" fill="#374151">v2.0</text>
+      </g>
+      <g>
+        <circle cx="300" cy="0" r="8" fill="#3b82f6" />
+        <text x="300" y="25" font-family="Arial" font-size="12" text-anchor="middle" fill="#374151">Future</text>
+      </g>
+    </g>
   </g>
-  
-  <!-- Title -->
-  <text x="600" y="180" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="white" filter="url(#shadow)">
-    Amazon Seller Tools
-  </text>
-  
-  <!-- Subtitle -->
-  <text x="600" y="240" font-family="Arial, sans-serif" font-size="30" text-anchor="middle" fill="white" filter="url(#shadow)">
-    Data-driven automation for Amazon sellers
-  </text>
-  
-  <!-- Key points -->
-  <g transform="translate(650, 320)">
-    <!-- Point 1 -->
-    <circle cx="0" cy="0" r="25" fill="white" />
-    <text x="40" y="10" font-family="Arial, sans-serif" font-size="24" fill="white">ACoS Optimization</text>
-    
-    <!-- Point 2 -->
-    <circle cx="0" cy="70" r="25" fill="white" />
-    <text x="40" y="80" font-family="Arial, sans-serif" font-size="24" fill="white">Keyword Research</text>
-    
-    <!-- Point 3 -->
-    <circle cx="0" cy="140" r="25" fill="white" />
-    <text x="40" y="150" font-family="Arial, sans-serif" font-size="24" fill="white">Profit Analysis</text>
-    
-    <!-- Point 4 -->
-    <circle cx="0" cy="210" r="25" fill="white" />
-    <text x="40" y="220" font-family="Arial, sans-serif" font-size="24" fill="white">Competitor Insights</text>
-  </g>
-  
-  <!-- Author info -->
-  <text x="600" y="580" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="white">
-    By Wesley Quintero • January 20, 2024
-  </text>
 </svg>
