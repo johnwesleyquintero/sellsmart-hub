@@ -2,10 +2,6 @@
 import ErrorBoundary from '@/components/error-boundary';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-jest.mock('./ErrorBoundary', () => ({
-  __esModule: true,
-  default: () => <div>Mock ErrorBoundary</div>,
-}));
 
 describe('ErrorBoundary', () => {
   const ThrowError = () => {
