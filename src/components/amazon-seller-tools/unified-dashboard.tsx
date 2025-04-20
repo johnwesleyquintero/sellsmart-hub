@@ -17,12 +17,18 @@ import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Import existing tool components
 import AcosCalculator from './acos-calculator';
+import { CompetitorAnalyzer } from './competitor-analyzer';
 import DescriptionEditor from './description-editor';
 import FbaCalculator from './fba-calculator';
 import KeywordAnalyzer from './keyword-analyzer';
 import KeywordDeduplicator from './keyword-deduplicator';
+import KeywordTrendAnalyzer from './keyword-trend-analyzer';
 import ListingQualityChecker from './listing-quality-checker';
+import OptimalPriceCalculator from './optimal-price-calculator';
 import PpcCampaignAuditor from './ppc-campaign-auditor';
+import ProductScoreCalculator from './product-score-calculator';
+import ProfitMarginCalculator from './profit-margin-calculator';
+import SalesEstimator from './sales-estimator';
 
 interface DashboardMetrics {
   date: string;
@@ -128,6 +134,12 @@ export default function UnifiedDashboard() {
           <TabsTrigger value="description">Description</TabsTrigger>
           <TabsTrigger value="deduplicator">Deduplicator</TabsTrigger>
           <TabsTrigger value="acos">ACoS</TabsTrigger>
+          <TabsTrigger value="sales-estimator">Sales Estimator</TabsTrigger>
+          <TabsTrigger value="competitor-analyzer">Competitor Analyzer</TabsTrigger>
+          <TabsTrigger value="keyword-trend-analyzer">Keyword Trends</TabsTrigger>
+          <TabsTrigger value="profit-margin">Profit Margin</TabsTrigger>
+          <TabsTrigger value="product-score">Product Score</TabsTrigger>
+          <TabsTrigger value="optimal-price">Optimal Price</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -245,6 +257,24 @@ export default function UnifiedDashboard() {
 
         <TabsContent value="acos">
           <AcosCalculator />
+        </TabsContent>
+        <TabsContent value="sales-estimator">
+          <SalesEstimator />
+        </TabsContent>
+        <TabsContent value="competitor-analyzer">
+          <CompetitorAnalyzer />
+        </TabsContent>
+        <TabsContent value="keyword-trend-analyzer">
+          <KeywordTrendAnalyzer />
+        </TabsContent>
+        <TabsContent value="profit-margin">
+          <ProfitMarginCalculator />
+        </TabsContent>
+        <TabsContent value="product-score">
+          <ProductScoreCalculator />
+        </TabsContent>
+        <TabsContent value="optimal-price">
+          <OptimalPriceCalculator />
         </TabsContent>
       </Tabs>
     </div>
