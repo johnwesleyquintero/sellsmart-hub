@@ -1,6 +1,6 @@
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/button';
-import { Download, RefreshCw } from 'lucide-react';
+import { BookOpen, Download, RefreshCw } from 'lucide-react';
 
 interface HeaderProps {
   isLoading: boolean;
@@ -42,6 +42,16 @@ export function UnifiedDashboardHeader({
           <Button variant="outline" onClick={onExport} aria-label="Export Data">
             <Download className="w-4 h-4 mr-2" />
             Export
+          </Button>
+          <Button
+            variant="outline"
+            asChild
+            aria-label="View Documentation"
+          >
+            <a href="https://wescode.vercel.app/blog/amazon-seller-tools" target="_blank" rel="noopener noreferrer">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Docs
+            </a>
           </Button>
         </div>
       </div>
