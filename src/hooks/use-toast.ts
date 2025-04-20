@@ -1,8 +1,10 @@
+import { useToast as useToastUI } from '@/app/hooks/use-toast';
+
 export function useToast() {
-  const { toast, dismiss } = useToastUI;
+  const { toast: toastUI, dismiss } = useToastUI();
   return {
     toast: (title: string, description?: string) => {
-      toast({
+      toastUI({
         title,
         description,
       });
