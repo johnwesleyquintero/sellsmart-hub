@@ -2,7 +2,7 @@ import {
   ProhibitedKeyword,
   ProhibitedKeywordCollection,
 } from './models/prohibited-keywords';
-import { connectToDatabase } from './mongodb';
+
 
 export async function getAll(): Promise<string[]> {
   try {

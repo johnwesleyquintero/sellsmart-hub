@@ -1,7 +1,6 @@
-import { ObjectId } from 'mongodb';
 
 export interface KeywordTrend {
-  _id?: ObjectId;
+  _id?: string;
   keyword: string;
   date: string;
   volume: number;

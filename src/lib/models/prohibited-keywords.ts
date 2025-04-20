@@ -1,7 +1,5 @@
-import { ObjectId } from 'mongodb';
-
 export interface ProhibitedKeyword {
-  _id?: ObjectId;
+  _id?: string;
   keyword: string;
   createdAt: Date;
   updatedAt: Date;
