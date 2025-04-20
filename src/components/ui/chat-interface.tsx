@@ -2,7 +2,7 @@
 
 import copy from 'clipboard-copy';
 import 'katex/dist/katex.min.css';
-import { Copy, Send, Trash2, X } from 'lucide-react';
+import { Copy, MoveHorizontal, Send, Trash2, X } from 'lucide-react';
 import 'prismjs/themes/prism-tomorrow.css';
 import { useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -48,6 +48,7 @@ export function ChatInterface() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isCentered, setIsCentered] = useState(false);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -202,7 +203,7 @@ export function ChatInterface() {
 
       {/* Chat Interface */}
       {isChatOpen && (
-        <div className="fixed bottom-20 right-4 w-full max-w-md bg-background border border-border rounded-lg shadow-lg overflow-hidden z-40 flex flex-col h-[70vh] max-h-[600px]">
+        <div className={`fixed ${isCentered ? 'left-1/2 transform -translate-x-1/2' : 'right-4'} bottom-20 w-full max-w-md bg-background border border-border rounded-lg shadow-lg overflow-hidden z-40 flex flex-col h-[70vh] max-h-[600px]`}>
           {/* Header */}
           <div className="flex justify-between items-center p-3 border-b border-border bg-muted/40">
             <button
@@ -214,13 +215,23 @@ export function ChatInterface() {
               <Trash2 className="w-5 h-5" />
             </button>
             <span className="font-medium text-foreground">Chat Assistant</span>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="text-muted-foreground hover:text-foreground focus:outline-none p-1 rounded"
-              aria-label="Close chat"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsCentered(!isCentered)}
+                className="text-muted-foreground hover:text-foreground focus:outline-none p-1 rounded"
+                title="Toggle center position"
+                aria-label="Toggle center position"
+              >
+                <MoveHorizontal className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="text-muted-foreground hover:text-foreground focus:outline-none p-1 rounded"
+                aria-label="Close chat"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Message List */}
@@ -304,25 +315,16 @@ export function ChatInterface() {
           >
             <div className="flex items-center space-x-2">
               <div className="flex-1 relative">
-                <input
-                  type="text"
+                <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
-                  className="w-full px-4 py-2 pr-16 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 bg-background text-foreground placeholder:text-muted-foreground disabled:opacity-50"
+                  className="w-full px-4 py-2 pr-16 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 bg-background text-foreground placeholder:text-muted-foreground disabled:opacity-50 min-h-[44px] max-h-[200px] resize-y"
                   disabled={isLoading}
-                  maxLength={500}
                   aria-label="Chat message input"
+                  rows={1}
                 />
-                <span
-                  className={`absolute right-3 bottom-2.5 text-xs ${
-                    input.length >= 500
-                      ? 'text-destructive'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {input.length}/500
-                </span>
+                
               </div>
               <button
                 type="submit"

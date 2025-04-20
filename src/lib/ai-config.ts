@@ -50,4 +50,12 @@ export const AI_FEATURES = {
       temperature: 0.3, // More conservative for PPC suggestions
     },
   },
+  seoAnalyzer: {
+    model: AI_MODELS.gemini.default,
+    config: {
+      ...AI_MODELS.gemini.config,
+      temperature: 0.4, // Balanced for SEO analysis
+      maxOutputTokens: 1500, // Allow more detailed SEO reports
+    },
+  },
 };
