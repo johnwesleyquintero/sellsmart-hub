@@ -52,9 +52,8 @@ const CsvDataMapper = <T extends Record<string, any>>({
     return mapping as Record<keyof T, string | null>; // Assert type after initialization
   }, [targetMetrics]);
 
-  const [mapping, setMapping] = useState<Record<keyof T, string | null>>(
-    initialMapping,
-  );
+  const [mapping, setMapping] =
+    useState<Record<keyof T, string | null>>(initialMapping);
 
   // Handler for Select component changes
   const handleMappingChange = (metricKey: keyof T, header: string) => {
@@ -99,9 +98,7 @@ const CsvDataMapper = <T extends Record<string, any>>({
           >
             <Label htmlFor={metric.key as string} className="sm:text-right">
               {metric.label}
-              {metric.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {metric.required && <span className="text-red-500 ml-1">*</span>}
               {metric.required && (
                 <span className="sr-only">(required)</span>
               )}{' '}
@@ -110,7 +107,9 @@ const CsvDataMapper = <T extends Record<string, any>>({
             <div className="sm:col-span-2">
               <Select
                 value={mapping[metric.key] || ''} // Use empty string for placeholder compatibility
-                onValueChange={(value) => handleMappingChange(metric.key, value)}
+                onValueChange={(value) =>
+                  handleMappingChange(metric.key, value)
+                }
               >
                 <SelectTrigger id={metric.key as string} className="w-full">
                   {/* Dynamic placeholder based on requirement */}

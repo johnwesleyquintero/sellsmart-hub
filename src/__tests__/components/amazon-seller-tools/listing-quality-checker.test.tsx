@@ -40,7 +40,11 @@ const mockPapaParseImplementation = (
       const content = e.target?.result as string;
       // Basic check for CSV structure based on test data
       // Use header: true behavior
-      if (content.includes('product,title,description,bullet_points,images,keywords')) {
+      if (
+        content.includes(
+          'product,title,description,bullet_points,images,keywords',
+        )
+      ) {
         config.complete({
           data: [
             {
@@ -69,44 +73,59 @@ const mockPapaParseImplementation = (
             truncated: false, // Add truncated property
           },
         });
-      } else if (content.includes('product,title,description,bullet_points,images\n')) {
-         // Simulate missing 'keywords' column for the validation test
-         config.complete({
-           data: [{ product: 'Test Product Missing', title: 'Good Title', description: 'Desc', bullet_points: 'Point 1', images: '3' }], // Sample data matching content
-           errors: [],
-           meta: {
-             fields: ['product', 'title', 'description', 'bullet_points', 'images'], // Simulate missing 'keywords'
-             delimiter: ',',
-             linebreak: '\n',
-             aborted: false,
-             cursor: 50,
-             truncated: false,
-           },
-         });
+      } else if (
+        content.includes('product,title,description,bullet_points,images\n')
+      ) {
+        // Simulate missing 'keywords' column for the validation test
+        config.complete({
+          data: [
+            {
+              product: 'Test Product Missing',
+              title: 'Good Title',
+              description: 'Desc',
+              bullet_points: 'Point 1',
+              images: '3',
+            },
+          ], // Sample data matching content
+          errors: [],
+          meta: {
+            fields: [
+              'product',
+              'title',
+              'description',
+              'bullet_points',
+              'images',
+            ], // Simulate missing 'keywords'
+            delimiter: ',',
+            linebreak: '\n',
+            aborted: false,
+            cursor: 50,
+            truncated: false,
+          },
+        });
       } else if (content.includes('invalid,csv,data')) {
-         // Simulate parsing error for the error handling test
-         const parsingErrorMessage = 'Simulated CSV parsing error on row 2';
-         config.complete({
-           data: [],
-           errors: [
-             {
-               code: 'InvalidQuotes',
-               message: parsingErrorMessage,
-               row: 1, // PapaParse row index is 0-based, error message might say row 2
-               type: 'Quotes',
-             },
-           ],
-           meta: {
-             fields: [], // No fields detected due to error
-             delimiter: ',',
-             linebreak: '\n',
-             aborted: false,
-             cursor: 10,
-             truncated: false,
-           },
-         });
-      }
-       else {
+        // Simulate parsing error for the error handling test
+        const parsingErrorMessage = 'Simulated CSV parsing error on row 2';
+        config.complete({
+          data: [],
+          errors: [
+            {
+              code: 'InvalidQuotes',
+              message: parsingErrorMessage,
+              row: 1, // PapaParse row index is 0-based, error message might say row 2
+              type: 'Quotes',
+            },
+          ],
+          meta: {
+            fields: [], // No fields detected due to error
+            delimiter: ',',
+            linebreak: '\n',
+            aborted: false,
+            cursor: 10,
+            truncated: false,
+          },
+        });
+      } else {
         // Simulate generic parse error for other content
         config.error(new Error('Simulated CSV parsing error'));
       }
@@ -120,7 +139,6 @@ const mockPapaParseImplementation = (
     config.error(new Error('Invalid file type or input'));
   }
 };
-
 
 describe('ListingQualityChecker', () => {
   beforeEach(() => {
@@ -164,7 +182,7 @@ describe('ListingQualityChecker', () => {
         // The component uses the 'product' field value as the CardTitle
         expect(
           // Use a query that finds the heading role with the specific name
-          screen.getByRole('heading', { name: /Test Product CSV/i, level: 3 }) // Assuming CardTitle renders as h3
+          screen.getByRole('heading', { name: /Test Product CSV/i, level: 3 }), // Assuming CardTitle renders as h3
         ).toBeInTheDocument();
 
         // Check if a toast message indicating success was called
@@ -196,8 +214,8 @@ describe('ListingQualityChecker', () => {
         // Find the results card header for the specific ASIN
         // The component uses `Product (ASIN: ${asin})` as the CardTitle
         const productHeader = screen.getByRole('heading', {
-            name: /Product \(ASIN: B08N5KWB9H\)/i,
-            level: 3 // Assuming CardTitle renders as h3
+          name: /Product \(ASIN: B08N5KWB9H\)/i,
+          level: 3, // Assuming CardTitle renders as h3
         });
         expect(productHeader).toBeInTheDocument();
 
@@ -220,7 +238,9 @@ describe('ListingQualityChecker', () => {
         expect(mockToast).toHaveBeenCalledWith(
           expect.objectContaining({
             title: 'ASIN Check Complete',
-            description: expect.stringContaining('Analysis for B08N5KWB9H added.'), // Check description too
+            description: expect.stringContaining(
+              'Analysis for B08N5KWB9H added.',
+            ), // Check description too
             variant: 'default',
           }),
         );
@@ -264,7 +284,9 @@ describe('ListingQualityChecker', () => {
         expect(mockToast).toHaveBeenCalledWith(
           expect.objectContaining({
             title: 'ASIN Check Complete',
-            description: expect.stringContaining(`Analysis for ${testAsin} added.`),
+            description: expect.stringContaining(
+              `Analysis for ${testAsin} added.`,
+            ),
             variant: 'default', // Expecting 'default', not 'destructive'
           }),
         );
@@ -279,9 +301,12 @@ describe('ListingQualityChecker', () => {
           }),
         ).not.toBeInTheDocument();
 
-         // Optionally, verify the success UI *is* present for this ASIN
-         expect(screen.getByRole('heading', { name: new RegExp(`Product \\(ASIN: ${testAsin}\\)`, 'i') })).toBeInTheDocument();
-
+        // Optionally, verify the success UI *is* present for this ASIN
+        expect(
+          screen.getByRole('heading', {
+            name: new RegExp(`Product \\(ASIN: ${testAsin}\\)`, 'i'),
+          }),
+        ).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -289,7 +314,6 @@ describe('ListingQualityChecker', () => {
     // --- Note on limitations ---
     // console.warn("Test 'handles ASIN check errors gracefully' currently verifies the success path due to mock limitations. It does not test the actual error handling UI for ASIN checks.");
   });
-
 
   it('validates CSV file for missing columns', async () => {
     render(<ListingQualityChecker />);
@@ -311,7 +335,9 @@ describe('ListingQualityChecker', () => {
         // Assuming the error is rendered within a div with role 'alert' or similar
         const errorContainer = screen.getByRole('alert'); // Adjust if using a different error display mechanism
         expect(errorContainer).toBeInTheDocument();
-        expect(errorContainer).toHaveTextContent(/Missing required columns: keywords/i);
+        expect(errorContainer).toHaveTextContent(
+          /Missing required columns: keywords/i,
+        );
 
         // Expect an error toast
         expect(mockToast).toHaveBeenCalledWith(
@@ -348,14 +374,9 @@ describe('ListingQualityChecker', () => {
         const errorContainer = screen.getByRole('alert');
         expect(errorContainer).toBeInTheDocument();
         // Check if the specific error message from PapaParse is displayed
-        expect(
-          errorContainer
-        ).toHaveTextContent(parsingErrorMessage);
+        expect(errorContainer).toHaveTextContent(parsingErrorMessage);
         // Check if the prefix "CSV parsing error:" is also present (adjust if component formats differently)
-        expect(
-            errorContainer
-        ).toHaveTextContent(/CSV parsing error:/i);
-
+        expect(errorContainer).toHaveTextContent(/CSV parsing error:/i);
 
         // Check the toast message
         expect(mockToast).toHaveBeenCalledWith(

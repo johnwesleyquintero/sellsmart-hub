@@ -66,7 +66,7 @@ const TARGET_METRICS_CONFIG: {
   { key: 'impressions', label: 'Impressions', required: false }, // Make optional if not always needed for initial view
   { key: 'clicks', label: 'Clicks', required: false }, // Make optional
   { key: 'orders', label: 'Orders/Units', required: true }, // Required for Conversion Rate
-  { key: 'sessions', label: 'Sessions/Views', required: true } // Required for Conversion Rate
+  { key: 'sessions', label: 'Sessions/Views', required: true }, // Required for Conversion Rate
   // Add other optional metrics if needed for direct mapping
   // { key: 'profit', label: 'Profit ($)', required: false },
   // { key: 'acos', label: 'ACoS (%)', required: false },
@@ -82,21 +82,112 @@ const SAMPLE_CARD_DATA = {
 };
 
 const SAMPLE_CHART_DATA: DashboardMetrics[] = [
-  { date: 'Jan', sales: 8500, clicks: 120, impressions: 15000, conversion_rate: 4.5, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 5, sessions: 111 },
-  { date: 'Feb', sales: 9200, clicks: 135, impressions: 16500, conversion_rate: 5.0, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 7, sessions: 140 },
-  { date: 'Mar', sales: 11500, clicks: 160, impressions: 18000, conversion_rate: 5.5, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 9, sessions: 164 },
-  { date: 'Apr', sales: 10800, clicks: 150, impressions: 17500, conversion_rate: 5.3, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 8, sessions: 151 },
-  { date: 'May', sales: 12500, clicks: 175, impressions: 19000, conversion_rate: 5.8, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 10, sessions: 172 },
-  { date: 'Jun', sales: 13100, clicks: 180, impressions: 20000, conversion_rate: 6.0, profit: 0, acos: 0, inventory_level: 0, review_rating: 0, orders: 11, sessions: 183 },
+  {
+    date: 'Jan',
+    sales: 8500,
+    clicks: 120,
+    impressions: 15000,
+    conversion_rate: 4.5,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 5,
+    sessions: 111,
+  },
+  {
+    date: 'Feb',
+    sales: 9200,
+    clicks: 135,
+    impressions: 16500,
+    conversion_rate: 5.0,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 7,
+    sessions: 140,
+  },
+  {
+    date: 'Mar',
+    sales: 11500,
+    clicks: 160,
+    impressions: 18000,
+    conversion_rate: 5.5,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 9,
+    sessions: 164,
+  },
+  {
+    date: 'Apr',
+    sales: 10800,
+    clicks: 150,
+    impressions: 17500,
+    conversion_rate: 5.3,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 8,
+    sessions: 151,
+  },
+  {
+    date: 'May',
+    sales: 12500,
+    clicks: 175,
+    impressions: 19000,
+    conversion_rate: 5.8,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 10,
+    sessions: 172,
+  },
+  {
+    date: 'Jun',
+    sales: 13100,
+    clicks: 180,
+    impressions: 20000,
+    conversion_rate: 6.0,
+    profit: 0,
+    acos: 0,
+    inventory_level: 0,
+    review_rating: 0,
+    orders: 11,
+    sessions: 183,
+  },
 ];
 
 // --- Placeholder Components (Keep as is) ---
-const PlaceholderCard = ({ title, value, unit, description, colorClass = 'text-gray-600' }: { title: string; value: string | number; unit?: string; description: string; colorClass?: string }) => (
+const PlaceholderCard = ({
+  title,
+  value,
+  unit,
+  description,
+  colorClass = 'text-gray-600',
+}: {
+  title: string;
+  value: string | number;
+  unit?: string;
+  description: string;
+  colorClass?: string;
+}) => (
   <Card className="opacity-75">
     <CardContent className="p-4">
-      <h3 className="text-lg font-semibold mb-2 text-muted-foreground">{title}</h3>
+      <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+        {title}
+      </h3>
       <div className={`text-3xl font-bold ${colorClass}`}>
-        {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : value}
+        {typeof value === 'number'
+          ? value.toLocaleString(undefined, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })
+          : value}
         {unit}
       </div>
       <div className="text-sm text-gray-500 mt-1">{description}</div>
@@ -104,7 +195,13 @@ const PlaceholderCard = ({ title, value, unit, description, colorClass = 'text-g
   </Card>
 );
 
-const PlaceholderChartContainer = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const PlaceholderChartContainer = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <Card className="opacity-75">
     <CardContent className="p-4">
       <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
@@ -118,7 +215,10 @@ const PlaceholderChartContainer = ({ title, children }: { title: string; childre
 // --- Helper Functions for Data Processing ---
 
 // Extracts date, trying mapped header first, then common fallbacks
-const getDateFromRow = (row: Record<string, string>, mappedHeader: string | null): string => {
+const getDateFromRow = (
+  row: Record<string, string>,
+  mappedHeader: string | null,
+): string => {
   const potentialHeaders = [
     mappedHeader,
     'Date',
@@ -139,7 +239,9 @@ const getNumericValueFromRow = (
   mappedHeader: string | null,
   fallbackHeaders: string[] = [],
 ): number => {
-  const headersToCheck = [mappedHeader, ...fallbackHeaders].filter(Boolean) as string[];
+  const headersToCheck = [mappedHeader, ...fallbackHeaders].filter(
+    Boolean,
+  ) as string[];
   for (const header of headersToCheck) {
     const rawValue = row[header];
     if (rawValue !== undefined && rawValue !== null) {
@@ -161,11 +263,22 @@ const transformCsvRow = (
     return null; // Skip rows where date cannot be determined
   }
 
-  const sales = getNumericValueFromRow(row, mapping.sales, ['Ordered product sales', 'Gross Sales']);
-  const impressions = getNumericValueFromRow(row, mapping.impressions, ['Impressions']);
+  const sales = getNumericValueFromRow(row, mapping.sales, [
+    'Ordered product sales',
+    'Gross Sales',
+  ]);
+  const impressions = getNumericValueFromRow(row, mapping.impressions, [
+    'Impressions',
+  ]);
   const clicks = getNumericValueFromRow(row, mapping.clicks, ['Clicks']);
-  const orders = getNumericValueFromRow(row, mapping.orders, ['Total order items', 'Units Ordered']);
-  const sessions = getNumericValueFromRow(row, mapping.sessions, ['Sessions', 'Page Views']);
+  const orders = getNumericValueFromRow(row, mapping.orders, [
+    'Total order items',
+    'Units Ordered',
+  ]);
+  const sessions = getNumericValueFromRow(row, mapping.sessions, [
+    'Sessions',
+    'Page Views',
+  ]);
 
   const conversionRate = sessions > 0 ? (orders / sessions) * 100 : 0;
   const conversion_rate = parseFloat(conversionRate.toFixed(2));
@@ -184,7 +297,6 @@ const transformCsvRow = (
     sessions: sessions,
   };
 };
-
 
 // --- Component ---
 export default function UnifiedDashboard() {
@@ -262,7 +374,9 @@ export default function UnifiedDashboard() {
   };
 
   // --- MODIFIED handleMappingComplete ---
-  const handleMappingComplete = (mapping: Record<keyof DashboardMetrics, string | null>) => {
+  const handleMappingComplete = (
+    mapping: Record<keyof DashboardMetrics, string | null>,
+  ) => {
     console.log('Mapping confirmed:', mapping);
     if (!selectedFile) {
       setError('No file selected for processing.');
@@ -285,9 +399,8 @@ export default function UnifiedDashboard() {
         try {
           // Use the extracted helper function for transformation
           const transformedMetrics = results.data
-            .map(row => transformCsvRow(row, mapping))
+            .map((row) => transformCsvRow(row, mapping))
             .filter((metric): metric is DashboardMetrics => metric !== null); // Filter out nulls (rows that couldn't be processed)
-
 
           console.log('Transformed Metrics:', transformedMetrics);
 
@@ -297,7 +410,9 @@ export default function UnifiedDashboard() {
             );
             setMetrics([]);
           } else if (transformedMetrics.length === 0) {
-            setError('No data rows found or processed successfully in the file.');
+            setError(
+              'No data rows found or processed successfully in the file.',
+            );
             setMetrics([]);
           } else {
             setMetrics(transformedMetrics);
@@ -491,9 +606,7 @@ export default function UnifiedDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  Sales Trends
-                </h3>
+                <h3 className="text-lg font-semibold mb-4">Sales Trends</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={metrics}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -525,7 +638,11 @@ export default function UnifiedDashboard() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="#82ca9d"
+                    />
                     <Tooltip />
                     <Legend />
                     <Bar
@@ -583,7 +700,10 @@ export default function UnifiedDashboard() {
           />
           <PlaceholderCard
             title="Total Sales"
-            value={SAMPLE_CARD_DATA.total_sales.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
+            value={SAMPLE_CARD_DATA.total_sales.toLocaleString(undefined, {
+              style: 'currency',
+              currency: 'USD',
+            })}
             description="Sample Data"
             colorClass="text-green-400"
           />
@@ -602,9 +722,7 @@ export default function UnifiedDashboard() {
                 <XAxis dataKey="date" stroke="#a0a0a0" />
                 <YAxis stroke="#a0a0a0" />
                 <Tooltip
-                  formatter={(value: number) =>
-                    `$${value.toLocaleString()}`
-                  }
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
                 />
                 <Legend />
                 <Line
@@ -645,14 +763,14 @@ export default function UnifiedDashboard() {
         <Card className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
           <CardContent className="p-6 text-center">
             <p className="text-lg font-medium text-primary dark:text-blue-300">
-              While you&apos;re here, feel free to explore the other specialized tools available in the tabs above!
+              While you&apos;re here, feel free to explore the other specialized
+              tools available in the tabs above!
             </p>
           </CardContent>
         </Card>
       </div>
     );
   };
-
 
   // --- Main Render ---
   return (
@@ -693,9 +811,15 @@ export default function UnifiedDashboard() {
                   <TabsTrigger value="deduplicator">Deduplicator</TabsTrigger>
                   <TabsTrigger value="trend">Trend Analyzer</TabsTrigger>
                 </TabsList>
-                <TabsContent value="analyzer"><KeywordAnalyzer /></TabsContent>
-                <TabsContent value="deduplicator"><KeywordDeduplicator /></TabsContent>
-                <TabsContent value="trend"><KeywordTrendAnalyzer /></TabsContent>
+                <TabsContent value="analyzer">
+                  <KeywordAnalyzer />
+                </TabsContent>
+                <TabsContent value="deduplicator">
+                  <KeywordDeduplicator />
+                </TabsContent>
+                <TabsContent value="trend">
+                  <KeywordTrendAnalyzer />
+                </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
@@ -703,65 +827,89 @@ export default function UnifiedDashboard() {
         <TabsContent value="listing-optimization">
           <Card>
             <CardContent className="p-4">
-               <h3 className="text-xl font-semibold mb-4">Listing Optimization Tools</h3>
-               <Tabs defaultValue="editor" className="w-full">
-                 <TabsList className="mb-4">
-                   <TabsTrigger value="editor">Description Editor</TabsTrigger>
-                   <TabsTrigger value="quality">Quality Checker</TabsTrigger>
-                   <TabsTrigger value="score">Score Calculator</TabsTrigger>
-                 </TabsList>
-                 <TabsContent value="editor"><DescriptionEditor /></TabsContent>
-                 <TabsContent value="quality"><ListingQualityChecker /></TabsContent>
-                 <TabsContent value="score"><ProductScoreCalculator /></TabsContent>
-               </Tabs>
+              <h3 className="text-xl font-semibold mb-4">
+                Listing Optimization Tools
+              </h3>
+              <Tabs defaultValue="editor" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="editor">Description Editor</TabsTrigger>
+                  <TabsTrigger value="quality">Quality Checker</TabsTrigger>
+                  <TabsTrigger value="score">Score Calculator</TabsTrigger>
+                </TabsList>
+                <TabsContent value="editor">
+                  <DescriptionEditor />
+                </TabsContent>
+                <TabsContent value="quality">
+                  <ListingQualityChecker />
+                </TabsContent>
+                <TabsContent value="score">
+                  <ProductScoreCalculator />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="financials">
           <Card>
             <CardContent className="p-4">
-               <h3 className="text-xl font-semibold mb-4">Financial Tools</h3>
-               <Tabs defaultValue="fba" className="w-full">
-                 <TabsList className="mb-4">
-                   <TabsTrigger value="fba">FBA Calculator</TabsTrigger>
-                   <TabsTrigger value="acos">ACoS Calculator</TabsTrigger>
-                   <TabsTrigger value="profit">Profit Margin Calc</TabsTrigger>
-                   <TabsTrigger value="price">Optimal Price Calc</TabsTrigger>
-                 </TabsList>
-                 <TabsContent value="fba"><FbaCalculator /></TabsContent>
-                 <TabsContent value="acos"><AcosCalculator /></TabsContent>
-                 <TabsContent value="profit"><ProfitMarginCalculator /></TabsContent>
-                 <TabsContent value="price"><OptimalPriceCalculator /></TabsContent>
-               </Tabs>
+              <h3 className="text-xl font-semibold mb-4">Financial Tools</h3>
+              <Tabs defaultValue="fba" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="fba">FBA Calculator</TabsTrigger>
+                  <TabsTrigger value="acos">ACoS Calculator</TabsTrigger>
+                  <TabsTrigger value="profit">Profit Margin Calc</TabsTrigger>
+                  <TabsTrigger value="price">Optimal Price Calc</TabsTrigger>
+                </TabsList>
+                <TabsContent value="fba">
+                  <FbaCalculator />
+                </TabsContent>
+                <TabsContent value="acos">
+                  <AcosCalculator />
+                </TabsContent>
+                <TabsContent value="profit">
+                  <ProfitMarginCalculator />
+                </TabsContent>
+                <TabsContent value="price">
+                  <OptimalPriceCalculator />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="ppc-ads">
           <Card>
             <CardContent className="p-4">
-               <h3 className="text-xl font-semibold mb-4">PPC & Ads Tools</h3>
-               <Tabs defaultValue="auditor" className="w-full">
-                 <TabsList className="mb-4">
-                   <TabsTrigger value="auditor">Campaign Auditor</TabsTrigger>
-                   {/* Add more PPC tabs if needed */}
-                 </TabsList>
-                 <TabsContent value="auditor"><PpcCampaignAuditor /></TabsContent>
-               </Tabs>
+              <h3 className="text-xl font-semibold mb-4">PPC & Ads Tools</h3>
+              <Tabs defaultValue="auditor" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="auditor">Campaign Auditor</TabsTrigger>
+                  {/* Add more PPC tabs if needed */}
+                </TabsList>
+                <TabsContent value="auditor">
+                  <PpcCampaignAuditor />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="competition">
           <Card>
             <CardContent className="p-4">
-               <h3 className="text-xl font-semibold mb-4">Competition Tools</h3>
-               <Tabs defaultValue="analyzer" className="w-full">
-                 <TabsList className="mb-4">
-                   <TabsTrigger value="analyzer">Competitor Analyzer</TabsTrigger>
-                   <TabsTrigger value="estimator">Sales Estimator</TabsTrigger>
-                 </TabsList>
-                 <TabsContent value="analyzer"><CompetitorAnalyzer /></TabsContent>
-                 <TabsContent value="estimator"><SalesEstimator /></TabsContent>
-               </Tabs>
+              <h3 className="text-xl font-semibold mb-4">Competition Tools</h3>
+              <Tabs defaultValue="analyzer" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="analyzer">
+                    Competitor Analyzer
+                  </TabsTrigger>
+                  <TabsTrigger value="estimator">Sales Estimator</TabsTrigger>
+                </TabsList>
+                <TabsContent value="analyzer">
+                  <CompetitorAnalyzer />
+                </TabsContent>
+                <TabsContent value="estimator">
+                  <SalesEstimator />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
