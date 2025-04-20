@@ -179,7 +179,9 @@ export default function AcosCalculator() {
           }
           return result as CampaignData;
         } catch (error) {
-          throw new Error(`Invalid row data: ${error instanceof Error ? error.message : String(error)}`);
+          throw new Error(
+            `Invalid row data: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
       },
     },

@@ -203,7 +203,9 @@ export function ChatInterface() {
 
       {/* Chat Interface */}
       {isChatOpen && (
-        <div className={`fixed ${isCentered ? 'left-1/2 transform -translate-x-1/2' : 'right-4'} bottom-20 w-full max-w-md bg-background border border-border rounded-lg shadow-lg overflow-hidden z-40 flex flex-col h-[70vh] max-h-[600px]`}>
+        <div
+          className={`fixed ${isCentered ? 'left-1/2 transform -translate-x-1/2' : 'right-4'} bottom-20 w-full max-w-md bg-background border border-border rounded-lg shadow-lg overflow-hidden z-40 flex flex-col h-[70vh] max-h-[600px]`}
+        >
           {/* Header */}
           <div className="flex justify-between items-center p-3 border-b border-border bg-muted/40">
             <button
@@ -324,7 +326,6 @@ export function ChatInterface() {
                   aria-label="Chat message input"
                   rows={1}
                 />
-                
               </div>
               <button
                 type="submit"
@@ -350,7 +351,12 @@ interface CodeBlockProps {
   children: React.ReactNode;
 }
 
-const CodeBlock: React.FC<CodeBlockProps> = ({ node, inline, className, children }) => {
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  node,
+  inline,
+  className,
+  children,
+}) => {
   const match = /language-(\w+)/.exec(className || '');
   const language = match ? match[1] : '';
 
@@ -358,11 +364,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ node, inline, className, children
     return <pre className="mermaid">{String(children).trim()}</pre>;
   }
 
-  return (
-    <code className={className}>
-      {children}
-    </code>
-  );
+  return <code className={className}>{children}</code>;
 };
 
 const renderMessage = (content: string) => (
@@ -370,7 +372,7 @@ const renderMessage = (content: string) => (
     remarkPlugins={[remarkGfm, remarkMath]}
     rehypePlugins={[rehypeKatex, [rehypePrism, { showLineNumbers: true }]]}
     components={{
-      code: CodeBlock as any
+      code: CodeBlock as any,
     }}
   >
     {content}
