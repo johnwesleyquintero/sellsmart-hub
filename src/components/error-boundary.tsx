@@ -56,6 +56,16 @@ class ErrorBoundary extends Component<Props, State> {
             <RefreshCw className="h-4 w-4" />
             Reload Page
           </Button>
+          {this.state.error &&
+            (process.env.NODE_ENV === 'development' ||
+              process.env.NODE_ENV === 'test') && (
+              <div className="mt-6 max-w-md overflow-auto rounded border border-red-300 bg-white p-4 text-left text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300">
+                <p className="font-mono font-bold">
+                  {this.state.error.name}: {this.state.error.message}
+                </p>
+                <pre className="mt-2 text-xs">{this.state.error.stack}</pre>
+              </div>
+            )}
         </div>
       ); // End of return for error case
     } // <<<--- ADDED THIS CLOSING BRACE

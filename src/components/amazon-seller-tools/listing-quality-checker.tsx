@@ -331,7 +331,7 @@ export default function ListingQualityChecker() {
             uploadError instanceof Error
               ? uploadError.message
               : 'An unknown error occurred during file processing';
-          setError(errorMessage);
+          setError(`An error occurred: ${errorMessage}`);
           setListings([]); // Clear listings on error
           toast({
             title: 'Error Processing CSV',
@@ -461,7 +461,7 @@ export default function ListingQualityChecker() {
         apiError instanceof Error
           ? apiError.message
           : 'Failed to fetch or analyze ASIN data.';
-      setError(errorMessage);
+      setError(`An error occurred: ${errorMessage}`);
       toast({
         title: 'ASIN Check Failed',
         description: errorMessage,
@@ -622,40 +622,70 @@ export default function ListingQualityChecker() {
         {/* ASIN Check Card */}
         <DataCard>
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
-              Check Single Listing by ASIN
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="asin-input" className="text-sm font-medium">
-                  Amazon ASIN
-                </Label>
-                <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                  <Input
-                    id="asin-input"
-                    value={asin}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setAsin(e.target.value)
-                    }
-                    placeholder="Enter ASIN (e.g., B08N5KWB9H)"
-                    className="flex-grow"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    onClick={handleAsinCheck}
-                    disabled={isLoading || !asin.trim()}
-                    className="w-full sm:w-auto"
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    {isLoading ? 'Checking...' : 'Check ASIN'}
-                  </Button>
+            {/* ASIN Check Card */}
+            <DataCard>
+              <CardContent className="p-6">
+                {error && (
+                  <DataCard>
+                    <Card className="bg-destructive/10 text-destructive">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5" />
+                            <h3 className="font-semibold">Validation Error</h3>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setError(null)}
+                            className="text-destructive hover:bg-transparent"
+                          >
+                            Dismiss
+                          </Button>
+                        </div>
+                        <div className="mt-3 rounded bg-destructive/5 p-3 font-mono text-sm">
+                          <pre className="overflow-x-auto">{error}</pre>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </DataCard>
+                )}
+                <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+                  Check Single Listing by ASIN
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="asin-input" className="text-sm font-medium">
+                      Amazon ASIN
+                    </Label>
+                    <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                      <Input
+                        id="asin-input"
+                        value={asin}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setAsin(e.target.value)
+                        }
+                        placeholder="Enter ASIN (e.g., B08N5KWB9H)"
+                        className="flex-grow"
+                        disabled={isLoading}
+                      />
+                      <Button
+                        onClick={handleAsinCheck}
+                        disabled={isLoading || !asin.trim()}
+                        className="w-full sm:w-auto"
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        {isLoading ? 'Checking...' : 'Check ASIN'}
+                      </Button>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Uses mock data for demonstration. Replace with actual API
+                      call.
+                    </p>
+                  </div>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Uses mock data for demonstration. Replace with actual API
-                  call.
-                </p>
-              </div>
-            </div>
+              </CardContent>
+            </DataCard>
           </CardContent>
         </DataCard>
       </div>
