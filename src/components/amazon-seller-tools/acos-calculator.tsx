@@ -179,32 +179,73 @@ export default function AcosCalculator() {
 
   // Removed unused processParsedCsvData function
 
-  // Use the CSV parser hook
-  const csvParser = useCsvParser<CampaignData>({
-    requiredHeaders: campaignHeaders.required,
-    validateRow: validateCampaignRow,
-  });
+  // Use the CSV parser hook with proper type definitions
+  // Add formatValue utility function
+  const formatValue = (value: number | string, name: keyof typeof chartConfig): [string | number, string] => {
+    if (value === Infinity) return ['∞', chartConfig[name]?.label || name];
+    if (typeof value === 'number') {
+      if (name === 'cpc') return [value.toFixed(2), chartConfig[name]?.label || name];
+      if (name === 'roas') return [value.toFixed(1), chartConfig[name]?.label || name];
+      return [value.toFixed(1), chartConfig[name]?.label || name];
+    }
+    return [value, chartConfig[name]?.label || name];
+  };
+  
+  // Update CSV parser options
+  const csvParser = useCsvParser<CampaignData>(
+    {
+      requiredHeaders: campaignHeaders.required,
+      validateRow: validateCampaignRow,
+    },
+    (error: Error) => {
+      setError(`CSV Parsing Error: ${error.message}`);
+      setIsLoading(false);
+    },
+    (result: { data: CampaignData[]; skippedRows: Array<{ index: number; reason: string }> }) => {
+      setCampaigns(result.data);
+      setIsLoading(false);
+      
+      // Show detailed warning if some rows were skipped
+      if (result.skippedRows.length > 0) {
+        setError(
+          `Processed with warnings: ${result.skippedRows.length} rows were skipped due to invalid data.`,
+        );
+      } else {
+        setError(null);
+      }
+    },
+  );
 
-  // Centralized file processing logic for react-dropzone
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0]; // Process only the first file
-      if (!file) return;
+      const file = acceptedFiles[0];
+      if (!file) {
+        setError('No file selected');
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
 
       try {
+        // Process file with enhanced error handling
         const result = await csvParser.parseFile(file);
+        
+        // Update campaigns data
         setCampaigns(result.data);
 
-        // Show warning if some rows were skipped
+        // Show warning for skipped rows if any
         if (result.skippedRows.length > 0) {
           setError(
-            `Processed with warnings: ${result.skippedRows.length} rows were skipped due to invalid data.`,
+            `Processed with warnings: ${result.skippedRows.length} rows were skipped due to invalid data.`
           );
         } else {
           setError(null);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setIsLoading(false);
       }
     },
     [csvParser],

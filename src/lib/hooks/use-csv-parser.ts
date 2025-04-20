@@ -71,54 +71,63 @@ function processParsedData<T>(
 
 export function useCsvParser<T>(
   options: CsvParserOptions<T>,
+  onError?: (error: Error) => void,
+  onComplete?: (result: CsvParserResult<T>) => void
 ): UseCsvParserResult<T> {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const parseFile = useCallback(
     (file: File) => {
-      // Return the promise directly
       return new Promise<CsvParserResult<T>>((resolve, reject) => {
         setIsLoading(true);
         setError(null);
 
+        // Validate file size
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          const error = new Error('File size exceeds 10MB limit');
+          setError(error.message);
+          onError?.(error);
+          reject(error);
+          return;
+        }
+
         Papa.parse<Record<string, unknown>>(file, {
-          // Specify row type for Papa.parse
           header: true,
-          dynamicTyping: false, // Keep manual type conversion/validation
+          dynamicTyping: false,
           skipEmptyLines: 'greedy',
-          transform: (value) => value.trim(), // transform runs on each cell value
+          transform: (value) => value.trim(),
+          transformHeader: (header) => header.trim(),
           complete: (result) => {
             setIsLoading(false);
             try {
               if (result.errors.length > 0) {
-                // Handle PapaParse specific errors first
                 throw new Error(
                   `Error parsing CSV file: ${result.errors[0].message}`,
                 );
               }
-              // Use the helper function to process data and handle validation errors
               const processedResult = processParsedData(result, options);
+              onComplete?.(processedResult);
               resolve(processedResult);
             } catch (err) {
-              // Catch errors from processParsedData (missing headers, no valid rows)
               const errorMessage =
                 err instanceof Error ? err.message : String(err);
               setError(errorMessage);
+              onError?.(new Error(errorMessage));
               reject(new Error(errorMessage));
             }
           },
           error: (err: Error) => {
-            // Use err instead of error to avoid shadowing state variable
             setIsLoading(false);
             const errorMessage = `Error parsing CSV file: ${err.message}`;
             setError(errorMessage);
-            reject(new Error(errorMessage)); // Reject with the actual error object
+            onError?.(new Error(errorMessage));
+            reject(new Error(errorMessage));
           },
         });
       });
     },
-    [options], // options is the dependency
+    [options, onError, onComplete],
   );
 
   return {
