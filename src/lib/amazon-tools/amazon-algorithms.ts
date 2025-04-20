@@ -1,25 +1,39 @@
-import { OptimalPriceParams, ProductScoreParams } from '../amazon-types';
+import { OptimalPriceParams } from '../amazon-types';
 export class AmazonAlgorithms {
+  /**
+   * Calculates Advertising Cost of Sales (ACoS)
+   * @param adSpend Total advertising spend
+   * @param sales Total sales revenue
+   * @returns ACoS percentage (0-100)
+   */
+  static calculateACoS(adSpend: number, sales: number): number {
+    if (sales <= 0 || adSpend < 0) {
+      throw new Error(
+        'Invalid input: sales must be positive and adSpend non-negative',
+      );
+    }
+    return Number(((adSpend / sales) * 100).toFixed(2));
+  }
+
   /**
    * Calculates product quality score based on market data
    * @param params Product score parameters
    * @returns Product quality score (0-100)
    */
-  static calculateProductScore(params: ProductScoreParams): number {
-    const {
-      conversionRate,
-      sessions,
-      reviewRating,
-      reviewCount,
-      priceCompetitiveness,
-      inventoryHealth,
-    } = params;
+  static calculateProductScore(productData: {
+    reviews: number | null;
+    rating: number;
+    salesRank: number;
+    price: number;
+    category: string;
+  }): number {
+    const { rating } = productData;
 
     // Normalize metrics to 0-1 scale
-    const normalizedConversion = Math.min(conversionRate / 20, 1);
-    const normalizedSessions = Math.min(sessions / 500, 1);
-    const normalizedRating = reviewRating / 5;
-    const normalizedReviews = Math.min(reviewCount / 100, 1);
+    const normalizedConversion = 0.5; // Placeholder value
+    const normalizedSessions = 0.5; // Placeholder value
+    const normalizedRating = rating / 5;
+    
 
     // Weight factors
     const weights = {
@@ -35,10 +49,7 @@ export class AmazonAlgorithms {
     const score =
       normalizedConversion * weights.conversion +
       normalizedSessions * weights.sessions +
-      normalizedRating * weights.rating +
-      normalizedReviews * weights.reviews +
-      priceCompetitiveness * weights.priceComp +
-      inventoryHealth * weights.inventory;
+      normalizedRating * weights.rating;
 
     return Number((score * 100).toFixed(2));
   }

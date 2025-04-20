@@ -90,8 +90,12 @@ export function useCsvParser<T>(
           setError(error.message);
           onError?.(error);
           reject(error);
+          setIsLoading(false); // Ensure isLoading is set to false on rejection
           return;
         }
+
+        setIsLoading(true);
+        setError(null);
 
         Papa.parse<Record<string, unknown>>(file, {
           header: true,

@@ -28,6 +28,12 @@
       "command": "npm run lint:smells",
       "enabled": true,
       "description": "Detects potential code smells and maintainability issues."
+    },
+    {
+      "id": "test",
+      "name": "Test Runner (Jest)",
+      "command": "npm run test",
+      "description": "Runs unit tests using Jest test framework based on jest.config.js"
     }
   ],
   "errorCategories": {
@@ -69,6 +75,16 @@
         "Could not find a required file"
       ],
       "suggestion": "Build failed. Examine the build log above for specific errors (e.g., 'Module not found', 'SyntaxError', 'TypeError', TSxxxx). Check configuration files ('next.config.js', 'tsconfig.json'), dependencies ('package.json' - try running 'npm install'), and ensure environment variables are set correctly. Running 'npm run typecheck' or 'npm run lint' might reveal underlying issues."
+    },
+    "test": {
+      "patterns": [
+        "FAIL",
+        "Test failed",
+        "Error: ",
+        "expect\\(.*?\\)\\.toBe",
+        "Test suite failed"
+      ],
+      "suggestion": "Test failures detected. Review test output for specific failures, check test assertions and mock data. Run individual test files to isolate issues. Ensure test environment and dependencies are properly configured. Fix failing tests before proceeding."
     }
   }
 }
