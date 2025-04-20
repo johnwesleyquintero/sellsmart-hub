@@ -17,7 +17,7 @@ export const initGeminiAI = () => {
 // AI model configurations
 export const AI_MODELS = {
   gemini: {
-    default: 'gemini-2.0-flash-latest',
+    default: 'gemini-2.0-flash-001',
     config: {
       maxOutputTokens: 1000,
       temperature: 0.7,
