@@ -2,15 +2,35 @@
 /* eslint-disable sonarjs/no-unused-vars */
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { calculateProductScore, type ProductScore } from '@/lib/amazon-tools/scoring-utils';
+import {
+  calculateProductScore,
+  type ProductScore,
+} from '@/lib/amazon-tools/scoring-utils';
 import { type ProductListingData } from '@/lib/amazon-types';
 // Import ChangeEvent for explicit typing
 import { useState, type ChangeEvent } from 'react';
@@ -65,12 +85,14 @@ export default function ProductScoreCalculator() {
     setFormData({ ...formData, bulletPoints: newBulletPoints });
   };
 
-  const calculateScoreHandler = () => { // Renamed to avoid conflict with imported function
+  const calculateScoreHandler = () => {
+    // Renamed to avoid conflict with imported function
     const result = calculateProductScore(formData);
     setScore(result);
   };
 
-  const getScoreColor = (scoreValue: number): string => { // Renamed parameter to avoid conflict
+  const getScoreColor = (scoreValue: number): string => {
+    // Renamed parameter to avoid conflict
     if (scoreValue >= 8) return 'bg-green-500';
     if (scoreValue >= 6) return 'bg-yellow-500';
     return 'bg-red-500';
@@ -82,7 +104,8 @@ export default function ProductScoreCalculator() {
         <CardHeader>
           <CardTitle>Product Score Calculator</CardTitle>
           <CardDescription>
-            Calculate a quality score for your Amazon product listing based on various optimization factors.
+            Calculate a quality score for your Amazon product listing based on
+            various optimization factors.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -92,7 +115,9 @@ export default function ProductScoreCalculator() {
               id="title"
               value={formData.title}
               // Use the specific handler or cast e.target
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               placeholder="Enter your product title"
             />
           </div>
@@ -104,7 +129,9 @@ export default function ProductScoreCalculator() {
                 <Input
                   value={bullet}
                   // Use the specific handler or cast e.target
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleBulletPointChange(index, e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    handleBulletPointChange(index, e.target.value)
+                  }
                   placeholder={`Bullet point ${index + 1}`}
                 />
                 <Button
@@ -132,7 +159,9 @@ export default function ProductScoreCalculator() {
               className="w-full min-h-[100px] p-2 rounded-md border bg-background text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // Apply similar styling as Input
               value={formData.description}
               // Use the specific handler or cast e.target
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Enter your product description (HTML formatting allowed)"
             />
           </div>
@@ -147,7 +176,12 @@ export default function ProductScoreCalculator() {
                 // max="9" // The Input component might not support 'max' directly, handle validation elsewhere if needed
                 value={formData.imageCount}
                 // Use the specific handler or cast e.target
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, imageCount: parseInt(e.target.value, 10) || 0 })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFormData({
+                    ...formData,
+                    imageCount: parseInt(e.target.value, 10) || 0,
+                  })
+                }
               />
             </div>
 
@@ -161,7 +195,12 @@ export default function ProductScoreCalculator() {
                 step="0.1"
                 value={formData.rating}
                 // Use the specific handler or cast e.target
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFormData({
+                    ...formData,
+                    rating: parseFloat(e.target.value) || 0,
+                  })
+                }
               />
             </div>
           </div>
@@ -174,7 +213,12 @@ export default function ProductScoreCalculator() {
               min="0"
               value={formData.reviewCount}
               // Use the specific handler or cast e.target
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, reviewCount: parseInt(e.target.value, 10) || 0 })}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({
+                  ...formData,
+                  reviewCount: parseInt(e.target.value, 10) || 0,
+                })
+              }
             />
           </div>
 
@@ -182,7 +226,9 @@ export default function ProductScoreCalculator() {
             <Switch
               id="aplus"
               checked={formData.hasAPlusContent}
-              onCheckedChange={(checked) => setFormData({ ...formData, hasAPlusContent: checked })}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, hasAPlusContent: checked })
+              }
             />
             <Label htmlFor="aplus">Has A+ Content</Label>
           </div>
@@ -191,7 +237,12 @@ export default function ProductScoreCalculator() {
             <Label htmlFor="fulfillment">Fulfillment Type</Label>
             <Select
               value={formData.fulfillmentType}
-              onValueChange={(value) => setFormData({ ...formData, fulfillmentType: value as 'FBA' | 'FBM' })}
+              onValueChange={(value) =>
+                setFormData({
+                  ...formData,
+                  fulfillmentType: value as 'FBA' | 'FBM',
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select fulfillment type" />
@@ -203,7 +254,9 @@ export default function ProductScoreCalculator() {
             </Select>
           </div>
 
-          <Button className="w-full" onClick={calculateScoreHandler}> {/* Use renamed handler */}
+          <Button className="w-full" onClick={calculateScoreHandler}>
+            {' '}
+            {/* Use renamed handler */}
             Calculate Score
           </Button>
         </CardContent>
@@ -214,37 +267,51 @@ export default function ProductScoreCalculator() {
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               Overall Score
-              <Badge className={getScoreColor(score.overall)}>{score.overall}/10</Badge>
+              <Badge className={getScoreColor(score.overall)}>
+                {score.overall}/10
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full"> {/* Added w-full */}
+            <Accordion type="single" collapsible className="w-full">
+              {' '}
+              {/* Added w-full */}
               <AccordionItem value="breakdown">
                 <AccordionTrigger>Score Breakdown</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
                     {Object.entries(score.breakdown).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center">
+                      <div
+                        key={key}
+                        className="flex justify-between items-center"
+                      >
                         {/* Simple capitalization */}
-                        <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        <Badge className={getScoreColor(value)}>{value}/10</Badge>
+                        <span className="capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
+                        <Badge className={getScoreColor(value)}>
+                          {value}/10
+                        </Badge>
                       </div>
                     ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
-
               <AccordionItem value="suggestions">
                 <AccordionTrigger>Improvement Suggestions</AccordionTrigger>
                 <AccordionContent>
                   {score.suggestions.length > 0 ? (
-                    <ul className="list-disc pl-4 space-y-1 text-sm"> {/* Added text-sm */}
+                    <ul className="list-disc pl-4 space-y-1 text-sm">
+                      {' '}
+                      {/* Added text-sm */}
                       {score.suggestions.map((suggestion, index) => (
                         <li key={index}>{suggestion}</li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground italic">No specific suggestions.</p> // Added fallback message
+                    <p className="text-sm text-muted-foreground italic">
+                      No specific suggestions.
+                    </p> // Added fallback message
                   )}
                 </AccordionContent>
               </AccordionItem>

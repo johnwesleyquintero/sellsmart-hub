@@ -39,7 +39,8 @@ const scoreTitleQuality = (title: string): number => {
 const scoreBulletPoints = (bullets: string[]): number => {
   if (!bullets?.length) return 0;
   const count = bullets.length;
-  const avgLength = bullets.reduce((sum, bullet) => sum + bullet.length, 0) / count;
+  const avgLength =
+    bullets.reduce((sum, bullet) => sum + bullet.length, 0) / count;
 
   let score = 0;
   // Score for number of bullets (max 5 allowed)
@@ -101,37 +102,53 @@ const generateSuggestions = (scores: ProductScore['breakdown']): string[] => {
   const suggestions: string[] = [];
 
   if (scores.title < 7) {
-    suggestions.push('Optimize your title length to be between 150-200 characters while including relevant keywords.');
+    suggestions.push(
+      'Optimize your title length to be between 150-200 characters while including relevant keywords.',
+    );
   }
 
   if (scores.bulletPoints < 7) {
-    suggestions.push('Add more bullet points (aim for 5) and ensure each is between 150-200 characters.');
+    suggestions.push(
+      'Add more bullet points (aim for 5) and ensure each is between 150-200 characters.',
+    );
   }
 
   if (scores.description < 7) {
-    suggestions.push('Enhance your description by adding more content (aim for 2000+ characters) and use HTML formatting for better readability.');
+    suggestions.push(
+      'Enhance your description by adding more content (aim for 2000+ characters) and use HTML formatting for better readability.',
+    );
   }
 
   if (scores.images < 7) {
-    suggestions.push('Add more high-quality images (aim for 7-9 images) to showcase your product better.');
+    suggestions.push(
+      'Add more high-quality images (aim for 7-9 images) to showcase your product better.',
+    );
   }
 
   if (scores.reviews < 5) {
-    suggestions.push('Focus on gathering more customer reviews and maintaining a high rating.');
+    suggestions.push(
+      'Focus on gathering more customer reviews and maintaining a high rating.',
+    );
   }
 
   if (scores.aPlus === 0) {
-    suggestions.push('Consider adding A+ Content to enhance your product listing.');
+    suggestions.push(
+      'Consider adding A+ Content to enhance your product listing.',
+    );
   }
 
   if (scores.fulfillment < 5) {
-    suggestions.push('Consider using FBA to potentially improve your product visibility and customer trust.');
+    suggestions.push(
+      'Consider using FBA to potentially improve your product visibility and customer trust.',
+    );
   }
 
   return suggestions;
 };
 
-export const calculateProductScore = (data: ProductListingData): ProductScore => {
+export const calculateProductScore = (
+  data: ProductListingData,
+): ProductScore => {
   const breakdown = {
     title: scoreTitleQuality(data.title),
     bulletPoints: scoreBulletPoints(data.bulletPoints),
@@ -142,15 +159,14 @@ export const calculateProductScore = (data: ProductListingData): ProductScore =>
     fulfillment: data.fulfillmentType === 'FBA' ? 10 : 5,
   };
 
-  const overall = Object.entries(breakdown)
-    .reduce((sum, [key, score]) => {
-      // Ensure the key exists in WEIGHTS before using it
-      const weightKey = key as keyof typeof WEIGHTS;
-      if (WEIGHTS[weightKey] !== undefined) {
-        return sum + score * WEIGHTS[weightKey];
-      }
-      return sum;
-    }, 0);
+  const overall = Object.entries(breakdown).reduce((sum, [key, score]) => {
+    // Ensure the key exists in WEIGHTS before using it
+    const weightKey = key as keyof typeof WEIGHTS;
+    if (WEIGHTS[weightKey] !== undefined) {
+      return sum + score * WEIGHTS[weightKey];
+    }
+    return sum;
+  }, 0);
 
   const suggestions = generateSuggestions(breakdown);
 

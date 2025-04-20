@@ -357,7 +357,9 @@ export default function AcosCalculator() {
     <div className="space-y-6">
       {/* Error Alert */}
       {error && (
-        <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}> {/* Changed 'warning' to 'default' */}
+        <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}>
+          {' '}
+          {/* Changed 'warning' to 'default' */}
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>
             {error.includes('warnings') ? 'Warning' : 'Error'}
@@ -870,4 +872,3 @@ const formatValue = (
   // Format the number
   return `${prefix}${value.toFixed(decimals)}${suffix}`;
 };
-

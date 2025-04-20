@@ -107,28 +107,21 @@ export function validateCampaignRow(
   row: Record<string, unknown>,
   index: number,
 ): CampaignData {
-
   // Validate campaign name
   const campaignResult = validateCampaignName(row.campaign);
   if (!campaignResult.isValid) {
-    throw new Error(
-      `Row ${index + 1}: ${campaignResult.errors[0].message}`,
-    );
+    throw new Error(`Row ${index + 1}: ${campaignResult.errors[0].message}`);
   }
 
   // Validate numeric fields
   const adSpendResult = validateNumericField(row.adSpend, 'adSpend');
   if (!adSpendResult.isValid) {
-    throw new Error(
-      `Row ${index + 1}: ${adSpendResult.errors[0].message}`,
-    );
+    throw new Error(`Row ${index + 1}: ${adSpendResult.errors[0].message}`);
   }
 
   const salesResult = validateNumericField(row.sales, 'sales');
   if (!salesResult.isValid) {
-    throw new Error(
-      `Row ${index + 1}: ${salesResult.errors[0].message}`,
-    );
+    throw new Error(`Row ${index + 1}: ${salesResult.errors[0].message}`);
   }
 
   // Validate optional fields

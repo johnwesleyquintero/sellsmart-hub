@@ -46,8 +46,8 @@ function processParsedData<T>(
         const validatedRow = options.validateRow(row, index);
         validRows.push(validatedRow);
       } else {
-         // Optionally skip or log rows that aren't objects if needed
-         // skippedRows.push({ index, reason: 'Row is not a valid object' });
+        // Optionally skip or log rows that aren't objects if needed
+        // skippedRows.push({ index, reason: 'Row is not a valid object' });
       }
     } catch (err) {
       skippedRows.push({
@@ -82,7 +82,8 @@ export function useCsvParser<T>(
         setIsLoading(true);
         setError(null);
 
-        Papa.parse<Record<string, unknown>>(file, { // Specify row type for Papa.parse
+        Papa.parse<Record<string, unknown>>(file, {
+          // Specify row type for Papa.parse
           header: true,
           dynamicTyping: false, // Keep manual type conversion/validation
           skipEmptyLines: 'greedy',
@@ -91,20 +92,24 @@ export function useCsvParser<T>(
             setIsLoading(false);
             try {
               if (result.errors.length > 0) {
-                 // Handle PapaParse specific errors first
-                 throw new Error(`Error parsing CSV file: ${result.errors[0].message}`);
+                // Handle PapaParse specific errors first
+                throw new Error(
+                  `Error parsing CSV file: ${result.errors[0].message}`,
+                );
               }
               // Use the helper function to process data and handle validation errors
               const processedResult = processParsedData(result, options);
               resolve(processedResult);
             } catch (err) {
               // Catch errors from processParsedData (missing headers, no valid rows)
-              const errorMessage = err instanceof Error ? err.message : String(err);
+              const errorMessage =
+                err instanceof Error ? err.message : String(err);
               setError(errorMessage);
               reject(new Error(errorMessage));
             }
           },
-          error: (err: Error) => { // Use err instead of error to avoid shadowing state variable
+          error: (err: Error) => {
+            // Use err instead of error to avoid shadowing state variable
             setIsLoading(false);
             const errorMessage = `Error parsing CSV file: ${err.message}`;
             setError(errorMessage);

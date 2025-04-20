@@ -12,7 +12,7 @@ export class AmazonAlgorithms {
       reviewRating,
       reviewCount,
       priceCompetitiveness,
-      inventoryHealth
+      inventoryHealth,
     } = params;
 
     // Normalize metrics to 0-1 scale
@@ -28,7 +28,7 @@ export class AmazonAlgorithms {
       rating: 0.2,
       reviews: 0.15,
       priceComp: 0.1,
-      inventory: 0.1
+      inventory: 0.1,
     };
 
     // Calculate weighted score
@@ -53,7 +53,8 @@ export class AmazonAlgorithms {
     const { competitorPrices, productScore } = params;
 
     // Calculate market metrics
-    const avgCompetitorPrice = competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
+    const avgCompetitorPrice =
+      competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
     const minCompetitorPrice = Math.min(...competitorPrices);
     const maxCompetitorPrice = Math.max(...competitorPrices);
 

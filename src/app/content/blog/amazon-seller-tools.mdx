@@ -27,21 +27,21 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 ### Tool Status Overview
 
-| Tool                     | Status                     | Version         | Notes                                   |
-| :----------------------- | :------------------------- | :-------------- | :-------------------------------------- |
-| FBA Calculator           | ✅ Active                  | 2.0.0           |                                         |
-| Keyword Analyzer         | ✅ Active                  | 2.0.0           |                                         |
-| Listing Quality Checker  | ✅ Active                  | 1.5.0           | AI features under review                |
-| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 (?) | Status conflict, requires stabilization |
-| Description Editor       | ✅ Active                  | 1.5.0           | AI features under review                |
-| Keyword Deduplicator     | ✅ Active                  | 1.5.0           | AI features under review                |
-| ACoS Calculator          | ⚠️ Active (Known Issues)   | 1.5.0 / 2.0 (?) | High-priority bugs being addressed      |
-| Sales Estimator          | ✅ Active                  | 1.0.0           |                                         |
-| Competitor Analyzer      | ✅ Active                  | 1.0.0           |                                         |
-| Keyword Trend Analyzer   | ✅ Active                  | 1.0.0           |                                         |
-| Profit Margin Calculator | ✅ Active                  | 1.0.0           |                                         |
-| Product Score Calc.      | 🚧 Under Development       | N/A             | Not yet available                       |
-| Optimal Price Calc.      | 🚧 Under Development       | N/A             | Not yet available                       |
+| Tool                     | Status                     | Version              | Notes                              |
+| :----------------------- | :------------------------- | :------------------- | :--------------------------------- | ----------------------- |
+| FBA Calculator           | ✅ Active                  | 2.0.0                |                                    |
+| Keyword Analyzer         | ✅ Active                  | 2.0.0                |                                    |
+| Listing Quality Checker  | ✅ Active                  | 1.5.0                | AI features under review           |
+| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0          | Requires stabilization             |
+| Description Editor       | ✅ Active                  | 1.5.0                | AI features under review           |
+| Keyword Deduplicator     | ✅ Active                  | 1.5.0                | AI features under review           |
+| ACoS Calculator          | ⚠️ Active (Known Issues)   | 1.5.0                | High-priority bugs being addressed |
+| Sales Estimator          | ✅ Active                  | 1.0.0                |                                    |
+| Competitor Analyzer      | ✅ Active                  | 1.0.0                |                                    |
+| Keyword Trend Analyzer   | ✅ Active                  | 1.0.0                |                                    |
+| Profit Margin Calculator | ✅ Active                  | 1.0.0                |                                    |
+| Product Score Calc.      | ✅ Active                  | 1.0.0                |                                    |
+|                          | Optimal Price Calc.        | 🚧 Under Development | 0.1.0                              | Basic version available |
 
 ---
 
@@ -72,12 +72,12 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 🔍 **Description**: AI-powered listing analysis and optimization tool.
 **Features**: AI title/description/bullet optimization, image validation, SEO recommendations, ASIN analysis, quality scoring, mobile check.
-**Current Notes**: Core functionality is active. **The effectiveness and reliability of AI-powered/Smart features are currently under review (Medium Priority).**
+**Current Notes**: Core functionality is active. AI features under review (Medium Priority).
 
 ### 4. PPC Campaign Auditor
 
 **Status**: ⚠️ Beta / Stability Review
-**Version**: Beta v0.9.0 (Pending confirmation - documentation conflict with v2.0.0)
+**Version**: Beta v0.9.0
 
 🔍 **Description**: A comprehensive tool for analyzing PPC campaign performance and providing optimization recommendations.
 **Features**: CSV import/validation, performance analysis (ACoS, CTR, Conv. Rate), issue detection, optimization recommendations, visualization, CSV export, filtering/sorting.
@@ -90,7 +90,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 🔍 **Description**: AI-enhanced rich text editor for Amazon product descriptions.
 **Features**: HTML formatting, keyword integration, char counter, AI SEO optimization, live preview, CSV export, automated score calculation, mobile preview.
-**Current Notes**: Core functionality is active. **The effectiveness and reliability of AI-powered/Smart features are currently under review (Medium Priority).**
+**Current Notes**: Core functionality is active. AI features under review (Medium Priority).
 
 ### 6. Keyword Deduplicator
 
@@ -99,12 +99,12 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 🔍 **Description**: Smart keyword management with AI-powered suggestions.
 **Features**: Bulk processing, AI duplicate detection, smart suggestions, export options, real-time metrics, benchmarking, trend analysis.
-**Current Notes**: Core functionality is active. **The effectiveness and reliability of AI-powered/Smart features are currently under review (Medium Priority).**
+**Current Notes**: Core functionality is active. AI features under review (Medium Priority).
 
 ### 7. ACoS Calculator
 
 **Status**: ⚠️ Active (Known Issues)
-**Version**: 1.5.0 / 2.0 (?) (Marked 2.0 previously, but requires fixes)
+**Version**: 1.5.0 (Marked 2.0 previously, but requires fixes)
 
 🔍 **Description**: Comprehensive advertising analysis with predictive metrics and historical trend analysis.
 **Features**: Campaign tracking, predictive analysis, real-time metrics, historical trends/visualization, CSV import/export, customizable periods, benchmarking.
@@ -146,24 +146,18 @@ _ **Medium Priority Enhancement:** Handling of campaigns with very low spend is 
 
 The following core tools are currently under active development and are not yet available for use:
 
-### 12. Product Score Calculation
-
-**Status**: 🚧 Under Development
-**Version**: N/A
-🔍 **Description**: (Planned) Tool to calculate a comprehensive quality score for product listings based on various factors.
-**Implementation Plan**: `IMPLEMENTATION_ProductScoreCalc.md` (Internal)
-
 ### 13. Optimal Price Calculation
 
 **Status**: 🚧 Under Development
-**Version**: N/A
-🔍 **Description**: (Planned) Tool to calculate suggested optimal pricing based on costs, competition, and market data.
-**Implementation Plan**: `IMPLEMENTATION_OptimalPriceCalc.md` (Internal)
+**Version**: 0.1.0
+🔍 **Description**: Tool to calculate suggested optimal pricing based on costs, competition, and market data.
+**Features**: Calculates optimal price based on product cost, current price, and competitor prices.
+**Limitations**: The pricing model is a simplified version and may not be accurate in all scenarios.
 
 ---
 
 ## 📈 Roadmap & Future Updates
 
-Our team is actively working on addressing the high-priority bugs and stabilization tasks outlined in `PROJECT_TRACKER.md`, particularly for the ACoS Calculator and PPC Campaign Auditor. We are also focused on completing the development of the Product Score Calculation and Optimal Price Calculation tools. Enhancements and validation of AI features are ongoing.
+Our team is actively working on addressing the high-priority bugs and stabilization tasks outlined in `PROJECT_TRACKER.md`, particularly for the ACoS Calculator and PPC Campaign Auditor. We are also focused on completing the development of the Optimal Price Calculation tool. Enhancements and validation of AI features are ongoing.
 
 This documentation will be updated periodically as significant changes, fixes, or new features are released. Thank you for your understanding as we continue to improve the Amazon Seller Tools Suite!
