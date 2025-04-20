@@ -3,8 +3,9 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { getScoreColor } from '@/lib/calculations/color-utils';
+import { ProhibitedKeywords } from '@/lib/prohibited-keywords';
 import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // UI Imports (Consistent with other tools)
 import { Badge } from '@/components/ui/badge';
@@ -39,37 +40,22 @@ type ProductDescription = {
 // --- Helper Functions (Placeholders - Replace with actual logic) ---
 
 // Simplified keyword counter
-const countKeywords = (text: string): number => {
-  const commonKeywords = [
-    'premium',
-    'quality',
-    'durable',
-    'comfortable',
-    'advanced',
-    'innovative',
-    'easy',
-    'use',
-    'install',
-    'warranty',
-    'guarantee',
-    'support',
-    'new',
-    'improved',
-    'best',
-    'top',
-    'free shipping', // Example keywords
-  ];
+const countKeywords = (text: string, prohibitedKeywords: string[]): number => {
   const lowerText = text.toLowerCase();
-  return commonKeywords.filter((keyword) =>
-    lowerText.includes(keyword.toLowerCase()),
-  ).length;
+  let keywordCount = 0;
+  for (const keyword of prohibitedKeywords) {
+    if (lowerText.toLowerCase().includes(keyword.toLowerCase())) {
+      keywordCount++;
+    }
+  }
+  return keywordCount;
 };
 
 // Simplified scoring algorithm
-const calculateScore = (text: string): number => {
+const calculateScore = (text: string, prohibitedKeywords: string[]): number => {
   let score = 0;
   const charCount = text.length;
-  const keywordCount = countKeywords(text);
+  const keywordCount = countKeywords(text, prohibitedKeywords);
 
   // Length score (max 40)
   if (charCount > 1500) score += 40;
@@ -79,6 +65,9 @@ const calculateScore = (text: string): number => {
 
   // Keyword score (max 30)
   score += Math.min(30, keywordCount * 4); // Adjusted multiplier
+
+  // Penalize prohibited keywords
+  score -= keywordCount * 5;
 
   // Readability score (max 30) - Check for paragraphs/breaks
   const paragraphs = text
@@ -112,6 +101,25 @@ export default function DescriptionEditor() {
     description: '',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [prohibitedKeywords, setProhibitedKeywords] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchProhibitedKeywords = async () => {
+      try {
+        const keywords = await ProhibitedKeywords.getAll();
+        setProhibitedKeywords(keywords);
+      } catch (err) {
+        console.error('Failed to fetch prohibited keywords:', err);
+        toast({
+          title: 'Keyword Fetch Failed',
+          description: 'Failed to load prohibited keywords.',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    fetchProhibitedKeywords();
+  }, [toast]);
 
   // --- Event Handlers ---
 
@@ -182,8 +190,8 @@ export default function DescriptionEditor() {
                     asin: (row.asin || '').trim(),
                     description: description,
                     characterCount: description.length,
-                    keywordCount: countKeywords(description),
-                    score: calculateScore(description),
+                    keywordCount: countKeywords(description, prohibitedKeywords),
+                    score: calculateScore(description, prohibitedKeywords),
                   };
                 })
                 .filter((item): item is ProductDescription => item !== null);
@@ -244,8 +252,8 @@ export default function DescriptionEditor() {
         },
       );
     },
-    [toast],
-  ); // Added toast dependency
+    [toast, prohibitedKeywords],
+  );
 
   const handleDescriptionChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -256,8 +264,8 @@ export default function DescriptionEditor() {
         ...activeProduct,
         description: newDescription,
         characterCount: newDescription.length,
-        keywordCount: countKeywords(newDescription),
-        score: calculateScore(newDescription),
+        keywordCount: countKeywords(newDescription, prohibitedKeywords),
+        score: calculateScore(newDescription, prohibitedKeywords),
       };
 
       setActiveProduct(updatedProduct);
@@ -267,8 +275,8 @@ export default function DescriptionEditor() {
         ),
       );
     },
-    [activeProduct],
-  ); // Depends on activeProduct
+    [activeProduct, prohibitedKeywords],
+  );
 
   const handleManualSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -319,8 +327,8 @@ export default function DescriptionEditor() {
         asin: trimmedAsin,
         description: trimmedDescription,
         characterCount: trimmedDescription.length,
-        keywordCount: countKeywords(trimmedDescription),
-        score: calculateScore(trimmedDescription),
+        keywordCount: countKeywords(trimmedDescription, prohibitedKeywords),
+        score: calculateScore(trimmedDescription, prohibitedKeywords),
       };
 
       setProducts((prev) => [...prev, productToAdd]);
@@ -331,8 +339,8 @@ export default function DescriptionEditor() {
         variant: 'default',
       });
     },
-    [newProduct, products, toast],
-  ); // Depends on newProduct, products, toast
+    [newProduct, products, toast, prohibitedKeywords],
+  );
 
   const handleSave = useCallback(() => {
     if (!activeProduct) return;
@@ -340,7 +348,7 @@ export default function DescriptionEditor() {
     console.log('Saving product:', activeProduct);
     toast({
       title: 'Changes Saved (Locally)',
-      description: `Changes for "${activeProduct.product}" updated in the list. Implement backend save if needed.`,
+      description: `Changes for "${activeProduct?.product}" updated in the list. Implement backend save if needed.`,
       variant: 'default', // Use 'success' if you have that variant
     });
     // No actual state change needed here as it's updated live via handleDescriptionChange
@@ -394,7 +402,7 @@ export default function DescriptionEditor() {
         title: 'Export Failed',
         description: message,
         variant: 'destructive',
-      });
+        });
     }
   }, [products, toast]); // Depends on products, toast
 
@@ -418,6 +426,7 @@ export default function DescriptionEditor() {
   return (
     <div className="space-y-6">
       {/* Input Section: Consistent two-card layout */}
+      {/* Added closing div tag for the main component wrapper */}
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* CSV Upload Card */}
         <Card className="flex-1">
@@ -460,7 +469,6 @@ export default function DescriptionEditor() {
             </div>
           </CardContent>
         </Card>
-
         {/* Manual Add Product Card */}
         <Card className="flex-1">
           <CardContent className="p-4">
@@ -476,7 +484,6 @@ export default function DescriptionEditor() {
                   >
                     Product Name*
                   </Label>
-
                   <Input
                     id="new-product-name"
                     value={newProduct.product}
@@ -613,27 +620,29 @@ export default function DescriptionEditor() {
                   >
                     {product.product}
                   </Badge>
-                ),
+                )
               )}
             </div>
+            {/* Added closing div tag for product selection badges wrapper */}
           </div>
 
           {/* Editor/Preview Area */}
           {activeProduct && (
-            <Card>
-              <CardContent className="p-4">
+            <> {/* Added closing fragment tag */}
+              <Card> {/* Added closing Card tag */}
+                <CardContent className="p-4"> {/* Added closing CardContent tag */}
                 {/* Header for Active Product */}
                 <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
                   <div>
                     <h3 className="text-lg font-medium break-words">
                       Editing:{' '}
                       <span className="font-semibold">
-                        {activeProduct.product}
+                        {activeProduct?.product}
                       </span>
                     </h3>
-                    {activeProduct.asin && (
+                    {activeProduct?.asin && (
                       <p className="text-sm text-muted-foreground">
-                        ASIN: {activeProduct.asin}
+                        ASIN: {activeProduct?.asin}
                       </p>
                     )}
                   </div>
@@ -660,7 +669,7 @@ export default function DescriptionEditor() {
                       Chars:
                     </span>
                     <span className="font-semibold">
-                      {activeProduct.characterCount.toLocaleString()}
+                      {activeProduct?.characterCount?.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -668,7 +677,7 @@ export default function DescriptionEditor() {
                       Keywords:
                     </span>
                     <span className="font-semibold">
-                      {activeProduct.keywordCount}
+                      {activeProduct?.keywordCount}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -676,9 +685,9 @@ export default function DescriptionEditor() {
                       Score:
                     </span>
                     <span
-                      className={`font-semibold ${getScoreColor(activeProduct.score)}`}
+                      className={`font-semibold ${getScoreColor(activeProduct?.score)}`}
                     >
-                      {activeProduct.score}/100
+                      {activeProduct?.score}/100
                     </span>
                   </div>
                 </div>
@@ -691,7 +700,7 @@ export default function DescriptionEditor() {
                     </h4>
                     {/* Safer rendering using whitespace-pre-line */}
                     <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-line text-foreground">
-                      {activeProduct.description || (
+                      {activeProduct?.description || (
                         <span className="text-muted-foreground italic">
                           No description provided.
                         </span>
@@ -708,22 +717,25 @@ export default function DescriptionEditor() {
                     </Label>
                     <Textarea
                       id="description-editor"
-                      value={activeProduct.description}
+                      value={activeProduct?.description}
                       onChange={handleDescriptionChange}
                       placeholder="Enter product description..."
                       rows={15} // Increased rows
                       className="font-mono text-sm mt-1"
                     />
                     <p className="mt-2 text-xs text-muted-foreground">
-                      Use line breaks for paragraphs. Basic HTML like &lt;b&gt;,
-                      &lt;i&gt;, &lt;ul&gt;, &lt;li&gt; might be supported by
+                      Use line breaks for paragraphs. Basic HTML like <b>bold</b>, {/* Added closing tag */}
+                      <i>italic</i>, {/* Added closing tag */}
+                      <ul><li>lists</li></ul> might be supported by {/* Added closing tags */}
                       Amazon. Aim for 1000-2000 characters.
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </>
           )}
+          {/* Added closing div tag for the space-y-4 wrapper */}
         </div>
       )}
     </div>

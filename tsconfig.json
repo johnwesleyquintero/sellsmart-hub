@@ -27,8 +27,7 @@
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/app/components/*": ["./app/components/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/components/blog/*": ["./components/blog/*"]
+      "@/hooks/*": ["./app/hooks/*"] // Ensure this line exists
     }
     // Note: The 'paths' object is the last item within 'compilerOptions', so it does NOT need a trailing comma after its closing brace '}'.
   }, // This closing brace '}' ends the 'compilerOptions' object. It needs a comma because 'types' follows it.
