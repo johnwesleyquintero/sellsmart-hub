@@ -35,22 +35,20 @@ export async function generateApiKey(db: any): Promise<string> {
 /**
  * Validates an API key against stored keys in MongoDB
  */
-export async function validateApiKey(key: string): Promise<boolean> {
+export async function validateApiKey(key: string, userId: string): Promise<boolean> {
   try {
     const { db } = await connectToDatabase();
 
     const apiKeyRecord = await db
       .collection<ApiKeyRecord>(API_KEY_COLLECTION)
       .findOne({
+        userId: userId,
+        key: key,
         isActive: true,
         expiresAt: { $gt: new Date() },
       });
 
-    if (!apiKeyRecord) {
-      return false;
-    }
-
-    return await bcrypt.compare(key, apiKeyRecord.key);
+    return !!apiKeyRecord;
   } catch (error: any) {
     console.error('Error validating API key:', error);
     return false;
@@ -63,14 +61,32 @@ export async function validateApiKey(key: string): Promise<boolean> {
 export async function apiKeyMiddleware(request: Request) {
   const apiKey = request.headers.get('x-api-key') || '';
 
-  if (!(await validateApiKey(apiKey))) {
+  try {
+    const requestBody = await request.json();
+    const userId = requestBody.userId;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Missing userId in request body' },
+        { status: 400 },
+      );
+    }
+
+    if (!(await validateApiKey(apiKey, userId))) {
+      return NextResponse.json(
+        { error: 'Invalid or expired API key' },
+        { status: 401 },
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in apiKeyMiddleware:', error);
     return NextResponse.json(
-      { error: 'Invalid or expired API key' },
-      { status: 401 },
+      { error: 'Invalid request body' },
+      { status: 400 },
     );
   }
-
-  return null;
 }
 
 /**

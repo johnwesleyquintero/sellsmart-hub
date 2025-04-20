@@ -18,7 +18,8 @@
     "cq": "node ./.wescore/scripts/check-quality.mjs",
     "ps": "node ./.wescore/scripts/package-static.mjs",
     "update-timestamps": "node ./.wescore/scripts/update-timestamps.cjs",
-    "lint:smells": "eslint --config eslint.config.js ."
+    "lint:smells": "eslint --config eslint.config.js .",
+    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -139,6 +140,7 @@
     "string-replace-loader": "^3.1.0",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.3.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "vercel": "^41.6.1"
   }

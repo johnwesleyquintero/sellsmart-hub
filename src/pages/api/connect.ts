@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { connectToDatabase } from '../../lib/mongodb';
+import { createUniqueIndex } from '../../lib/mongodb/create-unique-index';
 
 export default async function handler(
   req: NextApiRequest,
@@ -7,6 +8,7 @@ export default async function handler(
 ) {
   try {
     await connectToDatabase();
+    await createUniqueIndex(); // Call the createUniqueIndex function
     // Connection established successfully
     res.status(200).json({ message: 'Connected to database' });
   } catch (error) {

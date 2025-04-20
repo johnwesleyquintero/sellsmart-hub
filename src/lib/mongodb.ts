@@ -20,7 +20,18 @@ export async function connectToDatabase() {
   }
 
   if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+    try {
+      // Check if the connection is still valid by pinging the database
+      await cachedDb.command({ ping: 1 });
+      return { client: cachedClient, db: cachedDb };
+    } catch (error) {
+      console.warn('Stale MongoDB connection detected. Reconnecting...');
+      // Close the existing client
+      await cachedClient.close();
+      cachedClient = null;
+      cachedDb = null;
+      throw error; // Re-throw the error to trigger reconnection
+    }
   }
 
   try {
@@ -31,7 +42,7 @@ export async function connectToDatabase() {
     cachedDb = db;
 
     return { client, db };
-  } catch (error) {
+  } catch (error: any) {
     console.error('MongoDB connection error:', error);
     throw new Error('Failed to establish database connection');
   }

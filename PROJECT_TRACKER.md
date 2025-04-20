@@ -28,6 +28,7 @@
   - [ ] Write unit/integration tests
   - [ ] Document usage/features
   - _Ref: IMPLEMENTATION_OptimalPriceCalc.md_
+  - **[x] Scaled the product score to be between 0 and 1**
 
 ### 2. Fix ACoS Calculator Bugs
 
@@ -63,6 +64,8 @@
 
 - **[x] Implement parallel execution**
 - **[x] Address module system inconsistency**
+### 5. Add unique index to prohibited-keywords collection
+- **[ ] Manually verify that the unique index has been created on the `keyword` field in the `prohibited-keywords` collection.**
 - **[x] Add basic config validation**
 
 ---
@@ -108,7 +111,7 @@
 ### 6. Documentation Update
 
 - **[x] Update `amazon-seller-tools.mdx`**
-  - [ ] Reflect completed tasks from High/Medium priorities (update statuses, versions, remove fixed bugs from known issues)
+  - [x] Reflect completed tasks from High/Medium priorities (update statuses, versions, remove fixed bugs from known issues)
   - [ ] Add details for newly implemented tools
   - [ ] Ensure consistency between table and detailed descriptions
   - _(Note: This should be done periodically after significant changes)_

@@ -79,11 +79,11 @@ export class AmazonAlgorithms {
     let optimalPrice = avgCompetitorPrice;
 
     // Adjust price based on product score (assuming 0-1 scale based on logic, though calculateProductScore returns 0-100)
-    // Consider scaling productScore if it's passed in as 0-100: const scaledScore = productScore / 100;
-    if (productScore > 0.8) {
-      optimalPrice = avgCompetitorPrice * (1 + (productScore - 0.8) * 0.5);
-    } else if (productScore < 0.6) {
-      optimalPrice = avgCompetitorPrice * (1 - (0.6 - productScore) * 0.5);
+    const scaledScore = productScore / 100; // Scale the product score
+    if (scaledScore > 0.8) {
+      optimalPrice = avgCompetitorPrice * (1 + (scaledScore - 0.8) * 0.5);
+    } else if (scaledScore < 0.6) {
+      optimalPrice = avgCompetitorPrice * (1 - (0.6 - scaledScore) * 0.5);
     }
 
     // Ensure price stays within bounds
