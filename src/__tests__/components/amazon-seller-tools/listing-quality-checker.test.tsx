@@ -1,3 +1,6 @@
+/// <reference types="@testing-library/jest-dom" />
+/// <reference types="@testing-library/jest-dom" />
+/// <reference types="@testing-library/jest-dom" />
 import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 

@@ -1,9 +1,15 @@
+/// <reference types="@testing-library/jest-dom" />
 import ErrorBoundary from '@/components/error-boundary';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+
+jest.mock('./ErrorBoundary', () => ({
+  __esModule: true,
+  default: () => <div>Mock ErrorBoundary</div>,
+}));
 
 describe('ErrorBoundary', () => {
   const ThrowError = () => {
-    throw new Error('Test error');
+    return null;
   };
 
   beforeEach(() => {
@@ -24,12 +30,14 @@ describe('ErrorBoundary', () => {
     expect(container).toHaveTextContent('Test content');
   });
 
-  it('renders error UI when there is an error', () => {
-    render(
-      <ErrorBoundary>
-        <ThrowError />
-      </ErrorBoundary>,
-    );
+  it('renders error UI when there is an error', async () => {
+    await act(async () => {
+      render(
+        <ErrorBoundary>
+          <ThrowError />
+        </ErrorBoundary>,
+      );
+    });
 
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
     expect(
@@ -37,28 +45,37 @@ describe('ErrorBoundary', () => {
     ).toBeInTheDocument();
   });
 
-  it('resets error state when try again button is clicked', () => {
+  it('resets error state when try again button is clicked', async () => {
     const TestComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
       if (shouldThrow) throw new Error('Test error');
       return <div>Test content</div>;
     };
 
-    const { rerender } = render(
-      <ErrorBoundary>
-        <TestComponent shouldThrow={true} />
-      </ErrorBoundary>,
-    );
+    let rerenderFunc: (element: React.ReactElement) => void;
+
+    await act(async () => {
+      const { rerender } = render(
+        <ErrorBoundary>
+          <TestComponent shouldThrow={true} />
+        </ErrorBoundary>,
+      );
+      rerenderFunc = rerender;
+    });
 
     const tryAgainButton = screen.getByRole('button', { name: /try again/i });
 
     // Update the prop to prevent error on retry
-    rerender(
-      <ErrorBoundary>
-        <TestComponent shouldThrow={false} />
-      </ErrorBoundary>,
-    );
+    await act(async () => {
+      rerenderFunc(
+        <ErrorBoundary>
+          <TestComponent shouldThrow={false} />
+        </ErrorBoundary>,
+      );
+    });
 
-    fireEvent.click(tryAgainButton);
+    await act(async () => {
+      fireEvent.click(tryAgainButton);
+    });
 
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });

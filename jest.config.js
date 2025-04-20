@@ -15,9 +15,6 @@ const config = {
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: ['json', 'text', 'lcov', 'clover'],
 
-  // An array of file extensions your modules use
-  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
-
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     // Handle CSS imports (with CSS modules)
@@ -62,15 +59,13 @@ const config = {
   // The glob patterns Jest uses to detect test files
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
 
-  // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
-
-  // This option allows use of a custom transformer with Jest
   transform: {
     // Use babel-jest to transpile tests with the next/babel preset
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
   },
+  // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   transformIgnorePatterns: [
@@ -82,15 +77,4 @@ const config = {
   verbose: true,
 };
 
-module.exports = config;
-
-// Note: The commented-out code below was removed as it triggered ESLint errors.
-// These comments showed example content for the mock files referenced above.
-// Ensure the actual mock files (__mocks__/fileMock.js, __mocks__/svg.js, etc.)
-// exist and contain the necessary mock implementations for your tests.
-// For example:
-// __mocks__/fileMock.js should contain `module.exports = 'test-file-stub';`
-// __mocks__/svg.js might contain `module.exports = { ReactComponent: 'svg', default: 'test-file-stub' };`
-// __mocks__/nextFontMock.js might contain `module.exports = { Inter: () => ({ className: 'mock-inter-font' }) };`
-// __mocks__/nextNavigationMock.js might contain mocks for `useRouter`, `usePathname`, etc.
-// jest.setup.js should contain imports like `import '@testing-library/jest-dom';`
+export default config;

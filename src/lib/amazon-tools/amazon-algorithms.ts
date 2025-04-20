@@ -63,6 +63,9 @@ export class AmazonAlgorithms {
     const { competitorPrices, productScore } = params;
 
     // Calculate market metrics
+    if (competitorPrices.length === 0) {
+      return 0;
+    }
     const avgCompetitorPrice =
       competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
     const minCompetitorPrice = Math.min(...competitorPrices);

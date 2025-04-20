@@ -126,13 +126,17 @@ describe('useCsvParser', () => {
 
     const { result } = renderHook(() => useCsvParser(mockOptions, mockOnError));
 
+    let error: Error | undefined;
     await act(async () => {
-      await result.current.parseFile(file);
+      try {
+        await result.current.parseFile(file);
+      } catch (e: any) {
+        error = e;
+      }
     });
 
     expect(mockOnError).toHaveBeenCalled();
-    const error = mockOnError.mock.calls[0][0];
-    expect(error.message).toContain('Missing required columns: name');
+    expect(error?.message).toContain('Missing required columns: name');
   });
 
   it('should call onComplete callback when provided', async () => {

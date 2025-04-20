@@ -20,9 +20,7 @@ export default function ProfitMarginCalculator() {
   interface ProductData {
     product: string;
     cost: number;
-    price: number;
     fees: number;
-    conversionRate?: number;
     sessions?: number;
     reviewRating?: number;
     reviewCount?: number;
@@ -31,6 +29,9 @@ export default function ProfitMarginCalculator() {
     weight?: number;
     volume?: number;
     competitorPrices?: number[];
+    reviews?: number | null;
+    salesRank?: number;
+    price?: number;
   }
 
   interface CsvRow {
@@ -91,28 +92,24 @@ export default function ProfitMarginCalculator() {
 
     const calculated = data.map((item: ProductData) => {
       const productScore = AmazonAlgorithms.calculateProductScore({
-        conversionRate: item.conversionRate || 15,
-        sessions: item.sessions || 300,
-        reviewRating: item.reviewRating || 4.5,
-        reviewCount: item.reviewCount || 42,
-        priceCompetitiveness: item.priceCompetitiveness || 0.92,
-        inventoryHealth: item.inventoryHealth || 0.8,
-        weight: item.weight || 1.2,
-        volume: item.volume || 0.05,
+        reviews: item.reviews || null,
+        rating: item.reviewRating || 4.5,
+        salesRank: item.salesRank || 1000,
+        price: item.price || 25,
         category: ProductCategory.STANDARD,
       });
 
       const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice({
-        currentPrice: item.price,
+        currentPrice: item.price || 0,
         competitorPrices: item.competitorPrices || [
-          item.price * 0.9,
-          item.price * 1.1,
+          (item.price || 0) * 0.9,
+          (item.price || 0) * 1.1,
         ],
         productScore: productScore / 100,
       });
 
-      const profit = adjustedPrice - item.cost - item.fees; // Ensure these are numbers
-      const margin = (profit / item.price) * 100; // Ensure these are numbers
+      const profit = adjustedPrice - item.cost - item.fees;
+      const margin = (profit / (item.price || 1)) * 100;
       const roi = (profit / item.cost) * 100;
       return {
         ...item,

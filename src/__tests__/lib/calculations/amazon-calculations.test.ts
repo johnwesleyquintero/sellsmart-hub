@@ -13,13 +13,12 @@ describe('Amazon Calculations', () => {
     });
 
     it('handles empty competitor data', () => {
-      expect(() =>
-        AmazonAlgorithms.calculateOptimalPrice({
-          competitorPrices: [],
-          productScore: 0,
-          currentPrice: 10,
-        }),
-      ).toThrow();
+      const result = AmazonAlgorithms.calculateOptimalPrice({
+        competitorPrices: [],
+        productScore: 0,
+        currentPrice: 10,
+      });
+      expect(result).toBe(0);
     });
   });
 

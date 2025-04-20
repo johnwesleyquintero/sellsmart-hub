@@ -40,16 +40,12 @@ describe('CSV Validation Utilities', () => {
     });
 
     it('should return missing columns when some are absent', () => {
-      type RequiredColumns =
-        | 'price'
-        | 'reviews'
-        | 'rating'
-        | 'conversion_rate'
-        | 'click_through_rate'
-        | 'asin';
-
-      const required: RequiredColumns[] = ['asin', 'price', 'reviews'];
-      expect(validateRequiredColumns(testData, required)).toEqual(['missing']);
+      const missingReviewsData = [{ asin: 'B0TEST1234', price: '29.99' }];
+      const required = ['asin', 'price'] as const;
+      const requiredWithReviews = [...required, 'reviews'] as const;
+      expect(
+        validateRequiredColumns(missingReviewsData, requiredWithReviews as any),
+      ).toEqual(['reviews']);
     });
   });
 

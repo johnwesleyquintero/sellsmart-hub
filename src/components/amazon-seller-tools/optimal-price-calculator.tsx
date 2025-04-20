@@ -12,12 +12,13 @@ interface ProductInputs {
   cost: number;
   currentPrice: number;
   competitorPrices: string; // Comma-separated prices
-  conversionRate: number;
-  sessions: number;
   reviewRating: number;
   reviewCount: number;
   priceCompetitiveness: number;
   inventoryHealth: number;
+  reviews: number | null;
+  salesRank: number;
+  price: number;
   weight: number;
   volume: number;
 }
@@ -27,14 +28,15 @@ export default function OptimalPriceCalculator() {
     cost: 0,
     currentPrice: 0,
     competitorPrices: '',
-    conversionRate: 15,
-    sessions: 300,
     reviewRating: 4.5,
     reviewCount: 42,
     priceCompetitiveness: 0.92,
     inventoryHealth: 0.8,
     weight: 1.2,
     volume: 0.05,
+    reviews: null,
+    salesRank: 1000,
+    price: 25,
   });
 
   const [results, setResults] = useState<{
@@ -75,14 +77,10 @@ export default function OptimalPriceCalculator() {
 
       // Calculate product score
       const productScore = AmazonAlgorithms.calculateProductScore({
-        conversionRate: inputs.conversionRate,
-        sessions: inputs.sessions,
-        reviewRating: inputs.reviewRating,
-        reviewCount: inputs.reviewCount,
-        priceCompetitiveness: inputs.priceCompetitiveness,
-        inventoryHealth: inputs.inventoryHealth,
-        weight: inputs.weight,
-        volume: inputs.volume,
+        reviews: inputs.reviews,
+        rating: inputs.reviewRating,
+        salesRank: inputs.salesRank,
+        price: inputs.price,
         category: ProductCategory.STANDARD,
       });
 
