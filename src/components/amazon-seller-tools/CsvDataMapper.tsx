@@ -40,7 +40,8 @@ const CsvDataMapper = <T extends Record<string, any>>({
   onMappingComplete,
   onCancel,
   title = 'Map CSV Columns', // Default title
-  description = 'Please match the columns from your uploaded CSV file to the required dashboard metrics.', // Default description
+  // Updated default description
+  description = 'Match columns from your CSV to the dashboard metrics. Required fields (*) must be mapped. Optional fields can be left unmapped.',
 }: CsvDataMapperProps<T>) => {
   // Initialize state dynamically based on targetMetrics keys
   const initialMapping = useMemo(() => {
@@ -64,7 +65,7 @@ const CsvDataMapper = <T extends Record<string, any>>({
     }));
   };
 
-  // Check if all required fields are mapped
+  // Check if all REQUIRED fields are mapped. Optional fields don't affect completion.
   const isMappingComplete = useMemo(() => {
     return targetMetrics.every((metric) => {
       // If the metric is required, it must have a non-null value in the mapping
@@ -76,8 +77,10 @@ const CsvDataMapper = <T extends Record<string, any>>({
     if (isMappingComplete) {
       onMappingComplete(mapping);
     } else {
+      // This should technically not be reachable if the button is disabled correctly,
+      // but kept as a safeguard or for future potential changes.
+      console.warn('Please map all required fields marked with *.');
       // Optional: Add a toast or alert indicating required fields are missing
-      console.warn('Please map all required fields.');
     }
   };
 
@@ -85,6 +88,7 @@ const CsvDataMapper = <T extends Record<string, any>>({
     <Card className="w-full max-w-2xl mx-auto shadow-md">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
+        {/* Use the potentially updated description prop */}
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -109,13 +113,17 @@ const CsvDataMapper = <T extends Record<string, any>>({
                 onValueChange={(value) => handleMappingChange(metric.key, value)}
               >
                 <SelectTrigger id={metric.key as string} className="w-full">
-                  <SelectValue placeholder="-- Select CSV Header --" />
+                  {/* Dynamic placeholder based on requirement */}
+                  <SelectValue
+                    placeholder={
+                      metric.required
+                        ? '-- Select CSV Header --'
+                        : '-- Select Header (Optional) --'
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Explicit placeholder item */}
-                  <SelectItem value="__placeholder__" disabled>
-                    -- Select CSV Header --
-                  </SelectItem>
+                  {/* No explicit placeholder item needed, SelectValue handles it */}
                   {/* Map available CSV headers */}
                   {csvHeaders.map((header) => (
                     <SelectItem key={header} value={header}>
@@ -132,6 +140,7 @@ const CsvDataMapper = <T extends Record<string, any>>({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
+        {/* Button is enabled as long as all REQUIRED fields are mapped */}
         <Button onClick={handleSubmit} disabled={!isMappingComplete}>
           Confirm Mapping
         </Button>
