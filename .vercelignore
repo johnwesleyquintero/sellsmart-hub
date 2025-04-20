@@ -14,3 +14,13 @@ scripts
 .eslintrc.json
 .prettierrc.json
 .lintstagedrc.json
+
+# Test files and directories
+__tests__/
+*.test.*
+*.spec.*
+coverage/
+*.lcov
+jest.config.js
+jest.setup.js
+__mocks__/
