@@ -95,9 +95,18 @@ export function useCsvParser<T>(
 
         Papa.parse<Record<string, unknown>>(file, {
           header: true,
-          dynamicTyping: false,
+          dynamicTyping: true, // Enable automatic type conversion
           skipEmptyLines: 'greedy',
-          transform: (value) => value.trim(),
+          transform: (value) => {
+            if (typeof value === 'string') {
+              value = value.trim();
+              // Convert percentage values to numbers
+              if (value.endsWith('%')) {
+                return parseFloat(value) / 100;
+              }
+            }
+            return value;
+          },
           transformHeader: (header) => header.trim(),
           complete: (result) => {
             setIsLoading(false);

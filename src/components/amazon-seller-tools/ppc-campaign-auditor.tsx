@@ -263,10 +263,10 @@ function validateRow(
   const type = typeof item.type === 'string' ? item.type.trim() : '';
 
   // Use Number() for potentially mixed types, then check isNaN and range
-  const spend = Number(item.spend);
-  const sales = Number(item.sales);
-  const impressions = Number(item.impressions);
-  const clicks = Number(item.clicks);
+  const spend = typeof item.spend === 'number' ? item.spend : Number(item.spend);
+  const sales = typeof item.sales === 'number' ? item.sales : Number(item.sales);
+  const impressions = typeof item.impressions === 'number' ? item.impressions : Number(item.impressions);
+  const clicks = typeof item.clicks === 'number' ? item.clicks : Number(item.clicks);
 
   // Detailed validation
   if (!name) {

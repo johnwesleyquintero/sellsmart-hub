@@ -58,19 +58,42 @@ export function validateNumericField(
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
-  // Convert to string first for consistent handling
-  const stringValue =
-    typeof value === 'string' ? value : String(value ?? '').trim();
-
-  if (!stringValue && fieldName !== 'impressions' && fieldName !== 'clicks') {
-    errors.push({
-      field: fieldName,
-      message: `${fieldName} is required`,
-    });
-    return { isValid: false, errors };
+  // Handle null or undefined
+  if (value === null || value === undefined) {
+    if (fieldName !== 'impressions' && fieldName !== 'clicks') {
+      errors.push({
+        field: fieldName,
+        message: `${fieldName} is required`,
+      });
+      return { isValid: false, errors };
+    }
+    return { isValid: true, errors, sanitizedValue: 0 };
   }
 
-  const numericValue = Number(stringValue);
+  // Convert to string and clean up
+  const stringValue = String(value).trim();
+
+  // Handle empty string
+  if (!stringValue) {
+    if (fieldName !== 'impressions' && fieldName !== 'clicks') {
+      errors.push({
+        field: fieldName,
+        message: `${fieldName} is required`,
+      });
+      return { isValid: false, errors };
+    }
+    return { isValid: true, errors, sanitizedValue: 0 };
+  }
+
+  // Handle percentage values
+  let numericValue: number;
+  if (stringValue.endsWith('%')) {
+    numericValue = Number(stringValue.slice(0, -1)) / 100;
+  } else {
+    // Remove currency symbols and commas
+    const cleanValue = stringValue.replace(/[$,]/g, '');
+    numericValue = Number(cleanValue);
+  }
 
   if (isNaN(numericValue)) {
     errors.push({

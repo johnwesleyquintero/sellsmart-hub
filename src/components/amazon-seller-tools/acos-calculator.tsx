@@ -101,22 +101,43 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
-  const acos = sales > 0 ? (adSpend / sales) * 100 : Infinity;
-  const calculateROAS = () => {
-    if (adSpend > 0) return sales / adSpend;
-    if (sales > 0) return Infinity;
-    return 0;
-  };
-  const roas = calculateROAS();
-  const safeImpressions = impressions && impressions > 0 ? impressions : 0;
-  const safeClicks = clicks && clicks > 0 ? clicks : 0;
+  // Handle edge cases for ACoS calculation
+  const acos = (() => {
+    if (sales === 0 && adSpend === 0) return 0;
+    if (sales === 0) return Infinity;
+    return (adSpend / sales) * 100;
+  })();
+
+  // Handle edge cases for ROAS calculation
+  const roas = (() => {
+    if (adSpend === 0 && sales === 0) return 0;
+    if (adSpend === 0) return Infinity;
+    return sales / adSpend;
+  })();
+
+  // Safe handling of optional metrics
+  const safeImpressions = impressions ?? 0;
+  const safeClicks = clicks ?? 0;
+
+  // CTR calculation with proper edge case handling
   const ctr = safeImpressions > 0 ? (safeClicks / safeImpressions) * 100 : 0;
-  const cpc = safeClicks > 0 ? adSpend / safeClicks : 0;
-  const calculateConversionRate = () => {
-    if (safeClicks > 0) return (sales / safeClicks) * 100;
-    return 0;
-  };
-  const revenuePerClickRate = calculateConversionRate();
+
+  // CPC calculation with proper edge case handling
+  let cpc = 0;
+  if (safeClicks > 0) {
+    cpc = adSpend / safeClicks;
+  } else if (adSpend > 0) {
+    cpc = Infinity;
+  }
+
+  // Revenue per click rate with proper edge case handling
+  let revenuePerClickRate = 0;
+  if (safeClicks > 0) {
+    revenuePerClickRate = (sales / safeClicks) * 100;
+  } else if (sales > 0) {
+    revenuePerClickRate = Infinity;
+  }
+
   return { acos, roas, ctr, cpc, revenuePerClickRate };
 };
 
