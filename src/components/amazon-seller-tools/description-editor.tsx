@@ -190,7 +190,10 @@ export default function DescriptionEditor() {
                     asin: (row.asin || '').trim(),
                     description: description,
                     characterCount: description.length,
-                    keywordCount: countKeywords(description, prohibitedKeywords),
+                    keywordCount: countKeywords(
+                      description,
+                      prohibitedKeywords,
+                    ),
                     score: calculateScore(description, prohibitedKeywords),
                   };
                 })
@@ -402,7 +405,7 @@ export default function DescriptionEditor() {
         title: 'Export Failed',
         description: message,
         variant: 'destructive',
-        });
+      });
     }
   }, [products, toast]); // Depends on products, toast
 
@@ -620,7 +623,7 @@ export default function DescriptionEditor() {
                   >
                     {product.product}
                   </Badge>
-                )
+                ),
               )}
             </div>
             {/* Added closing div tag for product selection badges wrapper */}
@@ -628,109 +631,117 @@ export default function DescriptionEditor() {
 
           {/* Editor/Preview Area */}
           {activeProduct && (
-            <> {/* Added closing fragment tag */}
-              <Card> {/* Added closing Card tag */}
-                <CardContent className="p-4"> {/* Added closing CardContent tag */}
-                {/* Header for Active Product */}
-                <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                  <div>
-                    <h3 className="text-lg font-medium break-words">
-                      Editing:{' '}
-                      <span className="font-semibold">
-                        {activeProduct?.product}
-                      </span>
-                    </h3>
-                    {activeProduct?.asin && (
-                      <p className="text-sm text-muted-foreground">
-                        ASIN: {activeProduct?.asin}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 self-start sm:self-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowPreview(!showPreview)}
-                    >
-                      <Eye className="mr-1.5 h-4 w-4" />
-                      {showPreview ? 'Edit' : 'Preview'}
-                    </Button>
-                    <Button size="sm" onClick={handleSave}>
-                      <Save className="mr-1.5 h-4 w-4" />
-                      Save Changes
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Stats Bar */}
-                <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm bg-muted/50 p-2 rounded-md">
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium text-muted-foreground">
-                      Chars:
-                    </span>
-                    <span className="font-semibold">
-                      {activeProduct?.characterCount?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium text-muted-foreground">
-                      Keywords:
-                    </span>
-                    <span className="font-semibold">
-                      {activeProduct?.keywordCount}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium text-muted-foreground">
-                      Score:
-                    </span>
-                    <span
-                      className={`font-semibold ${getScoreColor(activeProduct?.score)}`}
-                    >
-                      {activeProduct?.score}/100
-                    </span>
-                  </div>
-                </div>
-
-                {/* Editor or Preview */}
-                {showPreview ? (
-                  <div className="rounded-lg border bg-background p-4 min-h-[200px]">
-                    <h4 className="mb-2 text-sm font-semibold text-primary">
-                      Description Preview
-                    </h4>
-                    {/* Safer rendering using whitespace-pre-line */}
-                    <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-line text-foreground">
-                      {activeProduct?.description || (
-                        <span className="text-muted-foreground italic">
-                          No description provided.
+            <>
+              {' '}
+              {/* Added closing fragment tag */}
+              <Card>
+                {' '}
+                {/* Added closing Card tag */}
+                <CardContent className="p-4">
+                  {' '}
+                  {/* Added closing CardContent tag */}
+                  {/* Header for Active Product */}
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
+                    <div>
+                      <h3 className="text-lg font-medium break-words">
+                        Editing:{' '}
+                        <span className="font-semibold">
+                          {activeProduct?.product}
                         </span>
+                      </h3>
+                      {activeProduct?.asin && (
+                        <p className="text-sm text-muted-foreground">
+                          ASIN: {activeProduct?.asin}
+                        </p>
                       )}
                     </div>
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowPreview(!showPreview)}
+                      >
+                        <Eye className="mr-1.5 h-4 w-4" />
+                        {showPreview ? 'Edit' : 'Preview'}
+                      </Button>
+                      <Button size="sm" onClick={handleSave}>
+                        <Save className="mr-1.5 h-4 w-4" />
+                        Save Changes
+                      </Button>
+                    </div>
                   </div>
-                ) : (
-                  <div>
-                    <Label
-                      htmlFor="description-editor"
-                      className="text-sm font-medium"
-                    >
-                      Edit Description
-                    </Label>
-                    <Textarea
-                      id="description-editor"
-                      value={activeProduct?.description}
-                      onChange={handleDescriptionChange}
-                      placeholder="Enter product description..."
-                      rows={15} // Increased rows
-                      className="font-mono text-sm mt-1"
-                    />
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Use line breaks for paragraphs. Basic HTML like <b>bold</b>, {/* Added closing tag */}
-                      <i>italic</i>, {/* Added closing tag */}
-                      <ul><li>lists</li></ul> might be supported by {/* Added closing tags */}
-                      Amazon. Aim for 1000-2000 characters.
-                    </p>
+                  {/* Stats Bar */}
+                  <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm bg-muted/50 p-2 rounded-md">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-muted-foreground">
+                        Chars:
+                      </span>
+                      <span className="font-semibold">
+                        {activeProduct?.characterCount?.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-muted-foreground">
+                        Keywords:
+                      </span>
+                      <span className="font-semibold">
+                        {activeProduct?.keywordCount}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-muted-foreground">
+                        Score:
+                      </span>
+                      <span
+                        className={`font-semibold ${getScoreColor(activeProduct?.score)}`}
+                      >
+                        {activeProduct?.score}/100
+                      </span>
+                    </div>
                   </div>
-                )}
+                  {/* Editor or Preview */}
+                  {showPreview ? (
+                    <div className="rounded-lg border bg-background p-4 min-h-[200px]">
+                      <h4 className="mb-2 text-sm font-semibold text-primary">
+                        Description Preview
+                      </h4>
+                      {/* Safer rendering using whitespace-pre-line */}
+                      <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-line text-foreground">
+                        {activeProduct?.description || (
+                          <span className="text-muted-foreground italic">
+                            No description provided.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <Label
+                        htmlFor="description-editor"
+                        className="text-sm font-medium"
+                      >
+                        Edit Description
+                      </Label>
+                      <Textarea
+                        id="description-editor"
+                        value={activeProduct?.description}
+                        onChange={handleDescriptionChange}
+                        placeholder="Enter product description..."
+                        rows={15} // Increased rows
+                        className="font-mono text-sm mt-1"
+                      />
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Use line breaks for paragraphs. Basic HTML like{' '}
+                        <b>bold</b>, {/* Added closing tag */}
+                        <i>italic</i>, {/* Added closing tag */}
+                        <ul>
+                          <li>lists</li>
+                        </ul>{' '}
+                        might be supported by {/* Added closing tags */}
+                        Amazon. Aim for 1000-2000 characters.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </>

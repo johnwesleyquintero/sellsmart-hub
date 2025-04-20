@@ -3,14 +3,22 @@ import { AmazonAlgorithms } from '@/lib/amazon-tools/amazon-algorithms';
 describe('Amazon Calculations', () => {
   describe('calculateOptimalPrice', () => {
     it('calculates optimal price based on competitor data', () => {
-      const result = AmazonAlgorithms.calculateOptimalPrice({ competitorPrices: [10], productScore: 0.7, currentPrice: 11 });
+      const result = AmazonAlgorithms.calculateOptimalPrice({
+        competitorPrices: [10],
+        productScore: 0.7,
+        currentPrice: 11,
+      });
       expect(result).toBeGreaterThan(0);
       expect(typeof result).toBe('number');
     });
 
     it('handles empty competitor data', () => {
       expect(() =>
-        AmazonAlgorithms.calculateOptimalPrice({ competitorPrices: [], productScore: 0, currentPrice: 10 })
+        AmazonAlgorithms.calculateOptimalPrice({
+          competitorPrices: [],
+          productScore: 0,
+          currentPrice: 10,
+        }),
       ).toThrow();
     });
   });

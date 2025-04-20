@@ -33,7 +33,6 @@ export class AmazonAlgorithms {
     const normalizedConversion = 0.5; // Placeholder value
     const normalizedSessions = 0.5; // Placeholder value
     const normalizedRating = rating / 5;
-    
 
     // Weight factors
     const weights = {
