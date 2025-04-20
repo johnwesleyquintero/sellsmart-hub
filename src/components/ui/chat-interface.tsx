@@ -1,7 +1,15 @@
 'use client';
 
-import { Send, Trash2, X } from 'lucide-react';
+import copy from 'clipboard-copy';
+import 'katex/dist/katex.min.css';
+import { Copy, Send, Trash2, X } from 'lucide-react';
+import 'prismjs/themes/prism-tomorrow.css';
 import { useCallback, useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import rehypePrism from 'rehype-prism-plus';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -232,11 +240,17 @@ export function ChatInterface() {
                   }`}
                 >
                   {/* Content */}
-                  <div
-                    className="prose prose-sm max-w-none dark:prose-invert break-words"
-                    // Be cautious with dangerouslySetInnerHTML if content isn't sanitized server-side
-                    dangerouslySetInnerHTML={{ __html: message.content }}
-                  />
+                  <div className="prose prose-sm max-w-none dark:prose-invert break-words relative group">
+                    <button
+                      onClick={() => copy(message.content)}
+                      className="absolute right-0 top-0 p-1 text-muted-foreground/60 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Copy message"
+                      aria-label="Copy message"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
 
                   {/* Timestamp and Status */}
                   <div
@@ -325,3 +339,38 @@ export function ChatInterface() {
     </>
   );
 }
+
+// Custom renderer for code blocks to handle Mermaid diagrams
+interface CodeBlockProps {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const CodeBlock: React.FC<CodeBlockProps> = ({ node, inline, className, children }) => {
+  const match = /language-(\w+)/.exec(className || '');
+  const language = match ? match[1] : '';
+
+  if (language === 'mermaid') {
+    return <pre className="mermaid">{String(children).trim()}</pre>;
+  }
+
+  return (
+    <code className={className}>
+      {children}
+    </code>
+  );
+};
+
+const renderMessage = (content: string) => (
+  <ReactMarkdown
+    remarkPlugins={[remarkGfm, remarkMath]}
+    rehypePlugins={[rehypeKatex, [rehypePrism, { showLineNumbers: true }]]}
+    components={{
+      code: CodeBlock as any
+    }}
+  >
+    {content}
+  </ReactMarkdown>
+);
