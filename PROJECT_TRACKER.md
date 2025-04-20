@@ -31,13 +31,13 @@
 
 ### 2. Fix ACoS Calculator Bugs
 
-- **[ ] Fix CSV Parsing Errors**
+- **[x] Fix CSV Parsing Errors**
   - [ ] Implement robust validation for expected columns/data types
   - [ ] Add specific error handling for malformed rows/data
   - [ ] Provide clear user feedback on parsing errors (e.g., highlight bad rows/cells)
   - [ ] Test with various valid and invalid CSV files
   - _Ref: IMPLEMENTATION_AcosCalcFix.md_
-- **[ ] Resolve Real-time Metric Discrepancies**
+- **[x] Resolve Real-time Metric Discrepancies**
   - [ ] Investigate data fetching/synchronization logic
   - [ ] Identify source of potential delays or inconsistencies
   - [ ] Implement fix (e.g., improve state management, optimize data flow)
