@@ -1,6 +1,7 @@
 # Amazon Seller Tools - Project Tracker & TODO List
 
 **Last Updated:** 2025-04-20 _(Please update this date when you make changes)_
+**Last Code Review:** 2025-04-20 _(Please update this date when you make changes)_
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
@@ -10,7 +11,7 @@
 
 ### 1. Implement Missing Core Tools
 
-- **[x] Product Score Calculation Tool** (Complete)
+- **[x] Product Score Calculation Tool** (Complete, Manual Input Only)
   - [x] Design core logic and scoring algorithm
   - [x] Develop backend/calculation functions (if applicable)
   - [x] Build frontend UI component
@@ -18,7 +19,7 @@
   - [x] Write unit/integration tests
   - [x] Document usage/features
   - _Ref: IMPLEMENTATION_ProductScoreCalc.md_
-- **[ ] Optimal Price Calculation Tool** (Under Development)
+- **[x] Optimal Price Calculation Tool** (Basic Version Available)
   - [x] Define inputs (costs, competitor data, market data)
   - [x] Design pricing algorithm/model
   - [x] Develop backend/calculation functions (if applicable)

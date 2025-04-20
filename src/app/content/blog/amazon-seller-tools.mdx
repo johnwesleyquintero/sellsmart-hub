@@ -42,8 +42,8 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | Competitor Analyzer      | ✅ Active                  | 1.0.0       |                                    |
 | Keyword Trend Analyzer   | ✅ Active                  | 1.0.0       |                                    |
 | Profit Margin Calculator | ✅ Active                  | 1.0.0       |                                    |
-| Product Score Calc.      | ✅ Active                  | 1.0.0       |                                    |
-| Optimal Price Calc.      | 🚧 Under Development       | 0.1.0       | Basic version available            |
+| Product Score Calc.      | ✅ Active                  | 1.0.0       | Manual input only                  |
+| Optimal Price Calc.      | ✅ Active                  | 0.1.0       | Basic version available            |
 ```
 
 ---
@@ -181,17 +181,63 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 ---
 
-## 🚀 Under Development
+## 🚀 Active Tools
 
-The following core tools are currently under active development and are not yet available for use:
+### 12. Product Score Calculator
+
+**Status**: ✅ Active
+**Version**: 1.0.0
+🔍 **Description**: Calculates a quality score for your Amazon product listing based on various optimization factors.
+**Features**:
+
+- Product Title
+- Bullet Points (up to 5)
+- Product Description (HTML allowed)
+- Number of Images
+- Average Rating
+- Number of Reviews
+- Has A+ Content
+- Fulfillment Type (FBA/FBM)
+  **Limitations**:
+- Number of images is limited by the input field, but not explicitly validated.
+- Rating is limited by the input field, but not explicitly validated.
+- Bullet points are limited to 5.
+- Description allows HTML formatting, but there's no sanitization, which could be a security risk.
 
 ### 13. Optimal Price Calculation
 
-**Status**: 🚧 Under Development
+**Status**: ✅ Active
 **Version**: 0.1.0
-🔍 **Description**: Tool to calculate suggested optimal pricing based on costs, competition, and market data.
-**Features**: Calculates optimal price based on product cost, current price, and competitor prices.
-**Limitations**: The pricing model is a simplified version and may not be accurate in all scenarios.
+🔍 **Description**: Calculates the optimal price for a product based on cost, current price, competitor prices, and other factors.
+**Features**:
+
+- Product Cost
+- Current Price
+- Competitor Prices (comma-separated)
+- Conversion Rate
+- Sessions
+- Review Rating
+- Review Count
+- Price Competitiveness
+- Inventory Health
+- Weight
+- Volume
+  **Limitations**:
+- Competitor prices are parsed as a comma-separated string, which could be prone to errors if the input is not formatted correctly.
+- Input fields are not validated for all possible error conditions (e.g., negative values).
+- `ProductCategory` is hardcoded as `ProductCategory.STANDARD`.
+
+### 14. Keyword Trend Analyzer
+
+**Status**: ✅ Active
+**Version**: 1.0.0
+**Current Notes**: Generally stable.
+
+### 15. Profit Margin Calculator
+
+**Status**: ✅ Active
+**Version**: 1.0.0
+**Current Notes**: Generally stable.
 
 ---
 
