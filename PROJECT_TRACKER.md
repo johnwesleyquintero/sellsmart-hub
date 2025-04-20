@@ -107,7 +107,7 @@
 
 ### 6. Documentation Update
 
-- **[ ] Update `amazon-seller-tools.mdx`**
+- **[x] Update `amazon-seller-tools.mdx`**
   - [ ] Reflect completed tasks from High/Medium priorities (update statuses, versions, remove fixed bugs from known issues)
   - [ ] Add details for newly implemented tools
   - [ ] Ensure consistency between table and detailed descriptions

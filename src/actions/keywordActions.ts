@@ -43,13 +43,23 @@ export async function addProhibitedKeyword(
 
     if (!exists) {
       const newKeyword: Omit<ProhibitedKeyword, '_id'> = {
-        keyword: keyword.trim(),
+        keyword: keyword.trim().toLowerCase(),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      await collection.insertOne(newKeyword);
-      console.log(`Server Action: Added prohibited keyword: ${keyword.trim()}`);
-      return { success: true, message: `Keyword "${keyword.trim()}" added.` };
+      try {
+        await collection.insertOne(newKeyword);
+        console.log(
+          `Server Action: Added prohibited keyword: ${keyword.trim()}`,
+        );
+        return { success: true, message: `Keyword "${keyword.trim()}" added.` };
+      } catch (error: any) {
+        console.error('Server Action Failed - insertOne:', error);
+        return {
+          success: false,
+          message: 'Failed to add keyword due to a database error.',
+        };
+      }
     } else {
       console.log(
         `Server Action: Prohibited keyword already exists: ${keyword.trim()}`,
@@ -59,7 +69,7 @@ export async function addProhibitedKeyword(
         message: `Keyword "${keyword.trim()}" already exists.`,
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Server Action Failed - addProhibitedKeyword:', error);
     return {
       success: false,
