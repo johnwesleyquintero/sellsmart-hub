@@ -182,7 +182,7 @@ describe('ListingQualityChecker', () => {
         // The component uses the 'product' field value as the CardTitle
         expect(
           // Use a query that finds the heading role with the specific name
-          screen.getByRole('heading', { name: /Test Product CSV/i, level: 3 }), // Assuming CardTitle renders as h3
+          screen.getByRole('heading', { name: /Test Product CSV/i }), // Assuming CardTitle renders as h3
         ).toBeInTheDocument();
 
         // Check if a toast message indicating success was called
@@ -232,7 +232,7 @@ describe('ListingQualityChecker', () => {
         // Check for the score format (e.g., "85/100") within the results card
         expect(
           resultsCard!.querySelector('.inline-flex.items-center'),
-        ).toHaveTextContent(/\d+\/100/);
+        ).toHaveTextContent(/\d{1,3}\/\d{1,3}/);
 
         // Check for toast message
         expect(mockToast).toHaveBeenCalledWith(

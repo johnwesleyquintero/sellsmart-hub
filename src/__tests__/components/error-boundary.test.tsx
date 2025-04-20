@@ -9,7 +9,6 @@ import {
 
 describe('ErrorBoundary', () => {
   beforeAll(() => {
-    process.env.NODE_ENV = 'test';
   });
   const ThrowError = () => {
     throw new Error('Test error');

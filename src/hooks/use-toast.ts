@@ -1,6 +1,6 @@
-import { toast } from '@/components/ui/use-toast';
 
 export function useToast() {
+  const { toast, dismiss } = useToastUI;
   return {
     toast: (title: string, description?: string) => {
       toast({
@@ -8,6 +8,6 @@ export function useToast() {
         description,
       });
     },
-    dismiss: toast.dismiss,
+    dismiss,
   };
 }
