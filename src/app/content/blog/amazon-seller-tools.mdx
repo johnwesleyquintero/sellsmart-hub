@@ -34,7 +34,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | FBA Calculator           | ✅ Active                  | 2.0.0       |                                    |
 | Keyword Analyzer         | ✅ Active                  | 2.0.0       |                                    |
 | Listing Quality Checker  | ✅ Active                  | 1.5.0       | AI features under review           |
-| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 | Requires stabilization             |
+| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 | Requires stabilization (documented as v2.0.0 in error) |
 | Description Editor       | ✅ Active                  | 1.5.0       | AI features under review. Implemented Server Actions to resolve "mongodb is not defined" error |
 | Keyword Deduplicator     | ✅ Active                  | 1.5.0       | AI features under review           |
 | ACoS Calculator          | ✅ Active                  | 1.5.0       |                                    |
@@ -141,13 +141,28 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 ### 7. ACoS Calculator
 
 **Status**: ✅ Active
-**Version**: 1.5.0
+**Version**: 2.0.0
 
 🔍 **Description**: Comprehensive advertising analysis with predictive metrics and historical trend analysis.
-**Features**: Campaign tracking, predictive analysis, real-time metrics, historical trends/visualization, CSV import/export, customizable periods, benchmarking.
+**Features**:
+
+- Robust CSV parsing with error handling
+- Campaign tracking with manual entry option
+- Real-time metric calculations (ACoS, ROAS, CTR, CPC, RPC)
+- Data visualization with Recharts
+- CSV import/export
+- Edge case handling for calculations
+- Responsive UI with shadcn/ui components
+
 **Use Case**: Optimize bids based on real-time ACoS data to maximize profitability.
 
-**Current Notes**: Generally stable.
+**Recent Improvements**:
+
+- Fixed CSV parsing issues with malformed data
+- Added comprehensive error handling
+- Improved metric calculation accuracy
+- Enhanced data visualization
+- Added manual entry option for single campaigns
 
 ### 8. Sales Estimator
 

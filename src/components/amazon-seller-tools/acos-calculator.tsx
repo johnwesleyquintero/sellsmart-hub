@@ -170,7 +170,18 @@ export default function AcosCalculator() {
   const csvParser = useCsvParser<CampaignData>(
     {
       requiredHeaders: campaignHeaders.required,
-      validateRow: validateCampaignRow,
+      validateRow: (row) => {
+        try {
+          const result = validateCampaignRow(row, 0);
+          // Additional validation for numeric fields
+          if (isNaN(Number(row.adSpend)) || isNaN(Number(row.sales))) {
+            throw new Error('Ad spend and sales must be valid numbers');
+          }
+          return result as CampaignData;
+        } catch (error) {
+          throw new Error(`Invalid row data: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      },
     },
     (error: Error) => {
       setError(`CSV Parsing Error: ${error.message}`);
@@ -182,10 +193,10 @@ export default function AcosCalculator() {
     }) => {
       const dataWithMetrics = result.data.map((row) => {
         const metrics = calculateLocalMetrics(
-          row.adSpend,
-          row.sales,
-          row.impressions,
-          row.clicks,
+          Number(row.adSpend),
+          Number(row.sales),
+          Number(row.impressions) || undefined,
+          Number(row.clicks) || undefined,
         );
         return { ...row, ...metrics };
       });
@@ -193,7 +204,7 @@ export default function AcosCalculator() {
       setIsLoading(false);
       if (result.skippedRows.length > 0) {
         setError(
-          `Processed with warnings: ${result.skippedRows.length} rows were skipped due to invalid data.`,
+          `Processed with warnings: ${result.skippedRows.length} rows were skipped. First error: ${result.skippedRows[0].reason}`,
         );
       } else {
         setError(null);
