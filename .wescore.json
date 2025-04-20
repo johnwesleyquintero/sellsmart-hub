@@ -28,12 +28,6 @@
       "command": "npm run lint:smells",
       "enabled": true,
       "description": "Detects potential code smells and maintainability issues."
-    },
-    {
-      "id": "test",
-      "name": "Test Runner (Jest)",
-      "command": "npm run test",
-      "description": "Runs unit tests using Jest test framework based on jest.config.js"
     }
   ],
   "errorCategories": {

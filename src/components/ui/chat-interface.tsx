@@ -110,7 +110,7 @@ export function ChatInterface() {
         timestamp: Date.now(),
         status: 'sending',
         retryCount: 0,
-        retryLimit: RETRY_LIMIT
+        retryLimit: RETRY_LIMIT,
       };
 
       setMessages((prev) => {
@@ -139,16 +139,22 @@ export function ChatInterface() {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(
             errorData.error ||
-              `Server error (${response.status}): ${response.statusText}. Please try again.`
+              `Server error (${response.status}): ${response.statusText}. Please try again.`,
           );
         }
 
         const data = await response.json();
-        setMessages(updateMessageStatus(userMessage.timestamp, 'user', { status: 'sent' }));
+        setMessages(
+          updateMessageStatus(userMessage.timestamp, 'user', {
+            status: 'sent',
+          }),
+        );
 
         const assistantMessage: Message = {
           role: 'assistant',
-          content: data.response || "I apologize, but I couldn't generate a response. Please try again.",
+          content:
+            data.response ||
+            "I apologize, but I couldn't generate a response. Please try again.",
           timestamp: Date.now(),
           status: 'sent',
           isTyping: true,
@@ -156,35 +162,43 @@ export function ChatInterface() {
 
         setMessages((prev) => [...prev, assistantMessage]);
         setTimeout(() => {
-          setMessages(updateMessageStatus(assistantMessage.timestamp, 'assistant', {
-            isTyping: false,
-            status: 'read',
-          }));
+          setMessages(
+            updateMessageStatus(assistantMessage.timestamp, 'assistant', {
+              isTyping: false,
+              status: 'read',
+            }),
+          );
         }, 1000);
-
       } catch (error) {
         console.error('Chat error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-        
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred';
+
         if (userMessage.retryCount && userMessage.retryCount >= RETRY_LIMIT) {
-          setMessages(updateMessageStatus(userMessage.timestamp, 'user', {
-            status: 'error',
-            error: `${errorMessage}. Retry limit reached.`,
-            retryCount: userMessage.retryCount
-          }));
+          setMessages(
+            updateMessageStatus(userMessage.timestamp, 'user', {
+              status: 'error',
+              error: `${errorMessage}. Retry limit reached.`,
+              retryCount: userMessage.retryCount,
+            }),
+          );
         } else {
-          setMessages(updateMessageStatus(userMessage.timestamp, 'user', {
-            status: 'retry',
-            error: errorMessage,
-            retryCount: (userMessage.retryCount || 0) + 1
-          }));
+          setMessages(
+            updateMessageStatus(userMessage.timestamp, 'user', {
+              status: 'retry',
+              error: errorMessage,
+              retryCount: (userMessage.retryCount || 0) + 1,
+            }),
+          );
         }
       } finally {
         setIsLoading(false);
         setIsTyping(false);
       }
     },
-    [input, messages]
+    [input, messages],
   );
 
   const handleRetry = useCallback(
@@ -392,4 +406,3 @@ const renderMessage = (content: string) => (
 function setIsTyping(arg0: boolean) {
   throw new Error('Function not implemented.');
 }
-
