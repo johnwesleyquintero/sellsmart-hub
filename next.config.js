@@ -96,6 +96,16 @@ const nextConfig = {
       }),
     );
 
+    config.externals = [
+      ...(config.externals || []),
+      'dns',
+      'fs',
+      'net',
+      'tls',
+      'mongodb',
+      '@next-auth/mongodb-adapter',
+    ];
+
     return config;
   },
 };

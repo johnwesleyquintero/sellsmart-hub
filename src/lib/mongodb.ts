@@ -15,18 +15,26 @@ let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
 export async function connectToDatabase() {
+  if (typeof window !== 'undefined') {
+    throw new Error('Database connections are only allowed server-side');
+  }
+
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const client = await MongoClient.connect(uri);
+  try {
+    const client = await MongoClient.connect(uri);
+    const db = client.db(dbName);
 
-  const db = client.db(dbName);
+    cachedClient = client;
+    cachedDb = db;
 
-  cachedClient = client;
-  cachedDb = db;
-
-  return { client, db };
+    return { client, db };
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw new Error('Failed to establish database connection');
+  }
 }
 
 export const clientPromise = async () => {
