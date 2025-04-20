@@ -72,7 +72,7 @@ function processParsedData<T>(
 export function useCsvParser<T>(
   options: CsvParserOptions<T>,
   onError?: (error: Error) => void,
-  onComplete?: (result: CsvParserResult<T>) => void
+  onComplete?: (result: CsvParserResult<T>) => void,
 ): UseCsvParserResult<T> {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,8 @@ export function useCsvParser<T>(
         setError(null);
 
         // Validate file size
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        if (file.size > 10 * 1024 * 1024) {
+          // 10MB limit
           const error = new Error('File size exceeds 10MB limit');
           setError(error.message);
           onError?.(error);

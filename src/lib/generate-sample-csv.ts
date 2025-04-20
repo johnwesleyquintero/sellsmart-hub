@@ -396,13 +396,17 @@ export function downloadSampleCsv(
 ): void {
   try {
     console.log(`[CSV Download] Starting download for type: ${dataType}`);
-    
+
     const csv = generateSampleCsv(dataType);
     if (!csv) {
-      console.error('[CSV Download] Generated CSV string is empty, aborting download.');
+      console.error(
+        '[CSV Download] Generated CSV string is empty, aborting download.',
+      );
       return;
     }
-    console.log(`[CSV Download] Successfully generated CSV with ${csv.split('\n').length} rows`);
+    console.log(
+      `[CSV Download] Successfully generated CSV with ${csv.split('\n').length} rows`,
+    );
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -412,7 +416,9 @@ export function downloadSampleCsv(
     const downloadName = fileName || `sample-${dataType}-data.csv`;
     link.href = url;
     link.setAttribute('download', downloadName);
-    console.log(`[CSV Download] Initiating download with filename: ${downloadName}`);
+    console.log(
+      `[CSV Download] Initiating download with filename: ${downloadName}`,
+    );
 
     document.body.appendChild(link);
     link.click();

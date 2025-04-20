@@ -20,14 +20,7 @@ import {
   validateCampaignRow,
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
-import {
-  AlertCircle,
-  Download,
-  Info,
-  Upload,
-  X,
-  XCircle,
-} from 'lucide-react';
+import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
@@ -278,9 +271,13 @@ export default function AcosCalculator() {
       adSpend: campaign.adSpend.toFixed(2),
       sales: campaign.sales.toFixed(2),
       acos:
-        campaign.acos === Infinity ? 'Infinity' : campaign.acos?.toFixed(2) ?? '',
+        campaign.acos === Infinity
+          ? 'Infinity'
+          : (campaign.acos?.toFixed(2) ?? ''),
       roas:
-        campaign.roas === Infinity ? 'Infinity' : campaign.roas?.toFixed(2) ?? '',
+        campaign.roas === Infinity
+          ? 'Infinity'
+          : (campaign.roas?.toFixed(2) ?? ''),
       impressions: campaign.impressions ?? '',
       clicks: campaign.clicks ?? '',
       ctr: campaign.ctr?.toFixed(2) ?? '',
@@ -347,7 +344,8 @@ export default function AcosCalculator() {
               if (Array.isArray(value)) {
                 const firstValue = value[0];
                 if (firstValue === Infinity) return 'Infinity';
-                if (typeof firstValue === 'number') return firstValue.toFixed(2);
+                if (typeof firstValue === 'number')
+                  return firstValue.toFixed(2);
                 return firstValue ?? 'N/A';
               }
               // Handle single value case
@@ -428,7 +426,9 @@ export default function AcosCalculator() {
               dataType="acos"
               fileName="sample-acos-data.csv"
               className="mt-4 w-full"
-              onClick={() => console.log('SampleCsvButton clicked in acos-calculator.tsx')}
+              onClick={() =>
+                console.log('SampleCsvButton clicked in acos-calculator.tsx')
+              }
             />
           </CardContent>
         </Card>
@@ -489,11 +489,11 @@ export default function AcosCalculator() {
 
       {/* Error Alert */}
       {error && (
-        <Alert
-          variant={error.includes('warnings') ? 'default' : 'destructive'}
-        >
+        <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{error.includes('warnings') ? 'Warning' : 'Error'}</AlertTitle>
+          <AlertTitle>
+            {error.includes('warnings') ? 'Warning' : 'Error'}
+          </AlertTitle>
           <AlertDescription>{error}</AlertDescription>
           <Button
             variant="ghost"

@@ -43,12 +43,12 @@ export function UnifiedDashboardHeader({
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button
-            variant="outline"
-            asChild
-            aria-label="View Documentation"
-          >
-            <a href="https://wescode.vercel.app/blog/amazon-seller-tools" target="_blank" rel="noopener noreferrer">
+          <Button variant="outline" asChild aria-label="View Documentation">
+            <a
+              href="https://wescode.vercel.app/blog/amazon-seller-tools"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <BookOpen className="w-4 h-4 mr-2" />
               Docs
             </a>

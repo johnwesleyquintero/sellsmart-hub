@@ -380,8 +380,11 @@ export default function PpcCampaignAuditor() {
   const processCampaignDataCallback = useCallback(
     (rawData: unknown[]) => {
       try {
-        const { data, skippedRows: skipped, errors: validationErrs } =
-          processRawCampaignData(rawData);
+        const {
+          data,
+          skippedRows: skipped,
+          errors: validationErrs,
+        } = processRawCampaignData(rawData);
         setCampaigns(data);
         setSkippedRows(skipped);
         setValidationErrors(validationErrs);
@@ -404,7 +407,9 @@ export default function PpcCampaignAuditor() {
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : 'An unknown processing error occurred',
+          err instanceof Error
+            ? err.message
+            : 'An unknown processing error occurred',
         );
         setCampaigns([]);
         setSkippedRows(0);
@@ -477,7 +482,14 @@ export default function PpcCampaignAuditor() {
         },
       });
     },
-    [processCampaignDataCallback, setIsLoading, setError, setValidationErrors, setSkippedRows, setCampaigns], // Add setters
+    [
+      processCampaignDataCallback,
+      setIsLoading,
+      setError,
+      setValidationErrors,
+      setSkippedRows,
+      setCampaigns,
+    ], // Add setters
   );
 
   const handleExport = useCallback(() => {
