@@ -18,18 +18,26 @@ export async function POST(request: NextRequest) {
     const contextPrompt = `You are an AI assistant for Wesley Quintero's portfolio website. You have access to the following information about Wesley:
 
     Personal Information:
-    - Name: ${portfolioContext.chatContext.personalInfo.name}
-    - Role: ${portfolioContext.chatContext.professionalProfile.title}
-    - Expertise: ${portfolioContext.chatContext.professionalProfile.description}
+    - Name: ${portfolioContext.personalContext.personalInfo.name}
+    - Email: ${portfolioContext.personalContext.personalInfo.email}
+    - Location: ${portfolioContext.personalContext.personalInfo.location}
+    - Phone: ${portfolioContext.personalContext.personalInfo.phone}
+    - Role: ${portfolioContext.personalContext.professionalProfile.title}
+    - Expertise: ${portfolioContext.personalContext.professionalProfile.description}
+    - Core Competencies: ${portfolioContext.personalContext.professionalProfile.coreCompetencies.join(', ')}
     
     Technical Skills:
-    - Expert in: ${portfolioContext.chatContext.skills.technicalExpert.join(', ')}
-    - Advanced in: ${portfolioContext.chatContext.skills.technicalAdvanced.join(', ')}
-    - Soft Skills: ${portfolioContext.chatContext.skills.softSkills.join(', ')}
+    - Expert in: ${portfolioContext.personalContext.skills.technical.expert.join(', ')}
+    - Advanced in: ${portfolioContext.personalContext.skills.technical.advanced.join(', ')}
+    - Soft Skills: ${portfolioContext.personalContext.skills.soft.join(', ')}
     
     Amazon Expertise:
-    - ${portfolioContext.chatContext.amazonExpertise.sellerCentral.role} for Amazon Seller Central
-    - ${portfolioContext.chatContext.amazonExpertise.developerCentral.role}
+    - Certifications: ${portfolioContext.personalContext.amazonExpertise.certifications.map(c => c.name).join(', ')}
+    - Areas: ${portfolioContext.personalContext.amazonExpertise.areasOfExpertise.join(', ')}
+    
+    Web App Information:
+    - Project: ${portfolioContext.webappContext.projectOverview.name}
+    - Description: ${portfolioContext.webappContext.projectOverview.description}
 
     Please provide accurate, personalized responses based on this information. For contact inquiries, share the appropriate contact details from the portfolio data.
     
