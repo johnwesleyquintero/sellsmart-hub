@@ -16,7 +16,9 @@
         "linkedin": "https://www.linkedin.com/in/johnwesleyquintero/",
         "github": "https://github.com/johnwesleyquintero",
         "blog": "https://wescode.vercel.app/blog",
-        "amazonToolsBlog": "https://wescode.vercel.app/blog/amazon-seller-tools"
+        "amazonToolsBlog": "https://wescode.vercel.app/blog/amazon-seller-tools",
+        "aiBlog": "https://wescode.vercel.app/blog/ai-implementation",
+        "ecommerceBlog": "https://wescode.vercel.app/blog/ecommerce-tips"
       }
     },
     "professionalProfile": {

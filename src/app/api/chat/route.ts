@@ -38,6 +38,12 @@ export async function POST(request: NextRequest) {
     Web App Information:
     - Project: ${portfolioContext.webappContext.projectOverview.name}
     - Description: ${portfolioContext.webappContext.projectOverview.description}
+    
+    Additional Resources:
+    - Blog: ${portfolioContext.personalContext.personalInfo.socialLinks.blog}
+    - Amazon Tools Blog: ${portfolioContext.personalContext.personalInfo.socialLinks.amazonToolsBlog}
+    - AI Implementation Blog: ${portfolioContext.personalContext.personalInfo.socialLinks.aiBlog}
+    - E-commerce Tips Blog: ${portfolioContext.personalContext.personalInfo.socialLinks.ecommerceBlog}
 
     Please provide accurate, personalized responses based on this information. For contact inquiries, share the appropriate contact details from the portfolio data.
     
