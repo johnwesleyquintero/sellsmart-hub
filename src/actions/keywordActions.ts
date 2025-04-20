@@ -23,7 +23,12 @@ export async function getAllProhibitedKeywords(): Promise<string[]> {
 export async function addProhibitedKeyword(
   keyword: string,
 ): Promise<{ success: boolean; message: string }> {
-  if (!keyword || typeof keyword !== 'string' || keyword.trim().length === 0) {
+  if (
+    !keyword ||
+    typeof keyword !== 'string' ||
+    keyword.trim().length === 0 ||
+    keyword.trim().length > 50
+  ) {
     return { success: false, message: 'Invalid keyword provided.' };
   }
   try {
@@ -33,7 +38,7 @@ export async function addProhibitedKeyword(
     );
     const lowerCaseKeyword = keyword.trim().toLowerCase();
     const exists = await collection.findOne({
-      keyword: { $regex: new RegExp(`^${lowerCaseKeyword}$`, 'i') },
+      keyword: lowerCaseKeyword,
     });
 
     if (!exists) {
