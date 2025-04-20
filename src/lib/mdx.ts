@@ -122,7 +122,7 @@ export async function getPostBySlug(
       title: data.title,
       description: data.description,
       date: normalizeDate(data.date),
-      image: data.image || `/public/images/blog/${slug}.svg`,
+      image: data.image || `/images/blog/${slug}.svg`,
       tags: data.tags || [],
       readingTime: data.readingTime || '5 min read',
       author: data.author || 'Wesley Quintero',
