@@ -1,4 +1,3 @@
-
 export interface KeywordTrend {
   _id?: string;
   keyword: string;

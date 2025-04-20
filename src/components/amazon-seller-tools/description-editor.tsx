@@ -1,9 +1,9 @@
 // src/components/amazon-seller-tools/description-editor.tsx
 'use client';
 
+import { getAllProhibitedKeywords } from '@/actions/keywordActions';
 import { useToast } from '@/hooks/use-toast';
 import { getScoreColor } from '@/lib/calculations/color-utils';
-import { ProhibitedKeywords } from '@/lib/prohibited-keywords';
 import Papa from 'papaparse';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -106,7 +106,7 @@ export default function DescriptionEditor() {
   useEffect(() => {
     const fetchProhibitedKeywords = async () => {
       try {
-        const keywords = await ProhibitedKeywords.getAll();
+        const keywords = await getAllProhibitedKeywords();
         setProhibitedKeywords(keywords);
       } catch (err) {
         console.error('Failed to fetch prohibited keywords:', err);

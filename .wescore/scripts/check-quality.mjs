@@ -1,10 +1,11 @@
-// .wescore/scripts/check-quality.mjs
-import { execa } from 'execa'; // Use execa directly
-import { readFile } from 'node:fs/promises';
+// .wescore/scripts/check-quality.cjs
+
+import { execa } from 'execa';
+import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { generateHeader } from '../src/utils/header.mjs'; // Adjust path if needed
+import { generateHeader } from '../src/utils/header.mjs';
 
 // --- Configuration Loading ---
 const CONFIG_PATH = path.resolve(process.cwd(), '.wescore.json');
@@ -22,8 +23,9 @@ let allChecks = []; // Will hold the enabled checks loaded from config
 async function loadConfig() {
   try {
     log('INFO', `Loading configuration from ${CONFIG_PATH}...`);
-    const configFileContent = await readFile(CONFIG_PATH, 'utf-8');
+    const configFileContent = await fs.readFile(CONFIG_PATH, 'utf-8');
     config = JSON.parse(configFileContent);
+
     // Ensure config object and checks array exist after parsing
     config.config = config.config || {
       runMode: 'sequential',
@@ -31,6 +33,17 @@ async function loadConfig() {
       commandTimeout: 300000,
     };
     config.checks = config.checks || [];
+
+    // Validate check objects
+    config.checks.forEach((check, index) => {
+      if (!check.name || typeof check.name !== 'string') {
+        throw new Error(`Check at index ${index} is missing a valid 'name'`);
+      }
+      if (!check.command || typeof check.command !== 'string') {
+        throw new Error(`Check "${check.name}" is missing a valid 'command'`);
+      }
+    });
+
     allChecks = config.checks.filter((check) => check.enabled !== false); // Filter enabled checks
     log(
       'INFO',
@@ -163,129 +176,240 @@ async function runChecks() {
   let checksFailed = 0;
 
   // --- Check Execution Loop ---
-  for (let i = 0; i < allChecks.length; i++) {
-    const check = allChecks[i];
-    const checkIndex = i + 1;
-    const totalChecks = allChecks.length;
+  // --- Parallel Execution ---
+  if (config.config.runMode === 'parallel') {
+    const checkPromises = allChecks.map(async (check, i) => {
+      const checkIndex = i + 1;
+      const totalChecks = allChecks.length;
 
-    log(
-      'INFO',
-      `\n[${checkIndex}/${totalChecks}] ▶ Running: ${check.name} (${colors.cyan}${check.command}${colors.reset})`,
-    );
-    const checkStart = performance.now();
-    let checkResult = {
-      name: check.name,
-      command: check.command,
-      status: 'failed', // Default to failed
-      durationMs: 0,
-      exitCode: null,
-      stdout: '',
-      stderr: '',
-    };
+      log(
+        'INFO',
+        `\n[${checkIndex}/${totalChecks}] ▶ Running: ${check.name} (${colors.cyan}${check.command}${colors.reset})`,
+      );
+      const checkStart = performance.now();
+      let checkResult = {
+        name: check.name,
+        command: check.command,
+        status: 'failed', // Default to failed
+        durationMs: 0,
+        exitCode: null,
+        stdout: '',
+        stderr: '',
+      };
 
-    try {
-      // Execute the command using execa
-      const result = await execa(check.command, {
-        shell: true, // Use shell for complex commands / npm scripts
-        timeout: config.config.commandTimeout, // Apply timeout from config
-        cwd: check.cwd || process.cwd(), // Allow overriding cwd per check
-        reject: false, // IMPORTANT: Don't throw on non-zero exit codes
-        // Consider adding env vars if needed: env: { ...process.env, MY_VAR: 'value' }
-      });
+      try {
+        // Execute the command using execa
+        const result = await execa(check.command, {
+          shell: true, // Use shell for complex commands / npm scripts
+          timeout: config.config.commandTimeout, // Apply timeout from config
+          cwd: check.cwd || process.cwd(), // Allow overriding cwd per check
+          reject: false, // IMPORTANT: Don't throw on non-zero exit codes
+          // Consider adding env vars if needed: env: { ...process.env, MY_VAR: 'value' }
+        });
 
-      const checkEnd = performance.now();
-      checkResult.durationMs = checkEnd - checkStart;
-      checkResult.stdout = result.stdout || '';
-      checkResult.stderr = result.stderr || '';
-      checkResult.exitCode = result.exitCode;
+        const checkEnd = performance.now();
+        checkResult.durationMs = checkEnd - checkStart;
+        checkResult.stdout = result.stdout || '';
+        checkResult.stderr = result.stderr || '';
+        checkResult.exitCode = result.exitCode;
 
-      // --- Handle Success ---
-      if (result.exitCode === 0) {
-        checkResult.status = 'success';
-        checksPassed++;
-        log(
-          'INFO',
-          `[${checkIndex}/${totalChecks}] ${colors.green}✅ Success:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
-        );
-        // Log stderr warning only if it contains non-whitespace characters
-        if (checkResult.stderr && checkResult.stderr.trim()) {
+        // --- Handle Success ---
+        if (result.exitCode === 0) {
+          checkResult.status = 'success';
+          checksPassed++;
           log(
-            'WARN',
-            `  Stderr output detected on success:\n${truncateOutput(checkResult.stderr, 5)}`, // Correctly pass checkResult.stderr
+            'INFO',
+            `[${checkIndex}/${totalChecks}] ${colors.green}✅ Success:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
           );
+          // Log stderr warning only if it contains non-whitespace characters
+          if (checkResult.stderr && checkResult.stderr.trim()) {
+            log(
+              'WARN',
+              `  Stderr output detected on success:\n${truncateOutput(checkResult.stderr, 5)}`, // Correctly pass checkResult.stderr
+            );
+          }
         }
-      }
-      // --- Handle Failure (Non-zero Exit Code) ---
-      else {
+        // --- Handle Failure (Non-zero Exit Code) ---
+        else {
+          checkResult.status = 'failed';
+          checksFailed++;
+          log(
+            'ERROR',
+            `[${checkIndex}/${totalChecks}] ${colors.red}❌ Failed (Exit Code ${checkResult.exitCode}):${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
+          );
+          log(
+            'ERROR',
+            `  ${colors.red}Output:${colors.reset}\n--- Error Output Start ---`,
+          );
+          // Log stderr first as it often contains the primary error
+          if (checkResult.stderr && checkResult.stderr.trim()) {
+            log('ERROR', `  Stderr:\n${checkResult.stderr}`);
+          }
+          if (checkResult.stdout && checkResult.stdout.trim()) {
+            log('ERROR', `  Stdout:\n${checkResult.stdout}`);
+          }
+          log('ERROR', `--- Error Output End ---`);
+        }
+      } catch (error) {
+        // --- Handle Execution Errors (e.g., command not found, timeout) ---
+        const checkEnd = performance.now();
+        checkResult.durationMs = checkEnd - checkStart;
         checkResult.status = 'failed';
+        // Attempt to get exit code from error, default to 1
+        checkResult.exitCode = error.exitCode ?? error.code ?? 1;
+        checkResult.stdout = error.stdout || '';
+        // Use stderr if available, otherwise the error message itself
+        checkResult.stderr = error.stderr || error.message;
         checksFailed++;
+
         log(
           'ERROR',
-          `[${checkIndex}/${totalChecks}] ${colors.red}❌ Failed (Exit Code ${checkResult.exitCode}):${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
+          `[${checkIndex}/${totalChecks}] ${colors.red}💥 Execution Error:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)}) - ${error.shortMessage || error.message}`,
         );
-        log(
-          'ERROR',
-          `  ${colors.red}Output:${colors.reset}\n--- Error Output Start ---`,
-        );
-        // Log stderr first as it often contains the primary error
+        // Log output if available from the execution error
         if (checkResult.stderr && checkResult.stderr.trim()) {
           log('ERROR', `  Stderr:\n${checkResult.stderr}`);
         }
         if (checkResult.stdout && checkResult.stdout.trim()) {
           log('ERROR', `  Stdout:\n${checkResult.stdout}`);
         }
-        log('ERROR', `--- Error Output End ---`);
+      }
 
-        // Fail fast logic for non-zero exit
+      // Add the result of the current check to the results array
+      results.push(checkResult);
+      return checkResult;
+    });
+
+    await Promise.all(checkPromises);
+
+    checksPassed = results.filter((r) => r.status === 'success').length;
+    checksFailed = results.filter((r) => r.status === 'failed').length;
+  } else {
+    // --- Sequential Execution ---
+    for (let i = 0; i < allChecks.length; i++) {
+      const check = allChecks[i];
+      const checkIndex = i + 1;
+      const totalChecks = allChecks.length;
+
+      log(
+        'INFO',
+        `\n[${checkIndex}/${totalChecks}] ▶ Running: ${check.name} (${colors.cyan}${check.command}${colors.reset})`,
+      );
+      const checkStart = performance.now();
+      let checkResult = {
+        name: check.name,
+        command: check.command,
+        status: 'failed', // Default to failed
+        durationMs: 0,
+        exitCode: null,
+        stdout: '',
+        stderr: '',
+      };
+
+      try {
+        // Execute the command using execa
+        const result = await execa(check.command, {
+          shell: true, // Use shell for complex commands / npm scripts
+          timeout: config.config.commandTimeout, // Apply timeout from config
+          cwd: check.cwd || process.cwd(), // Allow overriding cwd per check
+          reject: false, // IMPORTANT: Don't throw on non-zero exit codes
+          // Consider adding env vars if needed: env: { ...process.env, MY_VAR: 'value' }
+        });
+
+        const checkEnd = performance.now();
+        checkResult.durationMs = checkEnd - checkStart;
+        checkResult.stdout = result.stdout || '';
+        checkResult.stderr = result.stderr || '';
+        checkResult.exitCode = result.exitCode;
+
+        // --- Handle Success ---
+        if (result.exitCode === 0) {
+          checkResult.status = 'success';
+          checksPassed++;
+          log(
+            'INFO',
+            `[${checkIndex}/${totalChecks}] ${colors.green}✅ Success:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
+          );
+          // Log stderr warning only if it contains non-whitespace characters
+          if (checkResult.stderr && checkResult.stderr.trim()) {
+            log(
+              'WARN',
+              `  Stderr output detected on success:\n${truncateOutput(checkResult.stderr, 5)}`, // Correctly pass checkResult.stderr
+            );
+          }
+        }
+        // --- Handle Failure (Non-zero Exit Code) ---
+        else {
+          checkResult.status = 'failed';
+          checksFailed++;
+          log(
+            'ERROR',
+            `[${checkIndex}/${totalChecks}] ${colors.red}❌ Failed (Exit Code ${checkResult.exitCode}):${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)})`,
+          );
+          log(
+            'ERROR',
+            `  ${colors.red}Output:${colors.reset}\n--- Error Output Start ---`,
+          );
+          // Log stderr first as it often contains the primary error
+          if (checkResult.stderr && checkResult.stderr.trim()) {
+            log('ERROR', `  Stderr:\n${checkResult.stderr}`);
+          }
+          if (checkResult.stdout && checkResult.stdout.trim()) {
+            log('ERROR', `  Stdout:\n${checkResult.stdout}`);
+          }
+          log('ERROR', `--- Error Output End ---`);
+
+          // Fail fast logic for non-zero exit
+          if (config.config.failFast) {
+            log(
+              'WARN',
+              `Check '${check.name}' failed. Stopping execution due to failFast=true.`,
+            );
+            results.push(checkResult); // Add the failed result before breaking
+            break; // Exit the loop
+          }
+        }
+      } catch (error) {
+        // --- Handle Execution Errors (e.g., command not found, timeout) ---
+        const checkEnd = performance.now();
+        checkResult.durationMs = checkEnd - checkStart;
+        checkResult.status = 'failed';
+        // Attempt to get exit code from error, default to 1
+        checkResult.exitCode = error.exitCode ?? error.code ?? 1;
+        checkResult.stdout = error.stdout || '';
+        // Use stderr if available, otherwise the error message itself
+        checkResult.stderr = error.stderr || error.message;
+        checksFailed++;
+
+        log(
+          'ERROR',
+          `[${checkIndex}/${totalChecks}] ${colors.red}💥 Execution Error:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)}) - ${error.shortMessage || error.message}`,
+        );
+        // Log output if available from the execution error
+        if (checkResult.stderr && checkResult.stderr.trim()) {
+          log('ERROR', `  Stderr:\n${checkResult.stderr}`);
+        }
+        if (checkResult.stdout && checkResult.stdout.trim()) {
+          log('ERROR', `  Stdout:\n${checkResult.stdout}`);
+        }
+
+        // Fail fast logic for execution errors
         if (config.config.failFast) {
           log(
             'WARN',
-            `Check '${check.name}' failed. Stopping execution due to failFast=true.`,
+            `Check '${check.name}' had execution error. Stopping execution due to failFast=true.`,
           );
           results.push(checkResult); // Add the failed result before breaking
           break; // Exit the loop
         }
       }
-    } catch (error) {
-      // --- Handle Execution Errors (e.g., command not found, timeout) ---
-      const checkEnd = performance.now();
-      checkResult.durationMs = checkEnd - checkStart;
-      checkResult.status = 'failed';
-      // Attempt to get exit code from error, default to 1
-      checkResult.exitCode = error.exitCode ?? error.code ?? 1;
-      checkResult.stdout = error.stdout || '';
-      // Use stderr if available, otherwise the error message itself
-      checkResult.stderr = error.stderr || error.message;
-      checksFailed++;
 
-      log(
-        'ERROR',
-        `[${checkIndex}/${totalChecks}] ${colors.red}💥 Execution Error:${colors.reset} ${check.name} (${formatDuration(checkResult.durationMs)}) - ${error.shortMessage || error.message}`,
-      );
-      // Log output if available from the execution error
-      if (checkResult.stderr && checkResult.stderr.trim()) {
-        log('ERROR', `  Stderr:\n${checkResult.stderr}`);
-      }
-      if (checkResult.stdout && checkResult.stdout.trim()) {
-        log('ERROR', `  Stdout:\n${checkResult.stdout}`);
-      }
+      // Add the result of the current check to the results array
+      results.push(checkResult);
 
-      // Fail fast logic for execution errors
-      if (config.config.failFast) {
-        log(
-          'WARN',
-          `Check '${check.name}' had execution error. Stopping execution due to failFast=true.`,
-        );
-        results.push(checkResult); // Add the failed result before breaking
-        break; // Exit the loop
-      }
-    }
-
-    // Add the result of the current check to the results array
-    results.push(checkResult);
-
-    // Removed the redundant failFast check here
-  } // --- End of Check Execution Loop ---
+      // Removed the redundant failFast check here
+    } // --- End of Check Execution Loop ---
+  }
 
   const checksExecutionEnd = performance.now();
   const checksDurationMs = checksExecutionEnd - checksExecutionStart;
@@ -360,7 +484,7 @@ async function runChecks() {
 
     console.log(`
 ========================================================
-              IMMEDIATE ACTIONS REQUIRED
+          IMMEDIATE ACTIONS REQUIRED
 ========================================================
 
 The Wescore code quality checks have identified one or more issues.
@@ -368,10 +492,10 @@ The Wescore code quality checks have identified one or more issues.
 Instructions:
 1. Analyze the provided WESCORE run summary, focusing on the failed checks.
 2. Prioritize addressing the specific errors detailed in the output snippets for each failed check. 
-Pay close attention to:
-   - File paths
-   - Line numbers
-   - Error messages
+   Pay close attention to:
+    - File paths
+    - Line numbers
+    - Error messages
 
 Post-Fix Actions:
 1. After implementing fixes, re-run the code quality checks using the command: npm run cq
