@@ -1,8 +1,6 @@
 // Move 'use client' directive to the top of the file
 'use client';
 
-console.log('PpcCampaignAuditor component loaded');
-
 import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertCircle,
@@ -13,7 +11,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react'; // Import React
 
 // Local/UI Imports
 import { Button } from '@/components/ui/button';
@@ -21,7 +19,6 @@ import { Progress } from '@/components/ui/progress';
 import CampaignCard from './CampaignCard';
 import DataCard from './DataCard'; // Import DataCard
 import SampleCsvButton from './sample-csv-button';
-console.log('DataCard component loaded');
 
 // --- Constants for Analysis ---
 const HIGH_ACOS_THRESHOLD = 30; // %
@@ -41,8 +38,8 @@ interface RawCampaignData {
   clicks?: NumberOrStringOrNull;
 }
 
-type StringOrNull = string | null;
-type NumberOrStringOrNull = number | string | null;
+type StringOrNull = string | null | undefined; // Allow undefined as PapaParse might yield it
+type NumberOrStringOrNull = number | string | null | undefined; // Allow undefined
 
 // Processed and validated data structure
 export type CampaignData = {
@@ -57,6 +54,16 @@ export type CampaignData = {
   conversionRate: number; // Always calculated (Note: May be Sales/Click if 'sales' is revenue)
   issues: string[];
   recommendations: string[];
+};
+
+// Type for validated row before analysis
+type ValidatedRow = {
+  name: string;
+  type: string;
+  spend: number;
+  sales: number;
+  impressions: number;
+  clicks: number;
 };
 
 // --- Helper Functions ---
@@ -178,6 +185,7 @@ function analyzeCampaignPerformance(
     const noSalesResult = handleNoSalesCase(spend);
     issues.push(...noSalesResult.issues);
     recommendations.push(...noSalesResult.recommendations);
+    // Return early if no sales, as other metrics might not be meaningful
     return { issues, recommendations };
   }
 
@@ -209,7 +217,7 @@ function analyzeCampaignPerformance(
   const autoCampaignResult = analyzeAutoCampaign(type, acos);
   recommendations.push(...autoCampaignResult.recommendations);
 
-  // Add default messages if no specific issues/recommendations were found
+  // Add default messages if no specific issues/recommendations were found after analysis
   if (issues.length === 0) {
     issues.push('No major performance issues detected.');
   }
@@ -223,85 +231,188 @@ function analyzeCampaignPerformance(
 }
 
 /**
+ * Validates a single raw row from the CSV.
+ * Returns a validated row object or null if validation fails.
+ */
+function validateRow(
+  row: unknown,
+  rowIndex: number,
+): { data: ValidatedRow | null; error: string | null } {
+  const item = row as RawCampaignData;
+
+  // Basic structure check
+  if (
+    typeof item !== 'object' ||
+    item === null ||
+    !item.name ||
+    !item.type ||
+    item.spend === undefined || // Check for undefined/null explicitly
+    item.spend === null ||
+    item.sales === undefined ||
+    item.sales === null ||
+    item.impressions === undefined ||
+    item.impressions === null ||
+    item.clicks === undefined ||
+    item.clicks === null
+  ) {
+    return { data: null, error: 'Missing required fields' };
+  }
+
+  // Type validation and conversion
+  const name = typeof item.name === 'string' ? item.name.trim() : '';
+  const type = typeof item.type === 'string' ? item.type.trim() : '';
+
+  // Use Number() for potentially mixed types, then check isNaN and range
+  const spend = Number(item.spend);
+  const sales = Number(item.sales);
+  const impressions = Number(item.impressions);
+  const clicks = Number(item.clicks);
+
+  // Detailed validation
+  if (!name) {
+    return { data: null, error: 'Invalid or missing campaign name' };
+  }
+  if (!type) {
+    return { data: null, error: 'Invalid or missing campaign type' };
+  }
+  if (isNaN(spend) || spend < 0) {
+    return { data: null, error: 'Invalid or negative spend amount' };
+  }
+  if (isNaN(sales) || sales < 0) {
+    return { data: null, error: 'Invalid or negative sales amount' };
+  }
+  // Impressions and clicks should be whole numbers
+  if (isNaN(impressions) || impressions < 0 || !Number.isInteger(impressions)) {
+    return { data: null, error: 'Invalid or negative impressions count' };
+  }
+  if (isNaN(clicks) || clicks < 0 || !Number.isInteger(clicks)) {
+    return { data: null, error: 'Invalid or negative clicks count' };
+  }
+
+  return {
+    data: { name, type, spend, sales, impressions, clicks },
+    error: null,
+  };
+}
+
+/**
  * Processes raw data parsed from CSV into structured CampaignData.
- * Includes validation and metric calculation.
+ * Refactored for lower complexity.
  */
 function processRawCampaignData(rawData: unknown[]): {
   data: CampaignData[];
   skippedRows: number;
+  errors: { row: number; message: string }[];
 } {
   const processedData: CampaignData[] = [];
-  let skippedRows = 0;
+  const errors: { row: number; message: string }[] = [];
 
-  for (const row of rawData) {
-    const item = row as RawCampaignData;
-
-    // Basic validation for required fields and types
-    const name = typeof item.name === 'string' ? item.name.trim() : null;
-    const type = typeof item.type === 'string' ? item.type.trim() : null;
-    // Use parseFloat for potentially non-integer numbers
-    const spend =
-      typeof item.spend === 'number'
-        ? item.spend
-        : parseFloat(String(item.spend));
-    const sales =
-      typeof item.sales === 'number'
-        ? item.sales
-        : parseFloat(String(item.sales));
-    const impressions =
-      typeof item.impressions === 'number'
-        ? item.impressions
-        : parseInt(String(item.impressions), 10);
-    const clicks =
-      typeof item.clicks === 'number'
-        ? item.clicks
-        : parseInt(String(item.clicks), 10);
-
-    if (
-      !name ||
-      !type ||
-      isNaN(spend) ||
-      spend < 0 ||
-      isNaN(sales) ||
-      sales < 0 || // Allow 0 sales
-      isNaN(impressions) ||
-      impressions < 0 ||
-      isNaN(clicks) ||
-      clicks < 0
-    ) {
-      console.warn('Skipping invalid row:', item);
-      skippedRows++;
-      continue; // Skip this row if essential data is missing or invalid
-    }
-
-    const metrics = calculateMetrics(spend, sales, impressions, clicks);
-    const baseCampaignData = {
-      name,
-      type,
-      spend,
-      sales,
-      impressions,
-      clicks,
-      ...metrics,
+  if (!Array.isArray(rawData)) {
+    // Handle cases where rawData might not be an array (e.g., PapaParse error)
+    return {
+      data: [],
+      skippedRows: 0,
+      errors: [
+        {
+          row: 0,
+          message: 'Invalid input: Expected an array of campaign data.',
+        },
+      ],
     };
-    const analysis = analyzeCampaignPerformance(baseCampaignData);
-
-    processedData.push({
-      ...baseCampaignData,
-      ...analysis,
-    });
   }
 
-  return { data: processedData, skippedRows };
+  rawData.forEach((row, index) => {
+    const rowIndex = index + 1; // User-friendly row number (1-based)
+    const validationResult = validateRow(row, rowIndex);
+
+    if (validationResult.error || !validationResult.data) {
+      errors.push({
+        row: rowIndex,
+        message: validationResult.error || 'Unknown validation error',
+      });
+    } else {
+      try {
+        const validatedData = validationResult.data;
+        const metrics = calculateMetrics(
+          validatedData.spend,
+          validatedData.sales,
+          validatedData.impressions,
+          validatedData.clicks,
+        );
+        const baseCampaignData = {
+          ...validatedData,
+          ...metrics,
+        };
+        const analysis = analyzeCampaignPerformance(baseCampaignData);
+
+        processedData.push({
+          ...baseCampaignData,
+          ...analysis,
+        });
+      } catch (error) {
+        errors.push({
+          row: rowIndex,
+          message:
+            'Error during analysis: ' +
+            (error instanceof Error ? error.message : 'Unknown error'),
+        });
+      }
+    }
+  });
+
+  const skippedRows = errors.length;
+  return { data: processedData, skippedRows, errors };
 }
 
 // --- Component ---
-console.log('PpcCampaignAuditor component rendered');
 export default function PpcCampaignAuditor() {
+  // --- State Declarations (Moved to top) ---
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<
+    { row: number; message: string }[]
+  >([]);
+  const [skippedRows, setSkippedRows] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- Callbacks (Moved after state) ---
+  const processCampaignDataCallback = useCallback(
+    (rawData: unknown[]) => {
+      try {
+        const { data, skippedRows: skipped, errors: validationErrs } =
+          processRawCampaignData(rawData);
+        setCampaigns(data);
+        setSkippedRows(skipped);
+        setValidationErrors(validationErrs);
+
+        // Set general error message based on processing results
+        if (data.length === 0 && rawData.length > 0) {
+          setError(
+            `No valid campaign data found after processing ${rawData.length} rows. Check data integrity and formats. ${skipped} rows skipped.`,
+          );
+        } else if (skipped > 0) {
+          setError(
+            `Processed ${data.length} campaigns. Skipped ${skipped} invalid rows. See details below.`,
+          ); // Use general error state for warnings too
+        } else if (data.length > 0) {
+          setError(null); // Clear error on success
+        } else {
+          setError(
+            'The uploaded CSV file appears to be empty or contains no processable data rows.',
+          );
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'An unknown processing error occurred',
+        );
+        setCampaigns([]);
+        setSkippedRows(0);
+        setValidationErrors([]);
+      }
+    },
+    [setCampaigns, setError, setSkippedRows, setValidationErrors], // Add setters to dependencies
+  );
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,23 +421,24 @@ export default function PpcCampaignAuditor() {
 
       setIsLoading(true);
       setError(null);
+      setValidationErrors([]); // Clear specific validation errors on new upload
+      setSkippedRows(0);
       setCampaigns([]); // Clear previous results
 
       Papa.parse(file, {
         header: true,
-        dynamicTyping: true, // Let PapaParse handle initial type conversion
+        dynamicTyping: false, // Parse as strings initially for robust validation
         skipEmptyLines: true,
         complete: (result) => {
-          setIsLoading(false); // Stop loading indicator regardless of outcome
+          setIsLoading(false); // Stop loading indicator
 
           if (result.errors.length > 0) {
             setError(
-              `Error parsing CSV: ${result.errors[0].message}. Please check the file format and ensure it matches the requirements.`,
+              `Error parsing CSV: ${result.errors[0].message}. Check row ${result.errors[0].row}.`,
             );
             return;
           }
 
-          // Validate required headers
           const requiredHeaders = [
             'name',
             'type',
@@ -335,52 +447,24 @@ export default function PpcCampaignAuditor() {
             'impressions',
             'clicks',
           ];
-          const actualHeaders = result.meta.fields || [];
+          const actualHeaders =
+            result.meta.fields?.map((h) => h.toLowerCase()) || []; // Case-insensitive check
           const missingHeaders = requiredHeaders.filter(
             (header) => !actualHeaders.includes(header),
           );
 
           if (missingHeaders.length > 0) {
             setError(
-              `Missing required columns in CSV: ${missingHeaders.join(', ')}. Please ensure your file includes all required headers.`,
+              `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${actualHeaders.join(', ') || 'None'}`,
             );
             return;
           }
 
-          try {
-            const { data: processedData, skippedRows } = processRawCampaignData(
-              result.data,
-            );
+          processCampaignDataCallback(result.data); // Use the memoized callback
 
-            if (processedData.length === 0) {
-              if (result.data.length > 0) {
-                setError(
-                  `No valid campaign data found after processing ${result.data.length} rows. Please check data integrity, numeric formats, and ensure required columns are populated correctly.`,
-                );
-              } else {
-                setError(
-                  'The uploaded CSV file appears to be empty or contains no data rows.',
-                );
-              }
-            } else {
-              setCampaigns(processedData);
-              if (skippedRows > 0) {
-                // Optionally inform user about skipped rows
-                setError(
-                  `Successfully processed ${processedData.length} campaigns. Skipped ${skippedRows} invalid rows.`,
-                );
-              }
-            }
-          } catch (procError) {
-            console.error('Processing error:', procError);
-            setError(
-              `Failed to process data: ${procError instanceof Error ? procError.message : 'Unknown error'}. Please check the data within your CSV file.`,
-            );
-          } finally {
-            // Reset file input value to allow re-uploading the same file
-            if (event.target) {
-              event.target.value = '';
-            }
+          // Reset file input value
+          if (event.target) {
+            event.target.value = '';
           }
         },
         error: (err: Error) => {
@@ -393,7 +477,7 @@ export default function PpcCampaignAuditor() {
         },
       });
     },
-    [], // No dependencies needed
+    [processCampaignDataCallback, setIsLoading, setError, setValidationErrors, setSkippedRows, setCampaigns], // Add setters
   );
 
   const handleExport = useCallback(() => {
@@ -414,7 +498,7 @@ export default function PpcCampaignAuditor() {
       CTR_Percent: campaign.ctr.toFixed(2),
       ConversionRate_Percent: isFinite(campaign.conversionRate)
         ? campaign.conversionRate.toFixed(2)
-        : 'N/A', // Handle potential Infinity/NaN if sales/clicks are 0
+        : 'N/A',
       Issues: campaign.issues.join('; '),
       Recommendations: campaign.recommendations.join('; '),
     }));
@@ -429,23 +513,89 @@ export default function PpcCampaignAuditor() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url); // Clean up blob URL
+      URL.revokeObjectURL(url);
     } catch (expError) {
       console.error('Export error:', expError);
       setError(
         `Failed to generate CSV: ${expError instanceof Error ? expError.message : 'Unknown error'}.`,
       );
     }
-  }, [campaigns]); // Depends on campaigns state
+  }, [campaigns, setError]); // Added setError
 
   const clearData = useCallback(() => {
     setCampaigns([]);
     setError(null);
+    setValidationErrors([]);
+    setSkippedRows(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, []); // No dependencies
+  }, [setCampaigns, setError, setValidationErrors, setSkippedRows]); // Added setters
 
+  // --- Sub-Components (Moved after hooks) ---
+  const ErrorDisplay = () => {
+    // Display general error OR specific validation errors
+    const hasGeneralError = error && !error.startsWith('Processed'); // Don't show general error if it's just a warning about skipped rows
+    const hasValidationErrs = validationErrors.length > 0;
+
+    if (!hasGeneralError && !hasValidationErrs) return null;
+
+    return (
+      <div className="mt-4 p-4 border border-red-200 rounded-md bg-red-50 text-red-700">
+        <div className="flex items-start">
+          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
+          <div className="flex-grow">
+            {hasGeneralError && <p className="font-semibold">{error}</p>}
+            {hasValidationErrs && (
+              <div className={hasGeneralError ? 'mt-2' : ''}>
+                <p className="font-semibold mb-1">Validation Errors:</p>
+                <ul className="list-disc list-inside text-sm space-y-1 max-h-40 overflow-y-auto">
+                  {validationErrors.map((err, index) => (
+                    <li key={index}>
+                      Row {err.row}: {err.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setError(null);
+              setValidationErrors([]);
+            }}
+            className="text-red-700 h-6 w-6 flex-shrink-0 ml-2"
+            aria-label="Dismiss error"
+          >
+            <XCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const ProcessingStatus = () => {
+    // Show status only if loading is finished and there was some processing
+    if (isLoading || (campaigns.length === 0 && skippedRows === 0)) return null;
+
+    const message =
+      skippedRows > 0
+        ? `Processed ${campaigns.length} campaigns (${skippedRows} rows skipped due to errors).`
+        : `Successfully processed ${campaigns.length} campaigns.`;
+
+    return (
+      <div className="mt-4 p-3 border border-blue-200 rounded-md bg-blue-50 text-blue-700 text-sm">
+        <div className="flex items-center">
+          <Info className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span>{message}</span>
+        </div>
+      </div>
+    );
+  };
+
+  // --- Render ---
   return (
     <div className="space-y-6">
       {/* Info Box */}
@@ -462,7 +612,7 @@ export default function PpcCampaignAuditor() {
             <li>
               Numeric columns (spend, sales, impressions, clicks) must contain
               valid numbers (e.g., 123.45 or 123). Avoid currency symbols or
-              commas within numbers.
+              commas within numbers. Impressions/clicks must be whole numbers.
             </li>
             <li>
               Example Row:{' '}
@@ -474,22 +624,18 @@ export default function PpcCampaignAuditor() {
         </div>
       </div>
 
-      {/* Upload Card - Using DataCard for consistency */}
+      {/* Upload Card */}
       <DataCard>
-        {/* CardContent is automatically included by DataCard, adjust padding if needed */}
         <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-          {/* Icon Circle */}
           <div className="rounded-full bg-primary/10 p-3">
             <Upload className="h-6 w-6 text-primary" />
           </div>
-          {/* Heading and Description */}
           <div>
             <h3 className="text-lg font-medium">Upload Campaign Report</h3>
             <p className="text-sm text-muted-foreground">
               Upload a CSV report from Amazon Advertising.
             </p>
           </div>
-          {/* Upload Area */}
           <div className="w-full max-w-md">
             <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
               <FileText className="mb-2 h-8 w-8 text-primary/60" />
@@ -508,10 +654,9 @@ export default function PpcCampaignAuditor() {
                 ref={fileInputRef}
               />
             </label>
-            {/* Buttons below the upload area */}
             <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
               <SampleCsvButton
-                dataType="ppc"
+                dataType="ppc" // Corrected: Added dataType prop
                 fileName="sample-ppc-campaign.csv"
               />
               {campaigns.length > 0 && !isLoading && (
@@ -525,21 +670,7 @@ export default function PpcCampaignAuditor() {
       </DataCard>
 
       {/* Error Display */}
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setError(null)}
-            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
-            aria-label="Dismiss error"
-          >
-            <XCircle className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+      <ErrorDisplay />
 
       {/* Loading Indicator */}
       {isLoading && (
@@ -551,15 +682,13 @@ export default function PpcCampaignAuditor() {
         </div>
       )}
 
+      {/* Processing Status */}
+      <ProcessingStatus />
+
       {/* Results Section */}
       {campaigns.length > 0 && !isLoading && (
         <DataCard>
-          {' '}
-          {/* Wrap results in DataCard */}
           <CardContent className="p-4 space-y-6">
-            {' '}
-            {/* Add padding and spacing */}
-            {/* Results Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b pb-3">
               <h2 className="text-xl font-semibold">
                 Audit Results ({campaigns.length} Campaigns)
@@ -569,23 +698,20 @@ export default function PpcCampaignAuditor() {
                 Export Audit Report
               </Button>
             </div>
-            {/* Campaign List */}
             <div className="space-y-4">
               {campaigns.map((campaign, index) => (
-                // Using a simple Card wrapper for each result item
                 <Card key={`${campaign.name}-${index}`}>
                   <CardContent className="p-4">
-                    {/* Render basic info using CampaignCard */}
                     <CampaignCard campaign={campaign} />
-
-                    {/* Display Issues and Recommendations directly here */}
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-                      {/* Issues Section */}
                       <div>
                         <h4 className="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
                           Detected Issues ({campaign.issues.length})
                         </h4>
-                        {campaign.issues.length > 0 ? (
+                        {campaign.issues.length > 0 &&
+                        !campaign.issues.includes(
+                          'No major performance issues detected.',
+                        ) ? (
                           <ul className="list-disc list-inside space-y-1 text-sm text-red-700 dark:text-red-300">
                             {campaign.issues.map((issue, i) => (
                               <li key={`issue-${index}-${i}`}>{issue}</li>
@@ -597,12 +723,14 @@ export default function PpcCampaignAuditor() {
                           </p>
                         )}
                       </div>
-                      {/* Recommendations Section */}
                       <div>
                         <h4 className="mb-2 text-sm font-medium text-blue-600 dark:text-blue-400">
                           Recommendations ({campaign.recommendations.length})
                         </h4>
-                        {campaign.recommendations.length > 0 ? (
+                        {campaign.recommendations.length > 0 &&
+                        !campaign.recommendations.includes(
+                          'Performance looks stable. Continue monitoring key metrics.',
+                        ) ? (
                           <ul className="list-disc list-inside space-y-1 text-sm text-blue-700 dark:text-blue-300">
                             {campaign.recommendations.map((rec, i) => (
                               <li key={`rec-${index}-${i}`}>{rec}</li>
