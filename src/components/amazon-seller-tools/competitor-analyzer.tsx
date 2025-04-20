@@ -173,6 +173,11 @@ export function CompetitorAnalyzer() {
                 });
               }
               setData(validData);
+              toast({
+                title: 'Success',
+                description: `${file.name} uploaded successfully`,
+                variant: 'default',
+              });
             },
             error: (error: Error) => {
               console.error('CSV parsing error:', error);
