@@ -13,8 +13,10 @@
       "location": "Tagum, Davao Region, Philippines",
       "phone": "+63 950 446 9156",
       "socialLinks": {
-        "linkedin": "",
-        "github": ""
+        "linkedin": "https://www.linkedin.com/in/johnwesleyquintero/",
+        "github": "https://github.com/johnwesleyquintero",
+        "blog": "https://wescode.vercel.app/blog",
+        "amazonToolsBlog": "https://wescode.vercel.app/blog/amazon-seller-tools"
       }
     },
     "professionalProfile": {
