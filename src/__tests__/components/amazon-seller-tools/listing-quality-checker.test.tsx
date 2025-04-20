@@ -1,6 +1,4 @@
 /// <reference types="@testing-library/jest-dom" />
-/// <reference types="@testing-library/jest-dom" />
-/// <reference types="@testing-library/jest-dom" />
 import ListingQualityChecker from '@/components/amazon-seller-tools/listing-quality-checker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -48,9 +46,12 @@ describe('ListingQualityChecker', () => {
 
     fireEvent.change(input);
 
-    await waitFor(() => {
-      expect(screen.getByText(/test product/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/test product/i)).toBeInTheDocument();
+      },
+      { timeout: 500 },
+    );
   });
 
   it('displays analysis results', async () => {
@@ -59,10 +60,13 @@ describe('ListingQualityChecker', () => {
     const analyzeButton = screen.getByRole('button', { name: /analyze/i });
     fireEvent.click(analyzeButton);
 
-    await waitFor(() => {
-      expect(screen.getByText(/quality score/i)).toBeInTheDocument();
-      expect(screen.getByText('85')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/quality score/i)).toBeInTheDocument();
+        expect(screen.getByText('85')).toBeInTheDocument();
+      },
+      { timeout: 500 },
+    );
   });
 
   it('handles API errors gracefully', async () => {
@@ -75,9 +79,12 @@ describe('ListingQualityChecker', () => {
     const analyzeButton = screen.getByRole('button', { name: /analyze/i });
     fireEvent.click(analyzeButton);
 
-    await waitFor(() => {
-      expect(screen.getByText(/error occurred/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/error occurred/i)).toBeInTheDocument();
+      },
+      { timeout: 500 },
+    );
   });
 
   it('validates input data', async () => {
@@ -94,8 +101,11 @@ describe('ListingQualityChecker', () => {
 
     fireEvent.change(input);
 
-    await waitFor(() => {
-      expect(screen.getByText(/invalid file format/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/invalid file format/i)).toBeInTheDocument();
+      },
+      { timeout: 500 },
+    );
   });
 });

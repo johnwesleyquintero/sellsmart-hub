@@ -42,11 +42,12 @@ class ErrorBoundary extends Component<Props, State> {
             Please refer to the&nbsp;
             <a href="/docs/error-guide.md" className="underline">
               error guide
-            </a>&nbsp;
-            for further details.
+            </a>
+            &nbsp; for further details.
           </p>
           <p className="mb-6 max-w-md text-red-700 dark:text-red-300">
-            We apologize for the inconvenience. An unexpected error has occurred.
+            We apologize for the inconvenience. An unexpected error has
+            occurred.
           </p>
           <Button
             onClick={() => this.setState({ hasError: false, error: null })}
@@ -55,18 +56,11 @@ class ErrorBoundary extends Component<Props, State> {
             <RefreshCw className="h-4 w-4" />
             Reload Page
           </Button>
-          {this.state.error && process.env.NODE_ENV === 'development' && (
-            <div className="mt-6 max-w-md overflow-auto rounded border border-red-300 bg-white p-4 text-left text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300">
-              <p className="font-mono font-bold">
-                {this.state.error?.name}: {this.state.error?.message}
-              </p>
-              <pre className="mt-2 text-xs">{this.state.error?.stack}</pre>
-            </div>
-          )}
         </div>
-      );
-    }
+      ); // End of return for error case
+    } // <<<--- ADDED THIS CLOSING BRACE
 
+    // This is the return for the non-error case
     return <>{this.props.children}</>;
   }
 }

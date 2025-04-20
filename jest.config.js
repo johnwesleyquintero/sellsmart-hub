@@ -31,12 +31,6 @@ const config = {
 
     // Handle module aliases
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@/components/(.*)$': '<rootDir>/src/components/$1',
-    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
-    '^@/app/components/(.*)$': '<rootDir>/src/app/components/$1',
-    '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
-    '^@/components/blog/(.*)$': '<rootDir>/src/components/blog/$1',
-    '^@/app/hooks/(.*)$': '<rootDir>/src/app/hooks/$1',
 
     // Handle next/font
     '@next/font/(.*)': '<rootDir>/__mocks__/nextFontMock.js',

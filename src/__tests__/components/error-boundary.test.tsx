@@ -1,7 +1,5 @@
-/// <reference types="@testing-library/jest-dom" />
 import ErrorBoundary from '@/components/error-boundary';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-
 
 describe('ErrorBoundary', () => {
   const ThrowError = () => {
@@ -35,9 +33,9 @@ describe('ErrorBoundary', () => {
       );
     });
 
-    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /try again/i }),
+      screen.getByRole('button', { name: /Reload Page/i }),
     ).toBeInTheDocument();
   });
 
@@ -58,7 +56,7 @@ describe('ErrorBoundary', () => {
       rerenderFunc = rerender;
     });
 
-    const tryAgainButton = screen.getByRole('button', { name: /try again/i });
+    const tryAgainButton = screen.getByRole('button', { name: /Reload Page/i });
 
     // Update the prop to prevent error on retry
     await act(async () => {
