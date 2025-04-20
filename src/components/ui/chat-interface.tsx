@@ -4,7 +4,7 @@ import copy from 'clipboard-copy';
 import 'katex/dist/katex.min.css';
 import { Copy, MoveHorizontal, Send, Trash2, X } from 'lucide-react';
 import 'prismjs/themes/prism-tomorrow.css';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import rehypePrism from 'rehype-prism-plus';
@@ -15,10 +15,11 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  status?: 'sending' | 'sent' | 'error' | 'read';
+  status?: 'sending' | 'sent' | 'error' | 'read' | 'retry';
   isTyping?: boolean;
   error?: string;
   retryCount?: number;
+  retryLimit?: number;
   personalInfo?: {
     name: string;
     email: string;
@@ -49,6 +50,17 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isCentered, setIsCentered] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const RETRY_LIMIT = 3;
+  const MESSAGES_PER_PAGE = 50;
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -98,13 +110,20 @@ export function ChatInterface() {
         timestamp: Date.now(),
         status: 'sending',
         retryCount: 0,
+        retryLimit: RETRY_LIMIT
       };
-      // Use functional update to ensure we have the latest state
-      setMessages((prev) => [...prev, userMessage]);
-      if (!messageContent) {
-        setInput(''); // Clear input only if it's a new submission, not a retry
-      }
+
+      setMessages((prev) => {
+        const newMessages = [...prev, userMessage];
+        if (newMessages.length > MESSAGES_PER_PAGE) {
+          return newMessages.slice(-MESSAGES_PER_PAGE);
+        }
+        return newMessages;
+      });
+
+      if (!messageContent) setInput('');
       setIsLoading(true);
+      setIsTyping(true);
 
       try {
         const response = await fetch('/api/chat', {
@@ -112,68 +131,60 @@ export function ChatInterface() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: currentInput,
-            history: messages.slice(-4), // Send last 4 messages for context
+            history: messages.slice(-4),
           }),
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({})); // Catch JSON parsing errors
+          const errorData = await response.json().catch(() => ({}));
           throw new Error(
             errorData.error ||
-              `Server error: ${response.status} ${response.statusText}`,
+              `Server error (${response.status}): ${response.statusText}. Please try again.`
           );
         }
 
         const data = await response.json();
-        // Update user message status to sent
-        setMessages(
-          updateMessageStatus(userMessage.timestamp, 'user', {
-            status: 'sent',
-          }),
-        );
+        setMessages(updateMessageStatus(userMessage.timestamp, 'user', { status: 'sent' }));
 
         const assistantMessage: Message = {
           role: 'assistant',
-          content:
-            data.response ||
-            "I couldn't generate a response. Please try again.",
+          content: data.response || "I apologize, but I couldn't generate a response. Please try again.",
           timestamp: Date.now(),
-          status: 'sent', // Initial status
-          isTyping: true, // Start with typing indicator
+          status: 'sent',
+          isTyping: true,
         };
 
-        // Add assistant message placeholder with typing indicator
         setMessages((prev) => [...prev, assistantMessage]);
-
-        // Simulate typing indicator and then update message
         setTimeout(() => {
-          setMessages(
-            updateMessageStatus(assistantMessage.timestamp, 'assistant', {
-              isTyping: false,
-              status: 'read',
-            }),
-          );
-        }, 1500); // Adjust delay as needed
+          setMessages(updateMessageStatus(assistantMessage.timestamp, 'assistant', {
+            isTyping: false,
+            status: 'read',
+          }));
+        }, 1000);
+
       } catch (error) {
         console.error('Chat error:', error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Sorry, an unexpected error occurred';
-
-        // Update user message status to error
-        setMessages(
-          updateMessageStatus(userMessage.timestamp, 'user', {
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        
+        if (userMessage.retryCount && userMessage.retryCount >= RETRY_LIMIT) {
+          setMessages(updateMessageStatus(userMessage.timestamp, 'user', {
             status: 'error',
+            error: `${errorMessage}. Retry limit reached.`,
+            retryCount: userMessage.retryCount
+          }));
+        } else {
+          setMessages(updateMessageStatus(userMessage.timestamp, 'user', {
+            status: 'retry',
             error: errorMessage,
-            retryCount: (userMessage.retryCount || 0) + 1, // Use the original message's retry count
-          }),
-        );
+            retryCount: (userMessage.retryCount || 0) + 1
+          }));
+        }
       } finally {
         setIsLoading(false);
+        setIsTyping(false);
       }
     },
-    [input, messages], // Dependencies for useCallback
+    [input, messages]
   );
 
   const handleRetry = useCallback(
@@ -378,3 +389,7 @@ const renderMessage = (content: string) => (
     {content}
   </ReactMarkdown>
 );
+function setIsTyping(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+
