@@ -1,7 +1,7 @@
 # Amazon Seller Tools - Project Tracker & TODO List
 
-**Last Updated:** 2025-04-21 _(Please update this date when you make changes)_
-**Last Code Review:** 2025-04-21 _(Please update this date when you make changes)_
+**Last Updated:** 2025-04-22 _(Please update this date when you make changes)_
+**Last Code Review:** 2025-04-22 _(Please update this date when you make changes)_
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
@@ -25,8 +25,8 @@
   - [x] Develop backend/calculation functions (if applicable)
   - [x] Build frontend UI component
   - [x] Integrate UI with logic
-  - [ ] Write unit/integration tests
-  - [ ] Document usage/features
+  - [x] Write unit/integration tests
+  - [x] Document usage/features
   - _Ref: IMPLEMENTATION_OptimalPriceCalc.md_
   - **[x] Scaled the product score to be between 0 and 1**
 

@@ -35,11 +35,13 @@ const dataGenerators = {
   string: (config: DataTypeConfig['options'] = {}) => {
     const { prefix = '', suffix = '' } = config;
     // Security: Acceptable for sample data generation
-const length = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+    const length = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const randomValues = new Uint32Array(length);
+    window.crypto.getRandomValues(randomValues);
     const randomStr = Array.from(
-      { length },
-      () => chars[Math.floor(Math.random() * chars.length)],
+      randomValues,
+      (val) => chars[val % chars.length],
     ).join('');
     return `${prefix}${randomStr}${suffix}`;
   },
@@ -47,15 +49,19 @@ const length = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
   number: (config: DataTypeConfig['options'] = {}) => {
     const { min = 0, max = 100, decimals = 0 } = config;
     // Security: Safe for demo data generation
-const num = Math.random() * (max - min) + min;
+    const randomBuffer = new Uint32Array(1);
+    window.crypto.getRandomValues(randomBuffer);
+    const num = (randomBuffer[0] / 4294967295) * (max - min) + min;
     return Number(num.toFixed(decimals));
   },
 
   date: (config: DataTypeConfig['options'] = {}) => {
     const { format = 'ISO' } = config;
     // Security: Appropriate for non-cryptographic use
-const date = new Date(
-      Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000,
+    const randomBuffer = new Uint32Array(1);
+    window.crypto.getRandomValues(randomBuffer);
+    const date = new Date(
+      Date.now() - (randomBuffer[0] / 4294967295) * 365 * 24 * 60 * 60 * 1000,
     );
     return format === 'ISO' ? date.toISOString() : date.toLocaleDateString();
   },
@@ -65,7 +71,7 @@ const date = new Date(
   enum: (config: DataTypeConfig['options'] = {}) => {
     const { values = ['Option1', 'Option2', 'Option3'] } = config;
     // Security: Safe for demo data randomization
-return values[Math.floor(Math.random() * values.length)];
+    return values[Math.floor(Math.random() * values.length)];
   },
 };
 

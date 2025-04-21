@@ -18,7 +18,7 @@ image: '/images/blog/amazon-seller-tools.svg'
 
 # 🛠 Amazon Seller Tools Suite (Updated: May 2024)
 
-![Project Badge](https://img.shields.io/badge/Status-Active%20Development-blue) ![Last Update](https://img.shields.io/badge/Docs%20Updated-2024--05--23-informational)
+![Project Badge](https://img.shields.io/badge/Status-Active%20Development-blue) ![Last Update](https://img.shields.io/badge/Docs%20Updated-2025--04--21-informational)
 
 ## 🌟 Introduction
 
@@ -34,7 +34,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | FBA Calculator           | ✅ Active                  | 2.0.0       |                                    |
 | Keyword Analyzer         | ✅ Active                  | 2.0.0       |                                    |
 | Listing Quality Checker  | ✅ Active                  | 1.5.0       | AI features under review           |
-| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 | Requires stabilization (documented as v2.0.0 in error) |
+| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 | Requires stabilization (documented as v2.0.0 in error). Stabilization work in progress for production release. |
 | Description Editor       | ✅ Active                  | 1.5.0       | AI features under review. Implemented Server Actions to resolve "mongodb is not defined" error |
 | Keyword Deduplicator     | ✅ Active                  | 1.5.0       | AI features under review           |
 | ACoS Calculator          | ✅ Active                  | 1.5.0       |                                    |
@@ -128,6 +128,11 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 **High Priority:** There is a discrepancy between internal tracking (Beta v0.9.0) and previously documented status (Active v2.0.0). The tool requires further development, testing, and stabilization before a production-ready v2.0.0 release. Its current stability may vary.
 
+**Recent Updates**:
+
+- Clarified official status as Beta v0.9.0 (previously incorrectly documented as Active v2.0.0)
+- Stabilization work in progress for production release
+
 ### 5. Description Editor
 
 **Status**: ✅ Active
@@ -176,7 +181,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 **Status**: ✅ Active
 **Version**: 1.0.0
-**Current Notes**: This tool currently uses mock data for sales estimation. A real API integration is needed for accurate results.
+**Current Notes**: This tool currently uses mock data for sales estimation. A real API integration is planned as a medium priority task (see PROJECT_TRACKER.md).
 
 ### 9. Competitor Analyzer
 
@@ -253,7 +258,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 ### 13. Optimal Price Calculation
 
 **Status**: ✅ Active
-**Version**: 0.1.0
+**Version**: 1.0.0
 🔍 **Description**: Calculates the optimal price for a product based on cost, current price, competitor prices, and other factors.
 **Features**:
 
@@ -268,11 +273,18 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 - Inventory Health
 - Weight
 - Volume
-  **Limitations**:
+
+**Recent Updates**:
+
+- Completed unit/integration tests
+- Added comprehensive documentation
+- Improved input validation
+- Fixed product category handling
+
+**Limitations**:
+
 - Competitor prices are parsed as a comma-separated string, which could be prone to errors if the input is not formatted correctly.
-- Input fields are not validated for all possible error conditions (e.g., negative values).
-- `ProductCategory` is hardcoded as `ProductCategory.STANDARD`.
-- The product score is now scaled to be between 0 and 1.
+- The product score is scaled to be between 0 and 1.
 
 ### 14. Keyword Trend Analyzer
 

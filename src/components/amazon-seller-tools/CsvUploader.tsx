@@ -185,16 +185,14 @@ export const CsvUploader = <T extends Record<string, unknown>>({
 
   const processFile = useCallback(
     async (file: File) => {
-      setInternalIsLoading(true);
-      setInternalHasData(false);
-      onUploadError?.(null);
-
       try {
+        setInternalIsLoading(true);
+        setInternalHasData(false);
+        onUploadError?.(null);
         await handleFileValidation(file);
         const csvContent = await handleFileRead(file);
-        const { validRows, validationErrors } =
-          await handleCsvProcessing(csvContent);
-        handleUploadResults(validRows, validationErrors);
+        const { validRows, errors } = await handleCsvProcessing(csvContent);
+        handleUploadResults(validRows, errors);
       } catch (error) {
         handleProcessingError(error);
       } finally {
@@ -264,17 +262,20 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   const formatErrorMessage = (errors: string[]) =>
     `CSV validation issues found:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`;
 
-  const handleProcessingError = (error: unknown) => {
-    const message =
-      error instanceof Error ? error.message : 'Failed to process CSV file';
-    logError({
-      component: 'CsvUploader',
-      message,
-      error: error instanceof Error ? error : new Error(message),
-    });
-    onUploadError?.(message);
-    setInternalHasData(false);
-  };
+  const handleProcessingError = useCallback(
+    (error: unknown) => {
+      const message =
+        error instanceof Error ? error.message : 'Failed to process CSV file';
+      logError({
+        component: 'CsvUploader',
+        message,
+        error: error instanceof Error ? error : new Error(message),
+      });
+      onUploadError?.(message);
+      setInternalHasData(false);
+    },
+    [onUploadError],
+  );
 
   const resetFileInput = () => {
     if (fileInputRef.current) {
@@ -389,3 +390,8 @@ export const CsvUploader = <T extends Record<string, unknown>>({
 };
 
 export default CsvUploader;
+
+handleFileProcessed = (data: unknown) => {
+  const csvData = data as CSVResult;
+  this.setState({ csvData });
+};
