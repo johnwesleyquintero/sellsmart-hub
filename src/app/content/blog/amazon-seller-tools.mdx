@@ -97,13 +97,29 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 - Image validation
 - SEO recommendations
 
-**Limitations**: The ASIN check and keyword analysis features currently use mock data. Real API integrations are needed for accurate results.
+**Implementation Details**:
+
+- ASIN validation using regex pattern `^[A-Z0-9]{10}$`
+- CSV processing with FileReader API and error boundaries
+- Mock data integration for ASIN lookup (see `fetchAsinDataMock`)
+  **Limitations**:
+- Requires real Amazon Product API integration for live ASIN checks
+- Bulk processing limited to 1000 rows per CSV
+- Lacks input sanitization for HTML descriptions
 
 - ASIN analysis
 - Quality scoring
 - Mobile check
 
-**Current Notes**: Core functionality is active. AI features under review (Medium Priority).
+**Recent Updates (2025-04-22)**:
+
+- Added CSV validation with error boundaries
+- Implemented toast notifications for user feedback
+- Added file input ref management
+- Created mock API endpoint structure
+  **Pending Tasks**:
+- Real API integration (High Priority - See PROJECT_TRACKER.md)
+- Performance optimization for large files
 
 ### 4. PPC Campaign Auditor
 
@@ -140,7 +156,15 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 🔍 **Description**: AI-enhanced rich text editor for Amazon product descriptions.
 **Features**: HTML formatting, keyword integration, char counter, AI SEO optimization, live preview, CSV export, automated score calculation, mobile preview.
-**Current Notes**: Core functionality is active. AI features under review (Medium Priority). Implemented Server Actions to resolve "mongodb is not defined" error.
+**Recent Updates (2025-04-22)**:
+
+- Added CSV validation with error boundaries
+- Implemented toast notifications for user feedback
+- Added file input ref management
+- Created mock API endpoint structure
+  **Pending Tasks**:
+- Real API integration (High Priority - See PROJECT_TRACKER.md)
+- Performance optimization for large files Implemented Server Actions to resolve "mongodb is not defined" error.
 
 ### 6. Keyword Deduplicator
 
@@ -149,7 +173,15 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 🔍 **Description**: Smart keyword management with AI-powered suggestions.
 **Features**: Bulk processing, AI duplicate detection, smart suggestions, export options, real-time metrics, benchmarking, trend analysis.
-**Current Notes**: Core functionality is active. AI features under review (Medium Priority).
+**Recent Updates (2025-04-22)**:
+
+- Added CSV validation with error boundaries
+- Implemented toast notifications for user feedback
+- Added file input ref management
+- Created mock API endpoint structure
+  **Pending Tasks**:
+- Real API integration (High Priority - See PROJECT_TRACKER.md)
+- Performance optimization for large files
 
 ### 7. ACoS Calculator
 

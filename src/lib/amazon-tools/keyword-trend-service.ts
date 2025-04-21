@@ -56,13 +56,33 @@ export class KeywordTrendService {
     keyword: string,
     date: string,
   ): Promise<number> {
-    // TODO: Replace with actual API call
-    // For now, return simulated data
-    const baseVolume =
-      (crypto.getRandomValues(new Uint32Array(1))[0] % 10000) + 1000;
-    const variance =
-      (crypto.getRandomValues(new Uint32Array(1))[0] % 1000) - 500;
-    return Math.max(0, baseVolume + variance);
+    try {
+      const response = await fetch(
+        `https://api.keywordtrends.com/v1/search-volume?keyword=${encodeURIComponent(keyword)}&date=${date}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.KEYWORD_TREND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.searchVolume;
+    } catch (error) {
+      logError({
+        message: 'Failed to fetch trend data from API',
+        component: 'KeywordTrendService',
+        severity: 'high',
+        error: error as Error,
+        context: { keyword, date },
+      });
+      throw error;
+    }
   }
 
   private static getCacheKey(data: TrendDataInput[]): string {
@@ -97,6 +117,16 @@ export class KeywordTrendService {
   public static async analyzeTrends(
     rawData: unknown[],
   ): Promise<TrendAnalysisResult> {
+    // Validate input data exists
+    if (!rawData || rawData.length === 0) {
+      throw new Error('No data provided for analysis');
+    }
+
+    // Validate each data point doesn't exceed API limits
+    if (rawData.length > 1000) {
+      throw new Error('Maximum of 1000 data points allowed per request');
+    }
+
     try {
       // Generate cache key from input data
       const cacheKey = this.getCacheKey(rawData as TrendDataInput[]);

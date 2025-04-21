@@ -95,7 +95,7 @@ export function ChatInterface() {
 
   // Implement memoization for message rendering
   const MemoizedMessage = React.memo(MessageBubble);
-  
+
   // Optimize useEffect dependencies
   useEffect(() => {
     scrollToBottom();
