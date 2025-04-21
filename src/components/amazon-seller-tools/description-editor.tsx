@@ -3,18 +3,8 @@
 
 import { getAllProhibitedKeywords } from '@/actions/keywordActions';
 import { useToast } from '@/hooks/use-toast';
-import { getScoreColor } from '@/lib/calculations/color-utils';
-import Papa from 'papaparse';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
-// UI Imports (Consistent with other tools)
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
+import { debounce } from '@/lib/description-validation'; // Assuming this exists and works
+import { logger } from '@/lib/logger';
 import {
   AlertCircle,
   Download,
@@ -23,103 +13,468 @@ import {
   PlusCircle,
   Save,
   Upload,
-  XCircle, // For error dismiss
+  XCircle,
 } from 'lucide-react';
-import SampleCsvButton from './sample-csv-button'; // Assuming this exists
+import Papa from 'papaparse';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { z } from 'zod';
+
+// UI Imports
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
+import DataCard from './DataCard'; // Use consistent DataCard
+import SampleCsvButton from './sample-csv-button';
 
 // --- Types ---
 type ProductDescription = {
-  product: string; // Unique identifier for the product within the session
-  asin: string; // Optional ASIN
+  product: string; // Unique identifier
+  asin: string;
   description: string;
   characterCount: number;
   keywordCount: number;
-  score: number; // Score is calculated dynamically
+  score: number;
 };
 
-// --- Helper Functions (Placeholders - Replace with actual logic) ---
+// Type for raw CSV row data
+type CsvRowData = {
+  product?: string;
+  asin?: string;
+  description?: string;
+  // Allow any other string keys from PapaParse
+  [key: string]: string | undefined;
+};
 
-// Simplified keyword counter
+// Zod Schema for Manual Input Validation
+const manualProductSchema = z.object({
+  product: z.string().trim().min(1, 'Product name cannot be empty.'),
+  asin: z.string().trim(), // Optional, no specific validation needed here unless required
+  description: z.string().trim().min(1, 'Description cannot be empty.'),
+});
+
+// --- Helper Functions (Moved Outside Component) ---
+
+// Counts occurrences of prohibited keywords (case-insensitive)
 const countKeywords = (text: string, prohibitedKeywords: string[]): number => {
+  if (!text || prohibitedKeywords.length === 0) {
+    return 0;
+  }
   const lowerText = text.toLowerCase();
-  let keywordCount = 0;
+  let count = 0;
   for (const keyword of prohibitedKeywords) {
-    if (lowerText.toLowerCase().includes(keyword.toLowerCase())) {
-      keywordCount++;
+    // Use regex for whole word matching if needed, simple includes for now
+    if (lowerText.includes(keyword.toLowerCase())) {
+      count++;
     }
   }
-  return keywordCount;
+  return count;
 };
 
-// Simplified scoring algorithm
+// Calculates a score based on description characteristics
 const calculateScore = (text: string, prohibitedKeywords: string[]): number => {
   let score = 0;
-  const charCount = text.length;
-  const keywordCount = countKeywords(text, prohibitedKeywords);
+  const charCount = text?.length || 0;
+  const prohibitedCount = countKeywords(text, prohibitedKeywords);
 
   // Length score (max 40)
-  if (charCount > 1500) score += 40;
-  else if (charCount > 1000) score += 30;
-  else if (charCount > 500) score += 20;
-  else if (charCount > 200) score += 10;
+  if (charCount >= 1500) score += 40;
+  else if (charCount >= 1000) score += 30;
+  else if (charCount >= 500) score += 20;
+  else if (charCount >= 200) score += 10;
 
-  // Keyword score (max 30)
-  score += Math.min(30, keywordCount * 4); // Adjusted multiplier
-
-  // Penalize prohibited keywords
-  score -= keywordCount * 5;
+  // Penalize prohibited keywords (significant penalty)
+  score -= prohibitedCount * 10; // Increased penalty
 
   // Readability score (max 30) - Check for paragraphs/breaks
   const paragraphs = text
     .split('\n')
-    .filter((p) => p.trim().length > 10).length;
+    .filter((p) => p.trim().length > 20).length; // Slightly longer paragraphs
   if (paragraphs >= 5) score += 30;
   else if (paragraphs >= 3) score += 20;
   else if (paragraphs >= 1) score += 10;
 
-  // Bonus for HTML structure (very basic check)
-  if (text.includes('<li>') || text.includes('<p>') || text.includes('<b>')) {
-    score += Math.min(10, 5); // Small bonus up to 10
+  // Bonus for basic HTML structure (max 10)
+  // FIX: Corrected regex for HTML structure check
+  const hasStructure = /<(?:p|li|b|strong|ul|ol)\b[^>]*>/i.test(text);
+  if (hasStructure) {
+    score += 10;
   }
 
-  return Math.min(100, Math.max(0, Math.round(score))); // Ensure score is between 0 and 100
+  // Bonus for Call to Action (very basic check) (max 10)
+  if (/add to cart|buy now|shop now/i.test(text)) {
+    score += 10;
+  }
+
+  // Ensure score is between 0 and 100
+  return Math.max(0, Math.min(100, Math.round(score)));
 };
 
-// --- Component ---
-export default function DescriptionEditor() {
-  const { toast } = useToast();
-  const [products, setProducts] = useState<ProductDescription[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeProduct, setActiveProduct] = useState<ProductDescription | null>(
-    null,
-  );
-  const [showPreview, setShowPreview] = useState(false);
-  const [newProduct, setNewProduct] = useState({
+// --- NEW Helper Function to process a single CSV row ---
+const processCsvRow = (
+  row: CsvRowData,
+  index: number,
+  actualHeaders: string[],
+  prohibitedKeywords: string[],
+): ProductDescription | null => {
+  try {
+    // Find headers case-insensitively
+    const productHeader = actualHeaders.find(
+      (h) => h.toLowerCase() === 'product',
+    );
+    const descriptionHeader = actualHeaders.find(
+      (h) => h.toLowerCase() === 'description',
+    );
+    const asinHeader = actualHeaders.find((h) => h.toLowerCase() === 'asin');
+
+    // Use the found headers to access row data, providing undefined if header not found
+    const product = productHeader ? row[productHeader]?.trim() : undefined;
+    const description = descriptionHeader
+      ? row[descriptionHeader]?.trim()
+      : undefined;
+    const asin = asinHeader ? row[asinHeader]?.trim() : '';
+
+    // Validate essential data
+    if (!product) {
+      logger.warn(`Skipping row ${index + 1}: Missing product name.`, {
+        component: 'DescriptionEditor/processCsvRow',
+      });
+      return null;
+    }
+    if (!description) {
+      logger.warn(
+        `Skipping row ${index + 1} for "${product}": Missing description.`,
+        { component: 'DescriptionEditor/processCsvRow' },
+      );
+      return null;
+    }
+
+    // Calculate metrics
+    const score = calculateScore(description, prohibitedKeywords);
+    const keywordCount = countKeywords(description, prohibitedKeywords);
+    const characterCount = description.length;
+
+    return {
+      product: product,
+      asin: asin || '',
+      description: description,
+      characterCount: characterCount,
+      keywordCount: keywordCount,
+      score: score,
+    };
+  } catch (validationError) {
+    logger.warn(
+      `Validation/Processing failed for row ${index + 1}: ${validationError instanceof Error ? validationError.message : 'Unknown error'}`,
+      { component: 'DescriptionEditor/processCsvRow', rowData: row },
+    );
+    return null;
+  }
+};
+
+// --- Sub-Components ---
+
+// Form for adding a new product manually
+interface ManualAddProductFormProps {
+  onSubmit: (data: z.infer<typeof manualProductSchema>) => void;
+  isLoading: boolean;
+}
+
+function ManualAddProductForm({
+  onSubmit,
+  isLoading,
+}: ManualAddProductFormProps) {
+  const [formData, setFormData] = useState({
     product: '',
     asin: '',
     description: '',
   });
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormError(null); // Clear error on change
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError(null);
+    const result = manualProductSchema.safeParse(formData);
+
+    if (!result.success) {
+      // Get the first error message
+      const firstError = result.error.errors[0]?.message || 'Invalid input.';
+      setFormError(firstError);
+      return;
+    }
+
+    onSubmit(result.data);
+    setFormData({ product: '', asin: '', description: '' }); // Reset form
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 p-2">
+      <h3 className="text-lg font-medium text-center sm:text-left">
+        Add New Product
+      </h3>
+      {formError && (
+        <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>
+      )}
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="product" className="text-sm font-medium">
+            Product Name*
+          </Label>
+          <Input
+            id="product"
+            value={formData.product}
+            onChange={handleChange}
+            placeholder="Enter unique product name"
+            required
+            className="mt-1"
+            disabled={isLoading}
+          />
+        </div>
+        <div>
+          <Label htmlFor="asin" className="text-sm font-medium">
+            ASIN (Optional)
+          </Label>
+          <Input
+            id="asin"
+            value={formData.asin}
+            onChange={handleChange}
+            placeholder="Enter Amazon ASIN"
+            className="mt-1"
+            disabled={isLoading}
+          />
+        </div>
+        <div>
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description*
+          </Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Enter product description"
+            rows={4}
+            required
+            className="mt-1"
+            disabled={isLoading}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Product
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Area for editing/previewing the selected product's description
+interface ProductEditorAreaProps {
+  product: ProductDescription;
+  prohibitedKeywords: string[];
+  onDescriptionChange: (productId: string, newDescription: string) => void;
+  onSave: (product: ProductDescription) => void;
+}
+
+function ProductEditorArea({
+  product,
+  prohibitedKeywords, // Keep this prop if needed elsewhere, though not directly used in this component anymore
+  onDescriptionChange,
+  onSave,
+}: ProductEditorAreaProps) {
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Debounce the description change handler
+  // FIX: Added debounce to the dependency array
+  const debouncedDescriptionChange = useCallback(
+    debounce((newDescription: string) => {
+      onDescriptionChange(product.product, newDescription);
+    }, 300),
+    [onDescriptionChange, product.product, debounce], // Added debounce
+  );
+
+  const handleTextareaChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    debouncedDescriptionChange(event.target.value);
+  };
+
+  const getScoreColorClass = (scoreValue: number): string => {
+    if (scoreValue >= 80) return 'text-green-600 dark:text-green-400';
+    if (scoreValue >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        {/* Header for Active Product */}
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
+          <div>
+            <h3 className="text-lg font-medium break-words">
+              Editing: <span className="font-semibold">{product.product}</span>
+            </h3>
+            {product.asin && (
+              <p className="text-sm text-muted-foreground">
+                ASIN: {product.asin}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              <Eye className="mr-1.5 h-4 w-4" />
+              {showPreview ? 'Edit' : 'Preview'}
+            </Button>
+            <Button size="sm" onClick={() => onSave(product)}>
+              <Save className="mr-1.5 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm bg-muted/50 p-2 rounded-md">
+          <div className="flex items-center gap-1">
+            <span className="font-medium text-muted-foreground">Chars:</span>
+            <span className="font-semibold">
+              {product.characterCount?.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium text-muted-foreground">
+              Prohibited:
+            </span>
+            <span
+              className={`font-semibold ${product.keywordCount > 0 ? 'text-red-600 dark:text-red-400' : ''}`}
+            >
+              {product.keywordCount}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium text-muted-foreground">Score:</span>
+            <span
+              className={`font-semibold ${getScoreColorClass(product.score)}`}
+            >
+              {product.score}/100
+            </span>
+          </div>
+        </div>
+
+        {/* Editor or Preview */}
+        {showPreview ? (
+          <div className="rounded-lg border bg-background p-4 min-h-[200px]">
+            <h4 className="mb-2 text-sm font-semibold text-primary">
+              Description Preview
+            </h4>
+            {/* Render HTML safely or use a dedicated library if needed */}
+            <div
+              className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-line text-foreground"
+              // Using dangerouslySetInnerHTML is generally discouraged if the source isn't trusted.
+              // Consider a sanitizer library (like DOMPurify) if descriptions can contain arbitrary HTML.
+              // For simple cases where you control the input or only allow basic tags, this might be acceptable.
+              // dangerouslySetInnerHTML={{ __html: product.description || '<span class="text-muted-foreground italic">No description provided.</span>' }}
+
+              // Safer alternative: Render as plain text preserving line breaks
+            >
+              {product.description || (
+                <span className="text-muted-foreground italic">
+                  No description provided.
+                </span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <Label
+              htmlFor="description-editor"
+              className="text-sm font-medium sr-only" // Label is visually provided by the header
+            >
+              Edit Description
+            </Label>
+            <Textarea
+              id="description-editor"
+              defaultValue={product.description} // Use defaultValue for uncontrolled with debounce
+              onChange={handleTextareaChange}
+              placeholder="Enter product description..."
+              rows={15}
+              className="font-mono text-sm mt-1"
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Use line breaks for paragraphs. Basic HTML like{' '}
+              <code>&lt;b&gt;</code>, <code>&lt;p&gt;</code>,{' '}
+              <code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code> may be supported
+              by Amazon. Aim for 1000-2000 characters.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// --- Main Component ---
+export default function DescriptionEditor() {
+  const { toast } = useToast();
+  const [products, setProducts] = useState<ProductDescription[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // Combined loading state
+  const [error, setError] = useState<string | null>(null);
+  const [activeProductId, setActiveProductId] = useState<string | null>(null); // Store ID only
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [prohibitedKeywords, setProhibitedKeywords] = useState<string[]>([]);
 
+  // Fetch prohibited keywords on mount
   useEffect(() => {
-    const fetchProhibitedKeywords = async () => {
+    const fetchKeywords = async () => {
+      setIsLoading(true);
       try {
         const keywords = await getAllProhibitedKeywords();
         setProhibitedKeywords(keywords);
+        logger.info('Fetched prohibited keywords.', {
+          count: keywords.length,
+          component: 'DescriptionEditor',
+        });
       } catch (err) {
-        console.error('Failed to fetch prohibited keywords:', err);
+        logger.error('Failed to fetch prohibited keywords', {
+          error: err,
+          component: 'DescriptionEditor',
+        });
+        setError('Failed to load prohibited keywords list.');
         toast({
           title: 'Keyword Fetch Failed',
-          description: 'Failed to load prohibited keywords.',
+          description: 'Could not load prohibited keywords.',
           variant: 'destructive',
         });
+      } finally {
+        setIsLoading(false);
       }
     };
-
-    fetchProhibitedKeywords();
+    fetchKeywords();
   }, [toast]);
+
+  // Find the active product object based on the ID
+  const activeProduct = useMemo(
+    () => products.find((p) => p.product === activeProductId) || null,
+    [products, activeProductId],
+  );
 
   // --- Event Handlers ---
 
@@ -130,192 +485,108 @@ export default function DescriptionEditor() {
 
       setIsLoading(true);
       setError(null);
-      setActiveProduct(null);
-      setShowPreview(false);
-      setProducts([]); // Clear previous results on new upload
+      setActiveProductId(null);
+      setProducts([]);
 
-      Papa.parse<{ product: string; asin?: string; description: string }>(
-        file,
-        {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            try {
-              if (results.errors.length > 0) {
-                throw new Error(
-                  `CSV parsing error: ${results.errors[0].message}. Check row ${results.errors[0].row}.`,
-                );
-              }
-
-              const requiredColumns = ['product', 'description'];
-              const actualHeaders = results.meta.fields || [];
-              const missingColumns = requiredColumns.filter(
-                (col) => !actualHeaders.includes(col),
+      Papa.parse<CsvRowData>(file, {
+        // Use the defined CsvRowData type
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          try {
+            // Basic CSV structure validation
+            if (results.errors.length > 0) {
+              throw new Error(
+                `CSV parsing error: ${results.errors[0].message}. Check row ${results.errors[0].row}.`,
               );
-              if (missingColumns.length > 0) {
-                throw new Error(
-                  `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
-                );
-              }
-
-              const processedData: ProductDescription[] = results.data
-                .map((row, index) => {
-                  if (
-                    !row.product ||
-                    typeof row.product !== 'string' ||
-                    !row.product.trim()
-                  ) {
-                    console.warn(
-                      `Skipping row ${index + 1}: Missing or invalid product name.`,
-                    );
-                    return null;
-                  }
-                  if (!row.description || typeof row.description !== 'string') {
-                    console.warn(
-                      `Skipping row ${index + 1} for product "${row.product}": Missing or invalid description.`,
-                    );
-                    return null;
-                  }
-                  const description = row.description.trim(); // Trim description
-                  const productName = row.product.trim();
-
-                  // Optional: Check for duplicate product names during upload
-                  // if (processedData.some(p => p.product === productName)) {
-                  //   console.warn(`Skipping duplicate product name "${productName}" in CSV.`);
-                  //   return null;
-                  // }
-
-                  return {
-                    product: productName,
-                    asin: (row.asin || '').trim(),
-                    description: description,
-                    characterCount: description.length,
-                    keywordCount: countKeywords(
-                      description,
-                      prohibitedKeywords,
-                    ),
-                    score: calculateScore(description, prohibitedKeywords),
-                  };
-                })
-                .filter((item): item is ProductDescription => item !== null);
-
-              if (processedData.length === 0) {
-                if (results.data.length > 0) {
-                  throw new Error(
-                    "No valid product data found in the CSV after processing. Ensure 'product' and 'description' columns are present and populated.",
-                  );
-                } else {
-                  throw new Error(
-                    'The uploaded CSV file appears to be empty or contains no data rows.',
-                  );
-                }
-              }
-
-              setProducts(processedData);
-              setError(null);
-              toast({
-                title: 'CSV Processed',
-                description: `Loaded ${processedData.length} product descriptions.`,
-                variant: 'default',
-              });
-            } catch (err) {
-              const message =
-                err instanceof Error
-                  ? err.message
-                  : 'An unknown error occurred during processing.';
-              setError(message);
-              setProducts([]);
-              toast({
-                title: 'Processing Failed',
-                description: message,
-                variant: 'destructive',
-              });
-            } finally {
-              setIsLoading(false);
-              // Reset file input
-              if (event.target) {
-                event.target.value = '';
-              }
             }
-          },
-          error: (error: Error) => {
-            setIsLoading(false);
-            setError(`CSV parsing error: ${error.message}`);
+            const requiredColumns = ['product', 'description'];
+            const actualHeaders = results.meta.fields || [];
+            const missingColumns = requiredColumns.filter(
+              (col) =>
+                !actualHeaders.some(
+                  (h) => h.toLowerCase() === col.toLowerCase(),
+                ), // Case-insensitive check
+            );
+            if (missingColumns.length > 0) {
+              throw new Error(
+                `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
+              );
+            }
+            if (results.data.length === 0) {
+              throw new Error('CSV file contains no data rows.');
+            }
+
+            // Process rows using the helper function
+            // FIX: Use extracted processCsvRow helper
+            const processedData: ProductDescription[] = results.data
+              .map((row, index) =>
+                processCsvRow(row, index, actualHeaders, prohibitedKeywords),
+              )
+              .filter((item): item is ProductDescription => item !== null);
+
+            if (processedData.length === 0) {
+              throw new Error(
+                'No valid product data found after processing. Check column names and content.',
+              );
+            }
+
+            setProducts(processedData);
+            setError(null);
+            toast({
+              title: 'CSV Processed',
+              description: `Loaded ${processedData.length} product descriptions.`,
+            });
+          } catch (err) {
+            const message =
+              err instanceof Error
+                ? err.message
+                : 'An unknown error occurred during processing.';
+            setError(message);
             setProducts([]);
             toast({
-              title: 'Parsing Failed',
-              description: `CSV parsing error: ${error.message}`,
+              title: 'Processing Failed',
+              description: message,
               variant: 'destructive',
             });
-            // Reset file input on parse error too
-            if (event.target) {
-              event.target.value = '';
-            }
-          },
+            logger.error('CSV Processing Error', {
+              error: err,
+              component: 'DescriptionEditor',
+            });
+          } finally {
+            setIsLoading(false);
+            if (event.target) event.target.value = ''; // Reset file input
+          }
         },
-      );
+        error: (error: Error) => {
+          setIsLoading(false);
+          setError(`CSV parsing error: ${error.message}`);
+          setProducts([]);
+          toast({
+            title: 'Parsing Failed',
+            description: `CSV parsing error: ${error.message}`,
+            variant: 'destructive',
+          });
+          logger.error('CSV Parsing Error', {
+            error,
+            component: 'DescriptionEditor',
+          });
+          if (event.target) event.target.value = ''; // Reset file input
+        },
+      });
     },
-    [toast, prohibitedKeywords],
-  );
-
-  const handleDescriptionChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (!activeProduct) return;
-
-      const newDescription = event.target.value;
-      const updatedProduct: ProductDescription = {
-        ...activeProduct,
-        description: newDescription,
-        characterCount: newDescription.length,
-        keywordCount: countKeywords(newDescription, prohibitedKeywords),
-        score: calculateScore(newDescription, prohibitedKeywords),
-      };
-
-      setActiveProduct(updatedProduct);
-      setProducts((prevProducts) =>
-        prevProducts.map((p) =>
-          p.product === activeProduct.product ? updatedProduct : p,
-        ),
-      );
-    },
-    [activeProduct, prohibitedKeywords],
+    [toast, prohibitedKeywords], // Include prohibitedKeywords
   );
 
   const handleManualSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      setError(null);
-
-      const trimmedProduct = newProduct.product.trim();
-      const trimmedDescription = newProduct.description.trim();
-      const trimmedAsin = newProduct.asin.trim();
-
-      if (!trimmedProduct) {
-        const msg = 'Product name cannot be empty.';
-        setError(msg);
-        toast({
-          title: 'Validation Error',
-          description: msg,
-          variant: 'destructive',
-        });
-        return;
-      }
-      if (!trimmedDescription) {
-        const msg = 'Description cannot be empty.';
-        setError(msg);
-        toast({
-          title: 'Validation Error',
-          description: msg,
-          variant: 'destructive',
-        });
-        return;
-      }
+    (data: z.infer<typeof manualProductSchema>) => {
+      // Check for duplicate product name
       if (
         products.some(
-          (p) => p.product.toLowerCase() === trimmedProduct.toLowerCase(),
+          (p) => p.product.toLowerCase() === data.product.toLowerCase(),
         )
       ) {
-        const msg = `Product "${trimmedProduct}" already exists. Please use a unique name.`;
+        const msg = `Product "${data.product}" already exists. Please use a unique name.`;
         setError(msg);
         toast({
           title: 'Duplicate Error',
@@ -325,37 +596,62 @@ export default function DescriptionEditor() {
         return;
       }
 
+      const score = calculateScore(data.description, prohibitedKeywords);
       const productToAdd: ProductDescription = {
-        product: trimmedProduct,
-        asin: trimmedAsin,
-        description: trimmedDescription,
-        characterCount: trimmedDescription.length,
-        keywordCount: countKeywords(trimmedDescription, prohibitedKeywords),
-        score: calculateScore(trimmedDescription, prohibitedKeywords),
+        ...data,
+        characterCount: data.description.length,
+        keywordCount: countKeywords(data.description, prohibitedKeywords),
+        score: score,
       };
 
       setProducts((prev) => [...prev, productToAdd]);
-      setNewProduct({ product: '', asin: '', description: '' }); // Reset form
+      setError(null); // Clear previous errors
       toast({
         title: 'Product Added',
-        description: `"${trimmedProduct}" added successfully.`,
-        variant: 'default',
+        description: `"${data.product}" added successfully.`,
       });
     },
-    [newProduct, products, toast, prohibitedKeywords],
+    [products, toast, prohibitedKeywords], // Include prohibitedKeywords
   );
 
-  const handleSave = useCallback(() => {
-    if (!activeProduct) return;
-    // Placeholder for actual save logic (e.g., API call)
-    console.log('Saving product:', activeProduct);
-    toast({
-      title: 'Changes Saved (Locally)',
-      description: `Changes for "${activeProduct?.product}" updated in the list. Implement backend save if needed.`,
-      variant: 'default', // Use 'success' if you have that variant
-    });
-    // No actual state change needed here as it's updated live via handleDescriptionChange
-  }, [activeProduct, toast]); // Depends on activeProduct, toast
+  // Called by ProductEditorArea when description changes
+  const handleDescriptionUpdate = useCallback(
+    (productId: string, newDescription: string) => {
+      setProducts((prevProducts) =>
+        prevProducts.map((p) => {
+          if (p.product === productId) {
+            const score = calculateScore(newDescription, prohibitedKeywords);
+            return {
+              ...p,
+              description: newDescription,
+              characterCount: newDescription.length,
+              keywordCount: countKeywords(newDescription, prohibitedKeywords),
+              score: score,
+            };
+          }
+          return p;
+        }),
+      );
+    },
+    [prohibitedKeywords], // Include prohibitedKeywords
+  );
+
+  const handleSave = useCallback(
+    (productToSave: ProductDescription) => {
+      // In a real app, this would be an API call
+      console.log('Saving product:', productToSave);
+      logger.info('Product save triggered (local simulation)', {
+        product: productToSave.product,
+        component: 'DescriptionEditor',
+      });
+      toast({
+        title: 'Changes Saved (Locally)',
+        description: `Changes for "${productToSave.product}" are reflected in the list.`,
+      });
+      // No actual state change needed here as it's updated live
+    },
+    [toast],
+  );
 
   const handleExport = useCallback(() => {
     if (products.length === 0) {
@@ -369,13 +665,12 @@ export default function DescriptionEditor() {
     }
     setError(null);
 
-    // Prepare data for export (include calculated fields)
     const exportData = products.map((p) => ({
       product: p.product,
       asin: p.asin,
       description: p.description,
       characterCount: p.characterCount,
-      keywordCount: p.keywordCount,
+      keywordCount: p.keywordCount, // Corrected field name
       score: p.score,
     }));
 
@@ -390,11 +685,7 @@ export default function DescriptionEditor() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast({
-        title: 'Export Successful',
-        description: 'Data exported to CSV.',
-        variant: 'default',
-      });
+      toast({ title: 'Export Successful', description: 'Data exported.' });
     } catch (err) {
       const message =
         err instanceof Error
@@ -406,149 +697,82 @@ export default function DescriptionEditor() {
         description: message,
         variant: 'destructive',
       });
+      logger.error('CSV Export Error', {
+        error: err,
+        component: 'DescriptionEditor',
+      });
     }
-  }, [products, toast]); // Depends on products, toast
+  }, [products, toast]);
 
   const clearData = useCallback(() => {
     setProducts([]);
-    setActiveProduct(null);
+    setActiveProductId(null);
     setError(null);
-    setShowPreview(false);
-    setNewProduct({ product: '', asin: '', description: '' });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     toast({
       title: 'Data Cleared',
-      description: 'All product descriptions have been removed.',
-      variant: 'default',
+      description: 'All product descriptions removed.',
     });
-  }, [toast]); // Depends on toast
+  }, [toast]);
 
   // --- Render ---
   return (
     <div className="space-y-6">
-      {/* Input Section: Consistent two-card layout */}
-      {/* Added closing div tag for the main component wrapper */}
-      <div className="flex flex-col gap-4 sm:flex-row">
+      {/* Input Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* CSV Upload Card */}
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Upload className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Upload Descriptions CSV</h3>
-                <p className="text-sm text-muted-foreground">
-                  Bulk upload product details
-                </p>
-              </div>
-              <div className="w-full">
-                <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
-                  <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click or drag CSV file
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    (Requires: product, description; Optional: asin)
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv, text/csv"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={isLoading}
-                    ref={fileInputRef}
-                  />
-                </label>
-                <div className="flex justify-center mt-4">
-                  <SampleCsvButton
-                    dataType="keyword" // Adjust if a specific type is needed
-                    fileName="sample-descriptions.csv"
-                  />
-                </div>
+        <DataCard>
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Upload Descriptions CSV</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Bulk upload product details
+              </p>
+            </div>
+            <div className="w-full">
+              <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
+                <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                <span className="text-sm font-medium">
+                  Click or drag CSV file
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  (Requires: product, description; Optional: asin)
+                </span>
+                <input
+                  type="file"
+                  accept=".csv, text/csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                  ref={fileInputRef}
+                />
+              </label>
+              <div className="flex justify-center mt-4">
+                <SampleCsvButton
+                  dataType="keyword" // Use appropriate type
+                  fileName="sample-descriptions.csv"
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </DataCard>
+
         {/* Manual Add Product Card */}
-        <Card className="flex-1">
-          <CardContent className="p-4">
-            <form onSubmit={handleManualSubmit} className="space-y-4 p-2">
-              <h3 className="text-lg font-medium text-center sm:text-left">
-                Add New Product
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <Label
-                    htmlFor="new-product-name"
-                    className="text-sm font-medium"
-                  >
-                    Product Name*
-                  </Label>
-                  <Input
-                    id="new-product-name"
-                    value={newProduct.product}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setNewProduct({ ...newProduct, product: e.target.value })
-                    }
-                    placeholder="Enter unique product name"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="new-product-asin"
-                    className="text-sm font-medium"
-                  >
-                    ASIN (Optional)
-                  </Label>
-                  <Input
-                    id="new-product-asin"
-                    value={newProduct.asin}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setNewProduct({ ...newProduct, asin: e.target.value })
-                    }
-                    placeholder="Enter Amazon ASIN"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="new-product-description"
-                    className="text-sm font-medium"
-                  >
-                    Description*
-                  </Label>
-                  <Textarea
-                    id="new-product-description"
-                    value={newProduct.description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setNewProduct({
-                        ...newProduct,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="Enter product description"
-                    rows={4} // Adjusted rows
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Product
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <DataCard>
+          <ManualAddProductForm
+            onSubmit={handleManualSubmit}
+            isLoading={isLoading}
+          />
+        </DataCard>
       </div>
 
-      {/* Action Buttons (Clear/Export) - Appear when data exists */}
-      {products.length > 0 && !isLoading && (
+      {/* Action Buttons */}
+      {products.length > 0 && (
         <div className="flex justify-end gap-2">
           <Button
             variant="outline"
@@ -560,7 +784,7 @@ export default function DescriptionEditor() {
             Export Data
           </Button>
           <Button
-            variant="outline"
+            variant="destructive" // Changed variant for clarity
             size="sm"
             onClick={clearData}
             disabled={isLoading}
@@ -570,7 +794,7 @@ export default function DescriptionEditor() {
         </div>
       )}
 
-      {/* Error Display - Consistent Style */}
+      {/* Error Display */}
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -604,149 +828,30 @@ export default function DescriptionEditor() {
               Select Product to Edit ({products.length}):
             </h4>
             <div className="flex flex-wrap gap-2">
-              {products.map(
-                (
-                  product, // Index removed from key if product name is unique
-                ) => (
-                  <Badge
-                    key={product.product}
-                    variant={
-                      activeProduct?.product === product.product
-                        ? 'default'
-                        : 'outline'
-                    }
-                    className="cursor-pointer px-3 py-1 text-sm" // Slightly larger badges
-                    onClick={() => {
-                      setActiveProduct(product);
-                      setShowPreview(false);
-                    }}
-                  >
-                    {product.product}
-                  </Badge>
-                ),
-              )}
+              {products.map((product) => (
+                <Badge
+                  key={product.product} // Use unique product name as key
+                  variant={
+                    activeProductId === product.product ? 'default' : 'outline'
+                  }
+                  className="cursor-pointer px-3 py-1 text-sm"
+                  onClick={() => setActiveProductId(product.product)}
+                >
+                  {product.product}
+                </Badge>
+              ))}
             </div>
-            {/* Added closing div tag for product selection badges wrapper */}
           </div>
 
           {/* Editor/Preview Area */}
           {activeProduct && (
-            <>
-              {' '}
-              {/* Added closing fragment tag */}
-              <Card>
-                {' '}
-                {/* Added closing Card tag */}
-                <CardContent className="p-4">
-                  {' '}
-                  {/* Added closing CardContent tag */}
-                  {/* Header for Active Product */}
-                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                    <div>
-                      <h3 className="text-lg font-medium break-words">
-                        Editing:{' '}
-                        <span className="font-semibold">
-                          {activeProduct?.product}
-                        </span>
-                      </h3>
-                      {activeProduct?.asin && (
-                        <p className="text-sm text-muted-foreground">
-                          ASIN: {activeProduct?.asin}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 self-start sm:self-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowPreview(!showPreview)}
-                      >
-                        <Eye className="mr-1.5 h-4 w-4" />
-                        {showPreview ? 'Edit' : 'Preview'}
-                      </Button>
-                      <Button size="sm" onClick={handleSave}>
-                        <Save className="mr-1.5 h-4 w-4" />
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                  {/* Stats Bar */}
-                  <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm bg-muted/50 p-2 rounded-md">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium text-muted-foreground">
-                        Chars:
-                      </span>
-                      <span className="font-semibold">
-                        {activeProduct?.characterCount?.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium text-muted-foreground">
-                        Keywords:
-                      </span>
-                      <span className="font-semibold">
-                        {activeProduct?.keywordCount}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium text-muted-foreground">
-                        Score:
-                      </span>
-                      <span
-                        className={`font-semibold ${getScoreColor(activeProduct?.score)}`}
-                      >
-                        {activeProduct?.score}/100
-                      </span>
-                    </div>
-                  </div>
-                  {/* Editor or Preview */}
-                  {showPreview ? (
-                    <div className="rounded-lg border bg-background p-4 min-h-[200px]">
-                      <h4 className="mb-2 text-sm font-semibold text-primary">
-                        Description Preview
-                      </h4>
-                      {/* Safer rendering using whitespace-pre-line */}
-                      <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-line text-foreground">
-                        {activeProduct?.description || (
-                          <span className="text-muted-foreground italic">
-                            No description provided.
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <Label
-                        htmlFor="description-editor"
-                        className="text-sm font-medium"
-                      >
-                        Edit Description
-                      </Label>
-                      <Textarea
-                        id="description-editor"
-                        value={activeProduct?.description}
-                        onChange={handleDescriptionChange}
-                        placeholder="Enter product description..."
-                        rows={15} // Increased rows
-                        className="font-mono text-sm mt-1"
-                      />
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Use line breaks for paragraphs. Basic HTML like{' '}
-                        <b>bold</b>, {/* Added closing tag */}
-                        <i>italic</i>, {/* Added closing tag */}
-                        <ul>
-                          <li>lists</li>
-                        </ul>{' '}
-                        might be supported by {/* Added closing tags */}
-                        Amazon. Aim for 1000-2000 characters.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </>
+            <ProductEditorArea
+              product={activeProduct}
+              prohibitedKeywords={prohibitedKeywords}
+              onDescriptionChange={handleDescriptionUpdate}
+              onSave={handleSave}
+            />
           )}
-          {/* Added closing div tag for the space-y-4 wrapper */}
         </div>
       )}
     </div>

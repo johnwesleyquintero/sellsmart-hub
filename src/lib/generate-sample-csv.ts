@@ -36,7 +36,10 @@ const dataGenerators = {
     const { prefix = '', suffix = '' } = config;
     const length = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const randomStr = Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const randomStr = Array.from(
+      { length },
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join('');
     return `${prefix}${randomStr}${suffix}`;
   },
 
@@ -48,7 +51,9 @@ const dataGenerators = {
 
   date: (config: DataTypeConfig['options'] = {}) => {
     const { format = 'ISO' } = config;
-    const date = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000);
+    const date = new Date(
+      Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000,
+    );
     return format === 'ISO' ? date.toISOString() : date.toLocaleDateString();
   },
 
@@ -63,31 +68,36 @@ const dataGenerators = {
 /**
  * Generates sample data based on the provided configuration
  */
-const generateSampleData = (config: SampleDataConfig): Record<string, any>[] => {
+const generateSampleData = (
+  config: SampleDataConfig,
+): Record<string, any>[] => {
   const { columns, rowCount = 5, customGenerators = {} } = config;
 
   try {
     return Array.from({ length: rowCount }, () => {
       const row: Record<string, any> = {};
-      
+
       columns.forEach(({ name, dataType, required = true }) => {
         if (!required && Math.random() > 0.8) {
           return; // 20% chance to skip non-required fields
         }
 
-        const generator = customGenerators[dataType.type] || dataGenerators[dataType.type];
+        const generator =
+          customGenerators[dataType.type] || dataGenerators[dataType.type];
         if (!generator) {
           throw new Error(`Unsupported data type: ${dataType.type}`);
         }
 
-        row[name] = generator(dataType.options);
+        row[name] = generator(dataType.options as any);
       });
 
       return row;
     });
   } catch (error) {
     logger.error('Error generating sample data', { error, config });
-    throw new Error(`Failed to generate sample data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate sample data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 };
 
@@ -109,7 +119,10 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'price',
-        dataType: { type: 'number', options: { min: 15, max: 100, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 15, max: 100, decimals: 2 },
+        },
         required: true,
         description: 'Selling price',
       },
@@ -142,7 +155,10 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'competition',
-        dataType: { type: 'enum', options: { values: ['Low', 'Medium', 'High'] } },
+        dataType: {
+          type: 'enum',
+          options: { values: ['Low', 'Medium', 'High'] },
+        },
         required: true,
       },
     ],
@@ -160,18 +176,26 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         name: 'type',
         dataType: {
           type: 'enum',
-          options: { values: ['Auto', 'Sponsored Products', 'Sponsored Brands'] },
+          options: {
+            values: ['Auto', 'Sponsored Products', 'Sponsored Brands'],
+          },
         },
         required: true,
       },
       {
         name: 'spend',
-        dataType: { type: 'number', options: { min: 50, max: 500, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 50, max: 500, decimals: 2 },
+        },
         required: true,
       },
       {
         name: 'sales',
-        dataType: { type: 'number', options: { min: 100, max: 2000, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 100, max: 2000, decimals: 2 },
+        },
         required: true,
       },
       {
@@ -192,7 +216,10 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
 /**
  * Generates sample CSV data for the specified data type
  */
-export function generateSampleCsv(dataType: keyof typeof sampleDataConfigs): string {
+const DEFAULT_PRODUCT_NAME = 'Generic Product';
+export function generateSampleCsv(
+  dataType: keyof typeof sampleDataConfigs,
+): string {
   const config = sampleDataConfigs[dataType];
   if (!config) {
     throw new Error(`Unsupported data type: ${dataType}`);
@@ -204,11 +231,15 @@ export function generateSampleCsv(dataType: keyof typeof sampleDataConfigs): str
     return Papa.unparse(data);
   } catch (error) {
     logger.error('Error generating sample CSV', { error, dataType });
-    throw new Error(`Failed to generate sample CSV: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate sample CSV: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
-}
 
-const sampleData = [
+  let sampleData;
+  switch (dataType) {
+    case 'ppc':
+      sampleData = [
         {
           productName: DEFAULT_PRODUCT_NAME,
           campaign: 'Sponsored Products - Vitamin C Face Mask',
@@ -422,17 +453,7 @@ const sampleData = [
     default:
       return '';
   }
-
-  try {
-    const data = generateSampleData(config);
-    if (data.length === 0) return '';
-    return Papa.unparse(data);
-  } catch (error) {
-    logger.error('Error generating sample CSV', { error, dataType });
-    throw new Error(`Failed to generate sample CSV: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
 }
-
 export function downloadSampleCsv(
   dataType: keyof typeof sampleDataConfigs,
   fileName?: string,

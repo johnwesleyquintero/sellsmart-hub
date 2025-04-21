@@ -1,21 +1,166 @@
 'use client';
+
 import DragDropArea from '@/components/ui/DragDropArea';
 import { Button } from '@/components/ui/button';
 import { logError } from '@/lib/error-handling';
 import { validateCsvContent } from '@/lib/input-validation';
-import { FileText, Info } from 'lucide-react';
+import { FileText, Info, Loader2 } from 'lucide-react'; // Added Loader2
 import Papa from 'papaparse';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react'; // Added React, useRef
 import { useDropzone } from 'react-dropzone';
 import SampleCsvButton from './sample-csv-button';
 
+// --- Helper Functions (Moved Outside Component) ---
+
+/**
+ * Validates the file type and size.
+ * @returns Error message string or null if valid.
+ */
+const validateFile = (
+  file: File,
+  allowedTypes: string[],
+  maxSize: number,
+): string | null => {
+  const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+  if (!allowedTypes.includes(fileExtension)) {
+    return `Invalid file type. Allowed: ${allowedTypes.join(', ')}`;
+  }
+  if (file.size > maxSize) {
+    return `File size exceeds ${maxSize / 1024 / 1024}MB limit`;
+  }
+  return null;
+};
+
+/**
+ * Reads file content as text using FileReader, wrapped in a Promise.
+ * Includes basic content validation.
+ */
+const readFileContent = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result;
+      if (typeof content === 'string') {
+        // Basic security check on content before resolving
+        const contentValidation = validateCsvContent(content);
+        if (!contentValidation.isValid) {
+          reject(new Error(contentValidation.error));
+        } else {
+          resolve(content);
+        }
+      } else {
+        reject(new Error('Failed to read file content as string.'));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read the file.'));
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Validates CSV headers against required columns.
+ * @returns Array of missing column names.
+ */
+const validateHeaders = (
+  headers: string[],
+  requiredColumns: string[],
+): string[] => {
+  const lowerCaseHeaders = headers.map((h) => h.toLowerCase());
+  return requiredColumns.filter(
+    (col) => !lowerCaseHeaders.includes(col.toLowerCase()),
+  );
+};
+
+/**
+ * Processes a single row using the provided validation function.
+ */
+const processRow = <T extends Record<string, unknown>>(
+  row: Record<string, unknown>,
+  index: number,
+  validateRowFn?: (row: Record<string, unknown>) => T | null,
+): { validRow: T | null; error: string | null } => {
+  // If no validation function, treat as valid but return null data (or adjust as needed)
+  if (!validateRowFn) {
+    // Assuming T allows for any record if no validation
+    return { validRow: row as T, error: null };
+  }
+  try {
+    const validRow = validateRowFn(row);
+    // If validation returns null, it's considered an invalid row based on criteria
+    return {
+      validRow,
+      error: validRow
+        ? null
+        : `Row ${index + 1}: Invalid data format or content`,
+    };
+  } catch (error) {
+    // Catch errors thrown *by* the validation function
+    return {
+      validRow: null,
+      error: `Row ${index + 1}: Validation Error - ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
+};
+
+/**
+ * Parses CSV data using PapaParse, validates headers, and processes rows.
+ * Wrapped in a Promise.
+ */
+const parseAndValidateCsv = <T extends Record<string, unknown>>(
+  csvData: string,
+  requiredColumns: string[],
+  validateRowFn?: (row: Record<string, unknown>) => T | null,
+): Promise<{ validRows: T[]; errors: string[] }> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const headers = results.meta.fields || [];
+        const missingColumns = validateHeaders(headers, requiredColumns);
+
+        if (missingColumns.length > 0) {
+          return reject(
+            new Error(`Missing required columns: ${missingColumns.join(', ')}`),
+          );
+        }
+
+        const validRows: T[] = [];
+        const errors: string[] = [];
+
+        results.data.forEach((row: Record<string, unknown>, index: number) => {
+          const { validRow, error } = processRow(row, index, validateRowFn);
+          if (validRow) {
+            validRows.push(validRow);
+          }
+          // Collect errors even if some rows are valid
+          if (error) {
+            errors.push(error);
+          }
+        });
+
+        resolve({ validRows, errors });
+      },
+      error: (error: Error) => {
+        reject(new Error(`CSV parsing failed: ${error.message}`));
+      },
+    });
+  });
+};
+
+// --- Component ---
+
 interface CsvUploaderProps<T extends Record<string, unknown>> {
   onUploadSuccess: (data: T[]) => void;
-  onUploadError?: (error: string) => void;
+  onUploadError?: (error: string | null) => void; // Allow null to clear error
   allowedFileTypes?: string[];
   maxFileSize?: number; // in bytes
   validateRow?: (row: Record<string, unknown>) => T | null;
   requiredColumns?: string[];
+  // Added props for controlling state from parent if needed (optional)
+  isLoading?: boolean;
+  hasData?: boolean;
+  onClear?: () => void; // Callback for when clear is clicked
 }
 
 export const CsvUploader = <T extends Record<string, unknown>>({
@@ -25,204 +170,220 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   maxFileSize = 5 * 1024 * 1024, // 5MB default
   validateRow,
   requiredColumns = ['id', 'impressions', 'clicks'],
+  isLoading: externalIsLoading, // Use props if provided
+  hasData: externalHasData,
+  onClear: externalOnClear,
 }: CsvUploaderProps<T>) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasData, setHasData] = useState(false);
+  // Internal state for loading and data presence, can be overridden by props
+  const [internalIsLoading, setInternalIsLoading] = useState(false);
+  const [internalHasData, setInternalHasData] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
 
-  const handleCsvParse = useCallback(
-    (file: File) => {
-      if (!file.name.toLowerCase().endsWith('.csv')) {
-        onUploadError?.('Please upload a CSV file');
-        return;
+  // Determine effective state based on props or internal state
+  const isLoading = externalIsLoading ?? internalIsLoading;
+  const hasData = externalHasData ?? internalHasData;
+
+  const processFile = useCallback(
+    async (file: File) => {
+      setInternalIsLoading(true);
+      setInternalHasData(false);
+      onUploadError?.(null);
+
+      try {
+        await handleFileValidation(file);
+        const csvContent = await handleFileRead(file);
+        const { validRows, validationErrors } =
+          await handleCsvProcessing(csvContent);
+        handleUploadResults(validRows, validationErrors);
+      } catch (error) {
+        handleProcessingError(error);
+      } finally {
+        setInternalIsLoading(false);
+        resetFileInput();
       }
-
-      if (file.size > maxFileSize) {
-        onUploadError?.(
-          `File size exceeds ${maxFileSize / 1024 / 1024}MB limit`,
-        );
-        return;
-      }
-
-      setIsLoading(true);
-      const reader = new FileReader();
-
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        try {
-          const csvData = event.target?.result;
-          if (typeof csvData !== 'string') {
-            throw new Error('Invalid file content');
-          }
-
-          // Validate CSV content for security
-          const contentValidation = validateCsvContent(csvData);
-          if (!contentValidation.isValid) {
-            throw new Error(contentValidation.error);
-          }
-
-          Papa.parse(csvData, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-              const headers = results.meta.fields || [];
-              const missingColumns = requiredColumns.filter(
-                (col) => !headers.includes(col),
-              );
-
-              if (missingColumns.length > 0) {
-                onUploadError?.(
-                  `Missing required columns: ${missingColumns.join(', ')}`,
-                );
-                setIsLoading(false);
-                return;
-              }
-
-              const validRows: T[] = [];
-              const errors: string[] = [];
-
-              results.data.forEach(
-                (row: Record<string, unknown>, index: number) => {
-                  try {
-                    if (validateRow) {
-                      const validRow = validateRow(row);
-                      if (validRow) {
-                        validRows.push(validRow);
-                      } else {
-                        errors.push(`Row ${index + 1}: Invalid data format`);
-                      }
-                    } else {
-                      validRows.push(row as T);
-                    }
-                  } catch (error) {
-                    errors.push(
-                      `Row ${index + 1}: ${error instanceof Error ? error.message : 'Invalid data'}`,
-                    );
-                  }
-                },
-              );
-
-              if (errors.length > 0) {
-                logError({
-                  component: 'CsvUploader',
-                  message: `CSV validation errors:\n${errors.join('\n')}`,
-                  severity: 'warning',
-                });
-                onUploadError?.(`Validation errors:\n${errors.join('\n')}`);
-              }
-
-              if (validRows.length > 0) {
-                onUploadSuccess(validRows);
-                setHasData(true);
-              } else {
-                onUploadError?.('No valid data found in the CSV file');
-              }
-              setIsLoading(false);
-            },
-            error: (error: Error) => {
-              logError({
-                component: 'CsvUploader',
-                message: error.message,
-                error,
-              });
-              onUploadError?.(error.message);
-              setIsLoading(false);
-            },
-          });
-        } catch (error) {
-          logError({
-            component: 'CsvUploader',
-            message:
-              error instanceof Error
-                ? error.message
-                : 'Failed to process CSV file',
-            error,
-          });
-          onUploadError?.(
-            error instanceof Error
-              ? error.message
-              : 'Failed to process CSV file',
-          );
-          setIsLoading(false);
-        }
-      };
-
-      reader.onerror = (error) => {
-        logError({
-          component: 'CsvUploader',
-          message: 'Failed to read the file',
-          error:
-            error instanceof Error ? error : new Error('File reading failed'),
-        });
-        onUploadError?.('Failed to read the file');
-        setIsLoading(false);
-      };
-
-      reader.readAsText(file);
     },
-    [maxFileSize, onUploadError, onUploadSuccess, validateRow, requiredColumns],
+    [
+      allowedFileTypes,
+      maxFileSize,
+      onUploadError,
+      onUploadSuccess,
+      requiredColumns,
+      validateRow,
+    ],
   );
+
+  const handleFileValidation = (file: File) => {
+    const validationError = validateFile(file, allowedFileTypes, maxFileSize);
+    if (validationError) {
+      onUploadError?.(validationError);
+      throw new Error(validationError);
+    }
+  };
+
+  const handleFileRead = async (file: File) => {
+    try {
+      return await readFileContent(file);
+    } catch (error) {
+      throw new Error('Failed to read file content');
+    }
+  };
+
+  const handleCsvProcessing = async (csvContent: string) => {
+    try {
+      return await parseAndValidateCsv(
+        csvContent,
+        requiredColumns,
+        validateRow,
+      );
+    } catch (error) {
+      throw error instanceof Error ? error : new Error('CSV processing failed');
+    }
+  };
+
+  const handleUploadResults = (validRows: T[], validationErrors: string[]) => {
+    if (validRows.length > 0) {
+      onUploadSuccess(validRows);
+      setInternalHasData(true);
+    }
+
+    if (validationErrors.length > 0) {
+      logValidationErrors(validationErrors);
+      onUploadError?.(formatErrorMessage(validationErrors));
+    }
+  };
+
+  const logValidationErrors = (errors: string[]) => {
+    logError({
+      component: 'CsvUploader',
+      message: `CSV validation errors: ${errors.length} found`,
+      severity: 'warning',
+      context: { errors },
+    });
+  };
+
+  const formatErrorMessage = (errors: string[]) =>
+    `CSV validation issues found:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`;
+
+  const handleProcessingError = (error: unknown) => {
+    const message =
+      error instanceof Error ? error.message : 'Failed to process CSV file';
+    logError({
+      component: 'CsvUploader',
+      message,
+      error: error instanceof Error ? error : new Error(message),
+    });
+    onUploadError?.(message);
+    setInternalHasData(false);
+  };
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        handleCsvParse(acceptedFiles[0]);
+        processFile(acceptedFiles[0]);
+      } else {
+        // Handle rejected files (e.g., wrong type, too large) - react-dropzone might provide details
+        onUploadError?.('File rejected. Check type or size.');
       }
     },
-    [handleCsvParse],
+    [processFile, onUploadError],
   );
 
-  const { getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/csv': ['.csv'],
+      'text/csv': allowedFileTypes, // Use allowedFileTypes prop
     },
     maxSize: maxFileSize,
     multiple: false,
+    disabled: isLoading,
   });
 
-  const onClear = useCallback(() => {
-    setHasData(false);
-    // Reset the file input
-    const fileInput = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
+  const handleClear = useCallback(() => {
+    setInternalHasData(false);
+    onUploadError?.(null); // Clear errors
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Clear the actual file input
     }
-  }, []);
+    // Call external clear handler if provided
+    externalOnClear?.();
+  }, [externalOnClear, onUploadError]);
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">CSV Format Requirements:</p>
           <p>
-            Required columns:{' '}
+            Required columns (case-insensitive):{' '}
             {requiredColumns.map((col) => (
-              <code key={col} className="mx-1">
+              <code
+                key={col}
+                className="mx-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-xs"
+              >
                 {col}
               </code>
             ))}
           </p>
+          <p>Max file size: {maxFileSize / 1024 / 1024}MB</p>
         </div>
       </div>
 
-      <DragDropArea isDragActive={isDragActive}>
-        <FileText className="mb-2 h-8 w-8 text-primary/60" />
-        <span className="text-sm font-medium">Click to upload CSV</span>
-        <input {...getInputProps()} disabled={isLoading} />
-        <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
+      {/* Dropzone Area */}
+      <div {...getRootProps()}>
+        {/* Pass ref to the hidden input */}
+        <input {...getInputProps()} ref={fileInputRef} disabled={isLoading} />
+        <DragDropArea isDragActive={isDragActive}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mb-2 h-8 w-8 animate-spin text-primary" />
+              <span className="text-sm font-medium text-primary">
+                Processing...
+              </span>
+            </>
+          ) : (
+            <>
+              <FileText className="mb-2 h-8 w-8 text-primary/60" />
+              <span className="text-sm font-medium">
+                {isDragActive
+                  ? 'Drop the CSV file here...'
+                  : 'Click or drag CSV file to upload'}
+              </span>
+              <p className="text-xs text-muted-foreground mt-1">
+                Drag &apos;n&apos; drop, or click to select file
+              </p>
+            </>
+          )}
+        </DragDropArea>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex flex-col sm:flex-row gap-2 justify-center">
         <SampleCsvButton
+          // Consider making dataType and fileName props of CsvUploader if they vary
           dataType="ppc"
-          fileName="sample-ppc-campaign.csv"
-          className="mt-4"
+          fileName="sample-data.csv"
+          className="w-full sm:w-auto"
+          variant="secondary"
         />
-      </DragDropArea>
-      {hasData && (
-        <Button variant="outline" onClick={onClear}>
-          Clear Data
-        </Button>
-      )}
+        {hasData && (
+          <Button
+            variant="outline"
+            onClick={handleClear}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
+            Clear Data
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

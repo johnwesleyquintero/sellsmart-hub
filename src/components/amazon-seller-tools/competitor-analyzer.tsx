@@ -136,7 +136,7 @@ export function CompetitorAnalyzer() {
     'rating',
   ]);
 
-  const { getItem, setItem, removeItem } = useLocalStorage();
+  const { setItem, removeItem } = useLocalStorage();
 
   const handleFileUpload = useCallback(
     (
