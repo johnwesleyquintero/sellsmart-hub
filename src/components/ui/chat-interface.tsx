@@ -55,7 +55,47 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   onRetry,
   onDelete,
 }) => {
-  return <div>Message Content</div>; // Placeholder implementation
+  const isUser = message.role === 'user';
+  const hasError = message.status === 'error';
+  const canRetry = hasError && (message.retryCount || 0) < (message.retryLimit || 3);
+
+  return (
+    <div
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
+    >
+      <div
+        className={`max-w-[70%] rounded-lg p-4 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'} ${hasError ? 'border-red-500 border-2' : ''}`}
+      >
+        {renderMessage(message.content)}
+        {message.error && (
+          <div className="text-red-500 text-sm mt-2">{message.error}</div>
+        )}
+        <div className="flex justify-between items-center mt-2 text-sm">
+          <span className="text-gray-500">
+            {new Date(message.timestamp).toLocaleTimeString()}
+          </span>
+          <div className="flex gap-2">
+            {canRetry && onRetry && (
+              <button
+                onClick={() => onRetry(message)}
+                className="text-sm text-blue-500 hover:text-blue-700"
+              >
+                Retry
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(message.timestamp)}
+                className="text-sm text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export function ChatInterface() {
@@ -95,9 +135,8 @@ export function ChatInterface() {
     }
   }
 
-  const [{ messages, input }, dispatch] = useReducer(chatReducer, initialState);
+  const [{ messages, input, isLoading }, dispatch] = useReducer(chatReducer, initialState);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const RETRY_LIMIT = 3;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -139,47 +178,101 @@ export function ChatInterface() {
     }
   }, [messages]);
 
-  // Message handling is now managed by the parent component
+    // Message handling functions
+  const handleMessageSubmit = async (messageOrContent: Message | string) => {
+    const content = typeof messageOrContent === 'string' ? messageOrContent : messageOrContent.content;
+    if (!content.trim()) return;
 
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content:
-            data.response ||
-            "I apologize, but I couldn't generate a response. Please try again.",
-          timestamp: Date.now(),
-          status: 'sent',
-          isTyping: true,
-        };
+    const userMessage: Message = {
+      role: 'user',
+      content: content.trim(),
+      timestamp: Date.now(),
+      status: 'sending'
+    };
 
-        dispatch({
-          type: 'SET_MESSAGES',
-          payload: [...messages, assistantMessage],
-        });
-      } catch (error) {
-        console.error('Chat submission error:', error);
-        dispatch({
-          type: 'SET_MESSAGES',
-          payload: messages.map((msg) =>
-            msg.timestamp === userMessage.timestamp
-              ? {
-                  ...msg,
-                  status: 'error',
-                  error:
-                    error instanceof Error ? error.message : 'Unknown error',
-                }
-              : msg,
-          ),
-        });
-      } finally {
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
-    },
-    [input, messages],
-  );
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage] });
+      dispatch({ type: 'SET_INPUT', payload: '' });
+
+      // Simulate API call - replace with actual API integration
+      const response = await new Promise<string>((resolve) => 
+        setTimeout(() => resolve('This is a mock response.'), 1000)
+      );
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: response,
+        timestamp: Date.now(),
+        status: 'sent'
+      };
+
+      dispatch({
+        type: 'SET_MESSAGES',
+        payload: [...messages, userMessage, assistantMessage]
+      });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      dispatch({
+        type: 'SET_MESSAGES',
+        payload: messages.map((msg) =>
+          msg.timestamp === userMessage.timestamp
+            ? {
+                ...msg,
+                status: 'error',
+                error: error instanceof Error ? error.message : 'Unknown error'
+              }
+            : msg
+        )
+      });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
 
   return (
-    <div className="fixed bottom-0 right-0 z-50 flex flex-col">
-      {/* Chat interface implementation */}
+    <div className="fixed bottom-0 right-0 z-50 flex flex-col w-96 max-h-[80vh] bg-white shadow-lg rounded-t-lg">
+      <div className="flex-1 overflow-y-auto p-4">
+        {messages.map((msg) => (
+          <MessageBubble
+            key={msg.timestamp}
+            message={msg}
+            onRetry={handleMessageSubmit}
+            onDelete={(timestamp) =>
+              dispatch({
+                type: 'SET_MESSAGES',
+                payload: messages.filter((m) => m.timestamp !== timestamp),
+              })
+            }
+          />
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+      <div className="border-t p-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleMessageSubmit(input);
+          }}
+          className="flex gap-2"
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => dispatch({ type: 'SET_INPUT', payload: e.target.value })}
+            placeholder="Type your message..."
+            className="flex-1 rounded-lg border p-2 focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+          >
+            Send
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -219,6 +312,3 @@ const renderMessage = (content: string) => (
     {content}
   </ReactMarkdown>
 );
-function setIsTyping(arg0: boolean) {
-  throw new Error('Function not implemented.');
-}
