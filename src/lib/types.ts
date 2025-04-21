@@ -48,3 +48,18 @@ export interface BlogPost {
     description: string;
   }[];
 }
+
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+
+export interface LoggerConfig {
+  level: LogLevel;
+  serviceName: string;
+}
+
+// Add Sentry type declaration
+interface Sentry {
+  captureException: (error: unknown) => string;
+  init: (config: { dsn: string }) => void;
+}
+
+declare const Sentry: Sentry;

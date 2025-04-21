@@ -36,6 +36,7 @@ import { type ProductListingData } from '@/lib/amazon-types';
 import { useState, type ChangeEvent } from 'react';
 
 const initialFormData: ProductListingData = {
+  asin: '',
   title: '',
   bulletPoints: [''],
   description: '',

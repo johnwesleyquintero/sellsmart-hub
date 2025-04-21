@@ -39,7 +39,8 @@ import ProductScoreCalculator from './product-score-calculator';
 import ProfitMarginCalculator from './profit-margin-calculator';
 import SalesEstimator from './sales-estimator';
 
-// --- Interface (Keep as is) ---
+// --- Interface ---
+// Define DashboardMetrics interface ONCE
 interface DashboardMetrics {
   date: string;
   sales: number;
@@ -52,6 +53,8 @@ interface DashboardMetrics {
   review_rating: number;
   orders?: number;
   sessions?: number;
+  // Add index signature to satisfy Record<string, unknown> constraint
+  [key: string]: unknown;
 }
 
 // --- Target Metrics for Mapper ---
@@ -74,7 +77,7 @@ const TARGET_METRICS_CONFIG: {
   // { key: 'review_rating', label: 'Review Rating', required: false },
 ];
 
-// --- Sample Data (Keep as is) ---
+// --- Sample Data ---
 const SAMPLE_CARD_DATA = {
   conversion_rate: 5.21,
   total_sales: 12345.67,
@@ -162,7 +165,7 @@ const SAMPLE_CHART_DATA: DashboardMetrics[] = [
   },
 ];
 
-// --- Placeholder Components (Keep as is) ---
+// --- Placeholder Components ---
 const PlaceholderCard = ({
   title,
   value,
@@ -195,6 +198,7 @@ const PlaceholderCard = ({
   </Card>
 );
 
+// Define PlaceholderChartContainer ONCE
 const PlaceholderChartContainer = ({
   title,
   children,
@@ -214,7 +218,7 @@ const PlaceholderChartContainer = ({
 
 // --- Helper Functions for Data Processing ---
 
-// Extracts date, trying mapped header first, then common fallbacks
+// Define getDateFromRow ONCE
 const getDateFromRow = (
   row: Record<string, string>,
   mappedHeader: string | null,
@@ -233,7 +237,7 @@ const getDateFromRow = (
   return 'Unknown';
 };
 
-// Extracts and cleans numeric value, trying mapped header first, then fallbacks
+// Define getNumericValueFromRow ONCE
 const getNumericValueFromRow = (
   row: Record<string, string>,
   mappedHeader: string | null,
@@ -253,7 +257,7 @@ const getNumericValueFromRow = (
   return 0; // Default to 0 if not found or invalid
 };
 
-// Transforms a single row of parsed CSV data into DashboardMetrics structure
+// Define transformCsvRow ONCE
 const transformCsvRow = (
   row: Record<string, string>,
   mapping: Record<keyof DashboardMetrics, string | null>,
@@ -299,6 +303,7 @@ const transformCsvRow = (
 };
 
 // --- Component ---
+// Define UnifiedDashboard component ONCE
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [metrics, setMetrics] = useState<DashboardMetrics[]>([]);
@@ -311,8 +316,6 @@ export default function UnifiedDashboard() {
   const [showMapper, setShowMapper] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  // Removed unused columnMapping state
-  // const [columnMapping, setColumnMapping] = useState<Record<keyof DashboardMetrics, string | null> | null>(null);
   // --- End NEW State ---
 
   const handleRefresh = useCallback(async () => {
@@ -321,7 +324,6 @@ export default function UnifiedDashboard() {
     setShowMapper(false); // Ensure mapper is hidden on refresh
     setCsvHeaders([]);
     setSelectedFile(null);
-    // setColumnMapping(null); // No longer needed
     setMetrics([]); // Optionally clear metrics on refresh
     console.log('Refresh clicked - clearing status.');
     await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate action
@@ -341,7 +343,6 @@ export default function UnifiedDashboard() {
     setShowMapper(false);
     setCsvHeaders([]);
     setSelectedFile(null);
-    // setColumnMapping(null); // No longer needed
 
     // Pre-parse to get headers
     Papa.parse(file, {
@@ -384,7 +385,6 @@ export default function UnifiedDashboard() {
       return;
     }
 
-    // setColumnMapping(mapping); // No longer storing mapping in state
     setShowMapper(false);
     setIsParsing(true); // Start processing indicator
     setError(null);
@@ -445,7 +445,6 @@ export default function UnifiedDashboard() {
     setShowMapper(false);
     setCsvHeaders([]);
     setSelectedFile(null);
-    // setColumnMapping(null); // No longer needed
     setError(null); // Clear any errors from pre-parsing
     setIsParsing(false);
     // Reset file input if user cancels mapping
@@ -462,7 +461,6 @@ export default function UnifiedDashboard() {
     setShowMapper(false);
     setCsvHeaders([]);
     setSelectedFile(null);
-    // setColumnMapping(null); // No longer needed
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Clear previous selection
     }
@@ -689,7 +687,7 @@ export default function UnifiedDashboard() {
           </Button>
         </div>
 
-        {/* Placeholder Cards & Charts (Keep as is) */}
+        {/* Placeholder Cards & Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           <PlaceholderCard
             title="Avg. Conversion Rate"
@@ -800,7 +798,7 @@ export default function UnifiedDashboard() {
           {renderOverviewContent()}
         </TabsContent>
 
-        {/* --- Other Tabs (Keep as is) --- */}
+        {/* --- Other Tabs --- */}
         <TabsContent value="keywords">
           <Card>
             <CardContent className="p-4">
@@ -917,3 +915,5 @@ export default function UnifiedDashboard() {
     </div>
   );
 }
+
+// Removed duplicated code blocks from line 921 onwards
