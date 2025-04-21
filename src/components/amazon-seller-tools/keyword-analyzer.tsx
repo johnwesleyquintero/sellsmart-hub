@@ -74,8 +74,8 @@ async function processKeywordBatch(
   for (let i = 0; i < keywords.length; i += BATCH_SIZE) {
     const batch = keywords.slice(i, i + BATCH_SIZE);
     try {
-      // Assuming analyzeBatch exists or adapt to analyze single/multiple
-      const batchResults = await KeywordIntelligence.analyzeBatch(batch);
+      // Use the analyze method from KeywordIntelligence
+      const batchResults = await KeywordIntelligence.analyze(batch);
       results.push(...batchResults);
     } catch (error) {
       logError({

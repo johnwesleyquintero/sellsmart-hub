@@ -572,78 +572,6 @@ export default function DescriptionEditor() {
     ],
   );
 
-  const handleCsvUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const requiredColumns = ['product', 'description'];
-        const actualHeaders = results.meta.fields || [];
-        const missingColumns = requiredColumns.filter(
-          (col) =>
-            !actualHeaders.some((h) => h.toLowerCase() === col.toLowerCase()),
-        );
-
-        if (missingColumns.length > 0) {
-          throw new Error(
-            `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
-          );
-        }
-
-        if (results.data.length === 0) {
-          throw new Error('CSV file contains no data rows.');
-        }
-
-        const processedData: ProductDescription[] = results.data
-          .map((row, index) =>
-            processCsvRow(row, index, actualHeaders, prohibitedKeywords),
-          )
-          .filter((item): item is ProductDescription => item !== null);
-
-        if (processedData.length === 0) {
-          throw new Error(
-            'No valid product data found after processing. Check column names and content.',
-          );
-        }
-
-        setProducts(processedData);
-        setError(null);
-        toast({
-          title: 'CSV Processed',
-          description: `Loaded ${processedData.length} product descriptions.`,
-        });
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : 'An unknown error occurred during processing.';
-        setError(message);
-        setProducts([]);
-        toast({
-          title: 'Processing Failed',
-          description: message,
-          variant: 'destructive',
-        });
-        logger.error('CSV Processing Error', {
-          error: err,
-          component: 'DescriptionEditor',
-        });
-      } finally {
-        setIsLoading(false);
-        if (event.target) event.target.value = '';
-      }
-    },
-    [
-      handleParseError,
-      setIsLoading,
-      setProducts,
-      setError,
-      toast,
-      prohibitedKeywords,
-    ],
-  );
-
   const handleParseError = useCallback(
     (error: Error, event: React.ChangeEvent<HTMLInputElement>) => {
       setIsLoading(false);
@@ -660,7 +588,7 @@ export default function DescriptionEditor() {
       });
       if (event.target) event.target.value = '';
     },
-    [toast],
+    [setIsLoading, setError, setProducts, toast],
   );
 
   const handleManualSubmit = useCallback(

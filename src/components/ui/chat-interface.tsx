@@ -2,7 +2,7 @@
 
 import 'katex/dist/katex.min.css';
 import 'prismjs/themes/prism-tomorrow.css';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import rehypePrism from 'rehype-prism-plus';
@@ -139,57 +139,7 @@ export function ChatInterface() {
     }
   }, [messages]);
 
-  const clearHistory = useCallback(() => {
-    dispatch({ type: 'SET_MESSAGES', payload: [] });
-    localStorage.removeItem('chatMessages');
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (e?: React.FormEvent, messageContent?: string) => {
-      if (e) e.preventDefault();
-      const currentInput = messageContent || input;
-      if (!currentInput.trim()) return;
-
-      const userMessage: Message = {
-        role: 'user',
-        content: currentInput,
-        timestamp: Date.now(),
-        status: 'sending',
-        retryCount: 0,
-        retryLimit: RETRY_LIMIT,
-      };
-
-      dispatch({ type: 'SET_MESSAGES', payload: [...messages, userMessage] });
-      if (!messageContent) dispatch({ type: 'SET_INPUT', payload: '' });
-      dispatch({ type: 'SET_LOADING', payload: true });
-
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: currentInput,
-            history: messages.slice(-4),
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `Server error (${response.status}): ${response.statusText}. Please try again.`,
-          );
-        }
-
-        const data = await response.json();
-        dispatch({
-          type: 'SET_MESSAGES',
-          payload: messages.map((msg) =>
-            msg.timestamp === userMessage.timestamp
-              ? { ...msg, status: 'sent' }
-              : msg,
-          ),
-        });
+  // Message handling is now managed by the parent component
 
         const assistantMessage: Message = {
           role: 'assistant',
