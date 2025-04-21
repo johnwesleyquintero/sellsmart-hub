@@ -26,19 +26,17 @@ export default function OptimalPriceCalculator() {
   const [inputs, setInputs] = useState<OptimalPriceInputs>({
     cost: 0,
     currentPrice: 0,
-    competitorPrices: '',
+    competitorPrices: [],
     reviewRating: 4.5,
     reviewCount: 42,
     priceCompetitiveness: 0.92,
     inventoryHealth: 0.8,
     weight: 1.2,
-    volume: 0.05,
-    reviews: null,
-    salesRank: 1000,
-    price: 25,
-    category: ProductCategory.STANDARD,
+    volume: 0.05
   });
 
+  // Add null checks for validatedInputs
+  const competitorPricesArray = validatedInputs?.competitorPrices?.map(Number) || [];
   const [results, setResults] = useState<{
     optimalPrice: number;
     profit: number;
@@ -240,3 +238,8 @@ export default function OptimalPriceCalculator() {
     </div>
   );
 }
+
+chartData.push({
+  price: validatedInputs?.currentPrice ?? 0,
+  profitability: validatedInputs?.priceCompetitiveness ?? 0
+});

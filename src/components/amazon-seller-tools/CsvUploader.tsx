@@ -311,9 +311,13 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       {/* Dropzone Area */}
       <div {...getRootProps()}>
         {/* Pass ref to the hidden input */}
-        <input {...getInputProps()} ref={fileInputRef} disabled={externalIsLoading ?? false} />
+        <input
+          {...getInputProps()}
+          ref={fileInputRef}
+          disabled={externalIsLoading ?? false}
+        />
         <DragDropArea isDragActive={isDragActive}>
-          {externalIsLoading ?? false ? (
+          {(externalIsLoading ?? false) ? (
             <>
               <Loader2 className="mb-2 h-8 w-8 animate-spin text-primary" />
               <span className="text-sm font-medium text-primary">
@@ -329,11 +333,12 @@ export const CsvUploader = <T extends Record<string, unknown>>({
                   : 'Click or drag CSV file to upload'}
               </span>
               <p className="text-xs text-muted-foreground mt-1">
-                Drag 'n' drop, or click to select file
+                Drag &apos;n&apos; drop, or click to select file
               </p>
             </>
-          </DragDropArea>
-        </div>
+          )}
+        </DragDropArea>
+      </div>
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-2 justify-center">

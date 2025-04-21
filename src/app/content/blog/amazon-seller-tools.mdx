@@ -16,7 +16,7 @@ tags: [
 image: '/images/blog/amazon-seller-tools.svg'
 ---
 
-# 🛠 Amazon Seller Tools Suite (Updated: May 2024)
+# 🛠 Amazon Seller Tools Suite (Updated: June 2024)
 
 ![Project Badge](https://img.shields.io/badge/Status-Active%20Development-blue) ![Last Update](https://img.shields.io/badge/Docs%20Updated-2025--04--21-informational)
 
@@ -34,7 +34,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | FBA Calculator           | ✅ Active                  | 2.0.0       |                                    |
 | Keyword Analyzer         | ✅ Active                  | 2.0.0       |                                    |
 | Listing Quality Checker  | ✅ Active                  | 1.5.0       | AI features under review           |
-| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | Beta v0.9.0 | Requires stabilization (documented as v2.0.0 in error). Stabilization work in progress for production release. |
+| PPC Campaign Auditor     | ✅ Active                  | 2.1.0       | Stabilized with enhanced error handling and real-time monitoring |
 | Description Editor       | ✅ Active                  | 1.5.0       | AI features under review. Implemented Server Actions to resolve "mongodb is not defined" error |
 | Keyword Deduplicator     | ✅ Active                  | 1.5.0       | AI features under review           |
 | ACoS Calculator          | ✅ Active                  | 1.5.0       |                                    |
@@ -43,7 +43,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | Keyword Trend Analyzer   | ✅ Active                  | 1.0.0       |                                    |
 | Profit Margin Calculator | ✅ Active                  | 1.0.0       |                                    |
 | Product Score Calc.      | ✅ Active                  | 1.0.0       | Manual input only                  |
-| Optimal Price Calc.      | ✅ Active                  | 0.1.0       | Basic version available            |
+| Optimal Price Calc.      | ✅ Active                  | 1.2.0       | AI-powered pricing suggestions with market trend analysis |
 ```
 
 ---
@@ -349,5 +349,7 @@ The API key management system has been updated to include input validation, prev
 - Fixed duplicate type definitions in error handling system
 - Optimized component re-renders in dashboard interfaces
 - Resolved production error reporting gaps
+- Implemented race condition prevention in API key management
+- Added input validation for all calculator tools
 
 This documentation will be updated periodically as significant changes, fixes, or new features are released. Thank you for your understanding as we continue to improve the Amazon Seller Tools Suite!
