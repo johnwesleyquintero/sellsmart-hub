@@ -57,44 +57,71 @@ type CsvInputRow = {
 /**
  * Calculates profit, ROI, and margin for a single product.
  */
+// Import validation schemas and logger
+import { logError } from '@/lib/error-handling';
+import { monetaryValueSchema } from '@/lib/input-validation';
+
+/**
+ * Formats a number for display, handling edge cases
+ * @param value The number to format
+ * @param decimals Number of decimal places (default 2)
+ * @returns Formatted string representation
+ */
+const formatNumber = (value: number, decimals: number = 2): string => {
+  if (!isFinite(value)) return value > 0 ? '∞' : value < 0 ? '-∞' : '0';
+  if (Math.abs(value) >= 1e9) return `${(value / 1e9).toFixed(decimals)}B`;
+  if (Math.abs(value) >= 1e6) return `${(value / 1e6).toFixed(decimals)}M`;
+  if (Math.abs(value) >= 1e3) return `${(value / 1e3).toFixed(decimals)}K`;
+  return value.toFixed(decimals);
+};
+
+/**
+ * Calculates FBA metrics with improved error handling and validation
+ */
 const calculateFbaMetrics = (
   input: FbaCalculationInput,
 ): Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'> => {
-  const { cost, price, fees } = input;
+  try {
+    // Validate inputs using Zod schema
+    const validatedCost = monetaryValueSchema.parse(input.cost);
+    const validatedPrice = monetaryValueSchema.parse(input.price);
+    const validatedFees = monetaryValueSchema.parse(input.fees);
 
-  const profit = price - cost - fees;
-  // ROI: Handle zero cost to avoid division by zero (returns Infinity if profit > 0, 0 if profit = 0, -Infinity if profit < 0)
-  let roi;
-  if (cost > 0) {
-    roi = (profit / cost) * 100;
-  } else {
-    if (profit > 0) {
-      roi = Infinity;
-    } else if (profit < 0) {
-      roi = -Infinity;
-    } else {
-      roi = 0;
-    }
-  }
-  // Margin: Handle zero price to avoid division by zero (returns 0 if profit is also 0, otherwise +/- Infinity)
-  let margin;
-  if (price > 0) {
-    margin = (profit / price) * 100;
-  } else {
-    if (profit === 0) {
-      margin = 0;
-    } else if (profit > 0) {
-      margin = Infinity;
-    } else {
-      margin = -Infinity;
-    }
-  }
+    // Calculate profit first
+    const profit = validatedPrice - validatedCost - validatedFees;
 
-  return {
-    profit,
-    roi,
-    margin,
-  };
+    // Calculate ROI with guard clauses
+    const roi =
+      validatedCost === 0
+        ? profit === 0
+          ? 0
+          : profit > 0
+            ? Infinity
+            : -Infinity
+        : (profit / validatedCost) * 100;
+
+    // Calculate margin with guard clauses
+    const margin =
+      validatedPrice === 0
+        ? profit === 0
+          ? 0
+          : profit > 0
+            ? Infinity
+            : -Infinity
+        : (profit / validatedPrice) * 100;
+
+    return { profit, roi, margin };
+  } catch (error) {
+    logError({
+      message: 'Error calculating FBA metrics',
+      component: 'FbaCalculator',
+      severity: 'medium',
+      error: error as Error,
+      context: { input },
+    });
+    // Return safe defaults on error
+    return { profit: 0, roi: 0, margin: 0 };
+  }
 };
 
 // --- Component ---

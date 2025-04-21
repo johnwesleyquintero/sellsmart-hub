@@ -25,12 +25,16 @@ export const productDescriptionSchema = z.object({
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number,
-): ((...args: Parameters<T>) => void) => {
+): ((...args: Parameters<T>) => ReturnType<T>) => {
   let timeout: NodeJS.Timeout;
 
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
+    return new Promise((resolve) => {
+      timeout = setTimeout(() => {
+        resolve(func(...args));
+      }, wait);
+    }) as ReturnType<T>;
   };
 };
 
