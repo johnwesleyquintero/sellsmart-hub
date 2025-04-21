@@ -147,11 +147,13 @@ const calculateTitleScore = (
     if (title.length >= MIN_TITLE_LENGTH && title.length <= MAX_TITLE_LENGTH) {
       titleScore = WEIGHTS.title;
     } else if (title.length < MIN_TITLE_LENGTH) {
-      issues.push(`Title too short (${title.length}/${MIN_TITLE_LENGTH} chars)`);
-      suggestions.push(
-        'Expand title with relevant keywords and key features.',
+      issues.push(
+        `Title too short (${title.length}/${MIN_TITLE_LENGTH} chars)`,
       );
-      titleScore = Math.floor((title.length / MIN_TITLE_LENGTH) * WEIGHTS.title);
+      suggestions.push('Expand title with relevant keywords and key features.');
+      titleScore = Math.floor(
+        (title.length / MIN_TITLE_LENGTH) * WEIGHTS.title,
+      );
     } else {
       issues.push(
         `Title exceeds maximum length (${title.length}/${MAX_TITLE_LENGTH} chars)`,
@@ -247,9 +249,7 @@ const calculateImagesScore = (
   if (imageCount >= RECOMMENDED_IMAGES) {
     imageScore = WEIGHTS.images;
   } else if (imageCount >= MIN_IMAGES) {
-    imageScore = Math.floor(
-      (imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images,
-    );
+    imageScore = Math.floor((imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images);
     suggestions.push(
       `Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`,
     );
@@ -323,10 +323,18 @@ const calculateScoreAndIssues = (
   totalScore += calculateTitleScore(data.title, issues, suggestions);
 
   // Description Analysis (20 points)
-  totalScore += calculateDescriptionScore(data.description, issues, suggestions);
+  totalScore += calculateDescriptionScore(
+    data.description,
+    issues,
+    suggestions,
+  );
 
   // Bullet Points Analysis (15 points)
-  totalScore += calculateBulletPointsScore(data.bulletPoints, issues, suggestions);
+  totalScore += calculateBulletPointsScore(
+    data.bulletPoints,
+    issues,
+    suggestions,
+  );
 
   // Images Analysis (15 points)
   totalScore += calculateImagesScore(data.images, issues, suggestions);
@@ -873,21 +881,22 @@ export default function ListingQualityChecker() {
       )}
 
       {/* General Error Display (for CSV upload/processing) */}
-      {error && !asin && ( // Only show general error if not related to ASIN check
-        <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setError(null)}
-            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
-            aria-label="Dismiss error"
-          >
-            <XCircle className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+      {error &&
+        !asin && ( // Only show general error if not related to ASIN check
+          <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <span className="flex-grow break-words">{error}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setError(null)}
+              className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
+              aria-label="Dismiss error"
+            >
+              <XCircle className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
       {/* Loading Indicator */}
       {isLoading && (
@@ -1014,9 +1023,11 @@ export default function ListingQualityChecker() {
                                 Detected Issues ({listing.issues.length}):
                               </h5>
                               <ul className="list-inside list-disc space-y-1 text-sm text-red-700 dark:text-red-300">
-                                {listing.issues.map((issue: string, i: number) => (
-                                  <li key={`issue-${index}-${i}`}>{issue}</li>
-                                ))}
+                                {listing.issues.map(
+                                  (issue: string, i: number) => (
+                                    <li key={`issue-${index}-${i}`}>{issue}</li>
+                                  ),
+                                )}
                               </ul>
                             </div>
                           ) : (

@@ -4,7 +4,7 @@ import copy from 'clipboard-copy';
 import 'katex/dist/katex.min.css';
 import { Copy, MoveHorizontal, Send, Trash2, X } from 'lucide-react';
 import 'prismjs/themes/prism-tomorrow.css';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import rehypePrism from 'rehype-prism-plus';
@@ -45,11 +45,45 @@ const removeMessageByTimestamp =
   };
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isCentered, setIsCentered] = useState(false);
+  import { useReducer } from 'react';
+
+  type ChatState = {
+    messages: Message[];
+    input: string;
+    isLoading: boolean;
+    isChatOpen: boolean;
+    isCentered: boolean;
+  };
+
+  const initialState: ChatState = {
+    messages: [],
+    input: '',
+    isLoading: false,
+    isChatOpen: false,
+    isCentered: false,
+  };
+
+  function chatReducer(
+    state: ChatState,
+    action: { type: string; payload?: any },
+  ) {
+    switch (action.type) {
+      case 'SET_MESSAGES':
+        return { ...state, messages: action.payload };
+      case 'SET_INPUT':
+        return { ...state, input: action.payload };
+      case 'SET_LOADING':
+        return { ...state, isLoading: action.payload };
+      case 'TOGGLE_CHAT':
+        return { ...state, isChatOpen: !state.isChatOpen };
+      case 'TOGGLE_CENTERED':
+        return { ...state, isCentered: !state.isCentered };
+      default:
+        return state;
+    }
+  }
+
+  const [state, dispatch] = useReducer(chatReducer, initialState);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const RETRY_LIMIT = 3;
   const MESSAGES_PER_PAGE = 50;
