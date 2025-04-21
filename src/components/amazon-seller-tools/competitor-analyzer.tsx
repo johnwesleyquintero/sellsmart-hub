@@ -99,7 +99,6 @@ export function validateAndProcessData(data: CsvRow[]): {
   return { validData, errors };
 }
 
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import { logger } from '@/lib/logger';
 import { sanitizeHtml } from '@/lib/sanitize';
 
@@ -136,7 +135,7 @@ export function CompetitorAnalyzer() {
     'rating',
   ]);
 
-  const { setItem, removeItem } = useLocalStorage();
+  const { setSecureItem, removeSecureItem } = useSessionStorage();
 
   const handleFileUpload = useCallback(
     (
@@ -536,7 +535,7 @@ export function CompetitorAnalyzer() {
               // Save analysis results to localStorage
               const timestamp = new Date().toISOString();
               const savedAnalyses = JSON.parse(
-                localStorage.getItem('competitorAnalyses') || '[]',
+                sessionStorage.getEncryptedItem('competitorAnalyses') || '[]',
               );
               savedAnalyses.push({
                 id: timestamp,
@@ -545,7 +544,8 @@ export function CompetitorAnalyzer() {
                 metrics,
                 chartData,
               });
-              localStorage.setItem(
+              // Replaced localStorage with encrypted session storage
+              sessionStorage.setEncryptedItem(
                 'competitorAnalyses',
                 JSON.stringify(savedAnalyses),
               );

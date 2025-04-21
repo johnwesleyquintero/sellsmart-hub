@@ -35,7 +35,8 @@ const dataGenerators = {
   string: (config: DataTypeConfig['options'] = {}) => {
     const { prefix = '', suffix = '' } = config;
     // Security: Acceptable for sample data generation
-    const length = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+    const length =
+      (crypto.getRandomValues(new Uint32Array(1))[0] % (10 - 5 + 1)) + 5;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const randomValues = new Uint32Array(length);
     window.crypto.getRandomValues(randomValues);
@@ -66,12 +67,15 @@ const dataGenerators = {
     return format === 'ISO' ? date.toISOString() : date.toLocaleDateString();
   },
 
-  boolean: () => Math.random() > 0.5, // Security: Acceptable for sample data
+  boolean: () =>
+    crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 > 0.5, // Cryptographically secure
 
   enum: (config: DataTypeConfig['options'] = {}) => {
     const { values = ['Option1', 'Option2', 'Option3'] } = config;
     // Security: Safe for demo data randomization
-    return values[Math.floor(Math.random() * values.length)];
+    return values[
+      crypto.getRandomValues(new Uint32Array(1))[0] % values.length
+    ];
   },
 };
 
@@ -88,7 +92,10 @@ const generateSampleData = (
       const row: Record<string, any> = {};
 
       columns.forEach(({ name, dataType, required = true }) => {
-        if (!required && Math.random() > 0.8) {
+        if (
+          !required &&
+          crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 > 0.8
+        ) {
           return; // 20% chance to skip non-required fields
         }
 

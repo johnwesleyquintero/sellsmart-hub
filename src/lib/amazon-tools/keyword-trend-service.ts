@@ -58,8 +58,10 @@ export class KeywordTrendService {
   ): Promise<number> {
     // TODO: Replace with actual API call
     // For now, return simulated data
-    const baseVolume = Math.floor(Math.random() * 10000) + 1000;
-    const variance = Math.floor(Math.random() * 1000) - 500;
+    const baseVolume =
+      (crypto.getRandomValues(new Uint32Array(1))[0] % 10000) + 1000;
+    const variance =
+      (crypto.getRandomValues(new Uint32Array(1))[0] % 1000) - 500;
     return Math.max(0, baseVolume + variance);
   }
 

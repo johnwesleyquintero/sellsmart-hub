@@ -666,7 +666,7 @@ const SidebarMenuSkeleton = React.forwardRef<
   // This is only used for generating a random width for the skeleton, so it's not a security concern.
   const width = React.useMemo(() => {
     // eslint-disable-next-line sonarjs/pseudo-random
-    return `${Math.floor(Math.random() * 40) + 50}%`;
+    return `${crypto.getRandomValues(new Uint32Array(1))[0] % 40 + 50}%`;
   }, []);
 
   return (
@@ -773,5 +773,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar,
+  useSidebar
 };
+

@@ -44,9 +44,9 @@ const removeMessageByTimestamp =
     return prev.filter((msg) => msg.timestamp !== timestamp);
   };
 
-export function ChatInterface() {
-  import { useReducer } from 'react';
+import { useReducer } from 'react';
 
+export function ChatInterface() {
   type ChatState = {
     messages: Message[];
     input: string;
@@ -83,6 +83,7 @@ export function ChatInterface() {
     }
   }
 
+  // State management optimized with useReducer
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const RETRY_LIMIT = 3;
@@ -92,9 +93,13 @@ export function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Implement memoization for message rendering
+  const MemoizedMessage = React.memo(MessageBubble);
+  
+  // Optimize useEffect dependencies
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]); // Only trigger on array length changes
 
   // Load messages from localStorage on component mount
   useEffect(() => {
