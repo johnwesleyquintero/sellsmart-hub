@@ -119,17 +119,19 @@ export default function OptimalPriceCalculator() {
 
       // Key updates in validation handling
       if (!validationResult.success) {
+        // FIX 1 & 2: Check if error exists and handle ZodError vs string error
         if (validationResult.error) {
           if (validationResult.error instanceof ZodError) {
             const errorMessages = validationResult.error.issues
-              .map(
-                (issue: { message: string }) =>
-                  `Validation error: ${issue.message}`,
-              )
+              .map((issue) => `Validation error: ${issue.message}`) // Removed unnecessary object wrapping
               .join('\n');
             setError(errorMessages);
+          } else if (typeof validationResult.error === 'string') {
+            // Handle case where error is a string message
+            setError(validationResult.error);
           } else {
-            setError(validationResult.error.message);
+            // Fallback for unexpected error types
+            setError('Validation failed with an unexpected error type.');
           }
         } else {
           setError('Validation failed with unknown error');
@@ -382,5 +384,6 @@ export default function OptimalPriceCalculator() {
 //   price: validatedInputs?.currentPrice ?? 0,
 //   profitability: validatedInputs?.priceCompetitiveness ?? 0
 // });
-const competitorPrices = validationResult.data.competitorPrices;
-const currentPrice = validationResult.data.currentPrice;
+// FIX 3 & 4: Removed these lines as they are out of scope and redundant
+// const competitorPrices = validationResult.data.competitorPrices;
+// const currentPrice = validationResult.data.currentPrice;
