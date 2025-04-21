@@ -18,12 +18,12 @@ import { useCallback, useRef, useState } from 'react';
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
 import SampleCsvButton from '@/components/amazon-seller-tools/sample-csv-button'; // Added
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label'; // Added
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
 
 // Lib/Logic Imports (Assuming KeywordIntelligence exists and works as expected)
@@ -74,6 +74,10 @@ export type ListingData = {
   score: number; // Calculated score
   issues: string[]; // Detected problems
   suggestions: string[]; // Improvement ideas
+  brand?: string;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
 };
 
 // --- Constants ---
@@ -132,6 +136,110 @@ const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
 
 type ListingScoreResult = Pick<ListingData, 'score' | 'issues' | 'suggestions'>;
 
+// Helper functions to calculate scores for different aspects
+const calculateTitleScore = (title: string | undefined, issues: string[], suggestions: string[]): number => {
+    let titleScore = 0;
+    if (title) {
+        if (title.length >= MIN_TITLE_LENGTH && title.length <= MAX_TITLE_LENGTH) {
+            titleScore = WEIGHTS.title;
+        } else if (title.length < MIN_TITLE_LENGTH) {
+            issues.push(`Title too short (${title.length}/${MIN_TITLE_LENGTH} chars)`);
+            suggestions.push('Expand title with relevant keywords and key features.');
+            titleScore = Math.floor((title.length / MIN_TITLE_LENGTH) * WEIGHTS.title);
+        } else {
+            issues.push(`Title exceeds maximum length (${title.length}/${MAX_TITLE_LENGTH} chars)`);
+            suggestions.push('Optimize title length while maintaining key information.');
+            titleScore = Math.floor((MAX_TITLE_LENGTH / title.length) * WEIGHTS.title);
+        }
+    } else {
+        issues.push('Missing product title');
+        suggestions.push('Add a descriptive title with main keywords.');
+    }
+    return titleScore;
+};
+
+const calculateDescriptionScore = (description: string | undefined, issues: string[], suggestions: string[]): number => {
+    let descScore = 0;
+    if (description) {
+        if (description.length >= MIN_DESCRIPTION_LENGTH && description.length <= MAX_DESCRIPTION_LENGTH) {
+            descScore = WEIGHTS.description;
+        } else if (description.length < MIN_DESCRIPTION_LENGTH) {
+            issues.push(`Description too short (${description.length}/${MIN_DESCRIPTION_LENGTH} chars)`);
+            suggestions.push('Expand description with detailed product information.');
+            descScore = Math.floor((description.length / MIN_DESCRIPTION_LENGTH) * WEIGHTS.description);
+        } else {
+            issues.push(`Description exceeds recommended length (${description.length}/${MAX_DESCRIPTION_LENGTH} chars)`);
+            suggestions.push('Consider condensing while maintaining key details.');
+            descScore = Math.floor((MAX_DESCRIPTION_LENGTH / description.length) * WEIGHTS.description);
+        }
+    } else {
+        issues.push('Missing product description');
+        suggestions.push('Add a comprehensive product description.');
+    }
+    return descScore;
+};
+
+const calculateBulletPointsScore = (bulletPoints: string[] | undefined, issues: string[], suggestions: string[]): number => {
+    let bulletScore = 0;
+    const bulletCount = bulletPoints?.length ?? 0;
+    if (bulletCount >= RECOMMENDED_BULLET_POINTS) {
+        bulletScore = WEIGHTS.bulletPoints;
+    } else if (bulletCount >= MIN_BULLET_POINTS) {
+        bulletScore = Math.floor((bulletCount / RECOMMENDED_BULLET_POINTS) * WEIGHTS.bulletPoints);
+        suggestions.push(`Consider adding ${RECOMMENDED_BULLET_POINTS - bulletCount} more bullet points.`);
+    } else {
+        issues.push(`Insufficient bullet points (${bulletCount}/${MIN_BULLET_POINTS} minimum)`);
+        suggestions.push(`Add at least ${MIN_BULLET_POINTS - bulletCount} more bullet points.`);
+        bulletScore = bulletCount > 0 ? Math.floor((bulletCount / MIN_BULLET_POINTS) * WEIGHTS.bulletPoints) : 0;
+    }
+    return bulletScore;
+};
+
+const calculateImagesScore = (images: number | undefined, issues: string[], suggestions: string[]): number => {
+    let imageScore = 0;
+    const imageCount = images ?? 0;
+    if (imageCount >= RECOMMENDED_IMAGES) {
+        imageScore = WEIGHTS.images;
+    } else if (imageCount >= MIN_IMAGES) {
+        imageScore = Math.floor((imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images);
+        suggestions.push(`Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`);
+    } else {
+        issues.push(`Insufficient images (${imageCount}/${MIN_IMAGES} minimum)`);
+        suggestions.push(`Add at least ${MIN_IMAGES - imageCount} more high-quality images.`);
+        imageScore = imageCount > 0 ? Math.floor((imageCount / MIN_IMAGES) * WEIGHTS.images) : 0;
+    }
+    return imageScore;
+};
+
+const calculateKeywordsScore = (keywords: string[] | undefined, keywordAnalysis: KeywordAnalysisResult[] | undefined, issues: string[], suggestions: string[]): number => {
+    let keywordScore = 0;
+    if (keywords && keywords.length > 0) {
+        const keywordCount = keywords.length;
+        if (keywordCount >= RECOMMENDED_KEYWORDS) {
+            keywordScore = WEIGHTS.keywords;
+        } else if (keywordCount >= MIN_KEYWORDS) {
+            keywordScore = Math.floor((keywordCount / RECOMMENDED_KEYWORDS) * WEIGHTS.keywords);
+            suggestions.push(`Consider adding ${RECOMMENDED_KEYWORDS - keywordCount} more relevant keywords.`);
+        } else {
+            issues.push(`Insufficient keywords (${keywordCount}/${MIN_KEYWORDS} minimum)`);
+            suggestions.push(`Add at least ${MIN_KEYWORDS - keywordCount} more relevant keywords.`);
+            keywordScore = Math.floor((keywordCount / MIN_KEYWORDS) * WEIGHTS.keywords);
+        }
+
+        // Check for prohibited keywords
+        const prohibitedCount = keywordAnalysis?.filter((k) => k.isProhibited).length ?? 0;
+        if (prohibitedCount > 0) {
+            issues.push(`Found ${prohibitedCount} prohibited keywords`);
+            suggestions.push('Remove or replace prohibited keywords.');
+            keywordScore = Math.max(0, keywordScore - prohibitedCount * 2);
+        }
+    } else {
+        issues.push('Missing keywords');
+        suggestions.push('Add relevant keywords to improve searchability.');
+    }
+    return keywordScore;
+};
+
 // Enhanced scoring logic with weighted factors and comprehensive checks
 const calculateScoreAndIssues = (
   data: Omit<ListingData, 'score' | 'issues' | 'suggestions'>,
@@ -141,157 +249,19 @@ const calculateScoreAndIssues = (
   let totalScore = 0;
 
   // Title Analysis (20 points)
-  let titleScore = 0;
-  if (data.title) {
-    if (
-      data.title.length >= MIN_TITLE_LENGTH &&
-      data.title.length <= MAX_TITLE_LENGTH
-    ) {
-      titleScore = WEIGHTS.title;
-    } else if (data.title.length < MIN_TITLE_LENGTH) {
-      issues.push(
-        `Title too short (${data.title.length}/${MIN_TITLE_LENGTH} chars)`,
-      );
-      suggestions.push('Expand title with relevant keywords and key features.');
-      titleScore = Math.floor(
-        (data.title.length / MIN_TITLE_LENGTH) * WEIGHTS.title,
-      );
-    } else {
-      issues.push(
-        `Title exceeds maximum length (${data.title.length}/${MAX_TITLE_LENGTH} chars)`,
-      );
-      suggestions.push(
-        'Optimize title length while maintaining key information.',
-      );
-      titleScore = Math.floor(
-        (MAX_TITLE_LENGTH / data.title.length) * WEIGHTS.title,
-      );
-    }
-  } else {
-    issues.push('Missing product title');
-    suggestions.push('Add a descriptive title with main keywords.');
-  }
-  totalScore += titleScore;
+  totalScore += calculateTitleScore(data.title, issues, suggestions);
 
   // Description Analysis (20 points)
-  let descScore = 0;
-  if (data.description) {
-    if (
-      data.description.length >= MIN_DESCRIPTION_LENGTH &&
-      data.description.length <= MAX_DESCRIPTION_LENGTH
-    ) {
-      descScore = WEIGHTS.description;
-    } else if (data.description.length < MIN_DESCRIPTION_LENGTH) {
-      issues.push(
-        `Description too short (${data.description.length}/${MIN_DESCRIPTION_LENGTH} chars)`,
-      );
-      suggestions.push('Expand description with detailed product information.');
-      descScore = Math.floor(
-        (data.description.length / MIN_DESCRIPTION_LENGTH) *
-          WEIGHTS.description,
-      );
-    } else {
-      issues.push(
-        `Description exceeds recommended length (${data.description.length}/${MAX_DESCRIPTION_LENGTH} chars)`,
-      );
-      suggestions.push('Consider condensing while maintaining key details.');
-      descScore = Math.floor(
-        (MAX_DESCRIPTION_LENGTH / data.description.length) *
-          WEIGHTS.description,
-      );
-    }
-  } else {
-    issues.push('Missing product description');
-    suggestions.push('Add a comprehensive product description.');
-  }
-  totalScore += descScore;
+  totalScore += calculateDescriptionScore(data.description, issues, suggestions);
 
   // Bullet Points Analysis (15 points)
-  let bulletScore = 0;
-  const bulletCount = data.bulletPoints?.length ?? 0;
-  if (bulletCount >= RECOMMENDED_BULLET_POINTS) {
-    bulletScore = WEIGHTS.bulletPoints;
-  } else if (bulletCount >= MIN_BULLET_POINTS) {
-    bulletScore = Math.floor(
-      (bulletCount / RECOMMENDED_BULLET_POINTS) * WEIGHTS.bulletPoints,
-    );
-    suggestions.push(
-      `Consider adding ${RECOMMENDED_BULLET_POINTS - bulletCount} more bullet points.`,
-    );
-  } else {
-    issues.push(
-      `Insufficient bullet points (${bulletCount}/${MIN_BULLET_POINTS} minimum)`,
-    );
-    suggestions.push(
-      `Add at least ${MIN_BULLET_POINTS - bulletCount} more bullet points.`,
-    );
-    bulletScore =
-      bulletCount > 0
-        ? Math.floor((bulletCount / MIN_BULLET_POINTS) * WEIGHTS.bulletPoints)
-        : 0;
-  }
-  totalScore += bulletScore;
+  totalScore += calculateBulletPointsScore(data.bulletPoints, issues, suggestions);
 
   // Images Analysis (15 points)
-  let imageScore = 0;
-  const imageCount = data.images ?? 0;
-  if (imageCount >= RECOMMENDED_IMAGES) {
-    imageScore = WEIGHTS.images;
-  } else if (imageCount >= MIN_IMAGES) {
-    imageScore = Math.floor((imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images);
-    suggestions.push(
-      `Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`,
-    );
-  } else {
-    issues.push(`Insufficient images (${imageCount}/${MIN_IMAGES} minimum)`);
-    suggestions.push(
-      `Add at least ${MIN_IMAGES - imageCount} more high-quality images.`,
-    );
-    imageScore =
-      imageCount > 0
-        ? Math.floor((imageCount / MIN_IMAGES) * WEIGHTS.images)
-        : 0;
-  }
-  totalScore += imageScore;
+  totalScore += calculateImagesScore(data.images, issues, suggestions);
 
   // Keywords Analysis (15 points)
-  let keywordScore = 0;
-  if (data.keywords && data.keywords.length > 0) {
-    const keywordCount = data.keywords.length;
-    if (keywordCount >= RECOMMENDED_KEYWORDS) {
-      keywordScore = WEIGHTS.keywords;
-    } else if (keywordCount >= MIN_KEYWORDS) {
-      keywordScore = Math.floor(
-        (keywordCount / RECOMMENDED_KEYWORDS) * WEIGHTS.keywords,
-      );
-      suggestions.push(
-        `Consider adding ${RECOMMENDED_KEYWORDS - keywordCount} more relevant keywords.`,
-      );
-    } else {
-      issues.push(
-        `Insufficient keywords (${keywordCount}/${MIN_KEYWORDS} minimum)`,
-      );
-      suggestions.push(
-        `Add at least ${MIN_KEYWORDS - keywordCount} more relevant keywords.`,
-      );
-      keywordScore = Math.floor(
-        (keywordCount / MIN_KEYWORDS) * WEIGHTS.keywords,
-      );
-    }
-
-    // Check for prohibited keywords
-    const prohibitedCount =
-      data.keywordAnalysis?.filter((k) => k.isProhibited).length ?? 0;
-    if (prohibitedCount > 0) {
-      issues.push(`Found ${prohibitedCount} prohibited keywords`);
-      suggestions.push('Remove or replace prohibited keywords.');
-      keywordScore = Math.max(0, keywordScore - prohibitedCount * 2);
-    }
-  } else {
-    issues.push('Missing keywords');
-    suggestions.push('Add relevant keywords to improve searchability.');
-  }
-  totalScore += keywordScore;
+  totalScore += calculateKeywordsScore(data.keywords, data.keywordAnalysis, issues, suggestions);
 
   // Brand and Category Bonus (5 points each)
   if (data.brand) totalScore += WEIGHTS.brand;
@@ -497,7 +467,8 @@ export default function ListingQualityChecker() {
   );
 
   // Real ASIN data fetching implementation
-  const fetchAsinData = async (asinToCheck: string): Promise<ListingData> => {
+  // const fetchAsinData = async (asinToCheck: string): Promise<ListingData> => {
+  const fetchAsinDataMock = async (asinToCheck: string): Promise<ListingData> => {
     try {
       const response = await fetch(`/api/amazon/listing/${asinToCheck}`, {
         method: 'GET',
@@ -529,10 +500,6 @@ export default function ListingQualityChecker() {
       // Add additional data from API response
       return {
         ...processedListing,
-        brand: data.brand,
-        category: data.category,
-        rating: data.rating,
-        reviewCount: data.reviewCount,
       };
     } catch (error) {
       console.error('Error fetching ASIN data:', error);
@@ -677,6 +644,12 @@ export default function ListingQualityChecker() {
         variant: 'destructive',
       });
     }
+  }, [listings, toast]);
+
+  // --- Render ---
+  return (
+    <div className="space-y-6">
+      {/* Info Box */}
   }, [listings, toast]);
 
   // --- Render ---
@@ -881,62 +854,6 @@ export default function ListingQualityChecker() {
                   <CardContent className="p-4">
                     {/* Header */}
                     <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                      <h3 className="text-lg font-medium break-all">
-                        {listing.product}
-                      </h3>
-                      <div className="flex items-center gap-2 self-start sm:self-center">
-                        <span className="text-sm font-medium whitespace-nowrap">
-                          Quality Score:
-                        </span>
-                        <Badge variant={getBadgeVariant(listing.score)}>
-                          {listing.score}/100
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Details & Issues/Suggestions Grid */}
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {/* Listing Details Checklist */}
-                      <div>
-                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                          Checklist
-                        </h4>
-                        <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
-                          {/* Title Check */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Title:</span>
-                            <span className="flex items-center text-sm">
-                              {listing.title ? (
-                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
-                              ) : (
-                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
-                              )}
-                              {listing.title ? 'Present' : 'Missing'}
-                            </span>
-                          </div>
-                          {/* Description Check */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Description:</span>
-                            <span className="flex items-center text-sm">
-                              {listing.description ? (
-                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
-                              ) : (
-                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
-                              )}
-                              {listing.description ? 'Present' : 'Missing'}
-                            </span>
-                          </div>
-                          {/* Bullet Points Check */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">Bullet Points:</span>
-                            <span className="flex items-center text-sm text-right">
-                              {(listing.bulletPoints?.length ?? 0) >=
-                              MIN_BULLET_POINTS ? (
-                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
-                              ) : (
-                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
-                              )}
-                              {listing.bulletPoints?.length ?? 0} (Rec:{' '}
                               {RECOMMENDED_BULLET_POINTS}+)
                             </span>
                           </div>
