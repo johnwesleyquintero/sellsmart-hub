@@ -19,24 +19,54 @@ import {
 } from '@/lib/amazon-tools/optimal-price-schema';
 import { ProductCategory } from '@/lib/amazon-types';
 import { logger } from '@/lib/logger';
+import type React from 'react'; // Import React explicitly
 import { useState } from 'react';
+import { ZodError } from 'zod'; // Import Zod for error handling type
+
+// Define the state structure, aligning with form inputs
+// competitorPrices will be stored as a string in state, parsed later
+interface OptimalPriceFormState
+  extends Omit<OptimalPriceInputs, 'competitorPrices'> {
+  competitorPrices: string; // Store as comma-separated string
+}
+
+// Initial state matching the form structure
+const initialFormState: OptimalPriceFormState = {
+  cost: 0,
+  currentPrice: 0,
+  competitorPrices: '', // Initialize as empty string
+  reviewRating: 4.5,
+  reviewCount: 42,
+  priceCompetitiveness: 0.92,
+  inventoryHealth: 0.8,
+  weight: 1.2,
+  volume: 0.05,
+  // Add missing fields required by OptimalPriceInputs schema with defaults
+  price: 0, // Default value, might be same as currentPrice initially
+  category: ProductCategory.STANDARD, // Default category
+  salesRank: 1000, // Default sales rank
+  reviews: 42, // Default reviews, might be same as reviewCount
+};
+
+// Helper function to calculate margin, avoiding nested ternary
+const calculateMargin = (profit: number, optimalPrice: number): number => {
+  if (optimalPrice > 0) {
+    return (profit / optimalPrice) * 100;
+  }
+  // Handle optimalPrice being 0 or less
+  if (profit > 0) {
+    return Infinity; // Or handle as appropriate (e.g., return a large number or specific string)
+  }
+  return 0; // If profit is also 0 or negative
+};
 
 export default function OptimalPriceCalculator() {
   const { toast } = useToast();
-  const [inputs, setInputs] = useState<OptimalPriceInputs>({
-    cost: 0,
-    currentPrice: 0,
-    competitorPrices: [],
-    reviewRating: 4.5,
-    reviewCount: 42,
-    priceCompetitiveness: 0.92,
-    inventoryHealth: 0.8,
-    weight: 1.2,
-    volume: 0.05
-  });
+  const [inputs, setInputs] = useState<OptimalPriceFormState>(initialFormState);
 
-  // Add null checks for validatedInputs
-  const competitorPricesArray = validatedInputs?.competitorPrices?.map(Number) || [];
+  // Removed unused competitorPricesArray and related TS error
+  // const competitorPricesArray = validatedInputs?.competitorPrices?.map(Number) || [];
+
   const [results, setResults] = useState<{
     optimalPrice: number;
     profit: number;
@@ -46,10 +76,14 @@ export default function OptimalPriceCalculator() {
   const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setInputs((prev) => ({
       ...prev,
-      [name]: value,
+      // Keep competitorPrices as string, parse others to number if applicable
+      [name]:
+        type === 'number' && name !== 'competitorPrices'
+          ? parseFloat(value) || 0 // Default to 0 if parsing fails
+          : value,
     }));
   };
 
@@ -63,42 +97,81 @@ export default function OptimalPriceCalculator() {
   const calculateOptimalPrice = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setResults(null); // Clear previous results
 
     try {
-      // Validate all inputs using Zod schema
-      const validationResult = validateOptimalPriceInputs(inputs);
+      // 1. Prepare data for validation (parse competitorPrices string)
+      const competitorPricesArray = inputs.competitorPrices
+        .split(',')
+        .map((s) => parseFloat(s.trim()))
+        .filter((n) => !isNaN(n) && n > 0); // Filter out invalid numbers
 
+      const dataToValidate: OptimalPriceInputs = {
+        ...inputs,
+        // Use currentPrice for the 'price' field required by the schema if not separately managed
+        price: inputs.currentPrice,
+        reviews: inputs.reviewCount, // Use reviewCount for 'reviews' if not separately managed
+        competitorPrices: competitorPricesArray,
+      };
+
+      // 2. Validate all inputs using Zod schema
+      const validationResult = validateOptimalPriceInputs(dataToValidate);
+
+      // Key updates in validation handling
       if (!validationResult.success) {
-        throw new Error(validationResult.error || 'Invalid input data');
+        if (validationResult.error) {
+          if (validationResult.error instanceof ZodError) {
+            const errorMessages = validationResult.error.issues
+              .map(
+                (issue: { message: string }) =>
+                  `Validation error: ${issue.message}`,
+              )
+              .join('\n');
+            setError(errorMessages);
+          } else {
+            setError(validationResult.error.message);
+          }
+        } else {
+          setError('Validation failed with unknown error');
+        }
+        return;
       }
 
-      const validatedInputs = validationResult.data;
-      const competitorPrices = validatedInputs.competitorPrices;
+      // Strict null checks for validated inputs
+      // FIX: Renamed to avoid conflict with variable name later
+      // validationResult.data is guaranteed to exist if success is true
+      if (!validationResult.data)
+        throw new Error('Validation failed - no data returned');
+      const validatedData = validationResult.data;
 
       // Calculate product score with validated inputs
       const productScore = AmazonAlgorithms.calculateProductScore({
-        reviews: validatedInputs.reviews,
-        rating: validatedInputs.reviewRating,
-        salesRank: validatedInputs.salesRank,
-        price: validatedInputs.price,
-        category: validatedInputs.category,
+        // Ensure reviews is number | null
+        reviews: validatedData?.reviews ?? null,
+        rating: validatedData?.reviewRating,
+        salesRank: validatedData?.salesRank,
+        price: validatedData?.price,
+        category: validatedData?.category,
       });
 
       // Calculate optimal price
+      // FIX: Moved optimalPrice calculation before profit calculation
       const optimalPrice = AmazonAlgorithms.calculateOptimalPrice({
-        currentPrice: validatedInputs.currentPrice,
-        competitorPrices,
-        productScore: productScore / 100,
+        currentPrice: validatedData.currentPrice,
+        competitorPrices: validatedData.competitorPrices,
+        productScore: productScore / 100, // Assuming score is 0-100
       });
 
       // Calculate profit and margin
-      const profit = optimalPrice - validatedInputs.cost;
-      const margin = (profit / optimalPrice) * 100;
+      // FIX: Removed duplicate 'const' and moved calculation here
+      const profit = optimalPrice - (validatedData?.cost ?? 0);
+      // FIX: Use helper function to avoid nested ternary
+      const margin = calculateMargin(profit, optimalPrice);
 
       // Log successful calculation
       logger.info('Optimal price calculated successfully', {
         component: 'OptimalPriceCalculator',
-        inputs: validatedInputs,
+        inputs: validatedData,
         results: { optimalPrice, profit, margin },
       });
 
@@ -112,23 +185,16 @@ export default function OptimalPriceCalculator() {
         title: 'Calculation Complete',
         description: `Optimal price calculated: $${optimalPrice.toFixed(2)}`,
       });
-    } catch (err) {
-      // Log error and show user-friendly message
-      logger.error('Error calculating optimal price', {
-        component: 'OptimalPriceCalculator',
-        error: err instanceof Error ? err.message : 'Unknown error',
-        inputs,
-      });
-
-      const errorMessage =
-        err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-
-      toast({
-        title: 'Calculation Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      let errorMessages: string;
+      if (error instanceof ZodError) {
+        errorMessages = error.issues.map((issue) => issue.message).join(', ');
+      } else if (error instanceof Error) {
+        errorMessages = error.message;
+      } else {
+        errorMessages = 'Unknown validation error';
+      }
+      setError(errorMessages);
     }
   };
 
@@ -138,63 +204,123 @@ export default function OptimalPriceCalculator() {
         <h2 className="text-2xl font-bold mb-4">Optimal Price Calculator</h2>
         <form onSubmit={calculateOptimalPrice} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Cost Input */}
             <div className="space-y-2">
-              <Label htmlFor="cost">Product Cost</Label>
+              <Label htmlFor="cost">Product Cost ($)</Label>
               <Input
                 id="cost"
                 name="cost"
                 type="number"
                 step="0.01"
+                min="0"
                 value={inputs.cost}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., 5.50"
               />
             </div>
 
+            {/* Current Price Input */}
             <div className="space-y-2">
-              <Label htmlFor="currentPrice">Current Price</Label>
+              <Label htmlFor="currentPrice">Current Selling Price ($)</Label>
               <Input
                 id="currentPrice"
                 name="currentPrice"
                 type="number"
                 step="0.01"
+                min="0"
                 value={inputs.currentPrice}
                 onChange={handleInputChange}
                 required
+                placeholder="e.g., 19.99"
               />
             </div>
 
-            <div className="space-y-2">
+            {/* Competitor Prices Input */}
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="competitorPrices">
                 Competitor Prices (comma-separated)
               </Label>
               <Input
                 id="competitorPrices"
                 name="competitorPrices"
+                // Value is now the string from state
                 value={inputs.competitorPrices}
                 onChange={handleInputChange}
-                placeholder="19.99, 24.99, 22.99"
+                placeholder="e.g., 19.99, 24.95, 22.50"
                 required
               />
             </div>
 
+            {/* Review Rating Input */}
+            <div className="space-y-2">
+              <Label htmlFor="reviewRating">Average Review Rating</Label>
+              <Input
+                id="reviewRating"
+                name="reviewRating"
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                value={inputs.reviewRating}
+                onChange={handleInputChange}
+                required
+                placeholder="e.g., 4.7"
+              />
+            </div>
+
+            {/* Review Count Input */}
+            <div className="space-y-2">
+              <Label htmlFor="reviewCount">Number of Reviews</Label>
+              <Input
+                id="reviewCount"
+                name="reviewCount"
+                type="number"
+                step="1"
+                min="0"
+                value={inputs.reviewCount}
+                onChange={handleInputChange}
+                required
+                placeholder="e.g., 150"
+              />
+            </div>
+
+            {/* Category Select */}
             <div className="space-y-2">
               <Label htmlFor="category">Product Category</Label>
               <Select
                 value={inputs.category}
                 onValueChange={handleCategoryChange}
+                // name="category" // Select doesn't use name attribute directly
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="category" className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(ProductCategory).map((category) => (
                     <SelectItem key={category} value={category}>
+                      {/* Simple Capitalization */}
                       {category.charAt(0).toUpperCase() + category.slice(1)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Sales Rank Input (Added based on schema) */}
+            <div className="space-y-2">
+              <Label htmlFor="salesRank">Sales Rank (BSR)</Label>
+              <Input
+                id="salesRank"
+                name="salesRank"
+                type="number"
+                step="1"
+                min="1"
+                value={inputs.salesRank}
+                onChange={handleInputChange}
+                required
+                placeholder="e.g., 5000"
+              />
             </div>
           </div>
 
@@ -213,25 +339,37 @@ export default function OptimalPriceCalculator() {
           <div className="mt-6 space-y-4">
             <h3 className="text-xl font-semibold">Results</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-green-100 rounded">
-                <div className="text-sm text-green-700">Optimal Price</div>
-                <div className="text-2xl font-bold">
+              <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded">
+                <div className="text-sm text-green-700 dark:text-green-300">
+                  Optimal Price
+                </div>
+                <div className="text-2xl font-bold text-green-800 dark:text-green-200">
                   ${results.optimalPrice.toFixed(2)}
                 </div>
               </div>
-              <div className="p-4 bg-blue-100 rounded">
-                <div className="text-sm text-blue-700">Estimated Profit</div>
-                <div className="text-2xl font-bold">
+              <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded">
+                <div className="text-sm text-blue-700 dark:text-blue-300">
+                  Estimated Profit
+                </div>
+                <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
                   ${results.profit.toFixed(2)}
                 </div>
               </div>
-              <div className="p-4 bg-purple-100 rounded">
-                <div className="text-sm text-purple-700">Profit Margin</div>
-                <div className="text-2xl font-bold">
-                  {results.margin.toFixed(2)}%
+              <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded">
+                <div className="text-sm text-purple-700 dark:text-purple-300">
+                  Profit Margin
+                </div>
+                <div className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                  {isFinite(results.margin)
+                    ? `${results.margin.toFixed(2)}%`
+                    : 'N/A'}
                 </div>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Note: This is an estimated optimal price based on the provided
+              inputs and algorithm. Market conditions can change rapidly.
+            </p>
           </div>
         )}
       </Card>
@@ -239,7 +377,10 @@ export default function OptimalPriceCalculator() {
   );
 }
 
-chartData.push({
-  price: validatedInputs?.currentPrice ?? 0,
-  profitability: validatedInputs?.priceCompetitiveness ?? 0
-});
+// Removed misplaced chartData lines
+// chartData.push({
+//   price: validatedInputs?.currentPrice ?? 0,
+//   profitability: validatedInputs?.priceCompetitiveness ?? 0
+// });
+const competitorPrices = validationResult.data.competitorPrices;
+const currentPrice = validationResult.data.currentPrice;

@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import { Sentry } from './sentry';
 
 type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -20,7 +21,7 @@ export abstract class ErrorReportingService {
   private static report(errorContext: ErrorContext) {
     if (process.env.NODE_ENV === 'production') {
       // Add actual error reporting service integration
-      Sentry.captureException(errorContext.error, {
+      Sentry?.captureException(errorContext.error, {
         contexts: { error: errorContext },
       });
     }
