@@ -13,18 +13,18 @@ import {
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react'; // Added React import
 
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
 import SampleCsvButton from '@/components/amazon-seller-tools/sample-csv-button'; // Added
+import { Badge } from '@/components/ui/badge'; // Added Badge import
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label'; // Added
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast'; // Keep one useToast import
 
 // Lib/Logic Imports (Assuming KeywordIntelligence exists and works as expected)
 // NOTE: KeywordIntelligence logic is simplified/mocked in processCSVRow
@@ -137,107 +137,178 @@ const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
 type ListingScoreResult = Pick<ListingData, 'score' | 'issues' | 'suggestions'>;
 
 // Helper functions to calculate scores for different aspects
-const calculateTitleScore = (title: string | undefined, issues: string[], suggestions: string[]): number => {
-    let titleScore = 0;
-    if (title) {
-        if (title.length >= MIN_TITLE_LENGTH && title.length <= MAX_TITLE_LENGTH) {
-            titleScore = WEIGHTS.title;
-        } else if (title.length < MIN_TITLE_LENGTH) {
-            issues.push(`Title too short (${title.length}/${MIN_TITLE_LENGTH} chars)`);
-            suggestions.push('Expand title with relevant keywords and key features.');
-            titleScore = Math.floor((title.length / MIN_TITLE_LENGTH) * WEIGHTS.title);
-        } else {
-            issues.push(`Title exceeds maximum length (${title.length}/${MAX_TITLE_LENGTH} chars)`);
-            suggestions.push('Optimize title length while maintaining key information.');
-            titleScore = Math.floor((MAX_TITLE_LENGTH / title.length) * WEIGHTS.title);
-        }
+const calculateTitleScore = (
+  title: string | undefined,
+  issues: string[],
+  suggestions: string[],
+): number => {
+  let titleScore = 0;
+  if (title) {
+    if (title.length >= MIN_TITLE_LENGTH && title.length <= MAX_TITLE_LENGTH) {
+      titleScore = WEIGHTS.title;
+    } else if (title.length < MIN_TITLE_LENGTH) {
+      issues.push(`Title too short (${title.length}/${MIN_TITLE_LENGTH} chars)`);
+      suggestions.push(
+        'Expand title with relevant keywords and key features.',
+      );
+      titleScore = Math.floor((title.length / MIN_TITLE_LENGTH) * WEIGHTS.title);
     } else {
-        issues.push('Missing product title');
-        suggestions.push('Add a descriptive title with main keywords.');
+      issues.push(
+        `Title exceeds maximum length (${title.length}/${MAX_TITLE_LENGTH} chars)`,
+      );
+      suggestions.push(
+        'Optimize title length while maintaining key information.',
+      );
+      titleScore = Math.floor(
+        (MAX_TITLE_LENGTH / title.length) * WEIGHTS.title,
+      );
     }
-    return titleScore;
+  } else {
+    issues.push('Missing product title');
+    suggestions.push('Add a descriptive title with main keywords.');
+  }
+  return titleScore;
 };
 
-const calculateDescriptionScore = (description: string | undefined, issues: string[], suggestions: string[]): number => {
-    let descScore = 0;
-    if (description) {
-        if (description.length >= MIN_DESCRIPTION_LENGTH && description.length <= MAX_DESCRIPTION_LENGTH) {
-            descScore = WEIGHTS.description;
-        } else if (description.length < MIN_DESCRIPTION_LENGTH) {
-            issues.push(`Description too short (${description.length}/${MIN_DESCRIPTION_LENGTH} chars)`);
-            suggestions.push('Expand description with detailed product information.');
-            descScore = Math.floor((description.length / MIN_DESCRIPTION_LENGTH) * WEIGHTS.description);
-        } else {
-            issues.push(`Description exceeds recommended length (${description.length}/${MAX_DESCRIPTION_LENGTH} chars)`);
-            suggestions.push('Consider condensing while maintaining key details.');
-            descScore = Math.floor((MAX_DESCRIPTION_LENGTH / description.length) * WEIGHTS.description);
-        }
+const calculateDescriptionScore = (
+  description: string | undefined,
+  issues: string[],
+  suggestions: string[],
+): number => {
+  let descScore = 0;
+  if (description) {
+    if (
+      description.length >= MIN_DESCRIPTION_LENGTH &&
+      description.length <= MAX_DESCRIPTION_LENGTH
+    ) {
+      descScore = WEIGHTS.description;
+    } else if (description.length < MIN_DESCRIPTION_LENGTH) {
+      issues.push(
+        `Description too short (${description.length}/${MIN_DESCRIPTION_LENGTH} chars)`,
+      );
+      suggestions.push('Expand description with detailed product information.');
+      descScore = Math.floor(
+        (description.length / MIN_DESCRIPTION_LENGTH) * WEIGHTS.description,
+      );
     } else {
-        issues.push('Missing product description');
-        suggestions.push('Add a comprehensive product description.');
+      issues.push(
+        `Description exceeds recommended length (${description.length}/${MAX_DESCRIPTION_LENGTH} chars)`,
+      );
+      suggestions.push('Consider condensing while maintaining key details.');
+      descScore = Math.floor(
+        (MAX_DESCRIPTION_LENGTH / description.length) * WEIGHTS.description,
+      );
     }
-    return descScore;
+  } else {
+    issues.push('Missing product description');
+    suggestions.push('Add a comprehensive product description.');
+  }
+  return descScore;
 };
 
-const calculateBulletPointsScore = (bulletPoints: string[] | undefined, issues: string[], suggestions: string[]): number => {
-    let bulletScore = 0;
-    const bulletCount = bulletPoints?.length ?? 0;
-    if (bulletCount >= RECOMMENDED_BULLET_POINTS) {
-        bulletScore = WEIGHTS.bulletPoints;
-    } else if (bulletCount >= MIN_BULLET_POINTS) {
-        bulletScore = Math.floor((bulletCount / RECOMMENDED_BULLET_POINTS) * WEIGHTS.bulletPoints);
-        suggestions.push(`Consider adding ${RECOMMENDED_BULLET_POINTS - bulletCount} more bullet points.`);
-    } else {
-        issues.push(`Insufficient bullet points (${bulletCount}/${MIN_BULLET_POINTS} minimum)`);
-        suggestions.push(`Add at least ${MIN_BULLET_POINTS - bulletCount} more bullet points.`);
-        bulletScore = bulletCount > 0 ? Math.floor((bulletCount / MIN_BULLET_POINTS) * WEIGHTS.bulletPoints) : 0;
-    }
-    return bulletScore;
+const calculateBulletPointsScore = (
+  bulletPoints: string[] | undefined,
+  issues: string[],
+  suggestions: string[],
+): number => {
+  let bulletScore = 0;
+  const bulletCount = bulletPoints?.length ?? 0;
+  if (bulletCount >= RECOMMENDED_BULLET_POINTS) {
+    bulletScore = WEIGHTS.bulletPoints;
+  } else if (bulletCount >= MIN_BULLET_POINTS) {
+    bulletScore = Math.floor(
+      (bulletCount / RECOMMENDED_BULLET_POINTS) * WEIGHTS.bulletPoints,
+    );
+    suggestions.push(
+      `Consider adding ${RECOMMENDED_BULLET_POINTS - bulletCount} more bullet points.`,
+    );
+  } else {
+    issues.push(
+      `Insufficient bullet points (${bulletCount}/${MIN_BULLET_POINTS} minimum)`,
+    );
+    suggestions.push(
+      `Add at least ${MIN_BULLET_POINTS - bulletCount} more bullet points.`,
+    );
+    bulletScore =
+      bulletCount > 0
+        ? Math.floor((bulletCount / MIN_BULLET_POINTS) * WEIGHTS.bulletPoints)
+        : 0;
+  }
+  return bulletScore;
 };
 
-const calculateImagesScore = (images: number | undefined, issues: string[], suggestions: string[]): number => {
-    let imageScore = 0;
-    const imageCount = images ?? 0;
-    if (imageCount >= RECOMMENDED_IMAGES) {
-        imageScore = WEIGHTS.images;
-    } else if (imageCount >= MIN_IMAGES) {
-        imageScore = Math.floor((imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images);
-        suggestions.push(`Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`);
-    } else {
-        issues.push(`Insufficient images (${imageCount}/${MIN_IMAGES} minimum)`);
-        suggestions.push(`Add at least ${MIN_IMAGES - imageCount} more high-quality images.`);
-        imageScore = imageCount > 0 ? Math.floor((imageCount / MIN_IMAGES) * WEIGHTS.images) : 0;
-    }
-    return imageScore;
+const calculateImagesScore = (
+  images: number | undefined,
+  issues: string[],
+  suggestions: string[],
+): number => {
+  let imageScore = 0;
+  const imageCount = images ?? 0;
+  if (imageCount >= RECOMMENDED_IMAGES) {
+    imageScore = WEIGHTS.images;
+  } else if (imageCount >= MIN_IMAGES) {
+    imageScore = Math.floor(
+      (imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images,
+    );
+    suggestions.push(
+      `Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`,
+    );
+  } else {
+    issues.push(`Insufficient images (${imageCount}/${MIN_IMAGES} minimum)`);
+    suggestions.push(
+      `Add at least ${MIN_IMAGES - imageCount} more high-quality images.`,
+    );
+    imageScore =
+      imageCount > 0
+        ? Math.floor((imageCount / MIN_IMAGES) * WEIGHTS.images)
+        : 0;
+  }
+  return imageScore;
 };
 
-const calculateKeywordsScore = (keywords: string[] | undefined, keywordAnalysis: KeywordAnalysisResult[] | undefined, issues: string[], suggestions: string[]): number => {
-    let keywordScore = 0;
-    if (keywords && keywords.length > 0) {
-        const keywordCount = keywords.length;
-        if (keywordCount >= RECOMMENDED_KEYWORDS) {
-            keywordScore = WEIGHTS.keywords;
-        } else if (keywordCount >= MIN_KEYWORDS) {
-            keywordScore = Math.floor((keywordCount / RECOMMENDED_KEYWORDS) * WEIGHTS.keywords);
-            suggestions.push(`Consider adding ${RECOMMENDED_KEYWORDS - keywordCount} more relevant keywords.`);
-        } else {
-            issues.push(`Insufficient keywords (${keywordCount}/${MIN_KEYWORDS} minimum)`);
-            suggestions.push(`Add at least ${MIN_KEYWORDS - keywordCount} more relevant keywords.`);
-            keywordScore = Math.floor((keywordCount / MIN_KEYWORDS) * WEIGHTS.keywords);
-        }
-
-        // Check for prohibited keywords
-        const prohibitedCount = keywordAnalysis?.filter((k) => k.isProhibited).length ?? 0;
-        if (prohibitedCount > 0) {
-            issues.push(`Found ${prohibitedCount} prohibited keywords`);
-            suggestions.push('Remove or replace prohibited keywords.');
-            keywordScore = Math.max(0, keywordScore - prohibitedCount * 2);
-        }
+const calculateKeywordsScore = (
+  keywords: string[] | undefined,
+  keywordAnalysis: KeywordAnalysisResult[] | undefined,
+  issues: string[],
+  suggestions: string[],
+): number => {
+  let keywordScore = 0;
+  if (keywords && keywords.length > 0) {
+    const keywordCount = keywords.length;
+    if (keywordCount >= RECOMMENDED_KEYWORDS) {
+      keywordScore = WEIGHTS.keywords;
+    } else if (keywordCount >= MIN_KEYWORDS) {
+      keywordScore = Math.floor(
+        (keywordCount / RECOMMENDED_KEYWORDS) * WEIGHTS.keywords,
+      );
+      suggestions.push(
+        `Consider adding ${RECOMMENDED_KEYWORDS - keywordCount} more relevant keywords.`,
+      );
     } else {
-        issues.push('Missing keywords');
-        suggestions.push('Add relevant keywords to improve searchability.');
+      issues.push(
+        `Insufficient keywords (${keywordCount}/${MIN_KEYWORDS} minimum)`,
+      );
+      suggestions.push(
+        `Add at least ${MIN_KEYWORDS - keywordCount} more relevant keywords.`,
+      );
+      keywordScore = Math.floor(
+        (keywordCount / MIN_KEYWORDS) * WEIGHTS.keywords,
+      );
     }
-    return keywordScore;
+
+    // Check for prohibited keywords
+    const prohibitedCount =
+      keywordAnalysis?.filter((k) => k.isProhibited).length ?? 0;
+    if (prohibitedCount > 0) {
+      issues.push(`Found ${prohibitedCount} prohibited keywords`);
+      suggestions.push('Remove or replace prohibited keywords.');
+      keywordScore = Math.max(0, keywordScore - prohibitedCount * 2);
+    }
+  } else {
+    issues.push('Missing keywords');
+    suggestions.push('Add relevant keywords to improve searchability.');
+  }
+  return keywordScore;
 };
 
 // Enhanced scoring logic with weighted factors and comprehensive checks
@@ -261,7 +332,12 @@ const calculateScoreAndIssues = (
   totalScore += calculateImagesScore(data.images, issues, suggestions);
 
   // Keywords Analysis (15 points)
-  totalScore += calculateKeywordsScore(data.keywords, data.keywordAnalysis, issues, suggestions);
+  totalScore += calculateKeywordsScore(
+    data.keywords,
+    data.keywordAnalysis,
+    issues,
+    suggestions,
+  );
 
   // Brand and Category Bonus (5 points each)
   if (data.brand) totalScore += WEIGHTS.brand;
@@ -468,7 +544,9 @@ export default function ListingQualityChecker() {
 
   // Real ASIN data fetching implementation
   // const fetchAsinData = async (asinToCheck: string): Promise<ListingData> => {
-  const fetchAsinDataMock = async (asinToCheck: string): Promise<ListingData> => {
+  const fetchAsinDataMock = async (
+    asinToCheck: string,
+  ): Promise<ListingData> => {
     try {
       const response = await fetch(`/api/amazon/listing/${asinToCheck}`, {
         method: 'GET',
@@ -500,6 +578,10 @@ export default function ListingQualityChecker() {
       // Add additional data from API response
       return {
         ...processedListing,
+        brand: data.brand,
+        category: data.category,
+        rating: data.rating,
+        reviewCount: data.reviewCount,
       };
     } catch (error) {
       console.error('Error fetching ASIN data:', error);
@@ -650,12 +732,6 @@ export default function ListingQualityChecker() {
   return (
     <div className="space-y-6">
       {/* Info Box */}
-  }, [listings, toast]);
-
-  // --- Render ---
-  return (
-    <div className="space-y-6">
-      {/* Info Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
@@ -728,70 +804,52 @@ export default function ListingQualityChecker() {
         {/* ASIN Check Card */}
         <DataCard>
           <CardContent className="p-6">
-            {/* ASIN Check Card */}
-            <DataCard>
-              <CardContent className="p-6">
-                {error && (
-                  <DataCard>
-                    <Card className="bg-destructive/10 text-destructive">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <AlertCircle className="h-5 w-5" />
-                            <h3 className="font-semibold">Validation Error</h3>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setError(null)}
-                            className="text-destructive hover:bg-transparent"
-                          >
-                            Dismiss
-                          </Button>
-                        </div>
-                        <div className="mt-3 rounded bg-destructive/5 p-3 font-mono text-sm">
-                          <pre className="overflow-x-auto">{error}</pre>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </DataCard>
-                )}
-                <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
-                  Check Single Listing by ASIN
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="asin-input" className="text-sm font-medium">
-                      Amazon ASIN
-                    </Label>
-                    <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                      <Input
-                        id="asin-input"
-                        value={asin}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setAsin(e.target.value)
-                        }
-                        placeholder="Enter ASIN (e.g., B08N5KWB9H)"
-                        className="flex-grow"
-                        disabled={isLoading}
-                      />
-                      <Button
-                        onClick={handleAsinCheck}
-                        disabled={isLoading || !asin.trim()}
-                        className="w-full sm:w-auto"
-                      >
-                        <Search className="mr-2 h-4 w-4" />
-                        {isLoading ? 'Checking...' : 'Check ASIN'}
-                      </Button>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Uses mock data for demonstration. Replace with actual API
-                      call.
-                    </p>
-                  </div>
+            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+              Check Single Listing by ASIN
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="asin-input" className="text-sm font-medium">
+                  Amazon ASIN
+                </Label>
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                  <Input
+                    id="asin-input"
+                    value={asin}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setAsin(e.target.value)
+                    }
+                    placeholder="Enter ASIN (e.g., B08N5KWB9H)"
+                    className="flex-grow"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    onClick={handleAsinCheck}
+                    disabled={isLoading || !asin.trim()}
+                    className="w-full sm:w-auto"
+                  >
+                    <Search className="mr-2 h-4 w-4" />
+                    {isLoading ? 'Checking...' : 'Check ASIN'}
+                  </Button>
                 </div>
-              </CardContent>
-            </DataCard>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Uses mock data for demonstration. Replace with actual API
+                  call.
+                </p>
+              </div>
+            </div>
+            {/* Display error specific to ASIN check if needed */}
+            {error && asin && (
+              <Card className="mt-4 bg-destructive/10 text-destructive">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5" />
+                    <h3 className="font-semibold">ASIN Check Error</h3>
+                  </div>
+                  <div className="mt-3 text-sm">{error}</div>
+                </CardContent>
+              </Card>
+            )}
           </CardContent>
         </DataCard>
       </div>
@@ -814,8 +872,8 @@ export default function ListingQualityChecker() {
         </div>
       )}
 
-      {/* Error Display */}
-      {error && (
+      {/* General Error Display (for CSV upload/processing) */}
+      {error && !asin && ( // Only show general error if not related to ASIN check
         <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
           <span className="flex-grow break-words">{error}</span>
@@ -854,6 +912,66 @@ export default function ListingQualityChecker() {
                   <CardContent className="p-4">
                     {/* Header */}
                     <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
+                      <h3 className="text-lg font-medium break-all">
+                        {listing.product}
+                      </h3>
+                      <Badge
+                        variant={getBadgeVariant(listing.score)}
+                        className="whitespace-nowrap self-start sm:self-center"
+                      >
+                        Score: {listing.score}/100
+                      </Badge>
+                    </div>
+
+                    {/* Details Grid */}
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {/* Checks */}
+                      <div>
+                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                          Quality Checks
+                        </h4>
+                        <div className="space-y-1 rounded-lg border bg-muted/30 p-3">
+                          {/* Title Check */}
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Title:</span>
+                            <span className="flex items-center text-sm text-right">
+                              {listing.title &&
+                              listing.title.length >= MIN_TITLE_LENGTH &&
+                              listing.title.length <= MAX_TITLE_LENGTH ? (
+                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
+                              )}
+                              {listing.title?.length ?? 0} chars (Rec:{' '}
+                              {MIN_TITLE_LENGTH}-{MAX_TITLE_LENGTH})
+                            </span>
+                          </div>
+                          {/* Description Check */}
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Description:</span>
+                            <span className="flex items-center text-sm text-right">
+                              {listing.description &&
+                              listing.description.length >=
+                                MIN_DESCRIPTION_LENGTH ? (
+                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
+                              )}
+                              {listing.description?.length ?? 0} chars (Rec:{' '}
+                              {MIN_DESCRIPTION_LENGTH}+)
+                            </span>
+                          </div>
+                          {/* Bullet Points Check */}
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Bullet Points:</span>
+                            <span className="flex items-center text-sm text-right">
+                              {(listing.bulletPoints?.length ?? 0) >=
+                              MIN_BULLET_POINTS ? (
+                                <CheckCircle className="mr-1 h-4 w-4 text-green-500 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="mr-1 h-4 w-4 text-red-500 flex-shrink-0" />
+                              )}
+                              {listing.bulletPoints?.length ?? 0} (Rec:{' '}
                               {RECOMMENDED_BULLET_POINTS}+)
                             </span>
                           </div>
@@ -896,7 +1014,7 @@ export default function ListingQualityChecker() {
                                 Detected Issues ({listing.issues.length}):
                               </h5>
                               <ul className="list-inside list-disc space-y-1 text-sm text-red-700 dark:text-red-300">
-                                {listing.issues.map((issue, i) => (
+                                {listing.issues.map((issue: string, i: number) => (
                                   <li key={`issue-${index}-${i}`}>{issue}</li>
                                 ))}
                               </ul>
@@ -913,11 +1031,13 @@ export default function ListingQualityChecker() {
                                 Suggestions ({listing.suggestions.length}):
                               </h5>
                               <ul className="list-inside list-disc space-y-1 text-sm text-blue-700 dark:text-blue-300">
-                                {listing.suggestions.map((suggestion, i) => (
-                                  <li key={`suggestion-${index}-${i}`}>
-                                    {suggestion}
-                                  </li>
-                                ))}
+                                {listing.suggestions.map(
+                                  (suggestion: string, i: number) => (
+                                    <li key={`suggestion-${index}-${i}`}>
+                                      {suggestion}
+                                    </li>
+                                  ),
+                                )}
                               </ul>
                             </div>
                           ) : (

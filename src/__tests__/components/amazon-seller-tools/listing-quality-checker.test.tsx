@@ -154,12 +154,8 @@ describe('ListingQualityChecker', () => {
     expect(
       screen.getByRole('button', { name: /Check ASIN/i }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Upload Listings CSV/i, { selector: 'h3' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Check Single Listing by ASIN/i, { selector: 'h3' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Upload Listings CSV/i, { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText(/Check Single Listing by ASIN/i, { selector: 'h3' })).toBeInTheDocument();
   });
 
   it('handles file upload correctly', async () => {
