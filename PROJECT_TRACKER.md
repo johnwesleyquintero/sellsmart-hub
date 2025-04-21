@@ -64,7 +64,9 @@
 
 - **[x] Implement parallel execution**
 - **[x] Address module system inconsistency**
+
 ### 5. Add unique index to prohibited-keywords collection
+
 - **[ ] Manually verify that the unique index has been created on the `keyword` field in the `prohibited-keywords` collection.**
 - **[x] Add basic config validation**
 
@@ -72,7 +74,27 @@
 
 ## MEDIUM PRIORITY (Important Enhancements & Validation)
 
-### 4. Enhance ACoS Calculator Robustness & Clarity
+### 4. Implement Real API Integrations
+
+- **[ ] Keyword Analyzer API Integration**
+  - [ ] Replace mock data with real API calls to a keyword analysis service.
+  - [ ] Implement error handling for API requests.
+  - [ ] Add input validation to prevent invalid API requests.
+- **[ ] Listing Quality Checker API Integration**
+  - [ ] Replace mock ASIN check with real API calls to Amazon.
+  - [ ] Replace mock keyword analysis with real API calls to a keyword analysis service.
+  - [ ] Implement error handling for API requests.
+  - [ ] Add input validation to prevent invalid API requests.
+- **[ ] PPC Campaign Auditor API Integration**
+  - [ ] Implement API integration to fetch campaign data from Amazon Advertising.
+  - [ ] Implement error handling for API requests.
+  - [ ] Add input validation to prevent invalid API requests.
+- **[ ] Sales Estimator API Integration**
+  - [ ] Replace mock data with real API calls to a sales estimation service.
+  - [ ] Implement error handling for API requests.
+  - [ ] Add input validation to prevent invalid API requests.
+
+### 5. Enhance ACoS Calculator Robustness & Clarity
 
 - **[ ] Improve CSV Format Handling**
   - [ ] Allow for minor variations (e.g., column order if feasible) OR

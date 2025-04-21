@@ -2,6 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import {
+  validateFbaForm,
+  type FbaFormData,
+} from '@/lib/amazon-tools/fba-form-schema';
+import { logger } from '@/lib/logger';
 import React from 'react';
 import type { FbaCalculationInput } from './fba-calculator';
 
@@ -23,39 +28,63 @@ export default function ManualFbaForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setValues((prev: any) => ({
-      ...prev,
-      [name]: name === 'product' ? value : Number(value),
-    }));
+    setValues((prev: FbaCalculationInput) => {
+      const newValues = {
+        ...prev,
+        [name]: name === 'product' ? value : Number(value) || 0,
+      };
+      return newValues;
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validate inputs
-    if (!values.product.trim()) {
+    try {
+      // Validate form data using Zod schema
+      const validationErrors = validateFbaForm(values as FbaFormData);
+
+      if (validationErrors.length > 0) {
+        // Log validation errors
+        logger.warn('FBA form validation failed', {
+          component: 'ManualFbaForm',
+          errors: validationErrors,
+          formData: values,
+        });
+
+        // Show first error to user
+        toast({
+          title: 'Validation Error',
+          description: validationErrors[0].message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Log successful submission
+      logger.info('FBA form submitted successfully', {
+        component: 'ManualFbaForm',
+        formData: values,
+      });
+
+      onSubmit(values);
+    } catch (error) {
+      // Log unexpected errors
+      logger.error('Unexpected error in FBA form submission', {
+        component: 'ManualFbaForm',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        formData: values,
+      });
+
       toast({
-        title: 'Validation Error',
-        description: 'Product name is required',
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    if (values.cost < 0 || values.price < 0 || values.fees < 0) {
-      toast({
-        title: 'Validation Error',
-        description: 'All monetary values must be non-negative',
-        variant: 'destructive',
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    onSubmit(values);
-    setIsSubmitting(false);
   };
 
   const handleReset = () => {

@@ -1,12 +1,21 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { AmazonAlgorithms } from '@/lib/amazon-tools/amazon-algorithms';
-
 import { ProductCategory } from '@/lib/amazon-types';
 import type React from 'react';
 import { useState } from 'react';
-
-// Correct the import paths
 import CsvUploader from './CsvUploader';
 
 interface ManualProduct {
@@ -177,26 +186,150 @@ export default function ProfitMarginCalculator() {
   console.log('ProfitMarginCalculator: Component end');
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <CsvUploader
-        onUploadSuccess={handleFileUpload}
-        isLoading={isLoading}
-        onClear={() => {}}
-        hasData={false}
-      />
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Profit Margin Calculator</h2>
 
-      <form onSubmit={handleManualSubmit} className="space-y-4 mb-6">
-        {/* Form fields */}
-      </form>
-
-      {results.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4">Calculation Results</h2>
-          {/* Results table */}
+        <div className="mb-8">
+          <CsvUploader
+            onUploadSuccess={handleFileUpload}
+            isLoading={isLoading}
+            onClear={() => {
+              setCsvData([]);
+              setResults([]);
+            }}
+            hasData={csvData.length > 0}
+          />
         </div>
-      )}
 
-      {error && <div className="text-red-500 mt-4">{error}</div>}
+        <form onSubmit={handleManualSubmit} className="space-y-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="product">Product Name</Label>
+              <Input
+                id="product"
+                name="product"
+                value={manualProduct.product}
+                onChange={(e) =>
+                  setManualProduct((prev) => ({
+                    ...prev,
+                    product: e.target.value,
+                  }))
+                }
+                placeholder="Enter product name"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cost">Product Cost ($)</Label>
+              <Input
+                id="cost"
+                name="cost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={manualProduct.cost}
+                onChange={(e) =>
+                  setManualProduct((prev) => ({
+                    ...prev,
+                    cost: Number(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Selling Price ($)</Label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={manualProduct.price}
+                onChange={(e) =>
+                  setManualProduct((prev) => ({
+                    ...prev,
+                    price: Number(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fees">Amazon Fees ($)</Label>
+              <Input
+                id="fees"
+                name="fees"
+                type="number"
+                step="0.01"
+                min="0"
+                value={manualProduct.fees}
+                onChange={(e) =>
+                  setManualProduct((prev) => ({
+                    ...prev,
+                    fees: Number(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full">
+            Calculate Profit Margin
+          </Button>
+        </form>
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
+        {results.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-bold mb-4">Calculation Results</h2>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Cost ($)</TableHead>
+                    <TableHead>Price ($)</TableHead>
+                    <TableHead>Fees ($)</TableHead>
+                    <TableHead>Profit ($)</TableHead>
+                    <TableHead>Margin (%)</TableHead>
+                    <TableHead>ROI (%)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {results.map((result, index) => (
+                    <TableRow key={`${result.product}-${index}`}>
+                      <TableCell>{result.product}</TableCell>
+                      <TableCell>{result.cost.toFixed(2)}</TableCell>
+                      <TableCell>{result.price?.toFixed(2)}</TableCell>
+                      <TableCell>{result.fees.toFixed(2)}</TableCell>
+                      <TableCell className="font-medium">
+                        {result.profit?.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {result.margin?.toFixed(2)}%
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {result.roi?.toFixed(2)}%
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

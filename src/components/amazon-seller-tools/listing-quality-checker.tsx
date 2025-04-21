@@ -38,6 +38,19 @@ export interface CSVRow {
   bullet_points: string; // Semicolon-separated
   images: string; // Should be a number string
   keywords: string; // Comma-separated
+  asin?: string; // Optional ASIN field
+}
+
+export interface AsinData {
+  title: string;
+  description: string;
+  bulletPoints: string[];
+  imageCount: number;
+  keywords: string[];
+  brand?: string;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
 }
 
 // NOTE: This depends on the actual KeywordIntelligence implementation
@@ -73,7 +86,20 @@ const REQUIRED_COLUMNS = [
   'images',
   'keywords',
 ] as const;
-// Thresholds for scoring (can be adjusted)
+
+// Scoring Weights
+const WEIGHTS = {
+  title: 20,
+  description: 20,
+  bulletPoints: 15,
+  images: 15,
+  keywords: 15,
+  brand: 5,
+  rating: 5,
+  reviewCount: 5,
+} as const;
+
+// Thresholds for scoring
 const MIN_TITLE_LENGTH = 50;
 const MAX_TITLE_LENGTH = 200;
 const MIN_DESCRIPTION_LENGTH = 500;
@@ -82,6 +108,10 @@ const MIN_BULLET_POINTS = 3;
 const RECOMMENDED_BULLET_POINTS = 5;
 const MIN_IMAGES = 3;
 const RECOMMENDED_IMAGES = 7;
+const MIN_KEYWORDS = 5;
+const RECOMMENDED_KEYWORDS = 10;
+const MIN_REVIEW_COUNT = 10;
+const MIN_RATING = 3.5;
 
 // --- Helper Functions ---
 
@@ -102,86 +132,189 @@ const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
 
 type ListingScoreResult = Pick<ListingData, 'score' | 'issues' | 'suggestions'>;
 
-// Simplified scoring logic - can be expanded significantly
+// Enhanced scoring logic with weighted factors and comprehensive checks
 const calculateScoreAndIssues = (
   data: Omit<ListingData, 'score' | 'issues' | 'suggestions'>,
 ): ListingScoreResult => {
   const issues: string[] = [];
   const suggestions: string[] = [];
-  let score = 100; // Start with a perfect score
+  let totalScore = 0;
 
-  // Title Checks
-  if (!data.title) {
-    issues.push('Missing title');
-    suggestions.push('Add a compelling title including main keywords.');
-    score -= 20;
-  } else if (data.title.length < MIN_TITLE_LENGTH) {
-    issues.push(`Title too short (min ${MIN_TITLE_LENGTH} chars)`);
-    suggestions.push('Expand title to be more descriptive.');
-    score -= 10;
-  } else if (data.title.length > MAX_TITLE_LENGTH) {
-    issues.push(`Title too long (max ${MAX_TITLE_LENGTH} chars)`);
-    suggestions.push('Shorten title for better readability.');
-    score -= 5;
+  // Title Analysis (20 points)
+  let titleScore = 0;
+  if (data.title) {
+    if (
+      data.title.length >= MIN_TITLE_LENGTH &&
+      data.title.length <= MAX_TITLE_LENGTH
+    ) {
+      titleScore = WEIGHTS.title;
+    } else if (data.title.length < MIN_TITLE_LENGTH) {
+      issues.push(
+        `Title too short (${data.title.length}/${MIN_TITLE_LENGTH} chars)`,
+      );
+      suggestions.push('Expand title with relevant keywords and key features.');
+      titleScore = Math.floor(
+        (data.title.length / MIN_TITLE_LENGTH) * WEIGHTS.title,
+      );
+    } else {
+      issues.push(
+        `Title exceeds maximum length (${data.title.length}/${MAX_TITLE_LENGTH} chars)`,
+      );
+      suggestions.push(
+        'Optimize title length while maintaining key information.',
+      );
+      titleScore = Math.floor(
+        (MAX_TITLE_LENGTH / data.title.length) * WEIGHTS.title,
+      );
+    }
+  } else {
+    issues.push('Missing product title');
+    suggestions.push('Add a descriptive title with main keywords.');
   }
+  totalScore += titleScore;
 
-  // Description Checks
-  if (!data.description) {
-    issues.push('Missing description');
-    suggestions.push(
-      `Write a detailed description (${MIN_DESCRIPTION_LENGTH}-${MAX_DESCRIPTION_LENGTH} chars recommended).`,
-    );
-    score -= 15;
-  } else if (data.description.length < MIN_DESCRIPTION_LENGTH) {
-    issues.push(`Description too short (min ${MIN_DESCRIPTION_LENGTH} chars)`);
-    suggestions.push('Expand description to detail features and benefits.');
-    score -= 10;
-  } else if (data.description.length > MAX_DESCRIPTION_LENGTH) {
-    issues.push(`Description too long (max ${MAX_DESCRIPTION_LENGTH} chars)`);
-    suggestions.push('Condense description, focus on key selling points.');
-    score -= 5;
+  // Description Analysis (20 points)
+  let descScore = 0;
+  if (data.description) {
+    if (
+      data.description.length >= MIN_DESCRIPTION_LENGTH &&
+      data.description.length <= MAX_DESCRIPTION_LENGTH
+    ) {
+      descScore = WEIGHTS.description;
+    } else if (data.description.length < MIN_DESCRIPTION_LENGTH) {
+      issues.push(
+        `Description too short (${data.description.length}/${MIN_DESCRIPTION_LENGTH} chars)`,
+      );
+      suggestions.push('Expand description with detailed product information.');
+      descScore = Math.floor(
+        (data.description.length / MIN_DESCRIPTION_LENGTH) *
+          WEIGHTS.description,
+      );
+    } else {
+      issues.push(
+        `Description exceeds recommended length (${data.description.length}/${MAX_DESCRIPTION_LENGTH} chars)`,
+      );
+      suggestions.push('Consider condensing while maintaining key details.');
+      descScore = Math.floor(
+        (MAX_DESCRIPTION_LENGTH / data.description.length) *
+          WEIGHTS.description,
+      );
+    }
+  } else {
+    issues.push('Missing product description');
+    suggestions.push('Add a comprehensive product description.');
   }
+  totalScore += descScore;
 
-  // Bullet Points Check
+  // Bullet Points Analysis (15 points)
+  let bulletScore = 0;
   const bulletCount = data.bulletPoints?.length ?? 0;
-  if (bulletCount < MIN_BULLET_POINTS) {
+  if (bulletCount >= RECOMMENDED_BULLET_POINTS) {
+    bulletScore = WEIGHTS.bulletPoints;
+  } else if (bulletCount >= MIN_BULLET_POINTS) {
+    bulletScore = Math.floor(
+      (bulletCount / RECOMMENDED_BULLET_POINTS) * WEIGHTS.bulletPoints,
+    );
+    suggestions.push(
+      `Consider adding ${RECOMMENDED_BULLET_POINTS - bulletCount} more bullet points.`,
+    );
+  } else {
     issues.push(
-      `Insufficient bullet points (found ${bulletCount}, min ${MIN_BULLET_POINTS})`,
+      `Insufficient bullet points (${bulletCount}/${MIN_BULLET_POINTS} minimum)`,
     );
     suggestions.push(
-      `Add at least ${RECOMMENDED_BULLET_POINTS} bullet points highlighting key benefits.`,
+      `Add at least ${MIN_BULLET_POINTS - bulletCount} more bullet points.`,
     );
-    score -= 15;
+    bulletScore =
+      bulletCount > 0
+        ? Math.floor((bulletCount / MIN_BULLET_POINTS) * WEIGHTS.bulletPoints)
+        : 0;
   }
+  totalScore += bulletScore;
 
-  // Images Check
+  // Images Analysis (15 points)
+  let imageScore = 0;
   const imageCount = data.images ?? 0;
-  if (imageCount < MIN_IMAGES) {
-    issues.push(`Insufficient images (found ${imageCount}, min ${MIN_IMAGES})`);
+  if (imageCount >= RECOMMENDED_IMAGES) {
+    imageScore = WEIGHTS.images;
+  } else if (imageCount >= MIN_IMAGES) {
+    imageScore = Math.floor((imageCount / RECOMMENDED_IMAGES) * WEIGHTS.images);
     suggestions.push(
-      `Include at least ${RECOMMENDED_IMAGES} high-quality images.`,
+      `Consider adding ${RECOMMENDED_IMAGES - imageCount} more images.`,
     );
-    score -= 15;
+  } else {
+    issues.push(`Insufficient images (${imageCount}/${MIN_IMAGES} minimum)`);
+    suggestions.push(
+      `Add at least ${MIN_IMAGES - imageCount} more high-quality images.`,
+    );
+    imageScore =
+      imageCount > 0
+        ? Math.floor((imageCount / MIN_IMAGES) * WEIGHTS.images)
+        : 0;
   }
+  totalScore += imageScore;
 
-  // Keywords Check
-  if (!data.keywords || data.keywords.length === 0) {
+  // Keywords Analysis (15 points)
+  let keywordScore = 0;
+  if (data.keywords && data.keywords.length > 0) {
+    const keywordCount = data.keywords.length;
+    if (keywordCount >= RECOMMENDED_KEYWORDS) {
+      keywordScore = WEIGHTS.keywords;
+    } else if (keywordCount >= MIN_KEYWORDS) {
+      keywordScore = Math.floor(
+        (keywordCount / RECOMMENDED_KEYWORDS) * WEIGHTS.keywords,
+      );
+      suggestions.push(
+        `Consider adding ${RECOMMENDED_KEYWORDS - keywordCount} more relevant keywords.`,
+      );
+    } else {
+      issues.push(
+        `Insufficient keywords (${keywordCount}/${MIN_KEYWORDS} minimum)`,
+      );
+      suggestions.push(
+        `Add at least ${MIN_KEYWORDS - keywordCount} more relevant keywords.`,
+      );
+      keywordScore = Math.floor(
+        (keywordCount / MIN_KEYWORDS) * WEIGHTS.keywords,
+      );
+    }
+
+    // Check for prohibited keywords
+    const prohibitedCount =
+      data.keywordAnalysis?.filter((k) => k.isProhibited).length ?? 0;
+    if (prohibitedCount > 0) {
+      issues.push(`Found ${prohibitedCount} prohibited keywords`);
+      suggestions.push('Remove or replace prohibited keywords.');
+      keywordScore = Math.max(0, keywordScore - prohibitedCount * 2);
+    }
+  } else {
     issues.push('Missing keywords');
-    suggestions.push('Add relevant keywords for searchability.');
-    score -= 10;
+    suggestions.push('Add relevant keywords to improve searchability.');
+  }
+  totalScore += keywordScore;
+
+  // Brand and Category Bonus (5 points each)
+  if (data.brand) totalScore += WEIGHTS.brand;
+  else suggestions.push('Add brand information if applicable.');
+
+  // Rating and Review Analysis (5 points each)
+  if (data.rating && data.rating >= MIN_RATING) {
+    totalScore += WEIGHTS.rating;
+  } else if (data.rating) {
+    issues.push(`Low product rating (${data.rating.toFixed(1)}/5.0)`);
+    suggestions.push('Address common customer concerns to improve rating.');
   }
 
-  // Placeholder for Keyword Analysis Issues
-  // if (data.keywordAnalysis?.some(k => k.isProhibited)) {
-  //   issues.push("Prohibited keywords found");
-  //   suggestions.push("Review and remove prohibited keywords.");
-  //   score -= 20;
-  // }
+  if (data.reviewCount && data.reviewCount >= MIN_REVIEW_COUNT) {
+    totalScore += WEIGHTS.reviewCount;
+  } else if (data.reviewCount) {
+    suggestions.push('Work on getting more customer reviews.');
+  }
 
   return {
-    score: Math.max(0, score), // Ensure score doesn't go below 0
-    issues: issues.length > 0 ? issues : [], // Return empty array if no issues
-    suggestions: suggestions.length > 0 ? suggestions : [], // Return empty array if no suggestions
+    score: Math.max(0, Math.min(100, totalScore)), // Ensure score is between 0 and 100
+    issues: issues.length > 0 ? issues : [],
+    suggestions: suggestions.length > 0 ? suggestions : [],
   };
 };
 
@@ -363,51 +496,51 @@ export default function ListingQualityChecker() {
     [toast],
   );
 
-  // --- MOCK ASIN CHECK ---
-  // Replace this with your actual API call logic
-  const fetchAsinDataMock = async (
-    asinToCheck: string,
-  ): Promise<ListingData> => {
-    console.log(`Simulating API call for ASIN: ${asinToCheck}`);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
+  // Real ASIN data fetching implementation
+  const fetchAsinData = async (asinToCheck: string): Promise<ListingData> => {
+    try {
+      const response = await fetch(`/api/amazon/listing/${asinToCheck}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    // Generate mock data (similar to previous version but structured better)
-    // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-    const hasTitle = Math.random() > 0.2;
-    // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-    const hasDesc = Math.random() > 0.2;
-    // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-    const numBullets = Math.floor(Math.random() * 6); // 0-5
-    // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-    const numImages = Math.floor(Math.random() * 9); // 0-8
-    // eslint-disable-next-line sonarjs/pseudo-random -- Mock data
-    const hasKeywords = Math.random() > 0.3;
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ASIN data: ${response.statusText}`);
+      }
 
-    const mockRow: CSVRow = {
-      product: `Product (ASIN: ${asinToCheck})`,
-      title: hasTitle
-        ? `Mock Title for ${asinToCheck} - Feature A, Feature B`
-        : '',
-      description: hasDesc
-        ? `This is a mock description for ${asinToCheck}. It highlights key benefits like durability and ease of use. Designed for optimal performance.`.repeat(
-            3,
-          )
-        : '',
-      bullet_points: Array.from(
-        { length: numBullets },
-        (_, i) => `Mock Bullet Point ${i + 1}`,
-      ).join(';'),
-      images: String(numImages),
-      keywords: hasKeywords
-        ? 'mock keyword, asin check, sample data, quality score'
-        : '',
-    };
+      const data: AsinData = await response.json();
 
-    // Process the mock row as if it came from a CSV
-    const processedListing = await processCSVRow(mockRow);
-    return processedListing;
+      // Convert API response to CSVRow format
+      const row: CSVRow = {
+        product: `Product (ASIN: ${asinToCheck})`,
+        title: data.title || '',
+        description: data.description || '',
+        bullet_points: data.bulletPoints?.join(';') || '',
+        images: String(data.imageCount || 0),
+        keywords: data.keywords?.join(',') || '',
+        asin: asinToCheck,
+      };
+
+      // Process the row with additional data
+      const processedListing = await processCSVRow(row);
+
+      // Add additional data from API response
+      return {
+        ...processedListing,
+        brand: data.brand,
+        category: data.category,
+        rating: data.rating,
+        reviewCount: data.reviewCount,
+      };
+    } catch (error) {
+      console.error('Error fetching ASIN data:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to fetch ASIN data',
+      );
+    }
   };
-  // --- END MOCK ASIN CHECK ---
 
   const handleAsinCheck = useCallback(async () => {
     const trimmedAsin = asin.trim();

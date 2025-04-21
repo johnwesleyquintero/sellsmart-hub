@@ -16,33 +16,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { logError } from '@/lib/error-handling';
 import { useMemo, useState } from 'react';
 
 // Use a generic type T for the metrics object structure.
 // This makes the component reusable if you need to map to different structures later.
 // The constraint `Record<string, any>` ensures T is an object-like type.
-interface CsvDataMapperProps<T extends Record<string, any>> {
+interface CsvDataMapperProps<T extends Record<string, unknown>> {
   csvHeaders: string[];
-  // targetMetrics now uses keyof T for type safety
-  targetMetrics: { key: keyof T; label: string; required: boolean }[];
-  // onMappingComplete expects a mapping where keys are from T
+  targetMetrics: Array<{
+    key: keyof T;
+    label: string;
+    required: boolean;
+  }>;
   onMappingComplete: (mapping: Record<keyof T, string | null>) => void;
   onCancel: () => void;
-  // Optional: Pass a title or description
   title?: string;
   description?: string;
+  onError?: (error: string) => void;
+}
+
+type MetricMapping<T> = Record<keyof T, string | null>;
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
 }
 
 // Use the generic type T in the component definition
-const CsvDataMapper = <T extends Record<string, any>>({
+const CsvDataMapper = <T extends Record<string, unknown>>({
   csvHeaders,
   targetMetrics,
   onMappingComplete,
   onCancel,
-  title = 'Map CSV Columns', // Default title
-  // Updated default description
+  title = 'Map CSV Columns',
   description = 'Match columns from your CSV to the dashboard metrics. Required fields (*) must be mapped. Optional fields can be left unmapped.',
+  onError,
 }: CsvDataMapperProps<T>) => {
+  const validateMapping = (
+    currentMapping: MetricMapping<T>,
+  ): ValidationResult => {
+    const errors: string[] = [];
+
+    if (!Array.isArray(csvHeaders)) {
+      errors.push('Invalid props: csvHeaders must be an array');
+      return { isValid: false, errors };
+    }
+
+    if (!Array.isArray(targetMetrics)) {
+      errors.push('Invalid props: targetMetrics must be an array');
+      return { isValid: false, errors };
+    }
+
+    for (const metric of targetMetrics) {
+      if (typeof metric !== 'object' || metric === null) {
+        errors.push('Invalid props: each targetMetric must be an object');
+        return { isValid: false, errors };
+      }
+      if (!('key' in metric && 'label' in metric && 'required' in metric)) {
+        errors.push(
+          'Invalid props: each targetMetric must have key, label, and required properties',
+        );
+        return { isValid: false, errors };
+      }
+    }
+
+    // Check for duplicate mappings
+    const mappedValues = Object.values(currentMapping).filter(Boolean);
+    const uniqueMappedValues = new Set(mappedValues);
+    if (mappedValues.length !== uniqueMappedValues.size) {
+      errors.push('Multiple metrics cannot be mapped to the same CSV header');
+    }
+
+    // Check for required metrics
+    targetMetrics.forEach((metric) => {
+      if (metric.required && !currentMapping[metric.key]) {
+        errors.push(`Required metric "${metric.label}" is not mapped`);
+      }
+    });
+
+    return { isValid: errors.length === 0, errors };
+  };
   // Initialize state dynamically based on targetMetrics keys
   const initialMapping = useMemo(() => {
     const mapping: Partial<Record<keyof T, string | null>> = {};
@@ -73,13 +127,28 @@ const CsvDataMapper = <T extends Record<string, any>>({
   }, [mapping, targetMetrics]);
 
   const handleSubmit = () => {
-    if (isMappingComplete) {
+    try {
+      const validationResult = validateMapping(mapping);
+      if (!validationResult.isValid) {
+        const errorMessage = validationResult.errors.join('\n');
+        logError({
+          component: 'CsvDataMapper',
+          message: errorMessage,
+          severity: 'warning',
+        });
+        onError?.(errorMessage);
+        return;
+      }
       onMappingComplete(mapping);
-    } else {
-      // This should technically not be reachable if the button is disabled correctly,
-      // but kept as a safeguard or for future potential changes.
-      console.warn('Please map all required fields marked with *.');
-      // Optional: Add a toast or alert indicating required fields are missing
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      logError({
+        component: 'CsvDataMapper',
+        message: errorMessage,
+        error,
+      });
+      onError?.(errorMessage);
     }
   };
 

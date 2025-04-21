@@ -4,27 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { AmazonAlgorithms } from '@/lib/amazon-tools/amazon-algorithms';
+import {
+  validateOptimalPriceInputs,
+  type OptimalPriceInputs,
+} from '@/lib/amazon-tools/optimal-price-schema';
 import { ProductCategory } from '@/lib/amazon-types';
+import { logger } from '@/lib/logger';
 import { useState } from 'react';
 
-interface ProductInputs {
-  cost: number;
-  currentPrice: number;
-  competitorPrices: string; // Comma-separated prices
-  reviewRating: number;
-  reviewCount: number;
-  priceCompetitiveness: number;
-  inventoryHealth: number;
-  reviews: number | null;
-  salesRank: number;
-  price: number;
-  weight: number;
-  volume: number;
-}
-
 export default function OptimalPriceCalculator() {
-  const [inputs, setInputs] = useState<ProductInputs>({
+  const { toast } = useToast();
+  const [inputs, setInputs] = useState<OptimalPriceInputs>({
     cost: 0,
     currentPrice: 0,
     competitorPrices: '',
@@ -37,6 +36,7 @@ export default function OptimalPriceCalculator() {
     reviews: null,
     salesRank: 1000,
     price: 25,
+    category: ProductCategory.STANDARD,
   });
 
   const [results, setResults] = useState<{
@@ -55,53 +55,82 @@ export default function OptimalPriceCalculator() {
     }));
   };
 
-  const calculateOptimalPrice = (e: React.FormEvent) => {
+  const handleCategoryChange = (value: string) => {
+    setInputs((prev) => ({
+      ...prev,
+      category: value as ProductCategory,
+    }));
+  };
+
+  const calculateOptimalPrice = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      // Validate inputs
-      if (inputs.cost <= 0 || inputs.currentPrice <= 0) {
-        throw new Error('Cost and current price must be greater than 0');
+      // Validate all inputs using Zod schema
+      const validationResult = validateOptimalPriceInputs(inputs);
+
+      if (!validationResult.success) {
+        throw new Error(validationResult.error || 'Invalid input data');
       }
 
-      // Parse competitor prices
-      const competitorPrices = inputs.competitorPrices
-        .split(',')
-        .map((price) => parseFloat(price.trim()))
-        .filter((price) => !isNaN(price));
+      const validatedInputs = validationResult.data;
+      const competitorPrices = validatedInputs.competitorPrices;
 
-      if (competitorPrices.length === 0) {
-        throw new Error('Please enter at least one valid competitor price');
-      }
-
-      // Calculate product score
+      // Calculate product score with validated inputs
       const productScore = AmazonAlgorithms.calculateProductScore({
-        reviews: inputs.reviews,
-        rating: inputs.reviewRating,
-        salesRank: inputs.salesRank,
-        price: inputs.price,
-        category: ProductCategory.STANDARD,
+        reviews: validatedInputs.reviews,
+        rating: validatedInputs.reviewRating,
+        salesRank: validatedInputs.salesRank,
+        price: validatedInputs.price,
+        category: validatedInputs.category,
       });
 
       // Calculate optimal price
       const optimalPrice = AmazonAlgorithms.calculateOptimalPrice({
-        currentPrice: inputs.currentPrice,
+        currentPrice: validatedInputs.currentPrice,
         competitorPrices,
         productScore: productScore / 100,
       });
 
       // Calculate profit and margin
-      const profit = optimalPrice - inputs.cost;
+      const profit = optimalPrice - validatedInputs.cost;
       const margin = (profit / optimalPrice) * 100;
+
+      // Log successful calculation
+      logger.info('Optimal price calculated successfully', {
+        component: 'OptimalPriceCalculator',
+        inputs: validatedInputs,
+        results: { optimalPrice, profit, margin },
+      });
 
       setResults({
         optimalPrice,
         profit,
         margin,
       });
+
+      toast({
+        title: 'Calculation Complete',
+        description: `Optimal price calculated: $${optimalPrice.toFixed(2)}`,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      // Log error and show user-friendly message
+      logger.error('Error calculating optimal price', {
+        component: 'OptimalPriceCalculator',
+        error: err instanceof Error ? err.message : 'Unknown error',
+        inputs,
+      });
+
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+
+      toast({
+        title: 'Calculation Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -149,6 +178,25 @@ export default function OptimalPriceCalculator() {
                 placeholder="19.99, 24.99, 22.99"
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Product Category</Label>
+              <Select
+                value={inputs.category}
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(ProductCategory).map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

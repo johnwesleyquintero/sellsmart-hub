@@ -35,7 +35,10 @@ export async function generateApiKey(db: any): Promise<string> {
 /**
  * Validates an API key against stored keys in MongoDB
  */
-export async function validateApiKey(key: string, userId: string): Promise<boolean> {
+export async function validateApiKey(
+  key: string,
+  userId: string,
+): Promise<boolean> {
   try {
     const { db } = await connectToDatabase();
 

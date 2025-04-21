@@ -2,6 +2,7 @@
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
+import { type TrendDataPoint } from '@/lib/amazon-tools/keyword-trend-service';
 import {
   AlertCircle,
   Download,
@@ -28,22 +29,7 @@ import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import DataCard from './DataCard';
-import SampleCsvButton from './sample-csv-button'; // Assuming this exists and works
-
-// --- Types ---
-
-// Expected input row from CSV
-interface CsvInputRow {
-  keyword?: string | null;
-  date?: string | null; // Expecting a sortable date format (e.g., YYYY-MM-DD)
-  search_volume?: number | string | null;
-}
-
-// Structure for chart data (dates as rows, keywords as columns)
-interface TrendDataPoint {
-  date: string; // The date for this data point
-  [keyword: string]: string | number; // Each keyword gets its own column with its search volume
-}
+import SampleCsvButton from './sample-csv-button';
 
 // --- Constants ---
 const REQUIRED_COLUMNS = ['keyword', 'date', 'search_volume'];
@@ -60,68 +46,6 @@ const LINE_COLORS = [
   '#FF8042',
   '#d0ed57',
 ];
-
-// --- Helper Functions ---
-
-/**
- * Mock function to simulate fetching and processing trend data.
- * Transforms CSV rows into a structure suitable for the LineChart.
- */
-const processTrendData = async (
-  rawData: CsvInputRow[],
-): Promise<{ chartData: TrendDataPoint[]; keywords: string[] }> => {
-  await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate network delay
-
-  const dataByDate: { [date: string]: { [keyword: string]: number } } = {};
-  const keywords = new Set<string>();
-  let parseError = false;
-
-  for (const row of rawData) {
-    const keyword = row.keyword?.trim();
-    const date = row.date?.trim();
-    const volumeStr = row.search_volume;
-    const volume = Number(volumeStr);
-
-    if (!keyword || !date || isNaN(volume) || volume < 0) {
-      console.warn('Skipping invalid trend data row:', row);
-      parseError = true; // Flag if any row had issues
-      continue;
-    }
-
-    keywords.add(keyword);
-
-    if (!dataByDate[date]) {
-      dataByDate[date] = {};
-    }
-    dataByDate[date][keyword] = volume;
-  }
-
-  if (Object.keys(dataByDate).length === 0 && rawData.length > 0) {
-    throw new Error(
-      'No valid trend data points found after processing. Check keyword, date, and search_volume columns.',
-    );
-  }
-  if (parseError) {
-    console.warn(
-      'Some rows were skipped due to invalid data during trend processing.',
-    );
-    // Optionally throw a less severe error or return a warning flag
-  }
-
-  const sortedDates = Object.keys(dataByDate).sort();
-  const keywordList = Array.from(keywords);
-
-  const chartData: TrendDataPoint[] = sortedDates.map((date) => {
-    const point: TrendDataPoint = { date };
-    keywordList.forEach((kw) => {
-      // Use 0 or null for missing data points on a specific date
-      point[kw] = dataByDate[date][kw] ?? 0;
-    });
-    return point;
-  });
-
-  return { chartData, keywords: keywordList };
-};
 
 // --- Component ---
 export default function KeywordTrendAnalyzer() {
@@ -142,16 +66,33 @@ export default function KeywordTrendAnalyzer() {
       setChartData([]); // Clear previous results
       setKeywords([]);
 
-      Papa.parse<CsvInputRow>(file, {
+      Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        dynamicTyping: false, // Parse as strings initially for better validation
+        dynamicTyping: true, // Enable dynamic typing for numeric values
         complete: async (result) => {
           try {
+            // Log the start of processing
+            logError({
+              message: 'Starting trend data processing',
+              component: 'KeywordTrendAnalyzer',
+              severity: 'info',
+              context: { fileName: file.name, rowCount: result.data.length },
+            });
+
             if (result.errors.length > 0) {
-              throw new Error(
-                `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`,
-              );
+              const errorMessage = `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`;
+              logError({
+                message: errorMessage,
+                component: 'KeywordTrendAnalyzer',
+                severity: 'high',
+                error: result.errors[0],
+                context: {
+                  fileName: file.name,
+                  rowIndex: result.errors[0].row,
+                },
+              });
+              throw new Error(errorMessage);
             }
 
             const actualHeaders =
@@ -161,33 +102,67 @@ export default function KeywordTrendAnalyzer() {
             );
 
             if (missingHeaders.length > 0) {
-              throw new Error(
-                `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${actualHeaders.join(', ') || 'None'}`,
-              );
+              const errorMessage = `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${actualHeaders.join(', ') || 'None'}`;
+              logError({
+                message: errorMessage,
+                component: 'KeywordTrendAnalyzer',
+                severity: 'high',
+                context: {
+                  fileName: file.name,
+                  missingHeaders,
+                  foundHeaders: actualHeaders,
+                },
+              });
+              throw new Error(errorMessage);
             }
 
             if (result.data.length === 0) {
-              throw new Error(
-                'The uploaded CSV file appears to be empty or contains no data rows.',
-              );
+              const errorMessage =
+                'The uploaded CSV file appears to be empty or contains no data rows.';
+              logError({
+                message: errorMessage,
+                component: 'KeywordTrendAnalyzer',
+                severity: 'medium',
+                context: { fileName: file.name },
+              });
+              throw new Error(errorMessage);
             }
 
-            // Process the data (mock API call)
+            // Process the data using the KeywordTrendService
             const { chartData: processedData, keywords: foundKeywords } =
-              await processTrendData(result.data);
+              await KeywordTrendService.analyzeTrends(result.data);
 
             if (processedData.length === 0) {
-              // This case is handled inside processTrendData, but double-check
-              throw new Error('No processable trend data found in the CSV.');
+              const errorMessage =
+                'No valid trend data found after processing. Please check your data format.';
+              logError({
+                message: errorMessage,
+                component: 'KeywordTrendAnalyzer',
+                severity: 'high',
+                context: { fileName: file.name, rowCount: result.data.length },
+              });
+              throw new Error(errorMessage);
             }
 
             setChartData(processedData);
             setKeywords(foundKeywords);
-            setError(null); // Clear previous non-critical errors
+            setError(null);
+
             toast({
               title: 'Analysis Complete',
               description: `Successfully analyzed trends for ${foundKeywords.length} keywords over ${processedData.length} dates.`,
               variant: 'default',
+            });
+
+            logError({
+              message: 'Trend analysis completed successfully',
+              component: 'KeywordTrendAnalyzer',
+              severity: 'info',
+              context: {
+                fileName: file.name,
+                keywordCount: foundKeywords.length,
+                datePoints: processedData.length,
+              },
             });
           } catch (err) {
             const message =

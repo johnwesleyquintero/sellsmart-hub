@@ -99,6 +99,10 @@ export function validateAndProcessData(data: CsvRow[]): {
   return { validData, errors };
 }
 
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { logger } from '@/lib/logger';
+import { sanitizeHtml } from '@/lib/sanitize';
+
 interface ChartDataPoint {
   name: string;
   [key: string]: string | number;
@@ -110,6 +114,8 @@ type MetricType =
   | 'rating'
   | 'conversion_rate'
   | 'click_through_rate';
+
+const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit
 
 const getChartColor = (metric: MetricType): string => {
   const colors: Record<MetricType, string> = {
@@ -129,6 +135,8 @@ export function CompetitorAnalyzer() {
     'reviews',
     'rating',
   ]);
+
+  const { getItem, setItem, removeItem } = useLocalStorage();
 
   const handleFileUpload = useCallback(
     (
@@ -222,39 +230,59 @@ export function CompetitorAnalyzer() {
   };
 
   const processCsvData = (): void => {
-    let processedSellerData = sellerData;
-    let processedCompetitorData = competitorData;
+    try {
+      let processedSellerData = sellerData;
+      let processedCompetitorData = competitorData;
 
-    if (!processedSellerData && sellerData) {
-      processedSellerData = sellerData;
-    }
+      if (!processedSellerData && sellerData) {
+        processedSellerData = sellerData;
+      }
 
-    if (!processedCompetitorData.length && competitorData.length) {
-      processedCompetitorData = competitorData;
-    }
+      if (!processedCompetitorData.length && competitorData.length) {
+        processedCompetitorData = competitorData;
+      }
 
-    if (processedSellerData && processedCompetitorData) {
-      const formattedData = processedCompetitorData.map((row) => {
-        const competitor = row.asin || row.niche || 'N/A';
-        const dataPoint: ChartDataPoint = {
-          name: competitor,
-        };
+      if (processedSellerData && processedCompetitorData) {
+        const formattedData = processedCompetitorData.map((row) => {
+          const competitor = sanitizeHtml(row.asin || row.niche || 'N/A');
+          const dataPoint: ChartDataPoint = {
+            name: competitor,
+          };
 
-        metrics.forEach((metric) => {
-          const value = row[metric as keyof ProcessedRow];
-          if (value !== undefined) {
-            dataPoint[metric] = value;
-          }
+          metrics.forEach((metric) => {
+            const value = row[metric as keyof ProcessedRow];
+            if (value !== undefined && !isNaN(Number(value))) {
+              dataPoint[metric] = Number(value);
+            }
+          });
+
+          return dataPoint;
         });
 
-        return dataPoint;
-      });
-
-      if (formattedData.length > 0 && metrics.length > 0) {
-        setChartData(formattedData);
-        setIsLoading(false);
-        return;
+        if (formattedData.length > 0 && metrics.length > 0) {
+          // Check storage size before saving
+          const dataSize = new Blob([JSON.stringify(formattedData)]).size;
+          if (dataSize <= MAX_STORAGE_SIZE) {
+            setItem('chartData', formattedData);
+            setChartData(formattedData);
+          } else {
+            removeItem('chartData');
+            logger.warn(
+              'Data exceeds storage limit, not saved to localStorage',
+            );
+          }
+          setIsLoading(false);
+          return;
+        }
       }
+    } catch (error) {
+      logger.error('Error processing CSV data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to process data',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
     }
   };
 
@@ -266,7 +294,7 @@ export function CompetitorAnalyzer() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          asin,
+          asin: sanitizeHtml(asin),
           metrics,
           sellerData: sellerData,
           competitorData: competitorData,
@@ -274,7 +302,12 @@ export function CompetitorAnalyzer() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch competitor data');
+        const errorText = await response.text();
+        logger.error('API Error:', {
+          status: response.status,
+          error: errorText,
+        });
+        throw new Error(`Failed to fetch competitor data: ${response.status}`);
       }
 
       interface ApiResponse {
@@ -286,9 +319,20 @@ export function CompetitorAnalyzer() {
       try {
         data = await response.json();
         if (!data || !data.competitors || !data.metrics) {
+          logger.error('Invalid API response:', data);
           throw new Error('Invalid response format from server');
         }
+
+        // Validate and sanitize API response data
+        data.competitors = data.competitors.map((comp) => sanitizeHtml(comp));
+        Object.entries(data.metrics).forEach(([metric, values]) => {
+          data.metrics[metric as MetricType] = values.map((v) => {
+            const num = Number(v);
+            return isNaN(num) ? 0 : num;
+          });
+        });
       } catch (error) {
+        logger.error('API parsing error:', error);
         throw new Error(
           error instanceof Error
             ? error.message

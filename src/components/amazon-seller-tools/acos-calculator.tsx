@@ -15,15 +15,17 @@ import {
   Progress,
 } from '@/components/ui';
 import { MetricKey } from '@/lib/amazon-tools/types';
+import { logError } from '@/lib/error-handling';
 import {
   campaignHeaders,
   validateCampaignRow,
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
+import { monetaryValueSchema, numberSchema } from '@/lib/input-validation';
 import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 // Import Recharts components
 import {
@@ -101,44 +103,63 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
-  // Handle edge cases for ACoS calculation
-  const acos = (() => {
-    if (sales === 0 && adSpend === 0) return 0;
-    if (sales === 0) return Infinity;
-    return (adSpend / sales) * 100;
-  })();
+  try {
+    // Validate inputs
+    const validatedAdSpend = monetaryValueSchema.parse(adSpend);
+    const validatedSales = monetaryValueSchema.parse(sales);
+    const validatedImpressions =
+      impressions !== undefined ? numberSchema.parse(impressions) : undefined;
+    const validatedClicks =
+      clicks !== undefined ? numberSchema.parse(clicks) : undefined;
 
-  // Handle edge cases for ROAS calculation
-  const roas = (() => {
-    if (adSpend === 0 && sales === 0) return 0;
-    if (adSpend === 0) return Infinity;
-    return sales / adSpend;
-  })();
+    // Handle edge cases for ACoS calculation
+    const acos = (() => {
+      if (validatedSales === 0 && validatedAdSpend === 0) return 0;
+      if (validatedSales === 0) return Infinity;
+      return (validatedAdSpend / validatedSales) * 100;
+    })();
 
-  // Safe handling of optional metrics
-  const safeImpressions = impressions ?? 0;
-  const safeClicks = clicks ?? 0;
+    // Handle edge cases for ROAS calculation
+    const roas = (() => {
+      if (validatedAdSpend === 0 && validatedSales === 0) return 0;
+      if (validatedAdSpend === 0) return Infinity;
+      return validatedSales / validatedAdSpend;
+    })();
 
-  // CTR calculation with proper edge case handling
-  const ctr = safeImpressions > 0 ? (safeClicks / safeImpressions) * 100 : 0;
+    // Safe handling of optional metrics
+    const safeImpressions = validatedImpressions ?? 0;
+    const safeClicks = validatedClicks ?? 0;
 
-  // CPC calculation with proper edge case handling
-  let cpc = 0;
-  if (safeClicks > 0) {
-    cpc = adSpend / safeClicks;
-  } else if (adSpend > 0) {
-    cpc = Infinity;
+    // CTR calculation with proper edge case handling
+    const ctr = safeImpressions > 0 ? (safeClicks / safeImpressions) * 100 : 0;
+
+    // CPC calculation with proper edge case handling
+    let cpc = 0;
+    if (safeClicks > 0) {
+      cpc = validatedAdSpend / safeClicks;
+    } else if (validatedAdSpend > 0) {
+      cpc = Infinity;
+    }
+
+    // Revenue per click rate with proper edge case handling
+    let revenuePerClickRate = 0;
+    if (safeClicks > 0) {
+      revenuePerClickRate = (validatedSales / safeClicks) * 100;
+    } else if (validatedSales > 0) {
+      revenuePerClickRate = Infinity;
+    }
+
+    return { acos, roas, ctr, cpc, revenuePerClickRate };
+  } catch (error) {
+    logError({
+      message: 'Error calculating metrics',
+      component: 'AcosCalculator',
+      severity: 'medium',
+      error: error as Error,
+      context: { adSpend, sales, impressions, clicks },
+    });
+    return { acos: 0, roas: 0, ctr: 0, cpc: 0, revenuePerClickRate: 0 };
   }
-
-  // Revenue per click rate with proper edge case handling
-  let revenuePerClickRate = 0;
-  if (safeClicks > 0) {
-    revenuePerClickRate = (sales / safeClicks) * 100;
-  } else if (sales > 0) {
-    revenuePerClickRate = Infinity;
-  }
-
-  return { acos, roas, ctr, cpc, revenuePerClickRate };
 };
 
 // --- Component ---
@@ -154,6 +175,16 @@ export default function AcosCalculator() {
     adSpend: '',
     sales: '',
   });
+
+  // Cleanup effect for memory leak prevention
+  useEffect(() => {
+    return () => {
+      // Cleanup function to prevent state updates after unmount
+      setCampaigns([]);
+      setError(null);
+      setIsLoading(false);
+    };
+  }, []);
 
   const isManualInputValid = useMemo(() => {
     const adSpendNum = Number.parseFloat(manualCampaign.adSpend);
