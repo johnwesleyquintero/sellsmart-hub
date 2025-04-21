@@ -302,10 +302,13 @@ function ProductEditorArea({
   // Debounce the description change handler
   // FIX: Added debounce to the dependency array
   const debouncedDescriptionChange = useCallback(
-    debounce((newDescription: string) => {
-      onDescriptionChange(product.product, newDescription);
-    }, 300),
-    [onDescriptionChange, product.product, debounce], // Added debounce
+    (newDescription: string) => {
+      const debouncedFn = debounce((text: string) => {
+        onDescriptionChange(product.product, text);
+      }, 300);
+      debouncedFn(newDescription);
+    },
+    [onDescriptionChange, product.product],
   );
 
   const handleTextareaChange = (
@@ -485,97 +488,179 @@ export default function DescriptionEditor() {
 
       setIsLoading(true);
       setError(null);
-      setActiveProductId(null);
       setProducts([]);
 
-      Papa.parse<CsvRowData>(file, {
-        // Use the defined CsvRowData type
+      Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
-          try {
-            // Basic CSV structure validation
-            if (results.errors.length > 0) {
-              throw new Error(
-                `CSV parsing error: ${results.errors[0].message}. Check row ${results.errors[0].row}.`,
-              );
-            }
-            const requiredColumns = ['product', 'description'];
-            const actualHeaders = results.meta.fields || [];
-            const missingColumns = requiredColumns.filter(
-              (col) =>
-                !actualHeaders.some(
-                  (h) => h.toLowerCase() === col.toLowerCase(),
-                ), // Case-insensitive check
-            );
-            if (missingColumns.length > 0) {
-              throw new Error(
-                `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
-              );
-            }
-            if (results.data.length === 0) {
-              throw new Error('CSV file contains no data rows.');
-            }
-
-            // Process rows using the helper function
-            // FIX: Use extracted processCsvRow helper
-            const processedData: ProductDescription[] = results.data
-              .map((row, index) =>
-                processCsvRow(row, index, actualHeaders, prohibitedKeywords),
-              )
-              .filter((item): item is ProductDescription => item !== null);
-
-            if (processedData.length === 0) {
-              throw new Error(
-                'No valid product data found after processing. Check column names and content.',
-              );
-            }
-
-            setProducts(processedData);
-            setError(null);
-            toast({
-              title: 'CSV Processed',
-              description: `Loaded ${processedData.length} product descriptions.`,
-            });
-          } catch (err) {
-            const message =
-              err instanceof Error
-                ? err.message
-                : 'An unknown error occurred during processing.';
-            setError(message);
-            setProducts([]);
-            toast({
-              title: 'Processing Failed',
-              description: message,
-              variant: 'destructive',
-            });
-            logger.error('CSV Processing Error', {
-              error: err,
-              component: 'DescriptionEditor',
-            });
-          } finally {
-            setIsLoading(false);
-            if (event.target) event.target.value = ''; // Reset file input
-          }
-        },
-        error: (error: Error) => {
-          setIsLoading(false);
-          setError(`CSV parsing error: ${error.message}`);
-          setProducts([]);
-          toast({
-            title: 'Parsing Failed',
-            description: `CSV parsing error: ${error.message}`,
-            variant: 'destructive',
-          });
-          logger.error('CSV Parsing Error', {
-            error,
-            component: 'DescriptionEditor',
-          });
-          if (event.target) event.target.value = ''; // Reset file input
-        },
+        complete: (results) => handleParseComplete(results, event),
+        error: (error) => handleParseError(error, event),
       });
     },
-    [toast, prohibitedKeywords], // Include prohibitedKeywords
+    [handleParseComplete, handleParseError],
+  );
+
+  const handleParseComplete = useCallback(
+    (
+      results: Papa.ParseResult<unknown>,
+      event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+      try {
+        if (results.errors.length > 0) {
+          throw new Error(
+            `CSV parsing error: ${results.errors[0].message}. Check row ${results.errors[0].row}.`,
+          );
+        }
+
+        const requiredColumns = ['product', 'description'];
+        const actualHeaders = results.meta.fields || [];
+        const missingColumns = requiredColumns.filter(
+          (col) =>
+            !actualHeaders.some((h) => h.toLowerCase() === col.toLowerCase()),
+        );
+
+        if (missingColumns.length > 0) {
+          throw new Error(
+            `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
+          );
+        }
+
+        if (results.data.length === 0) {
+          throw new Error('CSV file contains no data rows.');
+        }
+
+        const processedData: ProductDescription[] = results.data
+          .map((row, index) =>
+            processCsvRow(
+              row as CsvRowData,
+              index,
+              actualHeaders,
+              prohibitedKeywords,
+            ),
+          )
+          .filter((item): item is ProductDescription => item !== null);
+
+        if (processedData.length === 0) {
+          throw new Error(
+            'No valid product data found after processing. Check column names and content.',
+          );
+        }
+
+        setProducts(processedData);
+        setError(null);
+        toast({
+          title: 'CSV Processed',
+          description: `Loaded ${processedData.length} product descriptions.`,
+        });
+      } catch (err) {
+        handleParseError(
+          err instanceof Error ? err : new Error(String(err)),
+          event,
+        );
+      } finally {
+        setIsLoading(false);
+        if (event.target) event.target.value = '';
+      }
+    },
+    [
+      handleParseError,
+      setIsLoading,
+      setProducts,
+      setError,
+      toast,
+      prohibitedKeywords,
+    ],
+  );
+
+  const handleCsvUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const requiredColumns = ['product', 'description'];
+        const actualHeaders = results.meta.fields || [];
+        const missingColumns = requiredColumns.filter(
+          (col) =>
+            !actualHeaders.some((h) => h.toLowerCase() === col.toLowerCase()),
+        );
+
+        if (missingColumns.length > 0) {
+          throw new Error(
+            `Missing required CSV columns: ${missingColumns.join(', ')}. Found: ${actualHeaders.join(', ')}`,
+          );
+        }
+
+        if (results.data.length === 0) {
+          throw new Error('CSV file contains no data rows.');
+        }
+
+        const processedData: ProductDescription[] = results.data
+          .map((row, index) =>
+            processCsvRow(row, index, actualHeaders, prohibitedKeywords),
+          )
+          .filter((item): item is ProductDescription => item !== null);
+
+        if (processedData.length === 0) {
+          throw new Error(
+            'No valid product data found after processing. Check column names and content.',
+          );
+        }
+
+        setProducts(processedData);
+        setError(null);
+        toast({
+          title: 'CSV Processed',
+          description: `Loaded ${processedData.length} product descriptions.`,
+        });
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'An unknown error occurred during processing.';
+        setError(message);
+        setProducts([]);
+        toast({
+          title: 'Processing Failed',
+          description: message,
+          variant: 'destructive',
+        });
+        logger.error('CSV Processing Error', {
+          error: err,
+          component: 'DescriptionEditor',
+        });
+      } finally {
+        setIsLoading(false);
+        if (event.target) event.target.value = '';
+      }
+    },
+    [
+      handleParseError,
+      setIsLoading,
+      setProducts,
+      setError,
+      toast,
+      prohibitedKeywords,
+    ],
+  );
+
+  const handleParseError = useCallback(
+    (error: Error, event: React.ChangeEvent<HTMLInputElement>) => {
+      setIsLoading(false);
+      setError(`CSV parsing error: ${error.message}`);
+      setProducts([]);
+      toast({
+        title: 'Parsing Failed',
+        description: `CSV parsing error: ${error.message}`,
+        variant: 'destructive',
+      });
+      logger.error('CSV Parsing Error', {
+        error,
+        component: 'DescriptionEditor',
+      });
+      if (event.target) event.target.value = '';
+    },
+    [toast],
   );
 
   const handleManualSubmit = useCallback(

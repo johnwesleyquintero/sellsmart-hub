@@ -1,3 +1,23 @@
+import { z } from 'zod';
+
+// Validation schemas for monetary values and numbers
+export const monetaryValueSchema = z
+  .number()
+  .min(0, 'Value must be non-negative')
+  .max(1000000, 'Value exceeds maximum limit');
+
+export const percentageSchema = z
+  .number()
+  .min(0, 'Percentage must be between 0 and 100')
+  .max(100, 'Percentage must be between 0 and 100');
+
+export const positiveNumberSchema = z
+  .number()
+  .positive('Value must be positive');
+
+export const numberSchema = z.number();
+
+// CSV content validation
 export const validateCsvContent = (
   content: unknown[],
 ): { validRows: Record<string, unknown>[]; errors: string[] } => {

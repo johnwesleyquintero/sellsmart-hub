@@ -1,6 +1,6 @@
 'use client';
 
-import { useToast } from '@/hooks/use-toast'; // Added for user feedback
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertCircle,
   Download,
@@ -10,7 +10,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react'; // Added useCallback, useRef
+import React, { useCallback, useRef, useState } from 'react';
 import ManualFbaForm from './ManualFbaForm';
 
 // Local/UI Imports
@@ -25,11 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import DataCard from './DataCard'; // Use consistent DataCard
-import SampleCsvButton from './sample-csv-button'; // Add sample button
+import DataCard from './DataCard';
+import SampleCsvButton from './sample-csv-button';
 
-// --- Types ---
-// Input structure expected from CSV or manual entry
+// Types
 export interface FbaCalculationInput {
   product: string;
   cost: number;
@@ -37,14 +36,12 @@ export interface FbaCalculationInput {
   fees: number;
 }
 
-// Result structure including calculated metrics
 interface FbaCalculationResult extends FbaCalculationInput {
   profit: number;
   roi: number; // Return on Investment (%)
   margin: number; // Profit Margin (%)
 }
 
-// Type for raw CSV row after parsing
 type CsvInputRow = {
   product?: string | null;
   cost?: number | string | null;
@@ -52,13 +49,9 @@ type CsvInputRow = {
   fees?: number | string | null;
 };
 
-// --- Helper Functions ---
-
-/**
- * Calculates profit, ROI, and margin for a single product.
- */
 // Import validation schemas and logger
 import { monetaryValueSchema } from '@/lib/amazon-tools/optimal-price-schema';
+import { logger } from '@/lib/logger';
 
 /**
  * Formats a number for display, handling edge cases
@@ -67,11 +60,32 @@ import { monetaryValueSchema } from '@/lib/amazon-tools/optimal-price-schema';
  * @returns Formatted string representation
  */
 const formatNumber = (value: number, decimals: number = 2): string => {
-  if (!isFinite(value)) return value > 0 ? '∞' : value < 0 ? '-∞' : '0';
-  if (Math.abs(value) >= 1e9) return `${(value / 1e9).toFixed(decimals)}B`;
-  if (Math.abs(value) >= 1e6) return `${(value / 1e6).toFixed(decimals)}M`;
-  if (Math.abs(value) >= 1e3) return `${(value / 1e3).toFixed(decimals)}K`;
-  return value.toFixed(decimals);
+  try {
+    if (!isFinite(value)) {
+      logger.warn('Non-finite value encountered in formatNumber', { value });
+      if (value > 0) return '∞';
+      if (value < 0) return '-∞';
+      return '0';
+    }
+
+    if (decimals < 0) {
+      logger.warn('Invalid decimals value in formatNumber', { decimals });
+      decimals = 2; // Reset to default
+    }
+
+    const absValue = Math.abs(value);
+    if (absValue >= 1e9) return `${(value / 1e9).toFixed(decimals)}B`;
+    if (absValue >= 1e6) return `${(value / 1e6).toFixed(decimals)}M`;
+    if (absValue >= 1e3) return `${(value / 1e3).toFixed(decimals)}K`;
+    return value.toFixed(decimals);
+  } catch (error) {
+    logger.error('Error in formatNumber', {
+      value,
+      decimals,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return '0';
+  }
 };
 
 /**
@@ -79,14 +93,16 @@ const formatNumber = (value: number, decimals: number = 2): string => {
  */
 const calculateRoi = (profit: number, cost: number): number => {
   if (cost === 0) {
-    return profit === 0 ? 0 : profit > 0 ? Infinity : -Infinity;
+    if (profit === 0) return 0;
+    return profit > 0 ? Infinity : -Infinity;
   }
   return (profit / cost) * 100;
 };
 
 const calculateMargin = (profit: number, price: number): number => {
   if (price === 0) {
-    return profit === 0 ? 0 : profit > 0 ? Infinity : -Infinity;
+    if (profit === 0) return 0;
+    return profit > 0 ? Infinity : -Infinity;
   }
   return (profit / price) * 100;
 };
@@ -105,7 +121,16 @@ const calculateFbaMetrics = (
 
     return { profit, roi, margin };
   } catch (error) {
-    throw new Error('Failed to calculate FBA metrics');
+    // Log the error with detailed information
+    logger.error('Failed to calculate FBA metrics', {
+      component: 'FbaCalculator',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      input,
+    });
+    // Rethrow with more descriptive message
+    throw new Error(
+      `Failed to calculate FBA metrics: ${error instanceof Error ? error.message : 'Invalid input values'}`,
+    );
   }
 };
 
@@ -253,7 +278,7 @@ export default function FbaCalculator() {
                 ? err.message
                 : 'An unknown error occurred during processing.';
             setError(message);
-            setResults([]); // Clear any partial data on error
+            setResults([]);
             toast({
               title: 'Processing Failed',
               description: message,
@@ -261,7 +286,7 @@ export default function FbaCalculator() {
             });
           } finally {
             setIsLoading(false);
-            // Reset file input value to allow re-uploading the same file
+
             if (event.target) {
               event.target.value = '';
             }
@@ -276,7 +301,7 @@ export default function FbaCalculator() {
             description: `Error reading CSV file: ${err.message}`,
             variant: 'destructive',
           });
-          // Reset file input on read error too
+
           if (event.target) {
             event.target.value = '';
           }
@@ -552,11 +577,6 @@ export default function FbaCalculator() {
                     const marginDisplay = isFinite(item.margin)
                       ? `${item.margin.toFixed(2)}%`
                       : '∞';
-                    // Cap margin at 100 for progress bar, treat negative as 0
-                    const progressValue = Math.max(
-                      0,
-                      Math.min(item.margin, 100),
-                    );
 
                     return (
                       <TableRow
@@ -595,11 +615,13 @@ export default function FbaCalculator() {
                             {' '}
                             {/* Ensure progress bar has some width */}
                             <Progress
-                              value={
-                                isFinite(progressValue)
-                                  ? Math.max(0, Math.min(item.margin, 100))
-                                  : 0
-                              }
+                              value={Math.max(
+                                0,
+                                Math.min(
+                                  isFinite(item.margin) ? item.margin : 0,
+                                  100,
+                                ),
+                              )}
                               className="h-2"
                               // Optional: Add color based on value
                               // indicatorClassName={progressValue < 10 ? 'bg-red-500' : progressValue < 25 ? 'bg-yellow-500' : 'bg-green-500'}
@@ -618,10 +640,8 @@ export default function FbaCalculator() {
     </div>
   );
 }
-const condition1 = true; // Placeholder condition
-const value1 = 10; // Placeholder value
-const condition2 = false; // Placeholder condition
-const value2 = 20; // Placeholder value
-const value3 = 30; // Placeholder value
-
-const result = condition1 ? value1 : condition2 ? value2 : value3;
+const getMarginColorClass = (margin: number): string => {
+  if (margin > 0) return 'text-green-600 dark:text-green-400';
+  if (margin < 0) return 'text-red-600 dark:text-red-400';
+  return 'text-yellow-600 dark:text-yellow-400';
+};

@@ -200,12 +200,13 @@ const KeywordAnalyzerInfoBox: React.FC = () => (
       <p className="font-medium">How it Works:</p>
       <ul className="list-disc list-inside ml-4">
         <li>
-          Upload a CSV with `product` and comma-separated `keywords` columns.
-          Optional: `searchVolume`, `competition` (Low/Medium/High).
+          Upload a CSV with &apos;product&apos; and comma-separated
+          &apos;keywords&apos; columns. Optional: &apos;searchVolume&apos;,
+          &apos;competition&apos; (Low/Medium/High).
         </li>
         <li>Or, manually enter comma-separated keywords for quick analysis.</li>
         <li>
-          The tool analyzes each keyword's potential (score, confidence,
+          The tool analyzes each keyword&apos;s potential (score, confidence,
           prohibited status).
         </li>
         <li>
@@ -430,12 +431,7 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={50}
-                >
-                  {/* Optional: Color bars based on prohibited status */}
-                  {/* {product.analysis.map((entry, idx) => (
-                    <Cell key={`cell-${idx}`} fill={entry.isProhibited ? 'hsl(var(--destructive))' : 'hsl(var(--primary))'} />
-                  ))} */}
-                </Bar>
+                ></Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

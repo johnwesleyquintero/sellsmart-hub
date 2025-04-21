@@ -26,6 +26,7 @@ interface ManualProduct {
 }
 
 export default function ProfitMarginCalculator() {
+  // Define interfaces outside the component for better reusability
   interface ProductData {
     product: string;
     cost: number;
@@ -41,18 +42,28 @@ export default function ProfitMarginCalculator() {
     reviews?: number | null;
     salesRank?: number;
     price?: number;
+    profit?: number;
+    margin?: number;
+    roi?: number;
   }
 
   interface CsvRow {
     id: string;
     impressions: number;
     clicks: number;
+    [key: string]: string | number; // Allow additional fields from CSV
+  }
+
+  interface CalculatedResult extends ProductData {
+    profit: number;
+    margin: number;
+    roi: number;
   }
 
   // Removed duplicate function export
   // Existing implementation kept at line 37
 
-  const [results, setResults] = useState<ProductData[]>([]);
+  const [results, setResults] = useState<CalculatedResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [manualProduct, setManualProduct] = useState<ManualProduct>({
@@ -63,7 +74,37 @@ export default function ProfitMarginCalculator() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileUpload = (data: CsvRow[]) => {
+  const validateCsvRow = (row: CsvRow): ProductData | null => {
+    try {
+      if (!row.id?.trim()) {
+        throw new Error('Missing product ID');
+      }
+
+      const impressions = Number(row.impressions);
+      const clicks = Number(row.clicks);
+
+      if (isNaN(impressions) || impressions < 0) {
+        throw new Error(`Invalid impressions value for product ${row.id}`);
+      }
+
+      if (isNaN(clicks) || clicks < 0) {
+        throw new Error(`Invalid clicks value for product ${row.id}`);
+      }
+
+      return {
+        product: row.id.trim(),
+        cost: 0,
+        price: 0,
+        fees: 0,
+        sessions: clicks,
+      };
+    } catch (error) {
+      console.error('Row validation error:', error);
+      return null;
+    }
+  };
+
+  const handleFileUpload = (data: CsvRow[]): void => {
     setError(null);
     setIsLoading(true);
     try {
@@ -71,17 +112,28 @@ export default function ProfitMarginCalculator() {
         throw new Error('No valid data found in CSV');
       }
 
-      const productData = data.map((row) => ({
-        product: row.id,
-        cost: 0,
-        price: 0,
-        fees: 0,
-        conversionRate: row.impressions,
-        sessions: row.clicks,
-      }));
-      setCsvData(productData);
-      console.log('csvData', csvData);
-      calculateResults(productData);
+      const validatedData: ProductData[] = [];
+      const errors: string[] = [];
+
+      data.forEach((row, index) => {
+        const validatedRow = validateCsvRow(row);
+        if (validatedRow) {
+          validatedData.push(validatedRow);
+        } else {
+          errors.push(`Row ${index + 1}: Invalid data format`);
+        }
+      });
+
+      if (validatedData.length === 0) {
+        throw new Error('No valid rows found in CSV file');
+      }
+
+      if (errors.length > 0) {
+        console.warn('CSV validation warnings:', errors);
+      }
+
+      setCsvData(validatedData);
+      calculateResults(validatedData);
     } catch (err) {
       if (err instanceof Error) {
         setError(`Error processing CSV file: ${err.message}`);
@@ -93,33 +145,45 @@ export default function ProfitMarginCalculator() {
     }
   };
 
-  const calculateResults = (data: ProductData[]) => {
+  const calculateResults = (data: ProductData[]): void => {
+    const validateNumericValue = (
+      value: number | undefined,
+      defaultValue: number,
+    ): number => {
+      return typeof value === 'number' && !isNaN(value) ? value : defaultValue;
+    };
     if (!data || data.length === 0) {
       setError('No valid data to calculate');
       return;
     }
 
     const calculated = data.map((item: ProductData) => {
+      // Validate and sanitize input values
+      const validatedPrice = validateNumericValue(item.price, 25);
+      const validatedCost = validateNumericValue(item.cost, 0);
+      const validatedFees = validateNumericValue(item.fees, 0);
+
       const productScore = AmazonAlgorithms.calculateProductScore({
         reviews: item.reviews || null,
         rating: item.reviewRating || 4.5,
         salesRank: item.salesRank || 1000,
-        price: item.price || 25,
+        price: validatedPrice,
         category: ProductCategory.STANDARD,
       });
 
       const adjustedPrice = AmazonAlgorithms.calculateOptimalPrice({
-        currentPrice: item.price || 0,
+        currentPrice: validatedPrice,
         competitorPrices: item.competitorPrices || [
-          (item.price || 0) * 0.9,
-          (item.price || 0) * 1.1,
+          validatedPrice * 0.9,
+          validatedPrice * 1.1,
         ],
         productScore: productScore / 100,
       });
 
-      const profit = adjustedPrice - item.cost - item.fees;
-      const margin = (profit / (item.price || 1)) * 100;
-      const roi = (profit / item.cost) * 100;
+      // Calculate financial metrics with validated values
+      const profit = adjustedPrice - validatedCost - validatedFees;
+      const margin = validatedPrice > 0 ? (profit / validatedPrice) * 100 : 0;
+      const roi = validatedCost > 0 ? (profit / validatedCost) * 100 : 0;
       return {
         ...item,
         profit,
@@ -136,7 +200,7 @@ export default function ProfitMarginCalculator() {
     setResults(calculated);
   };
 
-  const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setError(null);
 
@@ -181,9 +245,6 @@ export default function ProfitMarginCalculator() {
     calculateResults([newProduct]);
     setManualProduct({ product: '', cost: 0, price: 0, fees: 0 });
   };
-
-  console.log('ProfitMarginCalculator: Before return statement');
-  console.log('ProfitMarginCalculator: Component end');
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">

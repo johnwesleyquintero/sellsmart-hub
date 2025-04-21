@@ -2,7 +2,6 @@
 
 import DragDropArea from '@/components/ui/DragDropArea';
 import { Button } from '@/components/ui/button';
-import { logError } from '@/lib/error-handling';
 import { validateCsvContent } from '@/lib/input-validation';
 import { FileText, Info, Loader2 } from 'lucide-react'; // Added Loader2
 import Papa from 'papaparse';
@@ -214,85 +213,57 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   );
 
   const handleFileValidation = useCallback(
-    (file: File) => {
-      const validationError = validateFile(file, allowedFileTypes, maxFileSize);
-      if (validationError) {
-        onUploadError?.(validationError);
-        throw new Error(validationError);
-      }
+    async (file: File) => {
+      const fileError = validateFile(file, allowedFileTypes, maxFileSize);
+      if (fileError) throw new Error(fileError);
     },
-    [allowedFileTypes, maxFileSize, onUploadError],
+    [allowedFileTypes, maxFileSize],
   );
 
   const handleFileRead = useCallback(async (file: File) => {
-    try {
-      return await readFileContent(file);
-    } catch (error) {
-      throw new Error('Failed to read file content');
-    }
+    return await readFileContent(file);
   }, []);
 
   const handleCsvProcessing = useCallback(
     async (csvContent: string) => {
-      try {
-        return await parseAndValidateCsv(
-          csvContent,
-          requiredColumns,
-          validateRow,
-        );
-      } catch (error) {
-        throw error instanceof Error
-          ? error
-          : new Error('CSV processing failed');
-      }
+      return await parseAndValidateCsv<T>(
+        csvContent,
+        requiredColumns,
+        validateRow,
+      );
     },
     [requiredColumns, validateRow],
   );
 
-  const handleUploadResults = (validRows: T[], validationErrors: string[]) => {
-    if (validRows.length > 0) {
+  const handleUploadResults = useCallback(
+    (validRows: T[], errors: string[]) => {
+      if (validRows.length === 0) {
+        throw new Error('No valid data found in CSV file');
+      }
       onUploadSuccess(validRows);
       setInternalHasData(true);
-    }
-
-    if (validationErrors.length > 0) {
-      logValidationErrors(validationErrors);
-      onUploadError?.(formatErrorMessage(validationErrors));
-    }
-  };
-
-  const logValidationErrors = (errors: string[]) => {
-    logError({
-      component: 'CsvUploader',
-      message: `CSV validation errors: ${errors.length} found`,
-      severity: 'warning',
-      context: { errors },
-    });
-  };
-
-  const formatErrorMessage = (errors: string[]) =>
-    `CSV validation issues found:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`;
+      if (errors.length > 0) {
+        console.warn('CSV validation warnings:', errors);
+      }
+    },
+    [onUploadSuccess],
+  );
 
   const handleProcessingError = useCallback(
     (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to process CSV file';
-      logError({
-        component: 'CsvUploader',
-        message,
-        error: error instanceof Error ? error : new Error(message),
-      });
-      onUploadError?.(message);
-      setInternalHasData(false);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      onUploadError?.(errorMessage);
+      console.error('CSV processing error:', error);
     },
     [onUploadError],
   );
 
-  const resetFileInput = () => {
+  const resetFileInput = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
+  }, []);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
