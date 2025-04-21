@@ -222,7 +222,7 @@ const KeywordAnalyzerInfoBox: React.FC = () => (
 interface CsvUploadSectionProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isLoading: boolean;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 const CsvUploadSection: React.FC<CsvUploadSectionProps> = ({

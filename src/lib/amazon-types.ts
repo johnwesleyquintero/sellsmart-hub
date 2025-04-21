@@ -65,6 +65,7 @@ export interface ProductData {
 }
 
 export interface ProductListingData {
+  asin: string;
   title: string;
   bulletPoints: string[];
   description: string;

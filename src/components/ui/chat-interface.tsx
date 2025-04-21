@@ -57,12 +57,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const isUser = message.role === 'user';
   const hasError = message.status === 'error';
-  const canRetry = hasError && (message.retryCount || 0) < (message.retryLimit || 3);
+  const canRetry =
+    hasError && (message.retryCount || 0) < (message.retryLimit || 3);
 
   return (
-    <div
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
-    >
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-[70%] rounded-lg p-4 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'} ${hasError ? 'border-red-500 border-2' : ''}`}
       >
@@ -135,7 +134,10 @@ export function ChatInterface() {
     }
   }
 
-  const [{ messages, input, isLoading }, dispatch] = useReducer(chatReducer, initialState);
+  const [{ messages, input, isLoading }, dispatch] = useReducer(
+    chatReducer,
+    initialState,
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -178,16 +180,19 @@ export function ChatInterface() {
     }
   }, [messages]);
 
-    // Message handling functions
+  // Message handling functions
   const handleMessageSubmit = async (messageOrContent: Message | string) => {
-    const content = typeof messageOrContent === 'string' ? messageOrContent : messageOrContent.content;
+    const content =
+      typeof messageOrContent === 'string'
+        ? messageOrContent
+        : messageOrContent.content;
     if (!content.trim()) return;
 
     const userMessage: Message = {
       role: 'user',
       content: content.trim(),
       timestamp: Date.now(),
-      status: 'sending'
+      status: 'sending',
     };
 
     try {
@@ -196,20 +201,20 @@ export function ChatInterface() {
       dispatch({ type: 'SET_INPUT', payload: '' });
 
       // Simulate API call - replace with actual API integration
-      const response = await new Promise<string>((resolve) => 
-        setTimeout(() => resolve('This is a mock response.'), 1000)
+      const response = await new Promise<string>((resolve) =>
+        setTimeout(() => resolve('This is a mock response.'), 1000),
       );
 
       const assistantMessage: Message = {
         role: 'assistant',
         content: response,
         timestamp: Date.now(),
-        status: 'sent'
+        status: 'sent',
       };
 
       dispatch({
         type: 'SET_MESSAGES',
-        payload: [...messages, userMessage, assistantMessage]
+        payload: [...messages, userMessage, assistantMessage],
       });
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -220,16 +225,15 @@ export function ChatInterface() {
             ? {
                 ...msg,
                 status: 'error',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                error: error instanceof Error ? error.message : 'Unknown error',
               }
-            : msg
-        )
+            : msg,
+        ),
       });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
-
 
   return (
     <div className="fixed bottom-0 right-0 z-50 flex flex-col w-96 max-h-[80vh] bg-white shadow-lg rounded-t-lg">
@@ -260,7 +264,9 @@ export function ChatInterface() {
           <input
             type="text"
             value={input}
-            onChange={(e) => dispatch({ type: 'SET_INPUT', payload: e.target.value })}
+            onChange={(e) =>
+              dispatch({ type: 'SET_INPUT', payload: e.target.value })
+            }
             placeholder="Type your message..."
             className="flex-1 rounded-lg border p-2 focus:outline-none focus:border-blue-500"
           />
