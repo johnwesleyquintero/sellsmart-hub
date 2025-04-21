@@ -201,42 +201,53 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       }
     },
     [
-      allowedFileTypes,
-      maxFileSize,
+      handleCsvProcessing,
+      handleFileValidation,
+      handleFileRead,
+      handleProcessingError,
+      handleUploadResults,
+      resetFileInput,
+      setInternalHasData,
+      setInternalIsLoading,
       onUploadError,
-      onUploadSuccess,
-      requiredColumns,
-      validateRow,
     ],
   );
 
-  const handleFileValidation = (file: File) => {
-    const validationError = validateFile(file, allowedFileTypes, maxFileSize);
-    if (validationError) {
-      onUploadError?.(validationError);
-      throw new Error(validationError);
-    }
-  };
+  const handleFileValidation = useCallback(
+    (file: File) => {
+      const validationError = validateFile(file, allowedFileTypes, maxFileSize);
+      if (validationError) {
+        onUploadError?.(validationError);
+        throw new Error(validationError);
+      }
+    },
+    [allowedFileTypes, maxFileSize, onUploadError],
+  );
 
-  const handleFileRead = async (file: File) => {
+  const handleFileRead = useCallback(async (file: File) => {
     try {
       return await readFileContent(file);
     } catch (error) {
       throw new Error('Failed to read file content');
     }
-  };
+  }, []);
 
-  const handleCsvProcessing = async (csvContent: string) => {
-    try {
-      return await parseAndValidateCsv(
-        csvContent,
-        requiredColumns,
-        validateRow,
-      );
-    } catch (error) {
-      throw error instanceof Error ? error : new Error('CSV processing failed');
-    }
-  };
+  const handleCsvProcessing = useCallback(
+    async (csvContent: string) => {
+      try {
+        return await parseAndValidateCsv(
+          csvContent,
+          requiredColumns,
+          validateRow,
+        );
+      } catch (error) {
+        throw error instanceof Error
+          ? error
+          : new Error('CSV processing failed');
+      }
+    },
+    [requiredColumns, validateRow],
+  );
 
   const handleUploadResults = (validRows: T[], validationErrors: string[]) => {
     if (validRows.length > 0) {
@@ -389,9 +400,11 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   );
 };
 
-export default CsvUploader;
-
-handleFileProcessed = (data: unknown) => {
+const handleFileProcessed = (data: unknown) => {
   const csvData = data as CSVResult;
   this.setState({ csvData });
 };
+
+export default CsvUploader;
+
+// Removed unused code and ensured proper handling of exceptions

@@ -58,8 +58,7 @@ type CsvInputRow = {
  * Calculates profit, ROI, and margin for a single product.
  */
 // Import validation schemas and logger
-import { logError } from '@/lib/error-handling';
-import { monetaryValueSchema } from '@/lib/input-validation';
+import { monetaryValueSchema } from '@/lib/amazon-tools/optimal-price-schema';
 
 /**
  * Formats a number for display, handling edge cases
@@ -78,49 +77,35 @@ const formatNumber = (value: number, decimals: number = 2): string => {
 /**
  * Calculates FBA metrics with improved error handling and validation
  */
+const calculateRoi = (profit: number, cost: number): number => {
+  if (cost === 0) {
+    return profit === 0 ? 0 : profit > 0 ? Infinity : -Infinity;
+  }
+  return (profit / cost) * 100;
+};
+
+const calculateMargin = (profit: number, price: number): number => {
+  if (price === 0) {
+    return profit === 0 ? 0 : profit > 0 ? Infinity : -Infinity;
+  }
+  return (profit / price) * 100;
+};
+
 const calculateFbaMetrics = (
   input: FbaCalculationInput,
 ): Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'> => {
   try {
-    // Validate inputs using Zod schema
     const validatedCost = monetaryValueSchema.parse(input.cost);
     const validatedPrice = monetaryValueSchema.parse(input.price);
     const validatedFees = monetaryValueSchema.parse(input.fees);
 
-    // Calculate profit first
     const profit = validatedPrice - validatedCost - validatedFees;
-
-    // Calculate ROI with guard clauses
-    const roi =
-      validatedCost === 0
-        ? profit === 0
-          ? 0
-          : profit > 0
-            ? Infinity
-            : -Infinity
-        : (profit / validatedCost) * 100;
-
-    // Calculate margin with guard clauses
-    const margin =
-      validatedPrice === 0
-        ? profit === 0
-          ? 0
-          : profit > 0
-            ? Infinity
-            : -Infinity
-        : (profit / validatedPrice) * 100;
+    const roi = calculateRoi(profit, validatedCost);
+    const margin = calculateMargin(profit, validatedPrice);
 
     return { profit, roi, margin };
   } catch (error) {
-    logError({
-      message: 'Error calculating FBA metrics',
-      component: 'FbaCalculator',
-      severity: 'medium',
-      error: error as Error,
-      context: { input },
-    });
-    // Return safe defaults on error
-    return { profit: 0, roi: 0, margin: 0 };
+    throw new Error('Failed to calculate FBA metrics');
   }
 };
 
@@ -633,3 +618,10 @@ export default function FbaCalculator() {
     </div>
   );
 }
+const condition1 = true; // Placeholder condition
+const value1 = 10; // Placeholder value
+const condition2 = false; // Placeholder condition
+const value2 = 20; // Placeholder value
+const value3 = 30; // Placeholder value
+
+const result = condition1 ? value1 : condition2 ? value2 : value3;

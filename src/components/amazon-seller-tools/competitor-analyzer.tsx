@@ -135,8 +135,6 @@ export function CompetitorAnalyzer() {
     'rating',
   ]);
 
-  const { setSecureItem, removeSecureItem } = useSessionStorage();
-
   const handleFileUpload = useCallback(
     (
       event: React.ChangeEvent<HTMLInputElement>,
@@ -311,7 +309,7 @@ export function CompetitorAnalyzer() {
 
       interface ApiResponse {
         competitors: string[];
-        metrics: Record<MetricType, number[]>;
+        metrics: Record<string, number[]>;
       }
 
       let data: ApiResponse;
@@ -325,7 +323,7 @@ export function CompetitorAnalyzer() {
         // Validate and sanitize API response data
         data.competitors = data.competitors.map((comp) => sanitizeHtml(comp));
         Object.entries(data.metrics).forEach(([metric, values]) => {
-          data.metrics[metric as MetricType] = values.map((v) => {
+          data.metrics[metric as string] = values.map((v) => {
             const num = Number(v);
             return isNaN(num) ? 0 : num;
           });

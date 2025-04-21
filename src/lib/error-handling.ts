@@ -16,21 +16,17 @@ export abstract class ErrorReportingService {
   }
 
   // Remove duplicate ErrorSeverity type (lines 3 & 18)
-  type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
-  
   // Update error reporting service implementation
   private static report(errorContext: ErrorContext) {
     if (process.env.NODE_ENV === 'production') {
       // Add actual error reporting service integration
       Sentry.captureException(errorContext.error, {
-        contexts: { error: errorContext }
+        contexts: { error: errorContext },
       });
     }
     console.error('[Error Reporting Service]', errorContext);
   }
 }
-
-type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
 
 interface ErrorLogEntry {
   message: string;
@@ -81,13 +77,13 @@ export const logError = ({
 
   // In production, could send to error tracking service
   if (process.env.NODE_ENV === 'production') {
-        // Error reporting service integration
+    // Error reporting service integration
     ErrorReportingService.captureError({
       message,
       component,
       severity,
       error,
-      context
+      context,
     });
     // e.g., Sentry, LogRocket, etc.
   }
