@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { validateCsvContent } from '@/lib/input-validation';
 import { FileText, Info, Loader2 } from 'lucide-react'; // Added Loader2
 import Papa from 'papaparse';
-import { useCallback, useRef, useState } from 'react'; // Added React, useRef
+import { useCallback, useRef } from 'react'; // Added React, useRef
 import { useDropzone } from 'react-dropzone';
 import SampleCsvButton from './sample-csv-button';
 
@@ -41,9 +41,10 @@ const readFileContent = (file: File): Promise<string> => {
       const content = event.target?.result;
       if (typeof content === 'string') {
         // Basic security check on content before resolving
-        const contentValidation = validateCsvContent(content);
-        if (!contentValidation.isValid) {
-          reject(new Error(contentValidation.error));
+        const contentLines = content.split('\n');
+        const contentValidation = validateCsvContent(contentLines);
+        if (contentValidation.errors.length > 0) {
+          reject(new Error(contentValidation.errors.join(', ')));
         } else {
           resolve(content);
         }
@@ -127,16 +128,19 @@ const parseAndValidateCsv = <T extends Record<string, unknown>>(
         const validRows: T[] = [];
         const errors: string[] = [];
 
-        results.data.forEach((row: Record<string, unknown>, index: number) => {
-          const { validRow, error } = processRow(row, index, validateRowFn);
-          if (validRow) {
-            validRows.push(validRow);
-          }
-          // Collect errors even if some rows are valid
-          if (error) {
-            errors.push(error);
-          }
-        });
+        results.data.forEach(
+          (value: unknown, index: number, array: unknown[]) => {
+            const row = value as Record<string, unknown>;
+            const { validRow, error } = processRow(row, index, validateRowFn);
+            if (validRow) {
+              validRows.push(validRow);
+            }
+            // Collect errors even if some rows are valid
+            if (error) {
+              errors.push(error);
+            }
+          },
+        );
 
         resolve({ validRows, errors });
       },
@@ -173,44 +177,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   hasData: externalHasData,
   onClear: externalOnClear,
 }: CsvUploaderProps<T>) => {
-  // Internal state for loading and data presence, can be overridden by props
-  const [internalIsLoading, setInternalIsLoading] = useState(false);
-  const [internalHasData, setInternalHasData] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
-
-  // Determine effective state based on props or internal state
-  const isLoading = externalIsLoading ?? internalIsLoading;
-  const hasData = externalHasData ?? internalHasData;
-
-  const processFile = useCallback(
-    async (file: File) => {
-      try {
-        setInternalIsLoading(true);
-        setInternalHasData(false);
-        onUploadError?.(null);
-        await handleFileValidation(file);
-        const csvContent = await handleFileRead(file);
-        const { validRows, errors } = await handleCsvProcessing(csvContent);
-        handleUploadResults(validRows, errors);
-      } catch (error) {
-        handleProcessingError(error);
-      } finally {
-        setInternalIsLoading(false);
-        resetFileInput();
-      }
-    },
-    [
-      handleCsvProcessing,
-      handleFileValidation,
-      handleFileRead,
-      handleProcessingError,
-      handleUploadResults,
-      resetFileInput,
-      setInternalHasData,
-      setInternalIsLoading,
-      onUploadError,
-    ],
-  );
 
   const handleFileValidation = useCallback(
     async (file: File) => {
@@ -241,7 +208,6 @@ export const CsvUploader = <T extends Record<string, unknown>>({
         throw new Error('No valid data found in CSV file');
       }
       onUploadSuccess(validRows);
-      setInternalHasData(true);
       if (errors.length > 0) {
         console.warn('CSV validation warnings:', errors);
       }
@@ -265,6 +231,30 @@ export const CsvUploader = <T extends Record<string, unknown>>({
     }
   }, []);
 
+  const processFile = useCallback(
+    async (file: File) => {
+      try {
+        onUploadError?.(null);
+        await handleFileValidation(file);
+        const csvContent = await handleFileRead(file);
+        const { validRows, errors } = await handleCsvProcessing(csvContent);
+        handleUploadResults(validRows, errors);
+      } catch (error) {
+        handleProcessingError(error);
+      } finally {
+        resetFileInput();
+      }
+    },
+    [
+      handleCsvProcessing,
+      handleFileValidation,
+      handleFileRead,
+      handleProcessingError,
+      handleUploadResults,
+      resetFileInput,
+      onUploadError,
+    ],
+  );
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
@@ -284,11 +274,10 @@ export const CsvUploader = <T extends Record<string, unknown>>({
     },
     maxSize: maxFileSize,
     multiple: false,
-    disabled: isLoading,
+    disabled: externalIsLoading ?? false,
   });
 
   const handleClear = useCallback(() => {
-    setInternalHasData(false);
     onUploadError?.(null); // Clear errors
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Clear the actual file input
@@ -322,9 +311,9 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       {/* Dropzone Area */}
       <div {...getRootProps()}>
         {/* Pass ref to the hidden input */}
-        <input {...getInputProps()} ref={fileInputRef} disabled={isLoading} />
+        <input {...getInputProps()} ref={fileInputRef} disabled={externalIsLoading ?? false} />
         <DragDropArea isDragActive={isDragActive}>
-          {isLoading ? (
+          {externalIsLoading ?? false ? (
             <>
               <Loader2 className="mb-2 h-8 w-8 animate-spin text-primary" />
               <span className="text-sm font-medium text-primary">
@@ -340,12 +329,11 @@ export const CsvUploader = <T extends Record<string, unknown>>({
                   : 'Click or drag CSV file to upload'}
               </span>
               <p className="text-xs text-muted-foreground mt-1">
-                Drag &apos;n&apos; drop, or click to select file
+                Drag 'n' drop, or click to select file
               </p>
             </>
-          )}
-        </DragDropArea>
-      </div>
+          </DragDropArea>
+        </div>
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-2 justify-center">
@@ -356,11 +344,11 @@ export const CsvUploader = <T extends Record<string, unknown>>({
           className="w-full sm:w-auto"
           variant="secondary"
         />
-        {hasData && (
+        {externalHasData && (
           <Button
             variant="outline"
             onClick={handleClear}
-            disabled={isLoading}
+            disabled={externalIsLoading ?? false}
             className="w-full sm:w-auto"
           >
             Clear Data
@@ -369,11 +357,6 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       </div>
     </div>
   );
-};
-
-const handleFileProcessed = (data: unknown) => {
-  const csvData = data as CSVResult;
-  this.setState({ csvData });
 };
 
 export default CsvUploader;

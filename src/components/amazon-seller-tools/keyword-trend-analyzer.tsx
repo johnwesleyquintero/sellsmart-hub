@@ -1,4 +1,3 @@
-// src/components/amazon-seller-tools/keyword-trend-analyzer.tsx
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +27,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { KeywordTrendService } from '@/lib/amazon-tools/keyword-trend-service';
+import { logger } from '@/lib/logger';
 import DataCard from './DataCard';
 import SampleCsvButton from './sample-csv-button';
 
@@ -73,24 +74,17 @@ export default function KeywordTrendAnalyzer() {
         complete: async (result) => {
           try {
             // Log the start of processing
-            logError({
-              message: 'Starting trend data processing',
-              component: 'KeywordTrendAnalyzer',
-              severity: 'info',
-              context: { fileName: file.name, rowCount: result.data.length },
+            logger.info('Starting trend data processing', {
+              fileName: file.name,
+              rowCount: result.data.length,
             });
 
             if (result.errors.length > 0) {
               const errorMessage = `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`;
-              logError({
-                message: errorMessage,
-                component: 'KeywordTrendAnalyzer',
-                severity: 'high',
+              logger.error(errorMessage, {
+                fileName: file.name,
+                rowIndex: result.errors[0].row,
                 error: result.errors[0],
-                context: {
-                  fileName: file.name,
-                  rowIndex: result.errors[0].row,
-                },
               });
               throw new Error(errorMessage);
             }
@@ -103,15 +97,10 @@ export default function KeywordTrendAnalyzer() {
 
             if (missingHeaders.length > 0) {
               const errorMessage = `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${actualHeaders.join(', ') || 'None'}`;
-              logError({
-                message: errorMessage,
-                component: 'KeywordTrendAnalyzer',
-                severity: 'high',
-                context: {
-                  fileName: file.name,
-                  missingHeaders,
-                  foundHeaders: actualHeaders,
-                },
+              logger.error(errorMessage, {
+                fileName: file.name,
+                missingHeaders,
+                foundHeaders: actualHeaders,
               });
               throw new Error(errorMessage);
             }
@@ -119,12 +108,7 @@ export default function KeywordTrendAnalyzer() {
             if (result.data.length === 0) {
               const errorMessage =
                 'The uploaded CSV file appears to be empty or contains no data rows.';
-              logError({
-                message: errorMessage,
-                component: 'KeywordTrendAnalyzer',
-                severity: 'medium',
-                context: { fileName: file.name },
-              });
+              logger.warn(errorMessage, { fileName: file.name });
               throw new Error(errorMessage);
             }
 
@@ -135,11 +119,9 @@ export default function KeywordTrendAnalyzer() {
             if (processedData.length === 0) {
               const errorMessage =
                 'No valid trend data found after processing. Please check your data format.';
-              logError({
-                message: errorMessage,
-                component: 'KeywordTrendAnalyzer',
-                severity: 'high',
-                context: { fileName: file.name, rowCount: result.data.length },
+              logger.error(errorMessage, {
+                fileName: file.name,
+                rowCount: result.data.length,
               });
               throw new Error(errorMessage);
             }
@@ -154,15 +136,10 @@ export default function KeywordTrendAnalyzer() {
               variant: 'default',
             });
 
-            logError({
-              message: 'Trend analysis completed successfully',
-              component: 'KeywordTrendAnalyzer',
-              severity: 'info',
-              context: {
-                fileName: file.name,
-                keywordCount: foundKeywords.length,
-                datePoints: processedData.length,
-              },
+            logger.info('Trend analysis completed successfully', {
+              fileName: file.name,
+              keywordCount: foundKeywords.length,
+              datePoints: processedData.length,
             });
           } catch (err) {
             const message =

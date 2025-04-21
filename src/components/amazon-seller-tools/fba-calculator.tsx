@@ -50,7 +50,6 @@ type CsvInputRow = {
 };
 
 // Import validation schemas and logger
-import { monetaryValueSchema } from '@/lib/amazon-tools/optimal-price-schema';
 import { logger } from '@/lib/logger';
 
 /**
@@ -111,6 +110,9 @@ const calculateFbaMetrics = (
   input: FbaCalculationInput,
 ): Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'> => {
   try {
+    const {
+      monetaryValueSchema,
+    } = require('@/lib/amazon-tools/optimal-price-schema');
     const validatedCost = monetaryValueSchema.parse(input.cost);
     const validatedPrice = monetaryValueSchema.parse(input.price);
     const validatedFees = monetaryValueSchema.parse(input.fees);

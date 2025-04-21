@@ -260,10 +260,10 @@ export function CompetitorAnalyzer() {
           // Check storage size before saving
           const dataSize = new Blob([JSON.stringify(formattedData)]).size;
           if (dataSize <= MAX_STORAGE_SIZE) {
-            setItem('chartData', formattedData);
+            sessionStorage.setItem('chartData', JSON.stringify(formattedData));
             setChartData(formattedData);
           } else {
-            removeItem('chartData');
+            sessionStorage.removeItem('chartData');
             logger.warn(
               'Data exceeds storage limit, not saved to localStorage',
             );
@@ -273,7 +273,7 @@ export function CompetitorAnalyzer() {
         }
       }
     } catch (error) {
-      logger.error('Error processing CSV data:', error);
+      logger.error('Error processing CSV data:', { error });
       toast({
         title: 'Error',
         description: 'Failed to process data',
@@ -316,7 +316,7 @@ export function CompetitorAnalyzer() {
       try {
         data = await response.json();
         if (!data || !data.competitors || !data.metrics) {
-          logger.error('Invalid API response:', data);
+          logger.error('Invalid API response:', { data });
           throw new Error('Invalid response format from server');
         }
 
@@ -329,7 +329,7 @@ export function CompetitorAnalyzer() {
           });
         });
       } catch (error) {
-        logger.error('API parsing error:', error);
+        logger.error('API parsing error:', { error });
         throw new Error(
           error instanceof Error
             ? error.message

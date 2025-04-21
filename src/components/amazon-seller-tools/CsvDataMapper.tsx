@@ -134,7 +134,7 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
         logError({
           component: 'CsvDataMapper',
           message: errorMessage,
-          severity: 'warning',
+          severity: 'medium',
         });
         onError?.(errorMessage);
         return;
@@ -146,7 +146,7 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
       logError({
         component: 'CsvDataMapper',
         message: errorMessage,
-        error,
+        error: error as Error,
       });
       onError?.(errorMessage);
     }
