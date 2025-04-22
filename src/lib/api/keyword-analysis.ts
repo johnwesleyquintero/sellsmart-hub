@@ -1,5 +1,10 @@
 import { KeywordIntelligence } from '../keyword-intelligence';
 
 export async function fetchKeywordAnalysis(keywords: string[]) {
-  return await KeywordIntelligence.analyze(keywords);
+  try {
+    return await KeywordIntelligence.analyze(keywords);
+  } catch (error) {
+    console.error('API Route Error:', error);
+    throw new Error('Failed to analyze keywords');
+  }
 }

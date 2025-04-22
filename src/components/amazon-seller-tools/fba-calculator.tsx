@@ -106,13 +106,11 @@ const calculateMargin = (profit: number, price: number): number => {
   return (profit / price) * 100;
 };
 
-const calculateFbaMetrics = (
+const calculateFbaMetrics = async (
   input: FbaCalculationInput,
-): Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'> => {
+): Promise<Pick<FbaCalculationResult, 'profit' | 'roi' | 'margin'>> => {
   try {
-    const {
-      monetaryValueSchema,
-    } = require('@/lib/amazon-tools/optimal-price-schema');
+    const { monetaryValueSchema } = await import('@/lib/input-validation');
     const validatedCost = monetaryValueSchema.parse(input.cost);
     const validatedPrice = monetaryValueSchema.parse(input.price);
     const validatedFees = monetaryValueSchema.parse(input.fees);
@@ -188,8 +186,8 @@ export default function FbaCalculator() {
 
             let skippedRowCount = 0;
             // Process the parsed data
-            const processedResults: FbaCalculationResult[] = result.data
-              .map((row, index) => {
+            const processedResults = await Promise.all(
+              result.data.map(async (row, index) => {
                 const productName = row.product?.trim();
                 const costStr =
                   typeof row.cost === 'string' ? row.cost.trim() : row.cost;
@@ -240,13 +238,26 @@ export default function FbaCalculator() {
                   price,
                   fees,
                 };
-                const metrics = calculateFbaMetrics(inputData);
+                const metrics = await calculateFbaMetrics(inputData);
 
                 return { ...inputData, ...metrics };
-              })
-              .filter((item): item is FbaCalculationResult => item !== null); // Filter out null results
+              }),
+            );
 
-            if (processedResults.length === 0) {
+            // Filter out null results and ensure type safety
+            const validResults = processedResults.filter(
+              (item): item is FbaCalculationResult => {
+                return (
+                  item !== null &&
+                  typeof item === 'object' &&
+                  'profit' in item &&
+                  'roi' in item &&
+                  'margin' in item
+                );
+              },
+            );
+
+            if (validResults.length === 0) {
               if (result.data.length > 0) {
                 throw new Error(
                   `No valid data found in the CSV after processing ${result.data.length} rows. Ensure 'product', 'cost', 'price', 'fees' columns are present and contain valid non-negative numbers.`,
@@ -258,8 +269,8 @@ export default function FbaCalculator() {
               }
             }
 
-            setResults(processedResults);
-            const processedMessage = `Processed ${processedResults.length} products`;
+            setResults(validResults);
+            const processedMessage = `Processed ${validResults.length} products`;
             const skippedMessage =
               skippedRowCount > 0
                 ? ` Skipped ${skippedRowCount} invalid rows`
@@ -460,14 +471,25 @@ export default function FbaCalculator() {
             </h3>
             <ManualFbaForm
               initialValues={manualInput}
-              onSubmit={(values) => {
-                const metrics = calculateFbaMetrics(values);
-                setResults([{ ...values, ...metrics }]);
-                toast({
-                  title: 'Calculation Complete',
-                  description: `Calculated metrics for ${values.product}`,
-                  variant: 'default',
-                });
+              onSubmit={async (values) => {
+                try {
+                  const metrics = await calculateFbaMetrics(values);
+                  setResults([{ ...values, ...metrics }]);
+                  toast({
+                    title: 'Calculation Complete',
+                    description: `Calculated metrics for ${values.product}`,
+                    variant: 'default',
+                  });
+                } catch (error) {
+                  toast({
+                    title: 'Calculation Failed',
+                    description:
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to calculate metrics',
+                    variant: 'destructive',
+                  });
+                }
               }}
               onReset={() => {
                 setManualInput({ product: '', cost: 0, price: 0, fees: 0 });

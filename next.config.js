@@ -104,26 +104,31 @@ const nextConfig = {
 
     config.externals = [
       ...(config.externals || []),
-      /^node:/,
-      /^mongodb/,
-      {
-        '@next-auth/mongodb-adapter': 'commonjs @next-auth/mongodb-adapter',
-        dns: 'commonjs dns',
-        fs: 'commonjs fs',
-        net: 'commonjs net',
-        tls: 'commonjs tls',
-        child_process: 'commonjs child_process',
-        path: 'commonjs path',
-        util: 'commonjs util',
-        stream: 'commonjs stream',
-        crypto: 'commonjs crypto',
-        os: 'commonjs os',
-        http: 'commonjs http',
-        https: 'commonjs https',
-        zlib: 'commonjs zlib',
-        process: 'commonjs process',
-      },
-    ];
+      isServer
+        ? [
+            /^node:/,
+            /^mongodb/,
+            {
+              '@next-auth/mongodb-adapter':
+                'commonjs @next-auth/mongodb-adapter',
+              dns: 'commonjs dns',
+              fs: 'commonjs fs',
+              net: 'commonjs net',
+              tls: 'commonjs tls',
+              child_process: 'commonjs child_process',
+              path: 'commonjs path',
+              util: 'commonjs util',
+              stream: 'commonjs stream',
+              crypto: 'commonjs crypto',
+              os: 'commonjs os',
+              http: 'commonjs http',
+              https: 'commonjs https',
+              zlib: 'commonjs zlib',
+              process: 'commonjs process',
+            },
+          ]
+        : [],
+    ].flat();
 
     return config;
   },
