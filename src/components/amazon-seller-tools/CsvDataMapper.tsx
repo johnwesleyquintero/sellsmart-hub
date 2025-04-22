@@ -69,7 +69,7 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
     }
 
     for (const metric of targetMetrics) {
-      if (typeof metric !== 'object' || metric === null) {
+      if (metric === null || typeof metric !== 'object') {
         errors.push('Invalid props: each targetMetric must be an object');
         return { isValid: false, errors };
       }

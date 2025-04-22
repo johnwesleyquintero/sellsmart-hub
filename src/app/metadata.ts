@@ -86,7 +86,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   metadataBase:
     process.env.NODE_ENV === 'development'
-      ? new URL('http://localhost:3000')
+      ? new URL('https://localhost:3000')
       : new URL('https://wesleyquintero.vercel.app'),
   verification: {
     google: 'google-site-verification-code', // Replace with actual code

@@ -48,9 +48,9 @@ type ProductDescription = {
 
 // Type for raw CSV row data
 type CsvRowData = {
-  product?: string;
-  asin?: string;
-  description?: string;
+  product?: string | undefined;
+  asin?: string | undefined;
+  description?: string | undefined;
   // Allow any other string keys from PapaParse
   [key: string]: string | undefined;
 };
@@ -148,14 +148,14 @@ const processCsvRow = (
       logger.warn(`Skipping row ${index + 1}: Missing product name.`, {
         component: 'DescriptionEditor/processCsvRow',
       });
-      return null;
+      return undefined;
     }
     if (!description) {
       logger.warn(
         `Skipping row ${index + 1} for "${product}": Missing description.`,
         { component: 'DescriptionEditor/processCsvRow' },
       );
-      return null;
+      return undefined;
     }
 
     // Calculate metrics
@@ -197,14 +197,14 @@ function ManualAddProductForm({
     asin: '',
     description: '',
   });
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | undefined>(undefined);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
-    setFormError(null); // Clear error on change
+    setFormError(undefined); // Clear error on change
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -439,9 +439,9 @@ export default function DescriptionEditor() {
   const { toast } = useToast();
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Combined loading state
-  const [error, setError] = useState<string | null>(null);
-  const [activeProductId, setActiveProductId] = useState<string | null>(null); // Store ID only
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [activeProductId, setActiveProductId] = useState<string | undefined>(undefined); // Store ID only
+  const fileInputRef = useRef<HTMLInputElement>(undefined);
   const [prohibitedKeywords, setProhibitedKeywords] = useState<string[]>([]);
 
   // Fetch prohibited keywords on mount
@@ -475,7 +475,7 @@ export default function DescriptionEditor() {
 
   // Find the active product object based on the ID
   const activeProduct = useMemo(
-    () => products.find((p) => p.product === activeProductId) || null,
+    () => products.find((p) => p.product === activeProductId) || undefined,
     [products, activeProductId],
   );
 
@@ -488,9 +488,9 @@ export default function DescriptionEditor() {
       if (!file) return;
 
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       setProducts([]);
-      setActiveProductId(null); // Also reset active product
+      setActiveProductId(undefined); // Also reset active product
 
       Papa.parse<CsvRowData>(file, {
         // Specify the expected row type
@@ -557,7 +557,7 @@ export default function DescriptionEditor() {
             }
 
             setProducts(processedProducts);
-            setError(null);
+            setError(undefined);
             toast({
               title: 'CSV Processed',
               description: `Successfully processed ${processedProducts.length} products.`,
@@ -643,7 +643,7 @@ export default function DescriptionEditor() {
       };
 
       setProducts((prev) => [...prev, productToAdd]);
-      setError(null); // Clear previous errors
+      setError(undefined); // Clear previous errors
       toast({
         title: 'Product Added',
         description: `"${data.product}" added successfully.`,
@@ -701,7 +701,7 @@ export default function DescriptionEditor() {
       });
       return;
     }
-    setError(null);
+    setError(undefined);
 
     const exportData = products.map((p) => ({
       product: p.product,
@@ -744,8 +744,8 @@ export default function DescriptionEditor() {
 
   const clearData = useCallback(() => {
     setProducts([]);
-    setActiveProductId(null);
-    setError(null);
+    setActiveProductId(undefined);
+    setError(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -840,7 +840,7 @@ export default function DescriptionEditor() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setError(null)}
+            onClick={() => setError(undefined)}
             className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
             aria-label="Dismiss error"
           >

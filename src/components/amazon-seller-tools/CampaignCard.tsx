@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { CampaignData } from './ppc-campaign-auditor';
+import type { CampaignData } from './ppc-campaign-auditor';
 
 export interface Identifier {
   asin: string;
@@ -12,7 +12,7 @@ export interface Identifier {
 }
 
 interface CampaignCardProps {
-  campaign: CampaignData;
+  readonly campaign: CampaignData;
 }
 
 export default function CampaignCard({ campaign }: CampaignCardProps) {

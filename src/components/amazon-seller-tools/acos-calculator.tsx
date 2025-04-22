@@ -48,13 +48,13 @@ export interface CampaignData {
   campaign: string;
   adSpend: number;
   sales: number;
-  impressions?: number;
-  clicks?: number;
-  acos?: number; // Calculated: (adSpend / sales) * 100
-  roas?: number; // Calculated: sales / adSpend
-  ctr?: number; // Calculated: (clicks / impressions) * 100
-  cpc?: number; // Calculated: adSpend / clicks
-  revenuePerClickRate?: number; // Calculated: (sales / clicks) * 100 (or based on orders if available)
+  impressions?: number | undefined;
+  clicks?: number | undefined;
+  acos?: number | undefined; // Calculated: (adSpend / sales) * 100
+  roas?: number | undefined; // Calculated: sales / adSpend
+  ctr?: number | undefined; // Calculated: (clicks / impressions) * 100
+  cpc?: number | undefined; // Calculated: adSpend / clicks
+  revenuePerClickRate?: number | undefined; // Calculated: (sales / clicks) * 100 (or based on orders if available)
 }
 
 // --- Constants ---

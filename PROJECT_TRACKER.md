@@ -5,6 +5,20 @@
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
+**Code-Quality Scripts:**
+
+```Shell
+npm run cq
+```
+
+```Shell
+npm run epic
+```
+
+```Shell
+npm run lint --fix
+```
+
 ---
 
 ## HIGH PRIORITY (Implement/Fix ASAP)

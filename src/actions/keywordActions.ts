@@ -53,7 +53,7 @@ export async function addProhibitedKeyword(
           `Server Action: Added prohibited keyword: ${keyword.trim()}`,
         );
         return { success: true, message: `Keyword "${keyword.trim()}" added.` };
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Server Action Failed - insertOne:', error);
         return {
           success: false,
@@ -69,7 +69,7 @@ export async function addProhibitedKeyword(
         message: `Keyword "${keyword.trim()}" already exists.`,
       };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Server Action Failed - addProhibitedKeyword:', error);
     return {
       success: false,

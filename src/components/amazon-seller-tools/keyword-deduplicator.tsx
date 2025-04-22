@@ -131,10 +131,10 @@ export default function KeywordDeduplicator() {
   const { toast } = useToast();
   const [products, setProducts] = useState<ProcessedKeywordData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [manualKeywords, setManualKeywords] = useState('');
   const [manualProduct, setManualProduct] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(undefined);
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,18 +142,20 @@ export default function KeywordDeduplicator() {
       if (!file) return;
 
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       setProducts([]);
 
-      Papa.parse<CsvInputRow>(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (result) => {
-          try {
-            logger.info('Starting CSV processing for Keyword Deduplicator', {
-              fileName: file.name,
-              rowCount: result.data.length,
-            });
+      try {
+      await new Promise<void>((resolve, reject) => {
+        Papa.parse<CsvInputRow>(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (result) => {
+            try {
+              logger.info('Starting CSV processing for Keyword Deduplicator', {
+                fileName: file.name,
+                rowCount: result.data.length,
+              });
 
             if (result.errors.length > 0) {
               const errorMessage = `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`;
@@ -192,7 +194,7 @@ export default function KeywordDeduplicator() {
             }
 
             setProducts(processedData);
-            setError(null);
+            setError(undefined);
             toast({
               title: 'CSV Processed',
               description: `Successfully processed ${processedData.length} products.`,
@@ -203,58 +205,36 @@ export default function KeywordDeduplicator() {
               skippedCount: result.data.length - processedData.length,
             });
           } catch (err) {
-            const message =
-              err instanceof Error
-                ? err.message
-                : 'An unknown error occurred during processing.';
-            setError(message);
-            setProducts([]);
-            toast({
-              title: 'Processing Failed',
-              description: message,
-              variant: 'destructive',
-            });
-            logError({
-              message: 'CSV processing failed',
-              component: 'KeywordDeduplicator/handleFileUpload',
-              severity: 'high',
-              error: err instanceof Error ? err : new Error(message),
-              context: { fileName: file.name },
-            });
-          } finally {
-            setIsLoading(false);
-            if (event.target) {
-              event.target.value = ''; // Reset file input
-            }
-          }
-        },
-        error: (err: Error) => {
-          const message = `Error reading CSV file: ${err.message}`;
-          setError(message);
-          setIsLoading(false);
-          setProducts([]);
-          toast({
-            title: 'Upload Failed',
-            description: message,
-            variant: 'destructive',
-          });
-          logError({
-            message: 'CSV file read error',
-            component: 'KeywordDeduplicator/handleFileUpload',
-            severity: 'high',
-            error: err,
-          });
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        },
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'An unknown error occurred during processing.';
+      setError(message);
+      setProducts([]);
+      toast({
+        title: 'Processing Failed',
+        description: message,
+        variant: 'destructive',
       });
+      logError({
+        message: 'CSV processing failed',
+        component: 'KeywordDeduplicator/handleFileUpload',
+        severity: 'high',
+        error: err instanceof Error ? err : new Error(message),
+        context: { fileName: file.name },
+      });
+    } finally {
+      setIsLoading(false);
+      if (event.target) {
+        event.target.value = ''; // Reset file input
+      }
+    }
     },
     [toast],
   );
 
   const handleManualProcess = useCallback(() => {
-    setError(null);
+    setError(undefined);
     const productName = manualProduct.trim() || 'Manual Entry'; // Default name
 
     try {
@@ -319,7 +299,7 @@ export default function KeywordDeduplicator() {
       });
       return;
     }
-    setError(null);
+    setError(undefined);
 
     const exportData = products.map((product) => ({
       Product: product.product,
@@ -366,7 +346,7 @@ export default function KeywordDeduplicator() {
 
   const clearData = useCallback(() => {
     setProducts([]);
-    setError(null);
+    setError(undefined);
     setManualKeywords('');
     setManualProduct('');
     if (fileInputRef.current) {
@@ -540,7 +520,7 @@ export default function KeywordDeduplicator() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setError(null)}
+            onClick={() => setError(undefined)}
             className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
             aria-label="Dismiss error"
           >

@@ -38,7 +38,7 @@ export interface CSVRow {
   bullet_points: string; // Semicolon-separated
   images: string; // Should be a number string
   keywords: string; // Comma-separated
-  asin?: string; // Optional ASIN field
+  asin?: string | undefined; // Optional ASIN field
 }
 
 export interface AsinData {
@@ -47,10 +47,10 @@ export interface AsinData {
   bulletPoints: string[];
   imageCount: number;
   keywords: string[];
-  brand?: string;
-  category?: string;
-  rating?: number;
-  reviewCount?: number;
+  brand?: string | undefined;
+  category?: string | undefined;
+  rating?: number | undefined;
+  reviewCount?: number | undefined;
 }
 
 // NOTE: This depends on the actual KeywordIntelligence implementation

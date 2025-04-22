@@ -46,8 +46,8 @@ const REQUIRED_CSV_HEADERS = ['product', 'keywords'];
 type KeywordData = {
   product: string;
   keywords: string[];
-  searchVolume?: number;
-  competition?: 'Low' | 'Medium' | 'High';
+  searchVolume: number | undefined;
+  competition: 'Low' | 'Medium' | 'High' | undefined;
   analysis: KeywordAnalysis[];
   suggestions?: string[];
   prohibitedCount: number;
@@ -56,10 +56,10 @@ type KeywordData = {
 };
 
 interface CsvInputRow {
-  product?: string | null;
-  keywords?: string | null;
-  searchVolume?: string | number | null;
-  competition?: string | null;
+  product?: string;
+  keywords: string;
+  searchVolume: number | undefined;
+  competition?: string;
 }
 
 // --- Helper Functions ---
@@ -107,7 +107,7 @@ async function processCsvRow(
     item.keywords
       ?.split(',')
       .map((k) => k.trim().toLowerCase())
-      .filter(Boolean) || [];
+      .filter(Boolean) ?? [];
 
   if (keywords.length === 0) {
     return null;
@@ -119,7 +119,6 @@ async function processCsvRow(
     const searchVolumeRaw = item.searchVolume;
     const searchVolume =
       searchVolumeRaw !== undefined &&
-      searchVolumeRaw !== null &&
       searchVolumeRaw !== '' &&
       !isNaN(Number(searchVolumeRaw))
         ? Number(searchVolumeRaw)
@@ -127,9 +126,9 @@ async function processCsvRow(
 
     const competitionRaw = item.competition?.trim().toLowerCase();
     const competition =
-      competitionRaw === 'low' ||
+      competitionRaw && (competitionRaw === 'low' ||
       competitionRaw === 'medium' ||
-      competitionRaw === 'high'
+      competitionRaw === 'high')
         ? ((competitionRaw.charAt(0).toUpperCase() +
             competitionRaw.slice(1)) as 'Low' | 'Medium' | 'High')
         : undefined;

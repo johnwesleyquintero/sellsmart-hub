@@ -27,7 +27,7 @@ const validateFile = (
   if (file.size > maxSize) {
     return `File size exceeds ${maxSize / 1024 / 1024}MB limit`;
   }
-  return undefined;
+  return null;
 };
 
 /**
@@ -155,7 +155,7 @@ const parseAndValidateCsv = <T extends Record<string, unknown>>(
 
 interface CsvUploaderProps<T extends Record<string, unknown>> {
   onUploadSuccess: (data: T[]) => void;
-  onUploadError?: (error: string | null) => void; // Allow null to clear error
+  onUploadError?: (error: string | undefined) => void; // Allow undefined to clear error
   allowedFileTypes?: string[];
   maxFileSize?: number; // in bytes
   validateRow?: (row: Record<string, unknown>) => T | null;
@@ -234,13 +234,13 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   const processFile = useCallback(
     async (file: File) => {
       try {
-        onUploadError?.(null);
+        onUploadError?.(undefined);
         await handleFileValidation(file);
         const csvContent = await handleFileRead(file);
         const { validRows, errors } = await handleCsvProcessing(csvContent);
-        handleUploadResults(validRows, errors);
+        await handleUploadResults(validRows, errors);
       } catch (error) {
-        handleProcessingError(error);
+        await handleProcessingError(error);
       } finally {
         resetFileInput();
       }
@@ -278,7 +278,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   });
 
   const handleClear = useCallback(() => {
-    onUploadError?.(null); // Clear errors
+    onUploadError?.(undefined); // Clear errors
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Clear the actual file input
     }
