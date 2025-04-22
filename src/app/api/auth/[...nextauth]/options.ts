@@ -1,7 +1,7 @@
 import { clientPromise } from '@/lib/mongodb';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import { NextAuthOptions, Session } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import { type NextAuthOptions, type Session } from 'next-auth';
+import { type JWT } from 'next-auth/jwt';
 import GithubProvider from 'next-auth/providers/github';
 import LinkedInProvider from 'next-auth/providers/linkedin';
 

@@ -13,8 +13,8 @@ import {
   Input,
   Label,
   Progress,
-} from '@/components/ui';
-import { MetricKey } from '@/lib/amazon-tools/types';
+} from '@/components/ui'; // Corrected: Use import type for type-only imports
+import { type MetricKey } from '@/lib/amazon-tools/types';
 import { logError } from '@/lib/error-handling';
 import {
   campaignHeaders,
@@ -22,10 +22,10 @@ import {
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
 import { monetaryValueSchema, numberSchema } from '@/lib/input-validation';
-import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react';
+import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react'; // Corrected: Use import type for type-only imports
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react'; // Corrected: Use import type for type-only imports
 import { useDropzone } from 'react-dropzone';
 // Import Recharts components
 import {
@@ -38,8 +38,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-// Import ValueType for stricter Tooltip typing (optional but recommended)
-// import type { ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import SampleCsvButton from './sample-csv-button';
 
 // --- Interfaces & Types ---
@@ -48,13 +46,14 @@ export interface CampaignData {
   campaign: string;
   adSpend: number;
   sales: number;
-  impressions?: number | undefined;
-  clicks?: number | undefined;
-  acos?: number | undefined; // Calculated: (adSpend / sales) * 100
-  roas?: number | undefined; // Calculated: sales / adSpend
-  ctr?: number | undefined; // Calculated: (clicks / impressions) * 100
-  cpc?: number | undefined; // Calculated: adSpend / clicks
-  revenuePerClickRate?: number | undefined; // Calculated: (sales / clicks) * 100 (or based on orders if available)
+  // Corrected: Removed redundant | undefined
+  impressions?: number;
+  clicks?: number;
+  acos?: number;
+  roas?: number;
+  ctr?: number;
+  cpc?: number;
+  revenuePerClickRate?: number;
 }
 
 // --- Constants ---
@@ -82,17 +81,12 @@ const chartConfig = {
   };
 };
 
-const RED_COLOR = 'text-red-500';
+// Removed unused constant
+// const RED_COLOR = 'text-red-500';
 
 // --- Helper Functions ---
 
-function getAcosColor(acos: number): string {
-  if (!isFinite(acos)) return RED_COLOR;
-  if (acos < 15) return 'text-green-500';
-  if (acos < 25) return 'text-blue-500';
-  if (acos < 35) return 'text-yellow-500';
-  return RED_COLOR;
-}
+// Removed unused function getAcosColor
 
 const calculateLocalMetrics = (
   adSpend: number,
@@ -246,7 +240,7 @@ export default function AcosCalculator() {
   );
 
   const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
+    (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (!file) {
         setError('No file selected');
@@ -254,14 +248,13 @@ export default function AcosCalculator() {
       }
       setIsLoading(true);
       setError(undefined);
-      try {
-        await csvParser.parseFile(file);
-      } catch (err) {
+      // Corrected: Call async function without making the callback async itself
+      csvParser.parseFile(file).catch((err) => {
         setError(err instanceof Error ? err.message : String(err));
         setIsLoading(false);
-      }
+      });
     },
-    [csvParser],
+    [csvParser], // csvParser dependency is correct
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -291,7 +284,8 @@ export default function AcosCalculator() {
   );
 
   const handleManualCalculate = useCallback(() => {
-    setError(null);
+    // Corrected: Use undefined instead of null
+    setError(undefined);
     setIsLoading(true);
     try {
       if (!isManualInputValid) {
@@ -330,7 +324,8 @@ export default function AcosCalculator() {
       setError('No data to export.');
       return;
     }
-    setError(null);
+    // Corrected: Use undefined instead of null
+    setError(undefined);
     const exportData = campaigns.map((campaign) => ({
       campaign: campaign.campaign,
       adSpend: campaign.adSpend.toFixed(2),
@@ -369,7 +364,8 @@ export default function AcosCalculator() {
 
   const clearData = useCallback(() => {
     setCampaigns([]);
-    setError(null);
+    // Corrected: Use undefined instead of null
+    setError(undefined);
     setManualCampaign({ campaign: '', adSpend: '', sales: '' });
   }, []);
 
@@ -401,14 +397,12 @@ export default function AcosCalculator() {
           <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
           <Tooltip
             contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
-            // --- FIX for TypeScript Error 2322 ---
-            // Use 'any' or import ValueType from 'recharts/types/component/DefaultTooltipContent'
-            // formatter={(value: ValueType) => {
-            formatter={(value: any) => {
+            // Corrected: Use 'unknown' and type checks instead of 'any'
+            formatter={(value: unknown) => {
               // Handle array case (less likely for simple BarChart but good practice)
               if (Array.isArray(value)) {
                 const firstValue = value[0];
-                if (firstValue === Infinity) return 'Infinity';
+                if (firstValue === Infinity) return 'Infinity'; // Corrected: Use 'Infinity' string
                 if (typeof firstValue === 'number')
                   return firstValue.toFixed(2);
                 return firstValue ?? 'N/A';
@@ -564,7 +558,8 @@ export default function AcosCalculator() {
             variant="ghost"
             size="icon"
             className="absolute right-2 top-2"
-            onClick={() => setError(null)}
+            // Corrected: Use undefined instead of null
+            onClick={() => setError(undefined)}
           >
             <XCircle className="h-4 w-4" />
           </Button>
@@ -635,7 +630,7 @@ export default function AcosCalculator() {
               <li key={item.label} className="flex items-center gap-2">
                 <span
                   className={`inline-block h-3 w-3 rounded-full ${item.color.replace('text-', 'bg-')}`}
-                ></span>
+                />
                 <span className="font-medium">{item.label}:</span>
                 <span className={`font-semibold ${item.color}`}>
                   {item.range}

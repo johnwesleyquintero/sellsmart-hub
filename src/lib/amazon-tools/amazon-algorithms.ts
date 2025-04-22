@@ -1,4 +1,4 @@
-import { OptimalPriceParams } from '../amazon-types';
+import type { OptimalPriceParams } from '../amazon-types';
 export class AmazonAlgorithms {
   /**
    * Calculates Advertising Cost of Sales (ACoS)
@@ -21,13 +21,14 @@ export class AmazonAlgorithms {
    * @returns Product quality score (0-100)
    */
   static calculateProductScore(productData: {
-    reviews: number | null;
+    reviews: number | null | undefined;
     rating: number;
     salesRank: number;
     price: number;
     category: string;
   }): number {
-    const { rating } = productData;
+    const { rating, reviews } = productData;
+    const safeReviews = reviews === undefined ? undefined : reviews;
 
     // Normalize metrics to 0-1 scale
     const normalizedConversion = 0.5; // Placeholder value
@@ -39,7 +40,7 @@ export class AmazonAlgorithms {
       conversion: 0.3,
       sessions: 0.15,
       rating: 0.2,
-      reviews: 0.15,
+      reviews: 0.05,
       priceComp: 0.1,
       inventory: 0.1,
     };
@@ -48,9 +49,10 @@ export class AmazonAlgorithms {
     const score =
       normalizedConversion * weights.conversion +
       normalizedSessions * weights.sessions +
-      normalizedRating * weights.rating;
+      normalizedRating * weights.rating +
+      (safeReviews ?? 0) * weights.reviews;
 
-    return Number((score * 100).toFixed(2));
+    return Number(Math.min(score * 100, 100).toFixed(2));
   }
 
   /**

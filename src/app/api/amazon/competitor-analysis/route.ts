@@ -20,22 +20,24 @@ interface MetricsData {
 function processCSVData(data: string[]): CompetitorData[] {
   const headers = data[0].split(',').map((h) => h.trim());
   const rows = data.slice(1);
-  return rows.map((row) => {
+  const result: CompetitorData[] = [];
+  for (const row of rows) {
     const values = row.split(',');
-    return headers.reduce<CompetitorData>((obj, header, i) => {
-      // Initialize the object with default values for all required fields
-      if (Object.keys(obj).length === 0) {
-        obj.asin = '';
-        obj.price = 0;
-        obj.reviews = 0;
-        obj.rating = 0;
-        obj.conversion_rate = 0;
-        obj.click_through_rate = 0;
-      }
+    const obj: CompetitorData = {
+      asin: '',
+      price: 0,
+      reviews: 0,
+      rating: 0,
+      conversion_rate: 0,
+      click_through_rate: 0,
+    };
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i];
       obj[header] = isNaN(Number(values[i])) ? values[i] : Number(values[i]);
-      return obj;
-    }, {} as CompetitorData);
-  });
+    }
+    result.push(obj);
+  }
+  return result;
 }
 
 export async function POST(request: Request) {

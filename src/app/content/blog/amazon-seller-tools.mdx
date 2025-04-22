@@ -34,16 +34,17 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 | FBA Calculator           | ✅ Active                  | 2.0.0       |                                    |
 | Keyword Analyzer         | ✅ Active                  | 2.0.0       |                                    |
 | Listing Quality Checker  | ✅ Active                  | 1.5.0       | AI features under review           |
-| PPC Campaign Auditor     | ✅ Active                  | 2.1.0       | Stabilized with enhanced error handling and real-time monitoring |
+| PPC Campaign Auditor     | ⚠️ Beta / Stability Review | 0.9.0       | Stabilization in progress (See PROJECT_TRACKER.md for details) |
 | Description Editor       | ✅ Active                  | 1.5.0       | AI features under review. Implemented Server Actions to resolve "mongodb is not defined" error |
 | Keyword Deduplicator     | ✅ Active                  | 1.5.0       | AI features under review           |
-| ACoS Calculator          | ✅ Active                  | 1.5.0       |                                    |
+| ACoS Calculator          | ✅ Active                  | 2.0.0       | Updated version                    |
 | Sales Estimator          | ✅ Active                  | 1.0.0       |                                    |
 | Competitor Analyzer      | ✅ Active                  | 1.0.0       |                                    |
 | Keyword Trend Analyzer   | ✅ Active                  | 1.0.0       |                                    |
 | Profit Margin Calculator | ✅ Active                  | 1.0.0       |                                    |
 | Product Score Calc.      | ✅ Active                  | 1.0.0       | Manual input only                  |
 | Optimal Price Calc.      | ✅ Active                  | 1.2.0       | AI-powered pricing suggestions with market trend analysis |
+| CSV Data Mapper          | ✅ Active                  | 1.0.0       | New component added                |
 ```
 
 ---
@@ -56,7 +57,52 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 **Version**: 2.0.0
 
 🔍 **Description**: Advanced profitability calculator for FBA products with real-time ROI analysis and market trend integration.
+
+### CSV Data Mapper
+
+**Status**: ✅ Active
+**Version**: 1.0.0
+
+🔍 **Description**: A reusable React component for mapping CSV headers to target metrics with validation.
+
 **Features**:
+
+- Generic TypeScript implementation for flexibility
+- Dynamic form generation based on target metrics
+- Comprehensive validation including:
+  - Required field checks
+  - Duplicate mapping detection
+  - Input type validation
+- Error handling with user feedback
+- Responsive UI with shadcn/ui components
+
+**Usage**:
+
+```tsx
+<CsvDataMapper
+  csvHeaders={csvHeaders}
+  targetMetrics={[
+    { key: 'sales', label: 'Total Sales', required: true },
+    { key: 'units', label: 'Units Sold', required: true },
+    { key: 'refunds', label: 'Refunds', required: false },
+  ]}
+  onMappingComplete={handleMappingComplete}
+  onCancel={handleCancel}
+/>
+```
+
+**Dependencies**:
+
+- React 18+
+- TypeScript 5.0+
+- shadcn/ui components
+
+**Recent Updates**:
+
+- Added comprehensive validation logic
+- Improved error handling and user feedback
+- Optimized performance with React memo
+  **Features**:
 
 - CSV upload (Papa Parse)
 - Real-time calculations
@@ -124,7 +170,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 ### 4. PPC Campaign Auditor
 
 **Status**: ⚠️ Beta / Stability Review
-**Version**: Beta v0.9.0
+**Version**: 0.9.0
 
 🔍 **Description**: A comprehensive tool for analyzing PPC campaign performance and providing optimization recommendations.
 **Features**:
@@ -132,22 +178,27 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 - CSV import/validation
 - Performance analysis (ACoS, CTR, Conv. Rate)
 - Issue detection
-
-**Limitations**: This tool requires a real API integration to fetch campaign data. Currently, it relies on mock data and may not provide accurate results.
-
 - Optimization recommendations
 - Visualization
 - CSV export
 - Filtering/sorting
 
-**Current Status & Known Issues**:
+**Limitations**:
 
-**High Priority:** There is a discrepancy between internal tracking (Beta v0.9.0) and previously documented status (Active v2.0.0). The tool requires further development, testing, and stabilization before a production-ready v2.0.0 release. Its current stability may vary.
+- Requires real API integration to fetch campaign data (currently uses mock data)
+- Performance may vary with large datasets
 
 **Recent Updates**:
 
-- Clarified official status as Beta v0.9.0 (previously incorrectly documented as Active v2.0.0)
-- Stabilization work in progress for production release
+- Status corrected from Active v2.0.0 to Beta v0.9.0
+- Added enhanced error handling for CSV imports
+- Improved visualization performance
+
+**Roadmap**:
+
+- Real API integration (High Priority)
+- Performance optimization for large datasets
+- Additional visualization options
 
 ### 5. Description Editor
 
@@ -213,7 +264,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 **Status**: ✅ Active
 **Version**: 1.0.0
-**Current Notes**: This tool currently uses mock data for sales estimation. A real API integration is planned as a medium priority task (see PROJECT_TRACKER.md).
+**Current Notes**: This tool currently uses mock data for sales estimation. A real API integration is in progress as a high priority task (see PROJECT_TRACKER.md).
 
 ### 9. Competitor Analyzer
 
@@ -335,7 +386,7 @@ Welcome to the Amazon Seller Tools Suite! This collection of React-based tools h
 
 ## 📈 Roadmap & Future Updates
 
-Our team is actively working on addressing the high-priority bugs and stabilization tasks outlined in `PROJECT_TRACKER.md`, particularly for the PPC Campaign Auditor. We are also focused on completing the development of the Optimal Price Calculation tool and enhancing its AI features. The `check-quality.cjs` script has been enhanced with parallel execution, module system consistency, and basic config validation to improve code quality and efficiency.
+Our team has completed several high-priority tasks including error reporting implementation, CSV parsing fixes, and state management optimizations. We're currently focused on API integrations and PPC Campaign Auditor stabilization (see PROJECT_TRACKER.md for details). The `check-quality.cjs` script now features parallel execution and improved config validation.
 
 The API key management system has been updated to include input validation, prevent race conditions, and implement rate limiting.
 

@@ -379,7 +379,7 @@ export function CompetitorAnalyzer() {
         description: errorMessage,
         variant: 'destructive',
       });
-      setChartData(null);
+      setChartData(undefined);
       setIsLoading(false);
     }
   };

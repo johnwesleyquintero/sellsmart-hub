@@ -12,7 +12,7 @@ Object.defineProperty(window, 'matchMedia', {
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
-    onchange: null,
+    onchange: undefined,
     addListener: jest.fn(),
     removeListener: jest.fn(),
     addEventListener: jest.fn(),

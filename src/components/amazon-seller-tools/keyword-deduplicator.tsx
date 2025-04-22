@@ -38,7 +38,7 @@ const keywordsSchema = z
   .trim()
   .min(1, 'Keywords cannot be empty')
   .refine(
-    (val) => val.split(',').filter((k) => k.trim()).length > 0,
+    (val) => val.split(/[,\n]/).filter((k) => k.trim()).length > 0, // Check based on split
     'Must contain at least one valid keyword',
   );
 
@@ -53,6 +53,8 @@ interface ProcessedKeywordData {
 interface CsvInputRow {
   product?: string | null;
   keywords?: string | null;
+  // Allow any other string keys from PapaParse
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 // --- Helper Functions ---
@@ -78,12 +80,12 @@ const extractKeywordsFromString = (
  * Processes keyword data for a single product, performing deduplication.
  * @param productName The name of the product.
  * @param keywordsString The raw string of keywords (comma or newline separated).
- * @returns Processed data or null if validation fails.
+ * @returns Processed data or undefined if validation fails.
  */
 const processKeywordData = (
   productName: string,
   keywordsString: string | null | undefined,
-): ProcessedKeywordData | null => {
+): ProcessedKeywordData | undefined => {
   try {
     // Validate product name
     const validatedProduct = productNameSchema.parse(productName);
@@ -100,7 +102,7 @@ const processKeywordData = (
         severity: 'medium',
         context: { product: validatedProduct },
       });
-      return null; // Skip this product if no keywords
+      return undefined; // Skip this product if no keywords
     }
 
     // Deduplicate using Set
@@ -122,7 +124,7 @@ const processKeywordData = (
       error: error instanceof Error ? error : new Error(String(error)),
       context: { productName, keywordsString },
     });
-    return null; // Indicate failure for this row
+    return undefined; // Indicate failure for this row
   }
 };
 
@@ -134,10 +136,12 @@ export default function KeywordDeduplicator() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [manualKeywords, setManualKeywords] = useState('');
   const [manualProduct, setManualProduct] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(undefined);
+  // FIX: Initialize useRef with null instead of undefined
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    // FIX: Make the callback async
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -145,92 +149,101 @@ export default function KeywordDeduplicator() {
       setError(undefined);
       setProducts([]);
 
+      // FIX: Restructure with async/await and single try/catch/finally
       try {
-      await new Promise<void>((resolve, reject) => {
-        Papa.parse<CsvInputRow>(file, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (result) => {
-            try {
-              logger.info('Starting CSV processing for Keyword Deduplicator', {
-                fileName: file.name,
-                rowCount: result.data.length,
-              });
-
-            if (result.errors.length > 0) {
-              const errorMessage = `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`;
-              throw new Error(errorMessage);
-            }
-
-            const requiredHeaders = ['product', 'keywords'];
-            const actualHeaders =
-              result.meta.fields?.map((h) => h.toLowerCase()) || [];
-            const missingHeaders = requiredHeaders.filter(
-              (header) => !actualHeaders.includes(header),
-            );
-
-            if (missingHeaders.length > 0) {
-              throw new Error(
-                `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${result.meta.fields?.join(', ') || 'None'}`,
-              );
-            }
-
-            // Process rows using the helper function
-            const processedData: ProcessedKeywordData[] = result.data
-              .map((row, index) =>
-                processKeywordData(
-                  row.product || `Row ${index + 1} (No Name)`, // Provide fallback name
-                  row.keywords,
-                ),
-              )
-              .filter((item): item is ProcessedKeywordData => item !== null);
-
-            if (processedData.length === 0) {
-              const message =
-                result.data.length > 0
-                  ? "No valid product/keyword data found after processing. Ensure 'product' and 'keywords' columns are present and populated."
-                  : 'The uploaded CSV file appears to be empty or contains no data rows.';
-              throw new Error(message);
-            }
-
-            setProducts(processedData);
-            setError(undefined);
-            toast({
-              title: 'CSV Processed',
-              description: `Successfully processed ${processedData.length} products.`,
-              variant: 'default',
+        const result = await new Promise<Papa.ParseResult<CsvInputRow>>(
+          (resolve, reject) => {
+            Papa.parse<CsvInputRow>(file, {
+              header: true,
+              skipEmptyLines: true,
+              complete: resolve, // Resolve promise with results
+              error: reject, // Reject promise with error
             });
-            logger.info('CSV processing completed successfully', {
-              processedCount: processedData.length,
-              skippedCount: result.data.length - processedData.length,
-            });
-          } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'An unknown error occurred during processing.';
-      setError(message);
-      setProducts([]);
-      toast({
-        title: 'Processing Failed',
-        description: message,
-        variant: 'destructive',
-      });
-      logError({
-        message: 'CSV processing failed',
-        component: 'KeywordDeduplicator/handleFileUpload',
-        severity: 'high',
-        error: err instanceof Error ? err : new Error(message),
-        context: { fileName: file.name },
-      });
-    } finally {
-      setIsLoading(false);
-      if (event.target) {
-        event.target.value = ''; // Reset file input
+          },
+        );
+
+        // Process results after Papa.parse promise resolves
+        logger.info('Starting CSV processing for Keyword Deduplicator', {
+          fileName: file.name,
+          rowCount: result.data.length,
+        });
+
+        if (result.errors.length > 0) {
+          const errorMessage = `CSV parsing error: ${result.errors[0].message}. Check row ${result.errors[0].row}.`;
+          throw new Error(errorMessage);
+        }
+
+        const requiredHeaders = ['product', 'keywords'];
+        const actualHeaders =
+          result.meta.fields?.map((h) => h.toLowerCase()) || [];
+        const missingHeaders = requiredHeaders.filter(
+          (header) => !actualHeaders.includes(header),
+        );
+
+        if (missingHeaders.length > 0) {
+          throw new Error(
+            `Missing required CSV columns: ${missingHeaders.join(', ')}. Found: ${result.meta.fields?.join(', ') || 'None'}`,
+          );
+        }
+
+        // Process rows using the helper function
+        const processedData: ProcessedKeywordData[] = result.data
+          .map((row, index) =>
+            processKeywordData(
+              row.product || `Row ${index + 1} (No Name)`, // Provide fallback name
+              row.keywords,
+            ),
+          )
+          .filter((item): item is ProcessedKeywordData => item !== undefined); // Filter out undefined results
+
+        if (processedData.length === 0) {
+          const message =
+            result.data.length > 0
+              ? "No valid product/keyword data found after processing. Ensure 'product' and 'keywords' columns are present and populated."
+              : 'The uploaded CSV file appears to be empty or contains no data rows.';
+          throw new Error(message);
+        }
+
+        setProducts(processedData);
+        setError(undefined);
+        toast({
+          title: 'CSV Processed',
+          description: `Successfully processed ${processedData.length} products.`,
+          variant: 'default',
+        });
+        logger.info('CSV processing completed successfully', {
+          processedCount: processedData.length,
+          skippedCount: result.data.length - processedData.length,
+        });
+      } catch (err) {
+        // Handle all errors (parsing, validation, processing)
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'An unknown error occurred during processing.';
+        setError(message);
+        setProducts([]);
+        toast({
+          title: 'Processing Failed',
+          description: message,
+          variant: 'destructive',
+        });
+        logError({
+          message: 'CSV processing failed',
+          component: 'KeywordDeduplicator/handleFileUpload',
+          severity: 'high',
+          error: err instanceof Error ? err : new Error(message),
+          context: { fileName: file.name },
+        });
+      } finally {
+        // Cleanup runs regardless of success or failure
+        setIsLoading(false);
+        if (event.target) {
+          event.target.value = ''; // Reset file input
+        }
       }
-    }
     },
-    [toast],
+    [toast], // Keep toast dependency
   );
 
   const handleManualProcess = useCallback(() => {
@@ -265,7 +278,7 @@ export default function KeywordDeduplicator() {
           variant: 'default',
         });
       } else {
-        // This case should ideally be caught by processKeywordData's internal logging/return null
+        // This case should ideally be caught by processKeywordData's internal logging/return undefined
         // but we add a fallback error here.
         throw new Error('Failed to process manual input. Check keywords.');
       }
@@ -315,9 +328,9 @@ export default function KeywordDeduplicator() {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'deduplicated_keywords.csv');
-      document.body.appendChild(link);
+      document.body.append(link); // Use append
       link.click();
-      document.body.removeChild(link);
+      link.remove(); // Use remove
       URL.revokeObjectURL(url);
       toast({
         title: 'Export Successful',
@@ -417,8 +430,12 @@ export default function KeywordDeduplicator() {
                     type="file"
                     accept=".csv, text/csv"
                     className="hidden"
-                    onChange={handleFileUpload}
+                    // Wrap async function call
+                    onChange={(e) => {
+                      void handleFileUpload(e);
+                    }}
                     disabled={isLoading}
+                    // FIX: Pass the ref correctly
                     ref={fileInputRef}
                     aria-label="Upload CSV file"
                   />

@@ -126,9 +126,10 @@ async function processCsvRow(
 
     const competitionRaw = item.competition?.trim().toLowerCase();
     const competition =
-      competitionRaw && (competitionRaw === 'low' ||
-      competitionRaw === 'medium' ||
-      competitionRaw === 'high')
+      competitionRaw &&
+      (competitionRaw === 'low' ||
+        competitionRaw === 'medium' ||
+        competitionRaw === 'high')
         ? ((competitionRaw.charAt(0).toUpperCase() +
             competitionRaw.slice(1)) as 'Low' | 'Medium' | 'High')
         : undefined;
@@ -739,6 +740,8 @@ export default function KeywordAnalyzer() {
         prohibitedCount,
         averageScore,
         averageConfidence,
+        searchVolume: undefined,
+        competition: undefined,
       };
 
       setProducts((prev) => [...prev, newProduct]);

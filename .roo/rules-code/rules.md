@@ -1,46 +1,74 @@
-### DEVELOPMENT WORKFLOW
+**AI Task: Codebase Scan and Project Tracker Update**
 
-1. **REVIEW & ANALYZE:**
+**Objective:**
+Scan the codebase to identify issues, optimize performance, and update the `PROJECT_TRACKER.md` file with detailed findings and actionable recommendations.
 
-   - **Task:** Review `PROJECT_TRACKER.md` for errors, warnings, and pending tasks.
-   - **Objective:** Identify root causes of issues and prioritize tasks based on severity and impact.
+**Instructions:**
 
-2. **IMPLEMENT FIXES:**
+1. **Initial Scan:**
 
-   - **Task:** Address issues systematically based on log analysis and prioritized tasks.
-   - **Objective:** Ensure each fix is thoroughly tested to maintain functionality and stability.
+   - Perform an initial scan of the entire codebase.
+   - Identify potential issues, outdated dependencies, and areas for optimization.
+   - Flag potential issues and suggest areas for further investigation.
 
-3. **VERIFY:**
+2. **Review and Analyze:**
 
-   - **Task:** Run `npm run cq` to validate fixes.
-   - **Objective:** Identify any remaining issues and ensure all quality checks are met.
+   - Review `PROJECT_TRACKER.md` for existing errors, warnings, and pending tasks.
+   - Identify root causes of issues and prioritize tasks based on severity and impact.
+   - Categorize and prioritize issues, providing insights and suggestions for resolution.
 
-4. **ITERATE:**
+3. **Dependency Check:**
 
-   - **Task:** Repeat the review, implement, and verify steps until all quality checks pass.
-   - **Objective:** Achieve a flawless codebase with zero errors or warnings.
+   - Review all dependencies, including version numbers, and evaluate their impact.
+   - Suggest updates and identify potential conflicts or vulnerabilities.
 
-5. **BUILD:**
+4. **Code Quality Analysis:**
 
-   - **Task:** Run `npm run build` for production deployment.
-   - **Objective:** Ensure the build completes successfully and is ready for deployment.
+   - Run `npm run cq` to analyze code quality.
+   - Identify code quality issues, including maintainability, readability, performance, and security concerns.
+   - Provide detailed feedback on code quality issues and suggest improvements.
 
-6. **DOCUMENTATION UPDATE:**
+5. **Implement Fixes:**
 
-   - **Task:** Critically analyze the codebase, focusing on the current functionality, limitations, and dependencies of Amazon Seller Tools.
-   - **Objective:** Comprehensively update the blog documentation located at `src/app/content/blog/amazon-seller-tools.mdx` and `PROJECT_TRACKER.md` to accurately reflect the current status of these tools.
-   - **Content to Include:**
-     - Clear explanations of new features.
-     - Summaries of resolved issues.
-     - Documentation of known bugs, including severity and workarounds.
-     - Updates to usage instructions and configuration changes.
-   - **Principles:**
+   - Address issues systematically based on log analysis and prioritized tasks.
+   - Generate code suggestions, identify potential bugs, and optimize code snippets.
+   - Ensure each fix is thoroughly tested to maintain functionality and stability.
 
-     - Prioritize clarity, accuracy, and completeness.
-     - Ensure the documentation serves as a reliable, up-to-date resource for users of all technical skill levels.
+6. **Security Audit:**
 
-   - **Scope of Review:**
-     - Entire `src` directory.
-     - Specific focus on `src/app/content/blog/amazon-seller-tools.mdx` and `PROJECT_TRACKER.md`.
+   - Conduct a security audit to identify vulnerabilities.
+   - Highlight potential security risks and suggest mitigation strategies.
 
----
+7. **Performance Optimization:**
+
+   - Analyze the codebase for performance bottlenecks.
+   - Identify performance issues and suggest optimizations.
+
+8. **Documentation Update:**
+
+   - Update `PROJECT_TRACKER.md` to reflect the current state of the codebase.
+   - Ensure the documentation includes:
+     - New features with clear explanations.
+     - Resolved issues with summaries.
+     - Known bugs, including severity and workarounds.
+     - Updated usage instructions and configuration changes.
+     - Performance considerations and optimization suggestions.
+   - Automatically generate documentation drafts and suggest improvements.
+
+9. **Verify Changes:**
+
+   - Run `npm run cq` again to verify that all issues have been resolved.
+   - Provide a final report on the status of the codebase and any remaining issues.
+
+10. **Continuous Monitoring:**
+
+    - Set up automated scans and alerts for ongoing codebase monitoring.
+    - Provide regular updates and alerts on potential issues.
+
+11. **Review and Feedback:**
+    - Summarize feedback and suggest further improvements based on team reviews.
+
+**Output:**
+
+- A comprehensive update to `PROJECT_TRACKER.md` with detailed findings, actionable recommendations, and optimizations.
+- A final report summarizing the changes made and any remaining issues.

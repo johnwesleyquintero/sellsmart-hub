@@ -148,14 +148,14 @@ const processCsvRow = (
       logger.warn(`Skipping row ${index + 1}: Missing product name.`, {
         component: 'DescriptionEditor/processCsvRow',
       });
-      return undefined;
+      return null;
     }
     if (!description) {
       logger.warn(
         `Skipping row ${index + 1} for "${product}": Missing description.`,
         { component: 'DescriptionEditor/processCsvRow' },
       );
-      return undefined;
+      return null;
     }
 
     // Calculate metrics
@@ -209,7 +209,7 @@ function ManualAddProductForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormError(null);
+    setFormError(undefined);
     const result = manualProductSchema.safeParse(formData);
 
     if (!result.success) {
@@ -440,8 +440,10 @@ export default function DescriptionEditor() {
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Combined loading state
   const [error, setError] = useState<string | undefined>(undefined);
-  const [activeProductId, setActiveProductId] = useState<string | undefined>(undefined); // Store ID only
-  const fileInputRef = useRef<HTMLInputElement>(undefined);
+  const [activeProductId, setActiveProductId] = useState<string | undefined>(
+    undefined,
+  ); // Store ID only
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [prohibitedKeywords, setProhibitedKeywords] = useState<string[]>([]);
 
   // Fetch prohibited keywords on mount

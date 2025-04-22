@@ -63,7 +63,7 @@ describe('Amazon Calculations', () => {
 
     it('handles missing data points', () => {
       const productData = {
-        reviews: null,
+        reviews: undefined,
         rating: 4.5,
         salesRank: 1000,
         price: 19.99,

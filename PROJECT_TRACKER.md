@@ -2,6 +2,7 @@
 
 **Last Updated:** 2025-04-22 _(Updated error reporting implementation)_ _(Please update this date when you make changes)_
 **Last Code Review:** 2025-04-22 _(Please update this date when you make changes)_
+**Code Quality Status:** Issues detected - requires immediate attention (see Quality Issues section below)
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
@@ -20,6 +21,15 @@ npm run lint --fix
 ```
 
 ---
+
+## QUALITY ISSUES (Immediate Attention Required)
+
+### 1. Code Quality Improvements
+
+- [ ] Address identified code smells from `npm run cq` output
+- [ ] Fix failing lint checks
+- [ ] Improve error handling patterns
+- [ ] Optimize performance bottlenecks
 
 ## HIGH PRIORITY (Implement/Fix ASAP)
 
@@ -172,8 +182,8 @@ npm run lint --fix
 
 - **[x] Update `amazon-seller-tools.mdx`**
   - [x] Reflect completed tasks from High/Medium priorities (update statuses, versions, remove fixed bugs from known issues)
-  - [ ] Add details for newly implemented tools
-  - [ ] Ensure consistency between table and detailed descriptions
+  - [x] Add details for newly implemented tools (CsvDataMapper)
+  - [x] Ensure consistency between table and detailed descriptions
   - _(Note: This should be done periodically after significant changes)_
 
 ### 7. Code Review & Refactoring

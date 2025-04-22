@@ -1,7 +1,7 @@
 import {
-  KeywordTrend,
   KeywordTrendCollection,
-  KeywordTrendData,
+  type KeywordTrend,
+  type KeywordTrendData,
 } from '@/lib/models/keyword-trends';
 import { connectToDatabase } from '@/lib/mongodb';
 import { NextResponse } from 'next/server';
@@ -47,7 +47,9 @@ export async function POST(request: Request) {
     await collection.insertMany(trends);
 
     // Retrieve and format the data
-    const dates = [...new Set(trends.map((t) => t.date))].sort();
+    const dates = [...new Set(trends.map((t) => t.date))].sort((a, b) =>
+      a.localeCompare(b),
+    );
     const keywords = [...new Set(trends.map((t) => t.keyword))];
 
     trendData = await Promise.all(

@@ -69,7 +69,7 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
     }
 
     for (const metric of targetMetrics) {
-      if (metric === null || typeof metric !== 'object') {
+      if (metric == null || typeof metric !== 'object') {
         errors.push('Invalid props: each targetMetric must be an object');
         return { isValid: false, errors };
       }
@@ -99,22 +99,22 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
   };
   // Initialize state dynamically based on targetMetrics keys
   const initialMapping = useMemo(() => {
-    const mapping: Partial<Record<keyof T, string | undefined>> = {};
+    const mapping: Partial<Record<keyof T, string | null>> = {};
     targetMetrics.forEach((metric) => {
-      mapping[metric.key] = undefined;
+      mapping[metric.key] = null;
     });
-    return mapping as Record<keyof T, string | undefined>; // Assert type after initialization
+    return mapping as Record<keyof T, string | null>; // Assert type after initialization
   }, [targetMetrics]);
 
   const [mapping, setMapping] =
-    useState<Record<keyof T, string | undefined>>(initialMapping);
+    useState<Record<keyof T, string | null>>(initialMapping);
 
   // Handler for Select component changes
   const handleMappingChange = (metricKey: keyof T, header: string) => {
     // Treat the placeholder value ('') as null
     setMapping((prevMapping) => ({
       ...prevMapping,
-      [metricKey]: header === '' ? undefined : header,
+      [metricKey]: header === '' ? null : header,
     }));
   };
 
