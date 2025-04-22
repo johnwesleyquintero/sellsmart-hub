@@ -59,15 +59,21 @@ const nextConfig = {
     // --- outputFileTracingRoot removed ---
     // Default tracing should work for standard repo structure.
   },
-
   // Compiler options
   compiler: {
     // Remove console logs in production builds
     removeConsole: process.env.NODE_ENV === 'production',
   },
-
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
+    // Temporary minification disable for debugging
+    if (!dev) {
+      config.optimization.minimize = false;
+    }
+    // Define environment variables (build-time/server-side)
+    // Use NEXT_PUBLIC_ prefix for variables needed in the browser
+    // Removed redundant DefinePlugin configuration
+
     // Alias for @/ imports (assuming source code is primarily in 'src')
     config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
 
@@ -98,12 +104,25 @@ const nextConfig = {
 
     config.externals = [
       ...(config.externals || []),
-      'dns',
-      'fs',
-      'net',
-      'tls',
-      'mongodb',
-      '@next-auth/mongodb-adapter',
+      /^node:/,
+      /^mongodb/,
+      {
+        '@next-auth/mongodb-adapter': 'commonjs @next-auth/mongodb-adapter',
+        dns: 'commonjs dns',
+        fs: 'commonjs fs',
+        net: 'commonjs net',
+        tls: 'commonjs tls',
+        child_process: 'commonjs child_process',
+        path: 'commonjs path',
+        util: 'commonjs util',
+        stream: 'commonjs stream',
+        crypto: 'commonjs crypto',
+        os: 'commonjs os',
+        http: 'commonjs http',
+        https: 'commonjs https',
+        zlib: 'commonjs zlib',
+        process: 'commonjs process',
+      },
     ];
 
     return config;

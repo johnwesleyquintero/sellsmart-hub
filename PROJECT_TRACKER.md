@@ -34,16 +34,18 @@
 ### 2. Fix ACoS Calculator Bugs
 
 - **[x] Fix CSV Parsing Errors**
-  - [ ] Implement robust validation for expected columns/data types
-  - [ ] Add specific error handling for malformed rows/data
-  - [ ] Provide clear user feedback on parsing errors (e.g., highlight bad rows/cells)
-  - [ ] Test with various valid and invalid CSV files
+  - [x] Implement robust validation for expected columns/data types
+  - [x] Add specific error handling for malformed rows/data
+  - [x] Provide clear user feedback on parsing errors (e.g., highlight bad rows/cells)
+  - [x] Test with various valid and invalid CSV files
+    - Resolved in commit 8bd4f48 (2025-04-22)
   - _Ref: IMPLEMENTATION_AcosCalcFix.md_
 - **[x] Resolve Real-time Metric Discrepancies**
-  - [ ] Investigate data fetching/synchronization logic
-  - [ ] Identify source of potential delays or inconsistencies
-  - [ ] Implement fix (e.g., improve state management, optimize data flow)
-  - [ ] Test real-time updates under various conditions
+  - [x] Investigate data fetching/synchronization logic
+  - [x] Identify source of potential delays or inconsistencies
+  - [x] Implement fix (e.g., improve state management, optimize data flow)
+  - [x] Test real-time updates under various conditions
+    - Fix deployed in production build 15.3.1
   - _Ref: IMPLEMENTATION_AcosCalcFix.md_
 
 ### 4. Error Reporting Service Implementation

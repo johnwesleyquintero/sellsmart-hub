@@ -14,7 +14,14 @@ const dbName = process.env.MONGODB_DB;
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB = process.env.MONGODB_DB;
+
 export async function connectToDatabase() {
+  if (!MONGODB_URI || !MONGODB_DB) {
+    throw new Error('Please define MONGODB_URI/MONGODB_DB in .env.local');
+  }
+
   if (typeof window !== 'undefined') {
     throw new Error('Database connections are only allowed server-side');
   }
@@ -35,8 +42,9 @@ export async function connectToDatabase() {
   }
 
   try {
-    const client = await MongoClient.connect(uri);
-    const db = client.db(dbName);
+    const client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    const db = client.db(MONGODB_DB);
 
     cachedClient = client;
     cachedDb = db;
@@ -44,7 +52,7 @@ export async function connectToDatabase() {
     return { client, db };
   } catch (error: any) {
     console.error('MongoDB connection error:', error);
-    throw new Error('Failed to establish database connection');
+    throw new Error(`Database connection failed: ${error.message}`);
   }
 }
 

@@ -2,11 +2,9 @@
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
+import { fetchKeywordAnalysis } from '@/lib/api/keyword-analysis';
 import { logError } from '@/lib/error-handling';
-import {
-  KeywordIntelligence,
-  type KeywordAnalysis,
-} from '@/lib/keyword-intelligence';
+import { type KeywordAnalysis } from '@/lib/keyword-intelligence';
 import {
   AlertCircle,
   Download,
@@ -75,7 +73,7 @@ async function processKeywordBatch(
     const batch = keywords.slice(i, i + BATCH_SIZE);
     try {
       // Use the analyze method from KeywordIntelligence
-      const batchResults = await KeywordIntelligence.analyze(batch);
+      const batchResults = await fetchKeywordAnalysis(batch);
       results.push(...batchResults);
     } catch (error) {
       logError({
