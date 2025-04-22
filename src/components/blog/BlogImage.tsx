@@ -23,7 +23,7 @@ export function BlogImage({
   // Clean useEffect implementation after fixes
   useEffect(() => {
     let img: HTMLImageElement | null = null;
-    
+
     if (typeof window !== 'undefined' && src) {
       setError(false);
       img = document.createElement('img');
@@ -35,7 +35,7 @@ export function BlogImage({
     } else {
       setError(true);
     }
-  
+
     return () => {
       if (img) {
         img.onload = null;

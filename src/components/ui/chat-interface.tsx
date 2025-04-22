@@ -53,9 +53,15 @@ type ChatAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'TOGGLE_CHAT' }
   | { type: 'ADD_MESSAGE'; payload: Message }
-  | { type: 'UPDATE_MESSAGE'; payload: { timestamp: number; role: 'user' | 'assistant'; updates: Partial<Message> } }
+  | {
+      type: 'UPDATE_MESSAGE';
+      payload: {
+        timestamp: number;
+        role: 'user' | 'assistant';
+        updates: Partial<Message>;
+      };
+    }
   | { type: 'REMOVE_MESSAGE'; payload: number };
-
 
 // --- Helper Functions ---
 
@@ -64,17 +70,20 @@ const updateMessageInState = (
   messages: Message[],
   timestamp: number,
   role: 'user' | 'assistant',
-  updates: Partial<Message>
+  updates: Partial<Message>,
 ): Message[] => {
   return messages.map((msg) =>
     msg.timestamp === timestamp && msg.role === role
       ? { ...msg, ...updates }
-      : msg
+      : msg,
   );
 };
 
 // Removes a message from the state array based on timestamp
-const removeMessageFromState = (messages: Message[], timestamp: number): Message[] => {
+const removeMessageFromState = (
+  messages: Message[],
+  timestamp: number,
+): Message[] => {
   return messages.filter((msg) => msg.timestamp !== timestamp);
 };
 
@@ -92,7 +101,13 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
       return { ...state, messages: action.payload };
     case 'ADD_MESSAGE':
       // Avoid adding duplicates if somehow the same message object is added again
-      if (state.messages.some(m => m.timestamp === action.payload.timestamp && m.role === action.payload.role)) {
+      if (
+        state.messages.some(
+          (m) =>
+            m.timestamp === action.payload.timestamp &&
+            m.role === action.payload.role,
+        )
+      ) {
         return state;
       }
       return { ...state, messages: [...state.messages, action.payload] };
@@ -103,7 +118,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
           state.messages,
           action.payload.timestamp,
           action.payload.role,
-          action.payload.updates
+          action.payload.updates,
         ),
       };
     case 'REMOVE_MESSAGE':
@@ -154,7 +169,12 @@ function ChatInterface() {
           if (Array.isArray(parsedMessages)) {
             // Filter out any potentially invalid message structures during load
             const validMessages = parsedMessages.filter(
-              (msg) => msg && typeof msg === 'object' && msg.role && msg.content && msg.timestamp
+              (msg) =>
+                msg &&
+                typeof msg === 'object' &&
+                msg.role &&
+                msg.content &&
+                msg.timestamp,
             );
             dispatch({ type: 'SET_MESSAGES', payload: validMessages });
           } else {
@@ -162,7 +182,10 @@ function ChatInterface() {
             localStorage.removeItem('chatMessages');
           }
         } catch (error) {
-          console.error('Failed to parse chat messages from localStorage:', error);
+          console.error(
+            'Failed to parse chat messages from localStorage:',
+            error,
+          );
           localStorage.removeItem('chatMessages');
         }
       }
@@ -182,118 +205,140 @@ function ChatInterface() {
   }, [messages]); // Run whenever messages array changes
 
   // --- Message Handling Logic ---
-  const handleMessageSubmit = useCallback(async (messageOrContent: Message | string) => {
-    const isRetry = typeof messageOrContent !== 'string';
-    const content = isRetry ? messageOrContent.content : messageOrContent;
-    const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
-    const currentRetryCount = isRetry ? messageOrContent.retryCount ?? 0 : 0;
+  const handleMessageSubmit = useCallback(
+    async (messageOrContent: Message | string) => {
+      const isRetry = typeof messageOrContent !== 'string';
+      const content = isRetry ? messageOrContent.content : messageOrContent;
+      const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
+      const currentRetryCount = isRetry
+        ? (messageOrContent.retryCount ?? 0)
+        : 0;
 
-    if (!content.trim()) return;
+      if (!content.trim()) return;
 
-    // Check retry limit
-    if (isRetry && currentRetryCount >= RETRY_LIMIT) {
-      console.warn(`Retry limit reached for message: ${timestampToUse}`);
-      dispatch({
-        type: 'UPDATE_MESSAGE',
-        payload: {
-          timestamp: timestampToUse,
-          role: 'user',
-          updates: {
-            error: `Failed after ${RETRY_LIMIT} retries. Cannot send.`,
-            retryCount: currentRetryCount, // Keep the count for display
+      // Check retry limit
+      if (isRetry && currentRetryCount >= RETRY_LIMIT) {
+        console.warn(`Retry limit reached for message: ${timestampToUse}`);
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            timestamp: timestampToUse,
+            role: 'user',
+            updates: {
+              error: `Failed after ${RETRY_LIMIT} retries. Cannot send.`,
+              retryCount: currentRetryCount, // Keep the count for display
+            },
           },
-        },
-      });
-      return;
-    }
-
-    const userMessage: Message = {
-      role: 'user',
-      content: content.trim(),
-      timestamp: timestampToUse,
-      status: 'sending',
-      retryCount: currentRetryCount,
-      retryLimit: RETRY_LIMIT,
-    };
-
-    // --- Optimistic UI Update ---
-    if (isRetry) {
-      // If retrying, update the existing message's status
-      dispatch({
-        type: 'UPDATE_MESSAGE',
-        payload: { timestamp: timestampToUse, role: 'user', updates: { status: 'sending', error: undefined, retryCount: currentRetryCount } },
-      });
-    } else {
-      // If new message, add it and clear input
-      dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
-      dispatch({ type: 'SET_INPUT', payload: '' });
-    }
-    dispatch({ type: 'SET_LOADING', payload: true });
-    scrollToBottom(); // Scroll after adding/updating user message
-
-    try {
-      // --- Actual API Call ---
-      const apiResponse = await fetch('/api/chat', { // Your backend endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: content.trim(),
-          // Send conversation history (successfully sent messages) for context
-          history: messages
-            .filter(msg => msg.status === 'sent') // Only send confirmed messages
-            .map(({ role, content }) => ({ role, content })), // Format for backend
-        }),
-      });
-
-      // --- Handle API Response ---
-      if (!apiResponse.ok) {
-        const errorData = await apiResponse.json().catch(() => ({
-          error: `API Error: ${apiResponse.status} ${apiResponse.statusText}`,
-        }));
-        throw new Error(errorData.error || `API Error: ${apiResponse.statusText}`); // Throw the error after attempting to parse JSON
+        });
+        return;
       }
 
-      const data = await apiResponse.json();
-      const aiContent = data.reply; // Adjust based on your backend response structure
-
-      // --- Update State on Success ---
-      // 1. Update user message status to 'sent'
-      dispatch({
-        type: 'UPDATE_MESSAGE',
-        payload: { timestamp: userMessage.timestamp, role: 'user', updates: { status: 'sent', error: undefined } },
-      });
-
-      // 2. Add the assistant's response
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: aiContent,
-        timestamp: Date.now(), // Use a new timestamp for the assistant message
-        status: 'sent',
+      const userMessage: Message = {
+        role: 'user',
+        content: content.trim(),
+        timestamp: timestampToUse,
+        status: 'sending',
+        retryCount: currentRetryCount,
+        retryLimit: RETRY_LIMIT,
       };
-      dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
 
-    } catch (error) {
-      console.error('Failed to send/process message:', error);
-      // --- Update State on Error ---
-      dispatch({
-        type: 'UPDATE_MESSAGE',
-        payload: {
-          timestamp: userMessage.timestamp,
-          role: 'user',
-          updates: {
-            status: 'error',
-            error: error instanceof Error ? error.message : 'An unknown error occurred',
-            retryCount: currentRetryCount + 1, // Increment retry count
+      // --- Optimistic UI Update ---
+      if (isRetry) {
+        // If retrying, update the existing message's status
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            timestamp: timestampToUse,
+            role: 'user',
+            updates: {
+              status: 'sending',
+              error: undefined,
+              retryCount: currentRetryCount,
+            },
           },
-        },
-      });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-      scrollToBottom(); // Scroll after potential AI response or error update
-    }
-  }, [messages, scrollToBottom]); // Include messages and scrollToBottom in dependencies
+        });
+      } else {
+        // If new message, add it and clear input
+        dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
+        dispatch({ type: 'SET_INPUT', payload: '' });
+      }
+      dispatch({ type: 'SET_LOADING', payload: true });
+      scrollToBottom(); // Scroll after adding/updating user message
+
+      try {
+        // --- Actual API Call ---
+        const apiResponse = await fetch('/api/chat', {
+          // Your backend endpoint
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: content.trim(),
+            // Send conversation history (successfully sent messages) for context
+            history: messages
+              .filter((msg) => msg.status === 'sent') // Only send confirmed messages
+              .map(({ role, content }) => ({ role, content })), // Format for backend
+          }),
+        });
+
+        // --- Handle API Response ---
+        if (!apiResponse.ok) {
+          const errorData = await apiResponse.json().catch(() => ({
+            error: `API Error: ${apiResponse.status} ${apiResponse.statusText}`,
+          }));
+          throw new Error(
+            errorData.error || `API Error: ${apiResponse.statusText}`,
+          ); // Throw the error after attempting to parse JSON
+        }
+
+        const data = await apiResponse.json();
+        const aiContent = data.reply; // Adjust based on your backend response structure
+
+        // --- Update State on Success ---
+        // 1. Update user message status to 'sent'
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            timestamp: userMessage.timestamp,
+            role: 'user',
+            updates: { status: 'sent', error: undefined },
+          },
+        });
+
+        // 2. Add the assistant's response
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: aiContent,
+          timestamp: Date.now(), // Use a new timestamp for the assistant message
+          status: 'sent',
+        };
+        dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
+      } catch (error) {
+        console.error('Failed to send/process message:', error);
+        // --- Update State on Error ---
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            timestamp: userMessage.timestamp,
+            role: 'user',
+            updates: {
+              status: 'error',
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'An unknown error occurred',
+              retryCount: currentRetryCount + 1, // Increment retry count
+            },
+          },
+        });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        scrollToBottom(); // Scroll after potential AI response or error update
+      }
+    },
+    [messages, scrollToBottom],
+  ); // Include messages and scrollToBottom in dependencies
 
   // --- Delete Handler ---
   const handleDeleteMessage = useCallback((timestamp: number) => {
@@ -311,8 +356,18 @@ function ChatInterface() {
           aria-label="Open chat"
         >
           {/* Chat Icon */}
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.702C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.702C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
           </svg>
         </button>
       )}
@@ -322,14 +377,22 @@ function ChatInterface() {
         <div className="flex flex-col w-96 max-h-[80vh] bg-white dark:bg-gray-900 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           {/* Header */}
           <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <h3 className="font-semibold text-gray-800 dark:text-gray-100">AI Assistant</h3>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100">
+              AI Assistant
+            </h3>
             <button
               onClick={() => dispatch({ type: 'TOGGLE_CHAT' })}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded"
               aria-label="Close chat"
             >
               {/* Close Icon */}
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
             </button>
           </div>
 
@@ -348,9 +411,18 @@ function ChatInterface() {
               <div className="flex justify-start mb-4">
                 <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg p-3 max-w-[80%] break-words shadow-sm">
                   <div className="flex items-center space-x-1.5">
-                    <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    <span
+                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0ms' }}
+                    ></span>
+                    <span
+                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '150ms' }}
+                    ></span>
+                    <span
+                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '300ms' }}
+                    ></span>
                   </div>
                 </div>
               </div>
@@ -370,7 +442,9 @@ function ChatInterface() {
               <input
                 type="text"
                 value={input}
-                onChange={(e) => dispatch({ type: 'SET_INPUT', payload: e.target.value })}
+                onChange={(e) =>
+                  dispatch({ type: 'SET_INPUT', payload: e.target.value })
+                }
                 placeholder="Type your message..."
                 disabled={isLoading} // Disable input while loading
                 className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -384,9 +458,25 @@ function ChatInterface() {
               >
                 {isLoading ? (
                   // Loading Spinner Icon
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 ) : (
                   // Send Icon (Optional, or keep text 'Send')
@@ -403,7 +493,11 @@ function ChatInterface() {
 }
 
 // --- Message Bubble Component ---
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelete }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  onRetry,
+  onDelete,
+}) => {
   const isUser = message.role === 'user';
   // Conditional styling for user vs assistant, and dark mode
   const RETRY_LIMIT = 3;
@@ -411,21 +505,38 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelet
     ? 'bg-blue-500 text-white ml-auto'
     : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
   const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
-  const canRetry = message.status === 'error' && (message.retryCount ?? 0) < (message.retryLimit ?? RETRY_LIMIT);
+  const canRetry =
+    message.status === 'error' &&
+    (message.retryCount ?? 0) < (message.retryLimit ?? RETRY_LIMIT);
 
   return (
-    <div className={`${containerClass}`}> {/* Removed mb-4, handled by space-y in parent */}
-      <div className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words shadow-sm`}>
+    <div className={`${containerClass}`}>
+      {' '}
+      {/* Removed mb-4, handled by space-y in parent */}
+      <div
+        className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words shadow-sm`}
+      >
         {/* Error State Display */}
         {message.status === 'error' ? (
           <div className="flex flex-col gap-1.5">
             <p className="text-red-300 dark:text-red-400 text-xs italic font-medium">
               {/* Error Icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                  clipRule="evenodd"
+                />
               </svg>
               {message.error || 'Failed to send'}
-              {message.retryCount && message.retryCount > 0 ? ` (Attempt ${message.retryCount})` : ''}
+              {message.retryCount && message.retryCount > 0
+                ? ` (Attempt ${message.retryCount})`
+                : ''}
             </p>
             {/* Render original content slightly faded */}
             <div className="prose prose-sm max-w-none dark:prose-invert opacity-75">
@@ -458,7 +569,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelet
             {renderMessage(message.content)}
             {/* Sending Indicator (Optional) */}
             {message.status === 'sending' && (
-              <span className="text-xs italic opacity-70 ml-2">(Sending...)</span>
+              <span className="text-xs italic opacity-70 ml-2">
+                (Sending...)
+              </span>
             )}
           </div>
         )}
@@ -467,11 +580,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelet
   );
 };
 
-
 // --- Markdown Rendering Configuration ---
 
 // Custom renderer for code blocks (handles Mermaid and regular code)
-const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, inline }) => {
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  className,
+  children,
+  inline,
+}) => {
   const match = /language-(\w+)/.exec(className || '');
   const language = match ? match[1] : '';
 
@@ -483,7 +599,11 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, inline }) =>
 
   // Handle inline code
   if (inline) {
-    return <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">{children}</code>;
+    return (
+      <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">
+        {children}
+      </code>
+    );
   }
 
   // Handle regular code blocks (rehypePrismPlus handles the highlighting)
@@ -500,13 +620,20 @@ const renderMessage = (content: string) => (
     remarkPlugins={[remarkGfm, remarkMath]} // Enable GitHub Flavored Markdown and Math syntax
     rehypePlugins={[
       rehypeKatex, // Render math using KaTeX
-      [rehypePrismPlus, { showLineNumbers: false, ignoreMissing: true }] // Add syntax highlighting with Prism (line numbers disabled for chat)
+      [rehypePrismPlus, { showLineNumbers: false, ignoreMissing: true }], // Add syntax highlighting with Prism (line numbers disabled for chat)
     ]}
     components={{
       // Use custom CodeBlock component for rendering code elements
       code: CodeBlock as any, // Cast needed due to complex type inference
       // Customize other elements if needed, e.g., links to open in new tabs
-      a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline" />,
+      a: ({ node, ...props }) => (
+        <a
+          {...props}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 dark:text-blue-400 hover:underline"
+        />
+      ),
     }}
     // Disallow potentially dangerous HTML
     // rehypePlugins={[rehypeRaw]} // Use rehypeRaw carefully if you need to render raw HTML from the AI
