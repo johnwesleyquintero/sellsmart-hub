@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <style>
+    .title { font: bold 48px 'Comic Sans MS', cursive; fill: #FF6B6B; }
+    .subtitle { font: italic 24px 'Papyrus', fantasy; fill: #4ECDC4; }
+  </style>
+  <rect width="100%" height="100%" fill="#1A1A2E"/>
+  <text x="400" y="150" class="title" text-anchor="middle">AI-BRO DEBUGGING ACADEMY</text>
+  <text x="400" y="200" class="subtitle" text-anchor="middle">"Turning Errors Into Memes Since 2024"</text>
+  <circle cx="400" cy="300" r="50" fill="#FFD166"/>
+  <text x="400" y="300" font-family="Arial" font-size="20" fill="#000" text-anchor="middle">BRO</text>
+</svg>

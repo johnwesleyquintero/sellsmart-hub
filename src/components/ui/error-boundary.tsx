@@ -10,7 +10,7 @@ interface ErrorBoundaryProps {
 
 export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
   const [hasError, setHasError] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure we're client-side
@@ -45,7 +45,7 @@ export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
         <Button
           onClick={() => {
             setHasError(false);
-            setError(null);
+            setError(undefined);
             window.location.reload();
           }}
           className="flex items-center gap-2"

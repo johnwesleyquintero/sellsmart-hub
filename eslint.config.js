@@ -1,7 +1,10 @@
 import { FlatCompat } from '@eslint/eslintrc';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
 import sonarjs from 'eslint-plugin-sonarjs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import unicorn from 'eslint-plugin-unicorn';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,18 +46,89 @@ const config = [
   // 2. Spread the loaded Next.js configurations into the array
   ...nextCoreWebVitalsConfigs,
 
-  // 3. Integrate SonarJS using the standard flat config pattern
+  // 3. TypeScript configuration
   {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
     plugins: {
-      sonarjs: sonarjs,
+      '@typescript-eslint': typescriptEslint,
     },
     rules: {
-      ...sonarjs.configs.recommended.rules,
-      // You can override specific SonarJS rules here if needed, e.g.:
-      // 'sonarjs/cognitive-complexity': ['warn', 15],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
     },
-    // If sonarjs.configs.recommended included settings, languageOptions, etc.,
-    // you might need to merge them here too, but start with plugins and rules.
+  },
+
+  // 4. Grouped and streamlined rules configuration
+  {
+    plugins: {
+      sonarjs,
+      unicorn,
+    },
+    rules: {
+      // DOM-related rules
+      'unicorn/prefer-dom-node-append': 'error',
+      'unicorn/prefer-dom-node-remove': 'error',
+      'unicorn/prefer-query-selector': 'error',
+
+      // Code quality rules
+      'unicorn/consistent-function-scoping': 'error',
+      'unicorn/no-abusive-eslint-disable': 'error',
+      'unicorn/prefer-spread': 'error',
+      'unicorn/prefer-optional-catch-binding': 'error',
+      'unicorn/no-null': 'error',
+
+      // Node.js specific rules
+      'unicorn/prefer-node-protocol': 'error',
+
+      // Disabled rules
+      'unicorn/prefer-module': 'off',
+      'unicorn/filename-case': 'off',
+      'unicorn/prevent-abbreviations': 'off',
+      'unicorn/no-array-reduce': ['error', { allowSimpleOperations: true }],
+
+      // React/Next.js specific rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react/jsx-key': 'error',
+      'react/no-unescaped-entities': 'warn',
+      'react/self-closing-comp': 'error',
+      'react/jsx-curly-brace-presence': [
+        'error',
+        { props: 'never', children: 'never' },
+      ],
+      'react/jsx-no-useless-fragment': 'error',
+      'react/jsx-pascal-case': 'error',
+
+      // Performance optimizations
+      'sonarjs/no-extra-arguments': 'error',
+      'sonarjs/no-identical-functions': 'error',
+      'sonarjs/no-collapsible-if': 'error',
+
+      // Security enhancements
+      'sonarjs/no-inverted-boolean-check': 'error',
+      'sonarjs/no-redundant-jump': 'error',
+      'sonarjs/no-small-switch': 'error',
+
+      // SonarJS rules with custom overrides
+      ...sonarjs.configs.recommended.rules,
+      'sonarjs/cognitive-complexity': ['warn', 15],
+    },
   },
 
   // 4. (Optional) Add project-specific rules/overrides

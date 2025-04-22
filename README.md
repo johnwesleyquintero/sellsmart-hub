@@ -121,6 +121,9 @@ Ensure these environment variables are set in Vercel:
 - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (Contact form)
 - `MONGODB_URI` (Database connection string)
 - `MONGODB_DB_NAME` (Database name)
+- `KV_URL` (Upstash Redis connection URL)
+- `KV_REST_API_TOKEN` (Redis API access token)
+- `KV_REST_API_URL` (Redis REST endpoint)
 
 ### CI/CD Features
 

@@ -29,7 +29,7 @@ export default function SignIn() {
               try {
                 await signIn('linkedin', { callbackUrl: '/dashboard' });
                 // eslint-disable-next-line sonarjs/no-ignored-exceptions
-              } catch (error) {
+              } catch {
                 alert(
                   'LinkedIn authentication is currently unavailable. Please check back soon or use another login method.',
                 );

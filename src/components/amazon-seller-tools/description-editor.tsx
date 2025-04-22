@@ -719,9 +719,9 @@ export default function DescriptionEditor() {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'product_descriptions_analysis.csv');
-      document.body.appendChild(link);
+      document.body.append(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
       URL.revokeObjectURL(url);
       toast({ title: 'Export Successful', description: 'Data exported.' });
     } catch (err) {

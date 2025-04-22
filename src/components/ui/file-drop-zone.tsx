@@ -22,11 +22,11 @@ export function FileDropZone({
   label = 'Drop your file here or click to browse',
   errorMessage = 'Invalid file. Please try again.',
 }: FileDropZoneProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      setError(null);
+      setError(undefined);
       if (acceptedFiles.length === 0) {
         setError('No file selected');
         return;

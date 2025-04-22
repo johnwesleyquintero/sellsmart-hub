@@ -82,7 +82,7 @@ export async function apiKeyMiddleware(request: Request) {
       );
     }
 
-    return null;
+    return undefined;
   } catch (error) {
     console.error('Error in apiKeyMiddleware:', error);
     return NextResponse.json(
@@ -182,12 +182,12 @@ export async function initializeApiKeys(userId: string): Promise<void> {
 export async function getApiKey(userId: string): Promise<ApiKeyRecord | null> {
   if (!(await isValidUserId(userId))) {
     console.warn('Invalid userId format');
-    return null;
+    return undefined;
   }
 
   if (!isWithinRateLimit(userId)) {
     console.warn('Rate limit exceeded');
-    return null;
+    return undefined;
   }
   try {
     const { db } = await connectToDatabase();
@@ -198,10 +198,10 @@ export async function getApiKey(userId: string): Promise<ApiKeyRecord | null> {
         isActive: true,
         expiresAt: { $gt: new Date() },
       });
-    return apiKey || null;
+    return apiKey || undefined;
   } catch (error: any) {
     console.error('Error getting API key:', error);
-    return null;
+    return undefined;
   }
 }
 

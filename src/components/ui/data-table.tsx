@@ -95,7 +95,7 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
-                        ? null
+                        ? undefined
                         : flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
@@ -118,7 +118,7 @@ export function DataTable<TData, TValue>({
                         >
                           <ArrowDownUp className="h-4 w-4" />
                         </button>
-                      ) : null}
+                      ) : undefined}
                     </TableHead>
                   );
                 })}

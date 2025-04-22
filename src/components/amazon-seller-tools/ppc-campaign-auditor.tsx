@@ -255,7 +255,7 @@ function validateRow(
     item.clicks === undefined ||
     item.clicks === null
   ) {
-    return { data: null, error: 'Missing required fields' };
+    return { data: undefined, error: 'Missing required fields' };
   }
 
   // Type validation and conversion
@@ -276,28 +276,28 @@ function validateRow(
 
   // Detailed validation
   if (!name) {
-    return { data: null, error: 'Invalid or missing campaign name' };
+    return { data: undefined, error: 'Invalid or missing campaign name' };
   }
   if (!type) {
-    return { data: null, error: 'Invalid or missing campaign type' };
+    return { data: undefined, error: 'Invalid or missing campaign type' };
   }
   if (isNaN(spend) || spend < 0) {
-    return { data: null, error: 'Invalid or negative spend amount' };
+    return { data: undefined, error: 'Invalid or negative spend amount' };
   }
   if (isNaN(sales) || sales < 0) {
-    return { data: null, error: 'Invalid or negative sales amount' };
+    return { data: undefined, error: 'Invalid or negative sales amount' };
   }
   // Impressions and clicks should be whole numbers
   if (isNaN(impressions) || impressions < 0 || !Number.isInteger(impressions)) {
-    return { data: null, error: 'Invalid or negative impressions count' };
+    return { data: undefined, error: 'Invalid or negative impressions count' };
   }
   if (isNaN(clicks) || clicks < 0 || !Number.isInteger(clicks)) {
-    return { data: null, error: 'Invalid or negative clicks count' };
+    return { data: undefined, error: 'Invalid or negative clicks count' };
   }
 
   return {
     data: { name, type, spend, sales, impressions, clicks },
-    error: null,
+    error: undefined,
   };
 }
 
@@ -375,12 +375,12 @@ export default function PpcCampaignAuditor() {
   // --- State Declarations (Moved to top) ---
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [validationErrors, setValidationErrors] = useState<
     { row: number; message: string }[]
   >([]);
   const [skippedRows, setSkippedRows] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(undefined);
 
   // --- Callbacks (Moved after state) ---
   const processCampaignDataCallback = useCallback(
@@ -405,7 +405,7 @@ export default function PpcCampaignAuditor() {
             `Processed ${data.length} campaigns. Skipped ${skipped} invalid rows. See details below.`,
           ); // Use general error state for warnings too
         } else if (data.length > 0) {
-          setError(null); // Clear error on success
+          setError(undefined); // Clear error on success
         } else {
           setError(
             'The uploaded CSV file appears to be empty or contains no processable data rows.',
@@ -431,7 +431,7 @@ export default function PpcCampaignAuditor() {
       if (!file) return;
 
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       setValidationErrors([]); // Clear specific validation errors on new upload
       setSkippedRows(0);
       setCampaigns([]); // Clear previous results
@@ -503,7 +503,7 @@ export default function PpcCampaignAuditor() {
       setError('No data to export.');
       return;
     }
-    setError(null);
+    setError(undefined);
 
     const exportData = campaigns.map((campaign) => ({
       Name: campaign.name,
@@ -542,7 +542,7 @@ export default function PpcCampaignAuditor() {
 
   const clearData = useCallback(() => {
     setCampaigns([]);
-    setError(null);
+    setError(undefined);
     setValidationErrors([]);
     setSkippedRows(0);
     if (fileInputRef.current) {
@@ -556,7 +556,7 @@ export default function PpcCampaignAuditor() {
     const hasGeneralError = error && !error.startsWith('Processed'); // Don't show general error if it's just a warning about skipped rows
     const hasValidationErrs = validationErrors.length > 0;
 
-    if (!hasGeneralError && !hasValidationErrs) return null;
+    if (!hasGeneralError && !hasValidationErrs) return undefined;
 
     return (
       <div className="mt-4 p-4 border border-red-200 rounded-md bg-red-50 text-red-700">
@@ -581,7 +581,7 @@ export default function PpcCampaignAuditor() {
             variant="ghost"
             size="icon"
             onClick={() => {
-              setError(null);
+              setError(undefined);
               setValidationErrors([]);
             }}
             className="text-red-700 h-6 w-6 flex-shrink-0 ml-2"
@@ -596,7 +596,8 @@ export default function PpcCampaignAuditor() {
 
   const ProcessingStatus = () => {
     // Show status only if loading is finished and there was some processing
-    if (isLoading || (campaigns.length === 0 && skippedRows === 0)) return null;
+    if (isLoading || (campaigns.length === 0 && skippedRows === 0))
+      return undefined;
 
     const message =
       skippedRows > 0

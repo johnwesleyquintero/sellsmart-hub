@@ -1,15 +1,28 @@
+import { rateLimiter } from '@/lib/api/rate-limiter';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(request: NextRequest) {
+  let body = null;
   try {
+    const identifier = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    const { success } = await rateLimiter.limit(identifier);
+
+    if (!success) {
+      return new NextResponse('Too many requests', { status: 429 });
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('Missing GEMINI_API_KEY environment variable');
     }
 
-    const { message, history = [] } = await request.json();
+    body = await request.json();
+    if (!body.message?.trim()) {
+      return new NextResponse('Message is required', { status: 400 });
+    }
+    const { message, history = [] } = body;
 
     // Load portfolio context
     const portfolioContext = await import('@/data/chat-context.json');
@@ -70,15 +83,18 @@ export async function POST(request: NextRequest) {
       response: response.text(),
     });
   } catch (error) {
-    console.error('Chat API Error:', error);
+    console.error('Chat API Error:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString(),
+      ...(body?.message && { lastMessage: body.message }),
+    });
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to process chat message',
+          'Our chat service is temporarily unavailable. Please try again later.',
         ...(process.env.NODE_ENV === 'development' && {
-          stack: error instanceof Error ? error.stack : undefined,
+          details: error instanceof Error ? error.message : 'Unknown error',
         }),
       },
       { status: 500 },

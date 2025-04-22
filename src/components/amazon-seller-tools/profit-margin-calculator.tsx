@@ -64,7 +64,7 @@ export default function ProfitMarginCalculator() {
   // Existing implementation kept at line 37
 
   const [results, setResults] = useState<CalculatedResult[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [csvData, setCsvData] = useState<ProductData[]>([]);
   const [manualProduct, setManualProduct] = useState<ManualProduct>({
     product: '',
@@ -100,12 +100,12 @@ export default function ProfitMarginCalculator() {
       };
     } catch (error) {
       console.error('Row validation error:', error);
-      return null;
+      return undefined;
     }
   };
 
   const handleFileUpload = (data: CsvRow[]): void => {
-    setError(null);
+    setError(undefined);
     setIsLoading(true);
     try {
       if (!data || data.length === 0) {
@@ -164,7 +164,7 @@ export default function ProfitMarginCalculator() {
       const validatedFees = validateNumericValue(item.fees, 0);
 
       const productScore = AmazonAlgorithms.calculateProductScore({
-        reviews: item.reviews || null,
+        reviews: item.reviews || undefined,
         rating: item.reviewRating || 4.5,
         salesRank: item.salesRank || 1000,
         price: validatedPrice,
@@ -202,7 +202,7 @@ export default function ProfitMarginCalculator() {
 
   const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setError(null);
+    setError(undefined);
 
     if (!manualProduct.product.trim()) {
       setError('Please enter a product name');

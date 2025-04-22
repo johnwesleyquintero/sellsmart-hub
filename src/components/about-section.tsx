@@ -143,7 +143,7 @@ export default function AboutSection() {
   const [experience, setExperience] =
     useState<Experience[]>(fallbackExperience);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchContent() {

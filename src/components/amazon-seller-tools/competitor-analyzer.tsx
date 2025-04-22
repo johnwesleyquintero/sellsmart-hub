@@ -210,9 +210,13 @@ export function CompetitorAnalyzer() {
   );
 
   const [isLoading, setIsLoading] = useState(false);
-  const [sellerData, setSellerData] = useState<ProcessedRow[] | null>(null);
+  const [sellerData, setSellerData] = useState<ProcessedRow[] | undefined>(
+    undefined,
+  );
   const [competitorData, setCompetitorData] = useState<ProcessedRow[]>([]);
-  const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
+  const [chartData, setChartData] = useState<ChartDataPoint[] | undefined>(
+    undefined,
+  );
 
   const validateData = (): boolean => {
     if (!sellerData && !competitorData && !asin) {

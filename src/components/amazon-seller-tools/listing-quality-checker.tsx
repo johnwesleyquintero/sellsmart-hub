@@ -484,9 +484,9 @@ export default function ListingQualityChecker() {
   const { toast } = useToast();
   const [listings, setListings] = useState<ListingData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [asin, setAsin] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
+  const fileInputRef = useRef<HTMLInputElement>(undefined); // Ref for file input
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -494,7 +494,7 @@ export default function ListingQualityChecker() {
       if (!file) return;
 
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       setListings([]); // Clear previous results
 
       const reader = new FileReader();
@@ -507,7 +507,7 @@ export default function ListingQualityChecker() {
           }
           const processedData = await parseAndProcessCsv(content);
           setListings(processedData);
-          setError(null);
+          setError(undefined);
           toast({
             title: 'Success',
             description: `${file.name} processed successfully with ${processedData.length} listings.`,
@@ -623,7 +623,7 @@ export default function ListingQualityChecker() {
     }
 
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
       // Replace fetchAsinDataMock with your actual API call
@@ -645,7 +645,7 @@ export default function ListingQualityChecker() {
         });
       }
       setAsin(''); // Clear input after successful check
-      setError(null);
+      setError(undefined);
     } catch (apiError) {
       const errorMessage =
         apiError instanceof Error
@@ -664,7 +664,7 @@ export default function ListingQualityChecker() {
 
   const clearData = useCallback(() => {
     setListings([]);
-    setError(null);
+    setError(undefined);
     setAsin('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -686,7 +686,7 @@ export default function ListingQualityChecker() {
       });
       return;
     }
-    setError(null);
+    setError(undefined);
 
     // Prepare data for export
     const exportData = listings.map((l) => ({

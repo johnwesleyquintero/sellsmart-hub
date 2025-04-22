@@ -99,22 +99,22 @@ const CsvDataMapper = <T extends Record<string, unknown>>({
   };
   // Initialize state dynamically based on targetMetrics keys
   const initialMapping = useMemo(() => {
-    const mapping: Partial<Record<keyof T, string | null>> = {};
+    const mapping: Partial<Record<keyof T, string | undefined>> = {};
     targetMetrics.forEach((metric) => {
-      mapping[metric.key] = null;
+      mapping[metric.key] = undefined;
     });
-    return mapping as Record<keyof T, string | null>; // Assert type after initialization
+    return mapping as Record<keyof T, string | undefined>; // Assert type after initialization
   }, [targetMetrics]);
 
   const [mapping, setMapping] =
-    useState<Record<keyof T, string | null>>(initialMapping);
+    useState<Record<keyof T, string | undefined>>(initialMapping);
 
   // Handler for Select component changes
   const handleMappingChange = (metricKey: keyof T, header: string) => {
     // Treat the placeholder value ('') as null
     setMapping((prevMapping) => ({
       ...prevMapping,
-      [metricKey]: header === '' ? null : header,
+      [metricKey]: header === '' ? undefined : header,
     }));
   };
 

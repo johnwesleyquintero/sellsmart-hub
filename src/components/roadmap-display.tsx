@@ -16,14 +16,16 @@ import { RoadmapData, RoadmapSchema, Task } from '@/lib/roadmap-schema';
 import { useEffect, useState } from 'react';
 
 const RoadmapDisplay = () => {
-  const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
+  const [roadmapData, setRoadmapData] = useState<RoadmapData | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
+      setError(undefined);
       try {
         const response = await fetch('/api/roadmap');
         if (!response.ok) {
@@ -113,7 +115,7 @@ const RoadmapDisplay = () => {
   }
 
   if (!roadmapData) {
-    return null;
+    return undefined;
   }
 
   const groupedTasks = groupTasksByCategory(roadmapData);

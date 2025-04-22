@@ -27,7 +27,7 @@ const validateFile = (
   if (file.size > maxSize) {
     return `File size exceeds ${maxSize / 1024 / 1024}MB limit`;
   }
-  return null;
+  return undefined;
 };
 
 /**

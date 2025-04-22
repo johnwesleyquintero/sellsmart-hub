@@ -67,13 +67,16 @@ export default function OptimalPriceCalculator() {
   // Removed unused competitorPricesArray and related TS error
   // const competitorPricesArray = validatedInputs?.competitorPrices?.map(Number) || [];
 
-  const [results, setResults] = useState<{
-    optimalPrice: number;
-    profit: number;
-    margin: number;
-  } | null>(null);
+  const [results, setResults] = useState<
+    | {
+        optimalPrice: number;
+        profit: number;
+        margin: number;
+      }
+    | undefined
+  >(undefined);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -96,8 +99,8 @@ export default function OptimalPriceCalculator() {
 
   const calculateOptimalPrice = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setResults(null); // Clear previous results
+    setError(undefined);
+    setResults(undefined); // Clear previous results
 
     try {
       // 1. Prepare data for validation (parse competitorPrices string)
@@ -157,7 +160,7 @@ export default function OptimalPriceCalculator() {
       // Calculate product score with validated inputs
       const productScore = AmazonAlgorithms.calculateProductScore({
         // Ensure reviews is number | null
-        reviews: validatedData?.reviews ?? null,
+        reviews: validatedData?.reviews ?? undefined,
         rating: validatedData?.reviewRating,
         salesRank: validatedData?.salesRank,
         price: validatedData?.price,

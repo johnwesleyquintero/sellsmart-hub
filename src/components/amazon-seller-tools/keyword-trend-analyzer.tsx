@@ -54,8 +54,8 @@ export default function KeywordTrendAnalyzer() {
   const [chartData, setChartData] = useState<TrendDataPoint[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(undefined);
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +63,7 @@ export default function KeywordTrendAnalyzer() {
       if (!file) return;
 
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       setChartData([]); // Clear previous results
       setKeywords([]);
 
@@ -128,7 +128,7 @@ export default function KeywordTrendAnalyzer() {
 
             setChartData(processedData);
             setKeywords(foundKeywords);
-            setError(null);
+            setError(undefined);
 
             toast({
               title: 'Analysis Complete',
@@ -193,7 +193,7 @@ export default function KeywordTrendAnalyzer() {
       });
       return;
     }
-    setError(null);
+    setError(undefined);
 
     // Export the processed chart data
     try {
@@ -227,7 +227,7 @@ export default function KeywordTrendAnalyzer() {
   const clearData = useCallback(() => {
     setChartData([]);
     setKeywords([]);
-    setError(null);
+    setError(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }

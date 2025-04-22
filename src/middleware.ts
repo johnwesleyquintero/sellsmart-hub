@@ -1,8 +1,13 @@
+import { get } from '@vercel/edge-config';
 import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  const maintenanceMode = await get('maintenance_mode');
+  if (maintenanceMode) {
+    return NextResponse.redirect(new URL('/maintenance', request.url));
+  }
   const path = request.nextUrl.pathname;
 
   // Define public paths that don't require authentication

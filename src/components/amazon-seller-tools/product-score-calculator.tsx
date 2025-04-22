@@ -49,7 +49,7 @@ const initialFormData: ProductListingData = {
 
 export default function ProductScoreCalculator() {
   const [formData, setFormData] = useState<ProductListingData>(initialFormData);
-  const [score, setScore] = useState<ProductScore | null>(null);
+  const [score, setScore] = useState<ProductScore | undefined>(undefined);
 
   // Explicitly type the event as ChangeEvent<HTMLInputElement>
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

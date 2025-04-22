@@ -33,6 +33,7 @@
   }, // This closing brace '}' ends the 'compilerOptions' object. It needs a comma because 'types' follows it.
   "types": ["jest", "@testing-library/jest-dom", "node"],
   "include": [
+    "src/types/**/*",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

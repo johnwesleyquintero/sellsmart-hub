@@ -167,7 +167,7 @@ const calculateLocalMetrics = (
 export default function AcosCalculator() {
   const [campaigns, setCampaigns] = useState<CampaignData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [selectedMetric, setSelectedMetric] =
     useState<keyof typeof chartConfig>('acos');
   const [manualCampaign, setManualCampaign] = useState({
@@ -181,7 +181,7 @@ export default function AcosCalculator() {
     return () => {
       // Cleanup function to prevent state updates after unmount
       setCampaigns([]);
-      setError(null);
+      setError(undefined);
       setIsLoading(false);
     };
   }, []);
@@ -240,7 +240,7 @@ export default function AcosCalculator() {
           `Processed with warnings: ${result.skippedRows.length} rows were skipped. First error: ${result.skippedRows[0].reason}`,
         );
       } else {
-        setError(null);
+        setError(undefined);
       }
     },
   );
@@ -253,7 +253,7 @@ export default function AcosCalculator() {
         return;
       }
       setIsLoading(true);
-      setError(null);
+      setError(undefined);
       try {
         await csvParser.parseFile(file);
       } catch (err) {
@@ -285,7 +285,7 @@ export default function AcosCalculator() {
         sanitizedValue = value.trimStart().slice(0, 100);
       }
       setManualCampaign((prev) => ({ ...prev, [name]: sanitizedValue }));
-      setError(null);
+      setError(undefined);
     },
     [],
   );
@@ -356,9 +356,9 @@ export default function AcosCalculator() {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'acos_calculations.csv');
-      document.body.appendChild(link);
+      document.body.append(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
       setError(

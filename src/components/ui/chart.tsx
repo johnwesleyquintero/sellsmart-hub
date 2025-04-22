@@ -22,7 +22,9 @@ type ChartContextProps = {
   config: ChartConfig;
 };
 
-const ChartContext = React.createContext<ChartContextProps | null>(null);
+const ChartContext = React.createContext<ChartContextProps | undefined>(
+  undefined,
+);
 
 function useChart() {
   const context = React.useContext(ChartContext);
@@ -68,14 +70,14 @@ const ChartContainer = React.forwardRef<
 ChartContainer.displayName = 'Chart';
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  if (!config) return null;
+  if (!config) return undefined;
 
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color,
   );
 
   if (!colorConfig.length) {
-    return null;
+    return undefined;
   }
 
   return (
@@ -90,7 +92,7 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color ? `  --color-${key}: ${color};` : undefined;
   })
   .join('\n')}
 }
@@ -137,7 +139,7 @@ const ChartTooltipContent = React.forwardRef<
 
     const tooltipLabel = React.useMemo(() => {
       if (hideLabel || !payload?.length) {
-        return null;
+        return undefined;
       }
 
       const [item] = payload;
@@ -157,7 +159,7 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       if (!value) {
-        return null;
+        return undefined;
       }
 
       return <div className={cn('font-medium', labelClassName)}>{value}</div>;
@@ -172,7 +174,7 @@ const ChartTooltipContent = React.forwardRef<
     ]);
 
     if (!active || !payload?.length) {
-      return null;
+      return undefined;
     }
 
     const nestLabel = payload.length === 1 && indicator !== 'dot';
@@ -235,7 +237,7 @@ const ChartTooltipContent = React.forwardRef<
                       )}
                     >
                       <div className="grid gap-1.5">
-                        {nestLabel ? tooltipLabel : null}
+                        {nestLabel ? tooltipLabel : undefined}
                         <span className="text-muted-foreground">
                           {itemConfig?.label || item.name}
                         </span>
@@ -275,7 +277,7 @@ const ChartLegendContent = React.forwardRef<
     const { config } = useChart();
 
     if (!payload?.length) {
-      return null;
+      return undefined;
     }
 
     return (

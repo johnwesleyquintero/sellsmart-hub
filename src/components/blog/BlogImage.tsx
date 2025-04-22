@@ -42,7 +42,7 @@ export function BlogImage({
         img.onerror = null;
       }
     };
-  }, [src]);
+  }, [src, width, height]);
 
   return (
     <Image
