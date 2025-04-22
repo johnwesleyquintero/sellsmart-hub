@@ -31,3 +31,11 @@ export const validateCsvContent = (
   }) as Record<string, unknown>[];
   return { validRows, errors };
 };
+
+// Define asinSchema and productNameSchema
+export const asinSchema = z
+  .string()
+  .regex(/^[A-Z0-9]{10}$/, 'Invalid ASIN format');
+export const productNameSchema = z
+  .string()
+  .min(3, 'Product name must be at least 3 characters');

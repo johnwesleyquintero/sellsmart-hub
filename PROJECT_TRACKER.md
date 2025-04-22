@@ -29,6 +29,7 @@
   - [x] Document usage/features
   - _Ref: IMPLEMENTATION_OptimalPriceCalc.md_
   - **[x] Scaled the product score to be between 0 and 1**
+  - **[x] Improved error messages to be more user-friendly**
 
 ### 2. Fix ACoS Calculator Bugs
 

@@ -1,5 +1,5 @@
 import { toast } from '@/hooks/use-toast';
-import { Sentry } from './sentry';
+import * as Sentry from '@sentry/react';
 
 type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
 

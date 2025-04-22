@@ -120,10 +120,14 @@ export default function OptimalPriceCalculator() {
       // Key updates in validation handling
       if (!validationResult.success) {
         // FIX 1 & 2: Check if error exists and handle ZodError vs string error
+        function isZodError(error: any): error is ZodError {
+          return error instanceof ZodError;
+        }
+
         if (validationResult.error) {
-          if (validationResult.error instanceof ZodError) {
+          if (isZodError(validationResult.error)) {
             const errorMessages = validationResult.error.issues
-              .map((issue) => `Validation error: ${issue.message}`) // Removed unnecessary object wrapping
+              .map((issue: any) => `Validation error: ${issue.message}`) // Removed unnecessary object wrapping
               .join('\n');
             setError(errorMessages);
           } else if (typeof validationResult.error === 'string') {
@@ -131,10 +135,14 @@ export default function OptimalPriceCalculator() {
             setError(validationResult.error);
           } else {
             // Fallback for unexpected error types
-            setError('Validation failed with an unexpected error type.');
+            setError(
+              'Validation failed: An unexpected error occurred. Please check your inputs and try again.',
+            );
           }
         } else {
-          setError('Validation failed with unknown error');
+          setError(
+            'Validation failed: No specific error was identified. Please review your inputs for any missing or incorrect information.',
+          );
         }
         return;
       }
