@@ -30,6 +30,46 @@ interface MessageBubbleProps {
   onDelete?: (timestamp: number) => void;
 }
 
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelete }) => {
+  const isUser = message.role === 'user';
+  const bubbleClass = isUser ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200 text-gray-800';
+  const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
+
+  return (
+    <div className={`${containerClass} mb-4`}>
+      <div className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words`}>
+        {message.status === 'error' ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-red-500">{message.error || 'Failed to send message'}</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onRetry?.(message)}
+                className="text-sm text-blue-500 hover:text-blue-700"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => onDelete?.(message.timestamp)}
+                className="text-sm text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ) : (
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex, rehypePrismPlus]}
+            className="prose prose-sm max-w-none dark:prose-invert"
+          >
+            {message.content}
+          </ReactMarkdown>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Helper function to update message status by timestamp
 const updateMessageStatus =
   (timestamp: number, role: 'user' | 'assistant', updates: Partial<Message>) =>

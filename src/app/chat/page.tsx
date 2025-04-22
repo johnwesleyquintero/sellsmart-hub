@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 export default function ChatPage() {
   const ChatWithLoading = dynamic<{}>(
     () =>
-      import('@/components/ui/chat-interface').then((mod) => mod.ChatInterface),
+      import('@/components/ui/chat-interface').then((mod) => mod.default),
     {
       loading: () => (
         <div className="flex flex-col items-center justify-center h-64">
