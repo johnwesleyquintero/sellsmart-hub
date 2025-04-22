@@ -57,12 +57,10 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
-    // Enable server components by default
-    serverComponents: true,
-    // Enable concurrent features for better performance
-    concurrentFeatures: true,
     // Enable server actions for form submissions
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+    },
   },
   // Compiler options
   compiler: {
