@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type BlogImageProps = {
   src: string;
@@ -20,14 +20,29 @@ export function BlogImage({
 }: BlogImageProps) {
   const [error, setError] = useState(false);
 
-  const handleError = () => {
-    console.error(`Failed to load image: ${src}`);
-    setError(true);
-  };
-
-  const handleLoad = () => {
-    console.log(`Loaded image: ${src}`);
-  };
+  // Clean useEffect implementation after fixes
+  useEffect(() => {
+    let img: HTMLImageElement | null = null;
+    
+    if (typeof window !== 'undefined' && src) {
+      setError(false);
+      img = document.createElement('img');
+      img.width = width;
+      img.height = height;
+      img.src = src;
+      img.onload = () => setError(false);
+      img.onerror = () => setError(true);
+    } else {
+      setError(true);
+    }
+  
+    return () => {
+      if (img) {
+        img.onload = null;
+        img.onerror = null;
+      }
+    };
+  }, [src]);
 
   return (
     <Image
@@ -36,8 +51,9 @@ export function BlogImage({
       width={width}
       height={height}
       className={className}
-      onError={handleError}
-      onLoad={handleLoad}
+      onError={() => setError(true)}
+      placeholder="blur"
+      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmMWYxIi8+PC9zdmc+"
     />
   );
 }

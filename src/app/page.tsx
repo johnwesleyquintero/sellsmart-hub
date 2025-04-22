@@ -7,7 +7,9 @@ const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
   loading: () => <div className="min-h-[400px]" />,
 });
 
-const ClientChatInterface = dynamic(() => import('@/components/ui/client-chat-interface'));
+const ClientChatInterface = dynamic(
+  () => import('@/components/ui/client-chat-interface'),
+);
 
 // Enable SSR for static content sections
 const HeroSection = dynamic(() => import('@/components/hero-section'), {

@@ -1,3 +1,5 @@
+'use client';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -120,9 +122,6 @@ export default function BlogSection() {
                 <Image
                   src={post.image || '/default-fallback.svg'}
                   alt={post.title}
-                  onError={() => {
-                    console.error(`Failed to load image: ${post.image}`);
-                  }}
                   width={800}
                   height={400}
                   quality={75}

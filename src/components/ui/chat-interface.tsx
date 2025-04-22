@@ -30,9 +30,15 @@ interface MessageBubbleProps {
   onDelete?: (timestamp: number) => void;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelete }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  onRetry,
+  onDelete,
+}) => {
   const isUser = message.role === 'user';
-  const bubbleClass = isUser ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200 text-gray-800';
+  const bubbleClass = isUser
+    ? 'bg-blue-500 text-white ml-auto'
+    : 'bg-gray-200 text-gray-800';
   const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
 
   return (
@@ -40,7 +46,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelet
       <div className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words`}>
         {message.status === 'error' ? (
           <div className="flex flex-col gap-2">
-            <p className="text-red-500">{message.error || 'Failed to send message'}</p>
+            <p className="text-red-500">
+              {message.error || 'Failed to send message'}
+            </p>
             <div className="flex gap-2">
               <button
                 onClick={() => onRetry?.(message)}
@@ -57,13 +65,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onRetry, onDelet
             </div>
           </div>
         ) : (
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex, rehypePrismPlus]}
-            className="prose prose-sm max-w-none dark:prose-invert"
-          >
-            {message.content}
-          </ReactMarkdown>
+          <div className="prose prose-sm max-w-none dark:prose-invert">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex, rehypePrismPlus]}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
     </div>
@@ -275,7 +284,7 @@ function ChatInterface() {
 }
 
 // Custom renderer for code blocks to handle Mermaid diagrams
-interface CodeBlockProps {
+export interface CodeBlockProps {
   node?: any;
   inline?: boolean;
   className?: string;
