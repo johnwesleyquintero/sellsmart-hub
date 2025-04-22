@@ -1,38 +1,43 @@
-'use client';
-
 import Footer from '@/components/footer';
 import Header from '@/components/header';
-import { ChatInterface } from '@/components/ui/chat-interface';
 import dynamic from 'next/dynamic';
 
+// Only disable SSR for components that truly need client-side features
 const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
-  ssr: false,
   loading: () => <div className="min-h-[400px]" />,
 });
 
-// Dynamically import sections that might use browser APIs
+const ClientChatInterface = dynamic(() => import('@/components/ui/client-chat-interface'));
+
+// Enable SSR for static content sections
 const HeroSection = dynamic(() => import('@/components/hero-section'), {
-  ssr: false,
+  ssr: true,
 });
+
 const UnifiedDashboard = dynamic(
   () => import('@/components/amazon-seller-tools/unified-dashboard'),
-  { ssr: false },
+  { ssr: true },
 );
+
 const ProjectsSection = dynamic(() => import('@/components/projects-section'), {
-  ssr: false,
+  ssr: true,
 });
+
 const AboutSection = dynamic(() => import('@/components/about-section'), {
-  ssr: false,
+  ssr: true,
 });
+
 const CertificationsSection = dynamic(
   () => import('@/components/certifications-section'),
-  { ssr: false },
+  { ssr: true },
 );
+
 const BlogSection = dynamic(() => import('@/components/blog-section'), {
-  ssr: false,
+  ssr: true,
 });
+
 const ContactSection = dynamic(() => import('@/components/contact-section'), {
-  ssr: false,
+  ssr: true,
 });
 
 export default function Home() {
@@ -49,8 +54,8 @@ export default function Home() {
           <CertificationsSection />
           <BlogSection />
           <ContactSection />
-          {/* Add the ChatInterface component */}
-          <ChatInterface />
+          {/* Add the client-side chat interface */}
+          <ClientChatInterface />
         </ErrorBoundary>
         <Footer />
       </div>

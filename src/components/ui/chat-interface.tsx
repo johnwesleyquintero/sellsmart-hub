@@ -2,10 +2,10 @@
 
 import 'katex/dist/katex.min.css';
 import 'prismjs/themes/prism-tomorrow.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
-import rehypePrism from 'rehype-prism-plus';
+import rehypePrismPlus from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
@@ -48,56 +48,7 @@ const removeMessageByTimestamp =
     return prev.filter((msg) => msg.timestamp !== timestamp);
   };
 
-import { useReducer } from 'react';
-
-const MessageBubble: React.FC<MessageBubbleProps> = ({
-  message,
-  onRetry,
-  onDelete,
-}) => {
-  const isUser = message.role === 'user';
-  const hasError = message.status === 'error';
-  const canRetry =
-    hasError && (message.retryCount || 0) < (message.retryLimit || 3);
-
-  return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div
-        className={`max-w-[70%] rounded-lg p-4 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'} ${hasError ? 'border-red-500 border-2' : ''}`}
-      >
-        {renderMessage(message.content)}
-        {message.error && (
-          <div className="text-red-500 text-sm mt-2">{message.error}</div>
-        )}
-        <div className="flex justify-between items-center mt-2 text-sm">
-          <span className="text-gray-500">
-            {new Date(message.timestamp).toLocaleTimeString()}
-          </span>
-          <div className="flex gap-2">
-            {canRetry && onRetry && (
-              <button
-                onClick={() => onRetry(message)}
-                className="text-sm text-blue-500 hover:text-blue-700"
-              >
-                Retry
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={() => onDelete(message.timestamp)}
-                className="text-sm text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export function ChatInterface() {
+function ChatInterface() {
   type ChatState = {
     messages: Message[];
     input: string;
@@ -307,10 +258,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   return <code className={className}>{children}</code>;
 };
 
+export default ChatInterface;
+
 const renderMessage = (content: string) => (
   <ReactMarkdown
     remarkPlugins={[remarkGfm, remarkMath]}
-    rehypePlugins={[rehypeKatex, [rehypePrism, { showLineNumbers: true }]]}
+    rehypePlugins={[rehypeKatex, [rehypePrismPlus, { showLineNumbers: true }]]}
     components={{
       code: CodeBlock as any,
     }}

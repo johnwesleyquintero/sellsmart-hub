@@ -162,7 +162,7 @@ export default function FbaCalculator() {
         header: true,
         dynamicTyping: false, // Parse everything as string initially for better validation control
         skipEmptyLines: true,
-        complete: (result) => {
+        complete: async (result) => {
           try {
             if (result.errors.length > 0) {
               throw new Error(

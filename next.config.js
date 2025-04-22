@@ -53,11 +53,16 @@ const nextConfig = {
 
   // Experimental features & optimizations
   experimental: {
+    // Enable optimizations for improved build performance
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
-    // --- outputFileTracingRoot removed ---
-    // Default tracing should work for standard repo structure.
+    // Enable server components by default
+    serverComponents: true,
+    // Enable concurrent features for better performance
+    concurrentFeatures: true,
+    // Enable server actions for form submissions
+    serverActions: true,
   },
   // Compiler options
   compiler: {
@@ -66,9 +71,9 @@ const nextConfig = {
   },
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
-    // Temporary minification disable for debugging
+    // Enable minification in production for better performance
     if (!dev) {
-      config.optimization.minimize = false;
+      config.optimization.minimize = true;
     }
     // Define environment variables (build-time/server-side)
     // Use NEXT_PUBLIC_ prefix for variables needed in the browser
