@@ -24,6 +24,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowDownUp, Columns } from 'lucide-react';
+import React from 'react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

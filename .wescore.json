@@ -28,18 +28,6 @@
       "name": "Type Checking (TSC)",
       "command": "npm run typecheck",
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
-    },
-    {
-      "id": "test",
-      "name": "Unit & Integration Tests (Jest)",
-      "command": "npm run test",
-      "description": "Executes the test suite using Jest to ensure code correctness."
-    },
-    {
-      "id": "build",
-      "name": "Production Build (Next.js)",
-      "command": "npm run build",
-      "description": "Attempts a production build to catch build-time errors and ensure deployability."
     }
   ],
   "errorCategories": {

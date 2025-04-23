@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Github, Linkedin } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
 export default function SignIn() {
@@ -19,7 +19,7 @@ export default function SignIn() {
             className="w-full flex items-center justify-center gap-2"
             onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
           >
-            <Github className="w-5 h-5" />
+            <GithubIcon className="w-5 h-5" />
             Continue with GitHub
           </Button>
 
@@ -28,7 +28,6 @@ export default function SignIn() {
             onClick={async () => {
               try {
                 await signIn('linkedin', { callbackUrl: '/dashboard' });
-                // eslint-disable-next-line sonarjs/no-ignored-exceptions
               } catch {
                 alert(
                   'LinkedIn authentication is currently unavailable. Please check back soon or use another login method.',
@@ -37,7 +36,7 @@ export default function SignIn() {
             }}
             variant="outline"
           >
-            <Linkedin className="w-5 h-5" />
+            <LinkedinIcon className="w-5 h-5" />
             Continue with LinkedIn
           </Button>
         </div>

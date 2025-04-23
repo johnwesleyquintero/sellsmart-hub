@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 interface OptimizedImageProps
   extends Omit<ImageProps, 'onLoadingComplete' | 'blurDataURL'> {
-  fallbackSrc?: string;
+  readonly fallbackSrc?: string;
 }
 
 export function OptimizedImage({

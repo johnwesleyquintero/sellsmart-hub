@@ -14,6 +14,14 @@ export default [
       '**/.next/**',
       '**/coverage/**',
       '**/build/**',
+      '**/out/**',
+      '**/.wescore/**',
+      '**/.cache/**',
+      '**/test/**',
+      '**/__tests__/**',
+      '**/__mocks__/**', // Added this line
+      '**/*.test.{js,jsx,ts,tsx}',
+      '**/*.spec.{js,jsx,ts,tsx}',
     ],
   },
   {

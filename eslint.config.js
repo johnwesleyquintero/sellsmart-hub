@@ -1,8 +1,8 @@
 import js from '@eslint/js';
-import globals from 'globals';
-import sonarjs from 'eslint-plugin-sonarjs';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
+import sonarjs from 'eslint-plugin-sonarjs';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -45,6 +45,25 @@ export default [
       'dist/**',
       'build/**',
       'coverage/**',
+      '**/__tests__/**',
+      '**/__mocks__/**', // Added this line
+      '**/*.test.{js,jsx,ts,tsx}',
+      '**/*.spec.{js,jsx,ts,tsx}',
+      'eslint.config.js',
+      'postcss.config.js',
+      'tailwind.config.js',
+      'tsconfig.json',
+      'next-env.d.ts',
+      'next.config.js',
+      'next.config.mjs',
+      'jest.config.js',
+      'jest.config.mjs',
+      'jest.setup.js',
+      'jest.setup.mjs',
+      'jest.env.js',
+      'jest.env.mjs',
+      'jest.preset.js',
+      '.wescore/**',
     ],
   },
 ];

@@ -1,8 +1,76 @@
 # Amazon Seller Tools - Project Tracker & TODO List
 
-**Last Updated:** 2025-04-23 _(Investigating code quality issues)_ _(Please update this date when you make changes)_
+**Last Updated:** 2025-04-24 _(Addressing linting and deprecation issues)_ _(Please update this date when you make changes)_
 **Last Code Review:** 2025-04-22 _(Please update this date when you make changes)_
 **Code Quality Status:** Issues detected - requires immediate attention (see Quality Issues section below)
+
+## Current Linting Issues
+
+### React Undefined Errors (High Priority)
+
+- [ ] Add React imports to:
+  - amazon-seller-tools/shared/ToolForm.tsx
+  - ui/calendar.tsx
+  - ui/chat-interface.tsx
+  - ui/resizable.tsx
+  - ui/skeleton.tsx
+  - ui/error-boundary.tsx
+
+### Deprecated Components (High Priority)
+
+- [ ] Replace deprecated social media icons (Github, Linkedin, Twitter)
+  - footer.tsx
+  - hero-section.tsx
+  - projects-section.tsx
+- [ ] Update deprecated ElementRef usage in:
+  - context-menu.tsx
+  - dialog.tsx
+  - drawer.tsx
+  - form.tsx
+  - hover-card.tsx
+  - input-otp.tsx
+  - popover.tsx
+  - radio-group.tsx
+  - scroll-area.tsx
+  - select.tsx
+  - separator.tsx
+  - sheet.tsx
+  - sidebar.tsx
+
+### Type Safety Issues (Medium Priority)
+
+- [ ] Replace 'any' types with proper typing in:
+  - amazon-seller-tools/unified-dashboard.tsx
+  - ui/chat-interface.tsx
+- [ ] Mark component props as readonly in:
+  - BlogImage.tsx
+  - blog-card.tsx
+  - blog-image.tsx
+  - blog-layout.tsx
+  - client-providers.tsx
+  - DndProvider.tsx
+  - Draggable.tsx
+  - Droppable.tsx
+  - theme-provider.tsx
+  - file-drop-zone.tsx
+  - optimized-image.tsx
+  - skeleton.tsx
+
+### Code Quality (Medium Priority)
+
+- [ ] Fix variable redeclarations in:
+  - Draggable.tsx (DraggableProps)
+  - Droppable.tsx (DroppableProps)
+  - sidebar.tsx (SidebarContext)
+- [ ] Remove unused variables in:
+  - amazon-forms/DraggableItem.tsx (snapshot)
+  - input.tsx (disabled)
+  - rehype-prism.tsx (node, inline)
+  - chat-interface.tsx (node)
+
+### Performance (Low Priority)
+
+- [ ] Implement proper sorting with String.localeCompare in roadmap-display.tsx
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
@@ -48,7 +116,6 @@ npm run test
 - [x] Resolve Redis type mismatch in rate-limiter.ts (Type Checking failure) - Fixed by updating type definitions
 - [x] Fix ESLint/SonarJS SyntaxError: Unexpected token 'with' (Code Smell Analysis failure) - Same root cause as linting issue
 - [x] Update @upstash/redis and @upstash/ratelimit dependencies - Version mismatch resolved
-- [ ] Add missing sound files referenced in wescore-epic.mjs - Low priority
 - [ ] Improve error handling patterns
 - [ ] Optimize performance bottlenecks
 - [x] Investigate remaining code quality issues from npm run cq output
