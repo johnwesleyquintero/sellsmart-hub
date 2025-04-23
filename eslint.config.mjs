@@ -6,6 +6,7 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 
 export default [
+  eslint.configs.recommended,
   {
     ignores: [
       '**/dist/**',
@@ -16,7 +17,7 @@ export default [
     ],
   },
   {
-    files: ['**/*.{js,cjs,mjs}'],
+    files: ['**/*.{js,cjs,mjs,jsx}'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -39,6 +40,14 @@ export default [
         afterEach: 'readonly',
         jest: 'readonly',
       },
+    },
+    plugins: {
+      sonarjs,
+    },
+    rules: {
+      'sonarjs/no-duplicate-string': 'error',
+      'sonarjs/no-identical-functions': 'error',
+      'sonarjs/cognitive-complexity': ['error', 15],
     },
   },
   {
@@ -72,6 +81,18 @@ export default [
         sourceType: 'module',
         project: ['./tsconfig.json'],
       },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      sonarjs,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error'],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'sonarjs/no-duplicate-string': 'error',
+      'sonarjs/no-identical-functions': 'error',
+      'sonarjs/cognitive-complexity': ['error', 15],
     },
   },
   eslint.configs.recommended,
