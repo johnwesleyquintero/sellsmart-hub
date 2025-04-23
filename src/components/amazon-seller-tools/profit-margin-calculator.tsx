@@ -100,7 +100,7 @@ export default function ProfitMarginCalculator() {
       };
     } catch (error) {
       console.error('Row validation error:', error);
-      return undefined;
+      return null;
     }
   };
 

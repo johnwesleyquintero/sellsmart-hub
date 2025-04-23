@@ -36,8 +36,8 @@ export function trackEvent(event: AppEvent) {
 export function initAnalytics() {
   if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_GA_ID) {
     window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      window.dataLayer.push(arguments);
+    function gtag(...args: any[]) {
+      window.dataLayer.push(args);
     }
     gtag('js', new Date());
 
@@ -52,7 +52,7 @@ export function initAnalytics() {
   }
 }
 
-export function trackPageView(url: string) {
+export function trackPageView(url: string): void {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'page_view', {
       page_path: url,

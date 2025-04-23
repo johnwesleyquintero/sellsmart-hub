@@ -415,7 +415,7 @@ function ProductEditorArea({
             </Label>
             <Textarea
               id="description-editor"
-              defaultValue={product.description} // Use defaultValue for uncontrolled with debounce
+              defaultValue={product.description} // Use defaultValue for uncontrolled using debounce
               onChange={handleTextareaChange}
               placeholder="Enter product description..."
               rows={15}

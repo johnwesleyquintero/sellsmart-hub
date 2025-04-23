@@ -118,7 +118,7 @@ async function processCsvRow(
 
     const searchVolumeRaw = item.searchVolume;
     const searchVolume =
-      searchVolumeRaw !== undefined &&
+      typeof searchVolumeRaw === 'string' &&
       searchVolumeRaw !== '' &&
       !isNaN(Number(searchVolumeRaw))
         ? Number(searchVolumeRaw)

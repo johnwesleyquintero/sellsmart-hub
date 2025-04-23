@@ -17,7 +17,7 @@ interface State {
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: undefined };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -50,7 +50,7 @@ class ErrorBoundary extends Component<Props, State> {
             occurred.
           </p>
           <Button
-            onClick={() => this.setState({ hasError: false, error: undefined })}
+            onClick={() => this.setState({ hasError: false, error: null })}
             className="flex items-center gap-2"
           >
             <RefreshCw className="h-4 w-4" />
@@ -61,7 +61,7 @@ class ErrorBoundary extends Component<Props, State> {
               process.env.NODE_ENV === 'test') && (
               <div className="mt-6 max-w-md overflow-auto rounded border border-red-300 bg-white p-4 text-left text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300">
                 <p className="font-mono font-bold">
-                  {this.state.error.name}: {this.state.error.message}
+                  {this.state.error!.name}: {this.state.error!.message}
                 </p>
                 <pre className="mt-2 text-xs">{this.state.error.stack}</pre>
               </div>

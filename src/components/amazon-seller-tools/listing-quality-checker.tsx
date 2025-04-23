@@ -796,7 +796,7 @@ export default function ListingQualityChecker() {
                     className="hidden"
                     onChange={handleFileUpload}
                     disabled={isLoading}
-                    ref={fileInputRef}
+                    ref={fileInputRef as React.RefObject<HTMLInputElement>}
                   />
                 </label>
                 <SampleCsvButton
@@ -889,7 +889,7 @@ export default function ListingQualityChecker() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setError(null)}
+              onClick={() => setError(undefined)}
               className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
               aria-label="Dismiss error"
             >

@@ -255,7 +255,7 @@ function validateRow(
     item.clicks === undefined ||
     item.clicks === null
   ) {
-    return { data: undefined, error: 'Missing required fields' };
+    return { data: null, error: 'Missing required fields' };
   }
 
   // Type validation and conversion
@@ -276,28 +276,28 @@ function validateRow(
 
   // Detailed validation
   if (!name) {
-    return { data: undefined, error: 'Invalid or missing campaign name' };
+    return { data: null, error: 'Invalid or missing campaign name' };
   }
   if (!type) {
-    return { data: undefined, error: 'Invalid or missing campaign type' };
+    return { data: null, error: 'Invalid or missing campaign type' };
   }
   if (isNaN(spend) || spend < 0) {
-    return { data: undefined, error: 'Invalid or negative spend amount' };
+    return { data: null, error: 'Invalid or negative spend amount' };
   }
   if (isNaN(sales) || sales < 0) {
-    return { data: undefined, error: 'Invalid or negative sales amount' };
+    return { data: null, error: 'Invalid or negative sales amount' };
   }
   // Impressions and clicks should be whole numbers
   if (isNaN(impressions) || impressions < 0 || !Number.isInteger(impressions)) {
-    return { data: undefined, error: 'Invalid or negative impressions count' };
+    return { data: null, error: 'Invalid or negative impressions count' };
   }
   if (isNaN(clicks) || clicks < 0 || !Number.isInteger(clicks)) {
-    return { data: undefined, error: 'Invalid or negative clicks count' };
+    return { data: null, error: 'Invalid or negative clicks count' };
   }
 
   return {
     data: { name, type, spend, sales, impressions, clicks },
-    error: undefined,
+    error: null,
   };
 }
 
@@ -380,7 +380,7 @@ export default function PpcCampaignAuditor() {
     { row: number; message: string }[]
   >([]);
   const [skippedRows, setSkippedRows] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- Callbacks (Moved after state) ---
   const processCampaignDataCallback = useCallback(

@@ -55,7 +55,7 @@ export default function KeywordTrendAnalyzer() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
-  const fileInputRef = useRef<HTMLInputElement>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -335,7 +335,7 @@ export default function KeywordTrendAnalyzer() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setError(null)}
+            onClick={() => setError(undefined)}
             className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
             aria-label="Dismiss error"
           >

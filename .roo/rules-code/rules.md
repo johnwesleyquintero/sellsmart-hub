@@ -3,6 +3,38 @@
 **Objective:**
 Scan the codebase to identify issues, optimize performance, and update the `PROJECT_TRACKER.md` file with detailed findings and actionable recommendations.
 
+**Wescore Code-Quality Scripts:**
+
+```Shell
+npm run cq
+```
+
+```Shell
+npm run epic
+```
+
+**Individual Run: Code-Quality Scripts:**
+
+```Shell
+npm run format
+```
+
+```Shell
+npm run lint
+```
+
+```Shell
+npm run typecheck
+```
+
+```Shell
+npm run lint:smells
+```
+
+```Shell
+npm run test
+```
+
 **Instructions:**
 
 1. **Initial Scan:**
@@ -72,3 +104,5 @@ Scan the codebase to identify issues, optimize performance, and update the `PROJ
 
 - A comprehensive update to `PROJECT_TRACKER.md` with detailed findings, actionable recommendations, and optimizations.
 - A final report summarizing the changes made and any remaining issues.
+
+---

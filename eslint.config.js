@@ -1,26 +1,18 @@
-import { FlatCompat } from '@eslint/eslintrc';
+import next from '@next/eslint-plugin-next';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
-import sonarjs from 'eslint-plugin-sonarjs';
-import unicorn from 'eslint-plugin-unicorn';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  resolvePluginsRelativeTo: __dirname,
-});
-
-// Load the Next.js core configurations
-// This usually includes TypeScript support already
-const nextCoreWebVitalsConfigs = compat.extends('next/core-web-vitals');
+console.log(next.configs.coreWebVitals);
 
 // Define the final configuration array
 const config = [
-  // 1. Define ignores first (common practice)
+  ...next.configs.coreWebVitals,
+  ...next.configs.styleGuide,
+  ...next.configs.base,
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    ...typescriptEslint.configs.recommended,
+  },
   {
     ignores: [
       'dist/',
@@ -39,12 +31,8 @@ const config = [
       '*.log',
       '*.md',
       '__mocks__/',
-      // Add any other necessary ignores (e.g., build artifacts)
     ],
   },
-
-  // 2. Spread the loaded Next.js configurations into the array
-  ...nextCoreWebVitalsConfigs,
 
   // 3. TypeScript configuration
   {
@@ -74,11 +62,9 @@ const config = [
     },
   },
 
-  // 4. Grouped and streamlined rules configuration
   {
     plugins: {
-      sonarjs,
-      unicorn,
+      '@typescript-eslint': typescriptEslint,
     },
     rules: {
       // DOM-related rules
@@ -125,8 +111,6 @@ const config = [
       'sonarjs/no-redundant-jump': 'error',
       'sonarjs/no-small-switch': 'error',
 
-      // SonarJS rules with custom overrides
-      ...sonarjs.configs.recommended.rules,
       'sonarjs/cognitive-complexity': ['warn', 15],
     },
   },

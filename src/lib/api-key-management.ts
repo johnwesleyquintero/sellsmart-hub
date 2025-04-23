@@ -3,19 +3,51 @@ import Redis from 'ioredis';
 import type { Db } from 'mongodb'; // Import Db and ObjectId types
 import { NextResponse } from 'next/server';
 import crypto from 'node:crypto'; // Fix: Use node:crypto protocol
+import { logger } from './logger';
 import { connectToDatabase } from './mongodb';
 
 const API_KEY_COLLECTION = 'apiKeys';
 
+// Note: Index creation should typically be done once, either manually via mongo shell
+// or using an ODM/migration tool, not on every application start within the code.
+// Example (conceptual - don't run this directly in application code):
+// db.collection(API_KEY_COLLECTION).createIndex({ userId: 1, isActive: 1, expiresAt: 1 });
+
 const KEY_EXPIRATION = 90 * 24 * 60 * 60 * 1000; // 90 days in ms
 
-const redis = new Redis(); // Connect to Redis
+// Key security enhancements
+const CRYPTO_CONFIG = {
+  keyLength: 32, // 256-bit entropy
+  keyEncoding: 'hex' as const,
+  hashRounds: 12, // BCrypt cost factor
+};
+
+// Enhanced Redis configuration
+const redis = new Redis({
+  retryStrategy: (times) => Math.min(times * 100, 3000),
+  maxRetriesPerRequest: 3,
+  connectTimeout: 5000,
+  enableAutoPipelining: true,
+});
+
+// Note: The optimized MongoDB query with hint is shown conceptually below.
+// It should be used within the actual function calls where the query is made.
+/*
+Conceptual Example:
+db.collection(API_KEY_COLLECTION)
+  .findOne({
+    userId, // userId needs to be defined in the scope where this is called
+    isActive: true,
+    expiresAt: { $gt: new Date() }
+  })
+  .hint('userId_1_isActive_1_expiresAt_1'); // Force index usage
+*/
 
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 5;
 
 type ApiKeyRecord = {
-  key: string;
+  key: string; // This will store the HASHED key
   createdAt: Date;
   expiresAt: Date;
   isActive: boolean;
@@ -24,58 +56,73 @@ type ApiKeyRecord = {
 
 // Define a minimal interface for the User document, assuming _id is a string (UUID)
 interface UserDocument {
-    _id: string; // Assuming _id is the string userId based on UUID validation
-    // other user fields...
+  _id: string; // Assuming _id is the string userId based on UUID validation
+  // other user fields...
 }
 
-
 /**
- * Generates a new secure API key
+ * Generates a new secure API key (plain text)
  */
-export async function generateApiKey(db: Db): Promise<string> { // Fix: Use Db type
-  let key: string;
-  do {
-    key = crypto.randomBytes(32).toString('hex');
-  } while (await db.collection(API_KEY_COLLECTION).findOne({ key }));
-  return key;
+export async function generateApiKey(): Promise<string> {
+  // 256-bit entropy (32 bytes) provides sufficient uniqueness
+  return crypto
+    .randomBytes(CRYPTO_CONFIG.keyLength)
+    .toString(CRYPTO_CONFIG.keyEncoding);
 }
 
 /**
- * Validates an API key against stored keys in MongoDB
+ * Validates a plain text API key against the stored hash in MongoDB
  */
 export async function validateApiKey(
-  key: string,
+  plainKey: string,
   userId: string,
 ): Promise<boolean> {
+  // Outer try-catch for connection errors or unexpected issues
   try {
     const { db } = await connectToDatabase();
 
-    // Find the key record using the plain text key provided by the user
-    // Note: This assumes you are storing plain text keys, which is insecure.
-    // If you store hashed keys, you need to fetch potential keys by userId
-    // and then compare the provided key with the stored hash using bcrypt.compare.
-    // Let's assume the current implementation intends to compare plain text keys (needs review).
-    // **Correction:** The `rotateApiKeys` function *does* hash keys before storing.
-    // Therefore, validation must fetch the key by userId and then compare hashes.
+    // Inner try-catch specifically for the database query and comparison logic
+    try {
+      const apiKeyRecord = await db
+        .collection<ApiKeyRecord>(API_KEY_COLLECTION)
+        .findOne(
+          {
+            userId: userId,
+            isActive: true,
+            expiresAt: { $gt: new Date() },
+          },
+          // Optional: Add hint if performance analysis shows it's needed
+          // { hint: 'userId_1_isActive_1_expiresAt_1' }
+        );
 
-    const apiKeyRecord = await db
-      .collection<ApiKeyRecord>(API_KEY_COLLECTION)
-      .findOne({
-        userId: userId,
-        isActive: true,
-        expiresAt: { $gt: new Date() },
+      if (!apiKeyRecord) {
+        logger.warn('No active API key found for validation', { userId });
+        return false;
+      }
+
+      // Compare the provided plain text key with the stored hash
+      const isValid = await bcrypt.compare(plainKey, apiKeyRecord.key);
+      if (!isValid) {
+        logger.warn('API key validation failed: Mismatch', { userId });
+      }
+      return isValid;
+    } catch (error: unknown) {
+      logger.error('API Key Validation DB Error', {
+        error: error instanceof Error ? error.message : 'UnknownError',
+        userId,
+        keySnippet: plainKey.slice(0, 4) + '***' + plainKey.slice(-4),
       });
-
-    if (!apiKeyRecord) {
-        return false; // No active key found for the user
+      return false;
     }
-
-    // Compare the provided plain text key with the stored hash
-    const isValid = await bcrypt.compare(key, apiKeyRecord.key);
-    return isValid;
-
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error validating API key:', error);
+  } catch (connectionError: unknown) {
+    // Catch errors from connectToDatabase() or other issues outside the inner try
+    logger.error('API Key Validation Connection/Setup Error', {
+      error:
+        connectionError instanceof Error
+          ? connectionError.message
+          : 'UnknownError',
+      userId,
+    });
     return false;
   }
 }
@@ -90,17 +137,30 @@ export async function apiKeyMiddleware(request: Request) {
     // Clone the request to allow reading the body here and in the route handler
     const clonedRequest = request.clone();
     const requestBody = await clonedRequest.json();
-    const userId = requestBody.userId;
+    const userId = requestBody.userId; // Assuming userId is present in the body
 
     if (!userId) {
+      logger.warn('apiKeyMiddleware: Missing userId in request body');
       return NextResponse.json(
         { error: 'Missing userId in request body' },
         { status: 400 },
       );
     }
 
-    // Validate the API key (this now involves bcrypt comparison)
+    // Basic validation for userId format before hitting the DB
+    if (typeof userId !== 'string' || !isValidUserIdFormat(userId)) {
+      logger.warn('apiKeyMiddleware: Invalid userId format in request body', {
+        userId,
+      });
+      return NextResponse.json(
+        { error: 'Invalid userId format' },
+        { status: 400 },
+      );
+    }
+
+    // Validate the API key (this involves bcrypt comparison)
     if (!(await validateApiKey(apiKey, userId))) {
+      logger.warn('apiKeyMiddleware: Invalid or expired API key', { userId });
       return NextResponse.json(
         { error: 'Invalid or expired API key' },
         { status: 401 },
@@ -108,54 +168,66 @@ export async function apiKeyMiddleware(request: Request) {
     }
 
     // If validation passes, return undefined to allow the original request to proceed.
+    logger.info('apiKeyMiddleware: API key validated successfully', { userId });
     return undefined;
   } catch (error) {
-    console.error('Error in apiKeyMiddleware:', error);
+    logger.error('Error in apiKeyMiddleware', { error });
     // Check if the error is due to JSON parsing
     if (error instanceof SyntaxError) {
-        return NextResponse.json(
-            { error: 'Invalid JSON in request body' },
-            { status: 400 },
-        );
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 },
+      );
     }
     // Generic error for other issues
     return NextResponse.json(
-      { error: 'Error processing API key validation' },
+      { error: 'Internal server error during API key validation' },
       { status: 500 }, // Use 500 for server errors
     );
   }
 }
 
-
 /**
- * Rotates API keys by generating new ones and deactivating old ones
+ * Rotates API keys by generating a new one and deactivating old ones.
+ * Returns the new ApiKeyRecord containing the *hashed* key, along with the *plain text* key.
  */
-export async function rotateApiKeys(userId: string): Promise<ApiKeyRecord> {
-  if (!(await isValidUserId(userId))) { // Fix: Added await
+export async function rotateApiKeys(
+  userId: string,
+): Promise<{ record: ApiKeyRecord; plainKey: string }> {
+  if (!(await isValidUserId(userId))) {
     throw new Error('Invalid userId format or user not found');
   }
 
-  if (!(await isWithinRateLimit(userId))) { // Fix: Added await
+  if (!(await isWithinRateLimit(`rotate:${userId}`))) {
+    // Use specific key for rotation rate limit
     throw new Error('Rate limit exceeded for API key rotation');
   }
+
   const { db } = await connectToDatabase();
-  // Acquire mutex before proceeding
-  const mutex = await acquireMutex(db, `rotateApiKeys:${userId}`);
-  if (!mutex) {
+  const lockKey = `mutex:rotateApiKeys:${userId}`;
+  const mutexAcquired = await acquireMutex(db, lockKey);
+  if (!mutexAcquired) {
     throw new Error(
-      'Failed to acquire mutex. Another rotation might be in progress.',
+      'Failed to acquire lock. Another rotation might be in progress.',
     );
   }
 
   try {
     // Deactivate all existing keys for the user inside the mutex lock
-    await db
+    const updateResult = await db
       .collection<ApiKeyRecord>(API_KEY_COLLECTION)
-      .updateMany({ userId: userId, isActive: true }, { $set: { isActive: false } });
+      .updateMany(
+        { userId: userId, isActive: true },
+        { $set: { isActive: false } },
+      );
+    logger.info(
+      `Deactivated ${updateResult.modifiedCount} old keys for user ${userId}`,
+    );
 
-    // Generate new key
-    const plainKey = await generateApiKey(db); // Generate the plain text key first
-    const hashedKey = await bcrypt.hash(plainKey, 10); // Hash the key for storage
+    // Generate new plain text key
+    const plainKey = await generateApiKey();
+    // Hash the key for storage
+    const hashedKey = await bcrypt.hash(plainKey, CRYPTO_CONFIG.hashRounds);
 
     const newKeyRecord: ApiKeyRecord = {
       key: hashedKey, // Store the hashed key
@@ -166,35 +238,57 @@ export async function rotateApiKeys(userId: string): Promise<ApiKeyRecord> {
     };
 
     // Store the new key record in the database
-    await db.collection<ApiKeyRecord>(API_KEY_COLLECTION).insertOne(newKeyRecord);
+    await db
+      .collection<ApiKeyRecord>(API_KEY_COLLECTION)
+      .insertOne(newKeyRecord);
+    logger.info(
+      `Successfully generated and stored new API key for user ${userId}`,
+    );
 
-    // Return the record, but crucially, return the *plain text key* for the user to use immediately.
-    // The stored record keeps the hashed version.
-    return { ...newKeyRecord, key: plainKey }; // Return the plain key to the caller
-
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error rotating API keys:', error);
-    // Ensure the error is an instance of Error before accessing message
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error during key rotation';
+    // Return the record (with hashed key) AND the plain text key separately
+    return { record: newKeyRecord, plainKey: plainKey };
+  } catch (error: unknown) {
+    const isMongoError =
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'MongoError';
+    logger.error('KeyRotationFailed', {
+      userId,
+      error: error instanceof Error ? error.stack : 'Unknown error',
+      retryable:
+        isMongoError &&
+        'hasErrorLabel' in error &&
+        typeof error.hasErrorLabel === 'function' &&
+        error.hasErrorLabel('RetryableWriteError'),
+    });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error during key rotation';
     throw new Error(`Failed to rotate API keys: ${errorMessage}`);
   } finally {
     // Always release the mutex
-    await releaseMutex(db, `rotateApiKeys:${userId}`);
+    await releaseMutex(db, lockKey);
   }
 }
 
-
 /**
- * Initializes API key management with first key for a user
+ * Initializes API key management by creating the first key if none exists.
+ * Returns the plain text key if a new one was created, otherwise null.
  */
-export async function initializeApiKeys(userId: string): Promise<void> {
-  if (!(await isValidUserId(userId))) { // Fix: Added await
+export async function initializeApiKeys(
+  userId: string,
+): Promise<string | null> {
+  if (!(await isValidUserId(userId))) {
     throw new Error('Invalid userId format or user not found');
   }
 
-  if (!(await isWithinRateLimit(userId))) { // Fix: Added await
+  if (!(await isWithinRateLimit(`init:${userId}`))) {
+    // Specific rate limit key
     throw new Error('Rate limit exceeded for API key initialization');
   }
+
   try {
     const { db } = await connectToDatabase();
     const existingKey = await db
@@ -202,167 +296,218 @@ export async function initializeApiKeys(userId: string): Promise<void> {
       .findOne({ userId: userId, isActive: true }); // Check for active keys
 
     if (!existingKey) {
-      console.log(`No active key found for user ${userId}. Initializing...`);
-      await rotateApiKeys(userId); // This will generate and store the first key
-      console.log(`API key initialized successfully for user ${userId}.`);
+      logger.info(`No active key found for user ${userId}. Initializing...`);
+      // Rotate keys will generate and store the first key
+      const { plainKey } = await rotateApiKeys(userId);
+      logger.info(`API key initialized successfully for user ${userId}.`);
+      return plainKey; // Return the newly generated plain key
     } else {
-       console.log(`User ${userId} already has an active API key. No initialization needed.`);
+      logger.info(
+        `User ${userId} already has an active API key. No initialization needed.`,
+      );
+      return null; // Indicate no new key was generated
     }
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error initializing API keys:', error);
-     const errorMessage = error instanceof Error ? error.message : 'Unknown error during initialization';
-    // Don't re-throw here unless the caller needs to handle it specifically. Logging might be sufficient.
-     throw new Error(`Failed to initialize API keys: ${errorMessage}`);
+  } catch (error: unknown) {
+    logger.error('Error initializing API keys', { userId, error });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error during initialization';
+    // Re-throw as the caller might need to handle initialization failure
+    throw new Error(`Failed to initialize API keys: ${errorMessage}`);
   }
 }
 
 /**
- * Gets the active API key record for a user (returns the stored record, not the plain key)
+ * Gets the active API key record for a user (returns the stored record with hashed key).
  */
-export async function getApiKey(userId: string): Promise<ApiKeyRecord | undefined> { // Return undefined instead of null
-  if (!(await isValidUserId(userId))) { // Fix: Added await
-    console.warn(`Invalid userId format or user not found: ${userId}`);
-    return undefined; // Fix: Return undefined for invalid userId
+export async function getApiKeyRecord(
+  userId: string,
+): Promise<ApiKeyRecord | undefined> {
+  if (!(await isValidUserId(userId))) {
+    logger.warn(`Invalid userId format or user not found: ${userId}`);
+    return undefined;
   }
 
-  if (!(await isWithinRateLimit(userId))) { // Fix: Added await
-    console.warn(`Rate limit exceeded for getApiKey call by user: ${userId}`);
-    return undefined; // Fix: Return undefined for rate limit exceeded
+  if (!(await isWithinRateLimit(`get:${userId}`))) {
+    // Specific rate limit key
+    logger.warn(
+      `Rate limit exceeded for getApiKeyRecord call by user: ${userId}`,
+    );
+    return undefined;
   }
+
   try {
     const { db } = await connectToDatabase();
-    const apiKey = await db
+    const apiKeyRecord = await db
       .collection<ApiKeyRecord>(API_KEY_COLLECTION)
-      .findOne({
-        userId: userId,
-        isActive: true,
-        expiresAt: { $gt: new Date() },
-      });
+      .findOne(
+        {
+          userId: userId,
+          isActive: true,
+          expiresAt: { $gt: new Date() },
+        },
+        // { hint: 'userId_1_isActive_1_expiresAt_1' } // Optional hint
+      );
     // findOne returns T | null. Convert null to undefined.
-    return apiKey ?? undefined; // Return the found record or undefined
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error getting API key:', error);
-    return undefined; // Fix: Return undefined on error
+    return apiKeyRecord ?? undefined;
+  } catch (error: unknown) {
+    logger.error('Error getting API key record', { userId, error });
+    return undefined; // Return undefined on error
   }
 }
 
 /**
- * Deletes all API keys for a user
+ * Deletes all API keys (active and inactive) for a user. Use with caution.
  */
-export async function deleteApiKey(userId: string): Promise<void> {
-  if (!(await isValidUserId(userId))) { // Fix: Added await
+export async function deleteAllApiKeysForUser(userId: string): Promise<void> {
+  if (!(await isValidUserId(userId))) {
     throw new Error('Invalid userId format or user not found');
   }
 
-  if (!(await isWithinRateLimit(userId))) { // Fix: Added await
+  if (!(await isWithinRateLimit(`delete:${userId}`))) {
+    // Specific rate limit key
     throw new Error('Rate limit exceeded for API key deletion');
   }
+
   try {
     const { db } = await connectToDatabase();
     const result = await db
       .collection<ApiKeyRecord>(API_KEY_COLLECTION)
       .deleteMany({ userId: userId });
-    console.log(`Deleted ${result.deletedCount} API keys for user ${userId}`);
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error deleting API keys:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error during key deletion';
+    logger.info(`Deleted ${result.deletedCount} API keys for user ${userId}`);
+  } catch (error: unknown) {
+    logger.error('Error deleting API keys', { userId, error });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error during key deletion';
     throw new Error(`Failed to delete API keys: ${errorMessage}`);
   }
 }
 
 // --- Helper Functions ---
 
-async function isValidUserId(userId: string): Promise<boolean> {
-  // Basic format check (UUID v4)
+// Basic format check (UUID v4) - doesn't hit the DB
+function isValidUserIdFormat(userId: string): boolean {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return typeof userId === 'string' && uuidRegex.test(userId);
+}
 
-  if (!userId || !uuidRegex.test(userId)) {
-    console.warn(`Invalid userId format: ${userId}`);
+// Checks format AND existence in the database
+async function isValidUserId(userId: string): Promise<boolean> {
+  if (!isValidUserIdFormat(userId)) {
+    logger.warn(`Invalid userId format: ${userId}`);
     return false;
   }
 
   // Check if user exists in the database (assuming a 'users' collection)
   try {
     const { db } = await connectToDatabase();
-    // Adapt 'userIdField' to the actual field name storing the user ID in your 'users' collection
     // Use the UserDocument interface to inform TypeScript about the _id type.
-    const user = await db.collection<UserDocument>('users').findOne({ _id: userId }); // Example: Assuming _id is the string userId
+    // Ensure the field name ('_id' here) matches your users collection schema.
+    const user = await db
+      .collection<UserDocument>('users')
+      .findOne({ _id: userId });
     if (!user) {
-        console.warn(`User not found in database: ${userId}`);
-        return false;
+      logger.warn(`User not found in database: ${userId}`);
+      return false;
     }
     return true; // User exists
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error('Error validating userId against database:', error);
+  } catch (error: unknown) {
+    logger.error('Error validating userId against database', { userId, error });
     return false; // Treat database errors as validation failure
   }
 }
 
-async function isWithinRateLimit(userId: string): Promise<boolean> {
-  const key = `rateLimit:${userId}`;
-  const ttl = RATE_LIMIT_WINDOW / 1000; // TTL in seconds
-
+// Rate limiting logic using Redis
+async function isWithinRateLimit(keySuffix: string): Promise<boolean> {
+  const key = `rateLimit:${keySuffix}`; // e.g., rateLimit:rotate:user123
   try {
-      const count = await redis.incr(key);
-      // Set expiry only if it's the first request in the window
-      if (count === 1) {
-          await redis.expire(key, ttl);
-      }
-      return count <= MAX_REQUESTS_PER_WINDOW;
-  } catch (redisError: unknown) {
-      console.error("Redis error during rate limiting:", redisError);
-      // Fail open or closed? Depending on security requirements.
-      // Failing open allows requests during Redis outage but bypasses rate limiting.
-      // Failing closed blocks requests but maintains rate limit integrity if Redis recovers.
-      return true; // Example: Fail open (allow request if Redis fails)
+    // Use pipeline for atomic operations
+    const pipeline = redis.pipeline();
+    pipeline.incr(key);
+    pipeline.ttl(key);
+    const results = await pipeline.exec();
+
+    // Check for errors in pipeline execution
+    if (!results || results.some((result) => result[0] !== null)) {
+      logger.error('Redis pipeline error during rate limiting', {
+        key,
+        results,
+      });
+      return false; // Fail closed on Redis error
+    }
+
+    const [[_incrErr, currentCount], [_ttlErr, ttl]] = results;
+
+    if (typeof currentCount !== 'number') {
+      logger.error('Invalid count received from Redis INCR', {
+        key,
+        currentCount,
+      });
+      return false; // Fail closed
+    }
+
+    // If TTL is -1 (no expiry set yet), set the expiry
+    // If TTL is -2 (key doesn't exist - though INCR should create it), also set expiry
+    if (ttl === -1 || ttl === -2) {
+      await redis.expire(key, RATE_LIMIT_WINDOW / 1000);
+    }
+
+    if (currentCount > MAX_REQUESTS_PER_WINDOW) {
+      logger.warn('Rate limit exceeded', { key, currentCount });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    logger.error('RateLimitCheck Redis Error', { key, error });
+    return false; // Fail closed on Redis connection errors etc.
   }
 }
 
-
-// Simple MongoDB-based mutex implementation
-// Note: This is a basic implementation. For high-contention scenarios,
-// consider more robust distributed locking mechanisms or database-specific features.
-async function acquireMutex(db: Db, key: string): Promise<boolean> { // Fix: Use Db type
+// Simple MongoDB-based mutex implementation using atomic operations
+// Requires an index on { key: 1 } and an expireAfterSeconds index on 'expireAt'
+// in the 'mutexes' collection for performance and automatic cleanup.
+async function acquireMutex(db: Db, key: string): Promise<boolean> {
   const now = new Date();
   const mutexTimeout = 30 * 1000; // Mutex timeout: 30 seconds
 
   try {
-    // Attempt to insert a lock document. If the key already exists, it will fail.
-    // Create an index on { key: 1 } in the 'mutexes' collection for performance.
-    // Add an expireAfterSeconds index on 'expireAt' for automatic cleanup.
-    const result = await db.collection('mutexes').insertOne({
-      key, // The lock identifier
+    // Attempt to insert a lock document. If the key already exists (unique index), it fails.
+    await db.collection('mutexes').insertOne({
+      key, // The lock identifier (must be unique)
       createdAt: now,
-      // Automatically remove the lock document after the timeout
+      // TTL index on 'expireAt' will automatically remove the lock document
       expireAt: new Date(now.getTime() + mutexTimeout),
     });
-
-    return result.acknowledged; // True if insertion succeeded (lock acquired)
-  } catch (error: unknown) { // Fix: Use unknown instead of any
+    // logger.debug(`Mutex ${key} acquired.`); // Optional debug log
+    return true; // Insertion succeeded, lock acquired
+  } catch (error: unknown) {
     // Check if the error is a duplicate key error (code 11000)
     if (error instanceof Error && 'code' in error && error.code === 11000) {
-      // Mutex already acquired by another process - uncomment log if needed for debugging
-      // console.log(`Mutex ${key} already held.`);
-      return false;
+      // logger.debug(`Mutex ${key} already held.`); // Optional debug log
+      return false; // Mutex already held by another process
     }
-    // Log other errors
-    console.error(`Error acquiring mutex ${key}:`, error);
+    // Log other unexpected errors
+    logger.error(`Error acquiring mutex ${key}`, { error });
     return false; // Failed to acquire mutex due to an unexpected error
   }
 }
 
-async function releaseMutex(db: Db, key: string): Promise<void> { // Fix: Use Db type
+async function releaseMutex(db: Db, key: string): Promise<void> {
   try {
-    // Optional: Log based on whether the mutex was found and deleted or already gone.
-    // Uncomment if needed for debugging.
-    // if (result.deletedCount === 0) {
-    //   console.log(`Mutex ${key} not found or already released/expired.`);
+    const result = await db.collection('mutexes').deleteOne({ key });
+    // Optional: Log based on whether the mutex was found and deleted.
+    // if (result.deletedCount === 1) {
+    //   logger.debug(`Mutex ${key} released.`);
     // } else {
-    //   console.log(`Mutex ${key} released.`);
+    //   logger.debug(`Mutex ${key} not found or already released/expired.`);
     // }
-  } catch (error: unknown) { // Fix: Use unknown instead of any
-    console.error(`Error releasing mutex ${key}:`, error);
-    // Decide if this error should be propagated
+  } catch (error: unknown) {
+    logger.error(`Error releasing mutex ${key}`, { error });
+    // Decide if this error should be propagated or just logged
   }
 }
