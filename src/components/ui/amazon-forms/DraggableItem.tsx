@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Draggable,
   DraggableProvided,
-  DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
 
 interface DraggableItemProps {
@@ -18,7 +17,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
 }) => {
   return (
     <Draggable draggableId={id} index={index}>
-      {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+      {(provided: DraggableProvided) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
