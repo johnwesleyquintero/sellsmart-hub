@@ -109,9 +109,9 @@ export default function ProjectsSection() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                           GitHub
+                          GitHub
                         </Link>
-                    </Button>
+                      </Button>
                     )}
                     {project.demo && (
                       <Button asChild>

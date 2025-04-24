@@ -45,6 +45,18 @@
     "types/**/*.d.ts"
   ],
   "typeRoots": ["./src/types", "./node_modules/@types"], // Added comma here because 'exclude' follows.
-  "exclude": [".next", "jest.config.js", "__mocks__/svg.js", "coverage/lcov-report/*", "dist/lib/models.js", "dist/lib/mongodb.js", "dist/scripts/*", "eslint.config.js", "jest.setup.js", "next.config.js", "tailwind.config.js"]
+  "exclude": [
+    ".next",
+    "jest.config.js",
+    "__mocks__/svg.js",
+    "coverage/lcov-report/*",
+    "dist/lib/models.js",
+    "dist/lib/mongodb.js",
+    "dist/scripts/*",
+    "eslint.config.js",
+    "jest.setup.js",
+    "next.config.js",
+    "tailwind.config.js"
+  ]
   // Note: 'exclude' is the last item in the main object, so it does NOT need a trailing comma.
 }

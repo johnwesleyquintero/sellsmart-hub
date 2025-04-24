@@ -2,6 +2,9 @@
 import type { ThemeProviderProps } from 'next-themes';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
-export function ThemeProvider({ children, ...props }: Readonly<ThemeProviderProps>) {
+export function ThemeProvider({
+  children,
+  ...props
+}: Readonly<ThemeProviderProps>) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }

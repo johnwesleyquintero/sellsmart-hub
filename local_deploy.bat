@@ -32,6 +32,20 @@ powershell -File cleanup.ps1
 echo }"
 echo --- Cleanup finished ---
 
+REM Ensure we are in the script's directory
+cd %~dp0
+echo --- Current directory: %cd% ---
+
+REM --- Running format style checks ---
+echo --- Running format style checks ---
+call npm run format %*
+if !errorlevel! neq 0 (
+    echo ERROR: Format style checks failed! Not starting to build the project for production.
+    endlocal
+    exit /b !errorlevel!
+)
+echo --- Format style checks passed ---
+
 REM --- Building the project for production ---
 echo --- Building project ---
 call npm run build

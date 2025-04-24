@@ -1,5 +1,5 @@
 import React from 'react';
-'use client';
+('use client');
 
 import DragDropArea from '@/components/ui/DragDropArea';
 import { Button } from '@/components/ui/button';

@@ -8,9 +8,7 @@ interface DraggableProps {
   children: React.ReactNode;
 }
 
-
 import { useCallback } from 'react';
-
 
 const Draggable: React.FC<DraggableProps> = ({ id, type, children }) => {
   const [{ isDragging }, drag] = useDrag(() => ({

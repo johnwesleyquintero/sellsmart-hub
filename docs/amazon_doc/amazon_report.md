@@ -8,10 +8,10 @@ Use the `requestReport` operation to retrieve performance reports. There are mul
 
 The following table describes the service behavior in terms of the URL space and HTTP methods supported by the service-managed resources.
 
-| **Method** | **URL**                      | **Use Case**                                                                                       |
-|------------|-------------------------------|---------------------------------------------------------------------------------------------------|
-| `POST`     | `/{recordType}/report`       | Request the creation of a performance report for all entities of a single type which have performance data to report. |
-| `GET`      | `/reports/{reportId}`         | Retrieve status, metadata, and location of a previously requested performance report.            |
+| **Method** | **URL**                | **Use Case**                                                                                                          |
+| ---------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `POST`     | `/{recordType}/report` | Request the creation of a performance report for all entities of a single type which have performance data to report. |
+| `GET`      | `/reports/{reportId}`  | Retrieve status, metadata, and location of a previously requested performance report.                                 |
 
 ## Operations
 
@@ -31,22 +31,22 @@ The following table describes the service behavior in terms of the URL space and
 
 - **Parameters:**
 
-  | **Parameter Name** | **Type**     | **Specified In** | **Description**                                                                                   |
-  |--------------------|--------------|-------------------|---------------------------------------------------------------------------------------------------|
-  | `recordType`      | `string`     | URL               | The type of entity for which the report should be generated. Must be one of: `campaigns`, `adGroups`, `keywords`, `productAds`, or `asins`. |
-  | `campaignType`    | `string`     | POST body         | The type of campaign for which performance data should be generated. Must be: `sponsoredProducts` or `headlineSearch`. |
-  | `segment`         | `string`     | POST body         | Optional. Dimension on which to segment the report. If specified, must be `query` for keyword report or `placement` for campaigns report. |
-  | `reportDate`      | `string`     | POST body         | The date for which to retrieve the performance report in `YYYYMMDD` format.                     |
-  | `metrics`         | `string`     | POST body         | A comma-separated list of the metrics to be included in the report.                               |
+  | **Parameter Name** | **Type** | **Specified In** | **Description**                                                                                                                             |
+  | ------------------ | -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `recordType`       | `string` | URL              | The type of entity for which the report should be generated. Must be one of: `campaigns`, `adGroups`, `keywords`, `productAds`, or `asins`. |
+  | `campaignType`     | `string` | POST body        | The type of campaign for which performance data should be generated. Must be: `sponsoredProducts` or `headlineSearch`.                      |
+  | `segment`          | `string` | POST body        | Optional. Dimension on which to segment the report. If specified, must be `query` for keyword report or `placement` for campaigns report.   |
+  | `reportDate`       | `string` | POST body        | The date for which to retrieve the performance report in `YYYYMMDD` format.                                                                 |
+  | `metrics`          | `string` | POST body        | A comma-separated list of the metrics to be included in the report.                                                                         |
 
 - **Response:**
 
-  | **Status Code** | **Response Object** |
-  |-----------------|----------------------|
-  | `202 - success` | `ReportResponse`     |
-  | `401 - unauthorized` | `Error`           |
-  | `406 – not acceptable` | `Error` (failed due to report date being too far in the past) |
-  | `422 - unprocessable entity` | `Error` (failed due to incorrect parameters) |
+  | **Status Code**              | **Response Object**                                           |
+  | ---------------------------- | ------------------------------------------------------------- |
+  | `202 - success`              | `ReportResponse`                                              |
+  | `401 - unauthorized`         | `Error`                                                       |
+  | `406 – not acceptable`       | `Error` (failed due to report date being too far in the past) |
+  | `422 - unprocessable entity` | `Error` (failed due to incorrect parameters)                  |
 
 ### `getReport`
 
@@ -55,18 +55,18 @@ The following table describes the service behavior in terms of the URL space and
 
 - **Parameters:**
 
-  | **Parameter Name** | **Type**  | **Specified In** | **Description**                       |
-  |--------------------|-----------|-------------------|---------------------------------------|
-  | `reportId`        | `number`  | URL path          | The ID of the requested report.       |
+  | **Parameter Name** | **Type** | **Specified In** | **Description**                 |
+  | ------------------ | -------- | ---------------- | ------------------------------- |
+  | `reportId`         | `number` | URL path         | The ID of the requested report. |
 
 - **Response:**
 
-  | **Status Code** | **Response Object** |
-  |-----------------|----------------------|
-  | `200 - success` | `ReportResponse`     |
-  | `401 - unauthorized` | `Error`           |
-  | `404 - report not found` | `Error`         |
-  | `404 - not found server` | `Error`         |
+  | **Status Code**          | **Response Object** |
+  | ------------------------ | ------------------- |
+  | `200 - success`          | `ReportResponse`    |
+  | `401 - unauthorized`     | `Error`             |
+  | `404 - report not found` | `Error`             |
+  | `404 - not found server` | `Error`             |
 
 The `ReportResponse` will contain report status. When the report has completed, the `location` field will provide a redirect URL for the gzipped file containing the report. See [downloading reports](#downloading-reports) for more details.
 
@@ -137,14 +137,54 @@ Would have a report that looks something like this:
 
 ```json
 [
-  {"keywordId": 123, "query": "red iphone case", "impressions": 584920, "clicks": 2989},
-  {"keywordId": 123, "query": "blue iphone 6s case", "impressions": 8348230, "clicks": 16483},
-  {"keywordId": 456, "query": "chuck taylor all star", "impressions": 83910, "clicks": 2483},
-  {"keywordId": 456, "query": "converse chuck taylor", "impressions": 2349190, "clicks": 1238},
-  {"keywordId": 456, "query": "chuck taylor", "impressions": 291827, "clicks": 1289},
-  {"keywordId": 789, "query": "rare earth magnets", "impressions": 99375092, "clicks": 912037},
-  {"keywordId": 789, "query": "magnets", "impressions": 93894023, "clicks": 238482},
-  {"keywordId": 789, "query": "strong magnets", "impressions": 292, "clicks": 1}
+  {
+    "keywordId": 123,
+    "query": "red iphone case",
+    "impressions": 584920,
+    "clicks": 2989
+  },
+  {
+    "keywordId": 123,
+    "query": "blue iphone 6s case",
+    "impressions": 8348230,
+    "clicks": 16483
+  },
+  {
+    "keywordId": 456,
+    "query": "chuck taylor all star",
+    "impressions": 83910,
+    "clicks": 2483
+  },
+  {
+    "keywordId": 456,
+    "query": "converse chuck taylor",
+    "impressions": 2349190,
+    "clicks": 1238
+  },
+  {
+    "keywordId": 456,
+    "query": "chuck taylor",
+    "impressions": 291827,
+    "clicks": 1289
+  },
+  {
+    "keywordId": 789,
+    "query": "rare earth magnets",
+    "impressions": 99375092,
+    "clicks": 912037
+  },
+  {
+    "keywordId": 789,
+    "query": "magnets",
+    "impressions": 93894023,
+    "clicks": 238482
+  },
+  {
+    "keywordId": 789,
+    "query": "strong magnets",
+    "impressions": 292,
+    "clicks": 1
+  }
 ]
 ```
 
@@ -160,160 +200,160 @@ The following tables summarize report metrics which can be requested via the Rep
 
 ### Campaigns Reports
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `bidPlus`                      | A dimensional metric. See premium bid adjustment in the developer notes.                         |
-| `campaignName`                 | Unique name of the campaign.                                                                     |
-| `campaignId`                   | Unique numerical ID of the campaign.                                                             |
-| `campaignStatus`               | Status of the campaign.                                                                         |
-| `campaignBudget`               | Total budget allotted to the campaign.                                                          |
-| `impressions`                  | Total ad impressions.                                                                           |
-| `clicks`                       | Total ad clicks.                                                                                |
-| `cost`                         | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                       |
-| `attributedConversions1d`      | Number of attributed conversion events occurring within 1 day of click on ad.                  |
-| `attributedConversions7d`      | Number of attributed conversion events occurring within 7 days of click on ad.                  |
-| `attributedConversions14d`     | Number of attributed conversion events occurring within 14 days of click on ad.                 |
-| `attributedConversions30d`     | Number of attributed conversion events occurring within 30 days of click on ad.                 |
-| `attributedConversions1dSameSKU` | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedConversions7dSameSKU` | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
+| **Metric**                        | **Details**                                                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bidPlus`                         | A dimensional metric. See premium bid adjustment in the developer notes.                                                                   |
+| `campaignName`                    | Unique name of the campaign.                                                                                                               |
+| `campaignId`                      | Unique numerical ID of the campaign.                                                                                                       |
+| `campaignStatus`                  | Status of the campaign.                                                                                                                    |
+| `campaignBudget`                  | Total budget allotted to the campaign.                                                                                                     |
+| `impressions`                     | Total ad impressions.                                                                                                                      |
+| `clicks`                          | Total ad clicks.                                                                                                                           |
+| `cost`                            | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                                                                  |
+| `attributedConversions1d`         | Number of attributed conversion events occurring within 1 day of click on ad.                                                              |
+| `attributedConversions7d`         | Number of attributed conversion events occurring within 7 days of click on ad.                                                             |
+| `attributedConversions14d`        | Number of attributed conversion events occurring within 14 days of click on ad.                                                            |
+| `attributedConversions30d`        | Number of attributed conversion events occurring within 30 days of click on ad.                                                            |
+| `attributedConversions1dSameSKU`  | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.   |
+| `attributedConversions7dSameSKU`  | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.  |
 | `attributedConversions14dSameSKU` | Number of attributed conversion events occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
 | `attributedConversions30dSameSKU` | Number of attributed conversion events occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedUnitsOrdered1d`     | Number of attributed units ordered within 1 day of click on ad.                                |
-| `attributedUnitsOrdered7d`     | Number of attributed units ordered within 7 days of click on ad.                                |
-| `attributedUnitsOrdered14d`    | Number of attributed units ordered within 14 days of click on ad.                               |
-| `attributedUnitsOrdered30d`    | Number of attributed units ordered within 30 days of click on ad.                               |
-| `attributedSales1d`            | Number of attributed sales occurring within 1 day of click on ad.                             |
-| `attributedSales7d`            | Number of attributed sales occurring within 7 days of click on ad.                             |
-| `attributedSales14d`           | Number of attributed sales occurring within 14 days of click on ad.                            |
-| `attributedSales30d`           | Number of attributed sales occurring within 30 days of click on ad.                            |
-| `attributedSales1dSameSKU`     | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales7dSameSKU`     | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales14dSameSKU`    | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales30dSameSKU`    | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
+| `attributedUnitsOrdered1d`        | Number of attributed units ordered within 1 day of click on ad.                                                                            |
+| `attributedUnitsOrdered7d`        | Number of attributed units ordered within 7 days of click on ad.                                                                           |
+| `attributedUnitsOrdered14d`       | Number of attributed units ordered within 14 days of click on ad.                                                                          |
+| `attributedUnitsOrdered30d`       | Number of attributed units ordered within 30 days of click on ad.                                                                          |
+| `attributedSales1d`               | Number of attributed sales occurring within 1 day of click on ad.                                                                          |
+| `attributedSales7d`               | Number of attributed sales occurring within 7 days of click on ad.                                                                         |
+| `attributedSales14d`              | Number of attributed sales occurring within 14 days of click on ad.                                                                        |
+| `attributedSales30d`              | Number of attributed sales occurring within 30 days of click on ad.                                                                        |
+| `attributedSales1dSameSKU`        | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.      |
+| `attributedSales7dSameSKU`        | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.     |
+| `attributedSales14dSameSKU`       | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised.    |
+| `attributedSales30dSameSKU`       | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised.    |
 
 ### Ad Group Reports
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `campaignName`                 | Unique name of the campaign.                                                                     |
-| `campaignId`                   | Unique numerical ID of the campaign.                                                             |
-| `adGroupName`                  | Unique name of the ad group.                                                                     |
-| `adGroupId`                    | Unique numerical ID of the ad group.                                                             |
-| `impressions`                  | Total ad impressions.                                                                           |
-| `clicks`                       | Total ad clicks.                                                                                |
-| `cost`                         | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                       |
-| `attributedConversions1d`      | Number of attributed conversion events occurring within 1 day of click on ad.                  |
-| `attributedConversions7d`      | Number of attributed conversion events occurring within 7 days of click on ad.                  |
-| `attributedConversions14d`     | Number of attributed conversion events occurring within 14 days of click on ad.                 |
-| `attributedConversions30d`     | Number of attributed conversion events occurring within 30 days of click on ad.                 |
-| `attributedConversions1dSameSKU` | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedConversions7dSameSKU` | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
+| **Metric**                        | **Details**                                                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `campaignName`                    | Unique name of the campaign.                                                                                                               |
+| `campaignId`                      | Unique numerical ID of the campaign.                                                                                                       |
+| `adGroupName`                     | Unique name of the ad group.                                                                                                               |
+| `adGroupId`                       | Unique numerical ID of the ad group.                                                                                                       |
+| `impressions`                     | Total ad impressions.                                                                                                                      |
+| `clicks`                          | Total ad clicks.                                                                                                                           |
+| `cost`                            | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                                                                  |
+| `attributedConversions1d`         | Number of attributed conversion events occurring within 1 day of click on ad.                                                              |
+| `attributedConversions7d`         | Number of attributed conversion events occurring within 7 days of click on ad.                                                             |
+| `attributedConversions14d`        | Number of attributed conversion events occurring within 14 days of click on ad.                                                            |
+| `attributedConversions30d`        | Number of attributed conversion events occurring within 30 days of click on ad.                                                            |
+| `attributedConversions1dSameSKU`  | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.   |
+| `attributedConversions7dSameSKU`  | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.  |
 | `attributedConversions14dSameSKU` | Number of attributed conversion events occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
 | `attributedConversions30dSameSKU` | Number of attributed conversion events occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedUnitsOrdered1d`     | Number of attributed units ordered within 1 day of click on ad.                                |
-| `attributedUnitsOrdered7d`     | Number of attributed units ordered within 7 days of click on ad.                                |
-| `attributedUnitsOrdered14d`    | Number of attributed units ordered within 14 days of click on ad.                               |
-| `attributedUnitsOrdered30d`    | Number of attributed units ordered within 30 days of click on ad.                               |
-| `attributedSales1d`            | Number of attributed sales occurring within 1 day of click on ad.                             |
-| `attributedSales7d`            | Number of attributed sales occurring within 7 days of click on ad.                             |
-| `attributedSales14d`           | Number of attributed sales occurring within 14 days of click on ad.                            |
-| `attributedSales30d`           | Number of attributed sales occurring within 30 days of click on ad.                            |
-| `attributedSales1dSameSKU`     | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales7dSameSKU`     | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales14dSameSKU`    | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales30dSameSKU`    | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
+| `attributedUnitsOrdered1d`        | Number of attributed units ordered within 1 day of click on ad.                                                                            |
+| `attributedUnitsOrdered7d`        | Number of attributed units ordered within 7 days of click on ad.                                                                           |
+| `attributedUnitsOrdered14d`       | Number of attributed units ordered within 14 days of click on ad.                                                                          |
+| `attributedUnitsOrdered30d`       | Number of attributed units ordered within 30 days of click on ad.                                                                          |
+| `attributedSales1d`               | Number of attributed sales occurring within 1 day of click on ad.                                                                          |
+| `attributedSales7d`               | Number of attributed sales occurring within 7 days of click on ad.                                                                         |
+| `attributedSales14d`              | Number of attributed sales occurring within 14 days of click on ad.                                                                        |
+| `attributedSales30d`              | Number of attributed sales occurring within 30 days of click on ad.                                                                        |
+| `attributedSales1dSameSKU`        | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.      |
+| `attributedSales7dSameSKU`        | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.     |
+| `attributedSales14dSameSKU`       | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised.    |
+| `attributedSales30dSameSKU`       | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised.    |
 
 ### Keyword Reports
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `campaignName`                 | Unique name of the campaign.                                                                     |
-| `campaignId`                   | Unique numerical ID of the campaign.                                                             |
-| `keywordId`                    | ID of the keyword used in bid.                                                                   |
-| `keywordText`                  | Text of the keyword or phrase used in bid.                                                       |
-| `matchType`                    | Type of matching for the keyword or phrase used in bid. Must be one of: `broad`, `phrase`, or `exact`. |
-| `impressions`                  | Total ad impressions.                                                                           |
-| `clicks`                       | Total ad clicks.                                                                                |
-| `cost`                         | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                       |
-| `attributedConversions1d`      | Number of attributed conversion events occurring within 1 day of click on ad.                  |
-| `attributedConversions7d`      | Number of attributed conversion events occurring within 7 days of click on ad.                  |
-| `attributedConversions14d`     | Number of attributed conversion events occurring within 14 days of click on ad.                 |
-| `attributedConversions30d`     | Number of attributed conversion events occurring within 30 days of click on ad.                 |
-| `attributedConversions1dSameSKU` | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedConversions7dSameSKU` | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
+| **Metric**                        | **Details**                                                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `campaignName`                    | Unique name of the campaign.                                                                                                               |
+| `campaignId`                      | Unique numerical ID of the campaign.                                                                                                       |
+| `keywordId`                       | ID of the keyword used in bid.                                                                                                             |
+| `keywordText`                     | Text of the keyword or phrase used in bid.                                                                                                 |
+| `matchType`                       | Type of matching for the keyword or phrase used in bid. Must be one of: `broad`, `phrase`, or `exact`.                                     |
+| `impressions`                     | Total ad impressions.                                                                                                                      |
+| `clicks`                          | Total ad clicks.                                                                                                                           |
+| `cost`                            | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                                                                  |
+| `attributedConversions1d`         | Number of attributed conversion events occurring within 1 day of click on ad.                                                              |
+| `attributedConversions7d`         | Number of attributed conversion events occurring within 7 days of click on ad.                                                             |
+| `attributedConversions14d`        | Number of attributed conversion events occurring within 14 days of click on ad.                                                            |
+| `attributedConversions30d`        | Number of attributed conversion events occurring within 30 days of click on ad.                                                            |
+| `attributedConversions1dSameSKU`  | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.   |
+| `attributedConversions7dSameSKU`  | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.  |
 | `attributedConversions14dSameSKU` | Number of attributed conversion events occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
 | `attributedConversions30dSameSKU` | Number of attributed conversion events occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedUnitsOrdered1d`     | Number of attributed units ordered within 1 day of click on ad.                                |
-| `attributedUnitsOrdered7d`     | Number of attributed units ordered within 7 days of click on ad.                                |
-| `attributedUnitsOrdered14d`    | Number of attributed units ordered within 14 days of click on ad.                               |
-| `attributedUnitsOrdered30d`    | Number of attributed units ordered within 30 days of click on ad.                               |
-| `attributedSales1d`            | Number of attributed sales occurring within 1 day of click on ad.                             |
-| `attributedSales7d`            | Number of attributed sales occurring within 7 days of click on ad.                             |
-| `attributedSales14d`           | Number of attributed sales occurring within 14 days of click on ad.                            |
-| `attributedSales30d`           | Number of attributed sales occurring within 30 days of click on ad.                            |
-| `attributedSales1dSameSKU`     | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales7dSameSKU`     | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales14dSameSKU`    | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales30dSameSKU`    | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
+| `attributedUnitsOrdered1d`        | Number of attributed units ordered within 1 day of click on ad.                                                                            |
+| `attributedUnitsOrdered7d`        | Number of attributed units ordered within 7 days of click on ad.                                                                           |
+| `attributedUnitsOrdered14d`       | Number of attributed units ordered within 14 days of click on ad.                                                                          |
+| `attributedUnitsOrdered30d`       | Number of attributed units ordered within 30 days of click on ad.                                                                          |
+| `attributedSales1d`               | Number of attributed sales occurring within 1 day of click on ad.                                                                          |
+| `attributedSales7d`               | Number of attributed sales occurring within 7 days of click on ad.                                                                         |
+| `attributedSales14d`              | Number of attributed sales occurring within 14 days of click on ad.                                                                        |
+| `attributedSales30d`              | Number of attributed sales occurring within 30 days of click on ad.                                                                        |
+| `attributedSales1dSameSKU`        | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.      |
+| `attributedSales7dSameSKU`        | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.     |
+| `attributedSales14dSameSKU`       | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised.    |
+| `attributedSales30dSameSKU`       | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised.    |
 
 ### Product Ads Reports
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `campaignName`                | Unique name of the campaign.                                                                     |
-| `campaignId`                  | Unique numerical ID of the campaign.                                                             |
-| `adGroupName`                  | Unique name of the ad group.                                                                     |
-| `adGroupId`                   | Unique numerical ID of the ad group.                                                             |
-| `impressions`                 | Total ad impressions.                                                                           |
-| `clicks`                      | Total ad clicks.                                                                                |
-| `cost`                        | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                       |
-| `currency`                    | A dimensional metric.                                                                            |
-| `asin`                        | The ASIN that is being advertised. This is available for both merchants and vendors.            |
-| `sku`                         | The SKU that is being advertised. Not available for vendors.                                    |
-| `attributedConversions1d`     | Number of attributed conversion events occurring within 1 day of click on ad.                  |
-| `attributedConversions7d`     | Number of attributed conversion events occurring within 7 days of click on ad.                  |
-| `attributedConversions14d`    | Number of attributed conversion events occurring within 14 days of click on ad.                 |
-| `attributedConversions30d`    | Number of attributed conversion events occurring within 30 days of click on ad.                 |
-| `attributedConversions1dSameSKU` | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedConversions7dSameSKU` | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
+| **Metric**                        | **Details**                                                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `campaignName`                    | Unique name of the campaign.                                                                                                               |
+| `campaignId`                      | Unique numerical ID of the campaign.                                                                                                       |
+| `adGroupName`                     | Unique name of the ad group.                                                                                                               |
+| `adGroupId`                       | Unique numerical ID of the ad group.                                                                                                       |
+| `impressions`                     | Total ad impressions.                                                                                                                      |
+| `clicks`                          | Total ad clicks.                                                                                                                           |
+| `cost`                            | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                                                                  |
+| `currency`                        | A dimensional metric.                                                                                                                      |
+| `asin`                            | The ASIN that is being advertised. This is available for both merchants and vendors.                                                       |
+| `sku`                             | The SKU that is being advertised. Not available for vendors.                                                                               |
+| `attributedConversions1d`         | Number of attributed conversion events occurring within 1 day of click on ad.                                                              |
+| `attributedConversions7d`         | Number of attributed conversion events occurring within 7 days of click on ad.                                                             |
+| `attributedConversions14d`        | Number of attributed conversion events occurring within 14 days of click on ad.                                                            |
+| `attributedConversions30d`        | Number of attributed conversion events occurring within 30 days of click on ad.                                                            |
+| `attributedConversions1dSameSKU`  | Number of attributed conversion events occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.   |
+| `attributedConversions7dSameSKU`  | Number of attributed conversion events occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.  |
 | `attributedConversions14dSameSKU` | Number of attributed conversion events occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
 | `attributedConversions30dSameSKU` | Number of attributed conversion events occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedUnitsOrdered1d`    | Number of attributed units ordered within 1 day of click on ad.                                |
-| `attributedUnitsOrdered7d`    | Number of attributed units ordered within 7 days of click on ad.                                |
-| `attributedUnitsOrdered14d`   | Number of attributed units ordered within 14 days of click on ad.                               |
-| `attributedUnitsOrdered30d`   | Number of attributed units ordered within 30 days of click on ad.                               |
-| `attributedSales1d`           | Number of attributed sales occurring within 1 day of click on ad.                             |
-| `attributedSales7d`           | Number of attributed sales occurring within 7 days of click on ad.                             |
-| `attributedSales14d`          | Number of attributed sales occurring within 14 days of click on ad.                            |
-| `attributedSales30d`          | Number of attributed sales occurring within 30 days of click on ad.                            |
-| `attributedSales1dSameSKU`    | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales7dSameSKU`    | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales14dSameSKU`   | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedSales30dSameSKU`   | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised. |
+| `attributedUnitsOrdered1d`        | Number of attributed units ordered within 1 day of click on ad.                                                                            |
+| `attributedUnitsOrdered7d`        | Number of attributed units ordered within 7 days of click on ad.                                                                           |
+| `attributedUnitsOrdered14d`       | Number of attributed units ordered within 14 days of click on ad.                                                                          |
+| `attributedUnitsOrdered30d`       | Number of attributed units ordered within 30 days of click on ad.                                                                          |
+| `attributedSales1d`               | Number of attributed sales occurring within 1 day of click on ad.                                                                          |
+| `attributedSales7d`               | Number of attributed sales occurring within 7 days of click on ad.                                                                         |
+| `attributedSales14d`              | Number of attributed sales occurring within 14 days of click on ad.                                                                        |
+| `attributedSales30d`              | Number of attributed sales occurring within 30 days of click on ad.                                                                        |
+| `attributedSales1dSameSKU`        | Aggregate value of attributed sales occurring within 1 day of click on ad where the purchased SKU was the same as the one advertised.      |
+| `attributedSales7dSameSKU`        | Aggregate value of attributed sales occurring within 7 days of click on ad where the purchased SKU was the same as the one advertised.     |
+| `attributedSales14dSameSKU`       | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised.    |
+| `attributedSales30dSameSKU`       | Aggregate value of attributed sales occurring within 30 days of click on ad where the purchased SKU was the same as the one advertised.    |
 
 ### ASINs Report
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `campaignName`                | Unique name of the campaign.                                                                     |
-| `campaignId`                  | Unique numerical ID of the campaign.                                                             |
-| `adGroupName`                  | Unique name of the ad group.                                                                     |
-| `adGroupId`                   | Unique numerical ID of the ad group.                                                             |
-| `keywordId`                   | Unique numerical ID of the keyword.                                                             |
-| `keywordText`                 | Keyword or phrase used in bid.                                                                   |
-| `asin`                        | The ASIN that is being advertised.                                                              |
-| `otherAsin`                   | A non-dimensional metric for ASINs other than the one advertised.                                |
-| `sku`                         | Unique SKU advertised.                                                                          |
-| `currency`                    | A dimensional metric.                                                                            |
-| `matchType`                   | One of: `broad`, `phrase`, or `exact`.                                                          |
-| `attributedUnitsOrdered1dOtherSKU` | Number of other ASIN (SKU) units sold. 1 day.                                                 |
-| `attributedUnitsOrdered7dOtherSKU` | Number of other ASIN (SKU) units sold. 7 days.                                                 |
-| `attributedUnitsOrdered14dOtherSKU` | Number of other ASIN (SKU) units sold. 14 days.                                                |
-| `attributedUnitsOrdered30dOtherSKU` | Number of other ASIN (SKU) units sold. 30 days.                                                 |
-| `attributedSales1dOtherSKU`   | Sales for another ASIN (SKU). 1 day.                                                           |
-| `attributedSales7dOtherSKU`   | Sales for another ASIN (SKU). 7 days.                                                          |
-| `attributedSales14dOtherSKU`  | Sales for another ASIN (SKU). 14 days.                                                          |
-| `attributedSales30dOtherSKU`  | Sales for another ASIN (SKU). 30 days.                                                          |
+| **Metric**                          | **Details**                                                       |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `campaignName`                      | Unique name of the campaign.                                      |
+| `campaignId`                        | Unique numerical ID of the campaign.                              |
+| `adGroupName`                       | Unique name of the ad group.                                      |
+| `adGroupId`                         | Unique numerical ID of the ad group.                              |
+| `keywordId`                         | Unique numerical ID of the keyword.                               |
+| `keywordText`                       | Keyword or phrase used in bid.                                    |
+| `asin`                              | The ASIN that is being advertised.                                |
+| `otherAsin`                         | A non-dimensional metric for ASINs other than the one advertised. |
+| `sku`                               | Unique SKU advertised.                                            |
+| `currency`                          | A dimensional metric.                                             |
+| `matchType`                         | One of: `broad`, `phrase`, or `exact`.                            |
+| `attributedUnitsOrdered1dOtherSKU`  | Number of other ASIN (SKU) units sold. 1 day.                     |
+| `attributedUnitsOrdered7dOtherSKU`  | Number of other ASIN (SKU) units sold. 7 days.                    |
+| `attributedUnitsOrdered14dOtherSKU` | Number of other ASIN (SKU) units sold. 14 days.                   |
+| `attributedUnitsOrdered30dOtherSKU` | Number of other ASIN (SKU) units sold. 30 days.                   |
+| `attributedSales1dOtherSKU`         | Sales for another ASIN (SKU). 1 day.                              |
+| `attributedSales7dOtherSKU`         | Sales for another ASIN (SKU). 7 days.                             |
+| `attributedSales14dOtherSKU`        | Sales for another ASIN (SKU). 14 days.                            |
+| `attributedSales30dOtherSKU`        | Sales for another ASIN (SKU). 30 days.                            |
 
 ## Sponsored Brands Reporting
 
@@ -339,11 +379,11 @@ Sponsored Brands reporting data is only available from the following endpoints:
 
 Reporting for SB adds the following fields:
 
-| **Report Type** | **New Fields**                                                                                     |
-|-----------------|-----------------------------------------------------------------------------------------------------|
-| Campaign        | `campaignType`, `campaignBudget`, `campaignBudgetType`, and `campaignStatus`                      |
+| **Report Type** | **New Fields**                                                                                                                     |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Campaign        | `campaignType`, `campaignBudget`, `campaignBudgetType`, and `campaignStatus`                                                       |
 | Ad Groups       | `campaignId`, `campaignName`, `campaignType`, `campaignBudget`, `campaignBudgetType`, `campaignStatus`, `adGroupName`, `adGroupId` |
-| Keyword         | `campaignId`, `campaignName`, `adGroupId`, `adGroupName`, `campaignBudgetType`, `campaignStatus`, `keywordText`, and `matchType` |
+| Keyword         | `campaignId`, `campaignName`, `adGroupId`, `adGroupName`, `campaignBudgetType`, `campaignStatus`, `keywordText`, and `matchType`   |
 
 Sponsored Brands entities are not included in the snapshot report. To obtain reporting on your SB campaigns, use the SB report metrics listed in the next section. These metrics can be used to request reports of type: `headlineSearch`.
 
@@ -351,24 +391,24 @@ Sponsored Brands entities are not included in the snapshot report. To obtain rep
 
 ### Sponsored Brands Report Metrics
 
-| **Metric**                     | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| `campaignName`                 | Advertiser created campaign name.                                                                 |
-| `campaignId`                  | Unique campaign ID.                                                                               |
-| `campaignType`                 | One of: `headlineSearch` or `sponsoredProducts`.                                                  |
-| `campaignStatus`               | Campaign’s current status.                                                                       |
-| `campaignBudget`               | The campaign budget.                                                                              |
-| `campaignBudgetType`           | One of: `daily` or `lifetime`.                                                                   |
-| `adGroupName`                  | Unique AdGroup name.                                                                              |
-| `adGroupId`                    | Unique AdGroup ID.                                                                                |
-| `keywordText`                 | Keyword or phrase used in bid.                                                                    |
-| `matchType`                   | One of: `broad`, `phrase`, or `exact`.                                                            |
-| `impressions`                 | Total ad impressions.                                                                           |
-| `clicks`                      | Total ad clicks.                                                                                |
-| `cost`                        | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                       |
-| `attributedSales14d`          | Number of attributed sales occurring within 14 days of click on an ad.                         |
-| `attributedSales14dSameSKU`   | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
-| `attributedConversions14d`     | Number of attributed conversion events occurring within 14 days of click on ad.               |
+| **Metric**                        | **Details**                                                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `campaignName`                    | Advertiser created campaign name.                                                                                                          |
+| `campaignId`                      | Unique campaign ID.                                                                                                                        |
+| `campaignType`                    | One of: `headlineSearch` or `sponsoredProducts`.                                                                                           |
+| `campaignStatus`                  | Campaign’s current status.                                                                                                                 |
+| `campaignBudget`                  | The campaign budget.                                                                                                                       |
+| `campaignBudgetType`              | One of: `daily` or `lifetime`.                                                                                                             |
+| `adGroupName`                     | Unique AdGroup name.                                                                                                                       |
+| `adGroupId`                       | Unique AdGroup ID.                                                                                                                         |
+| `keywordText`                     | Keyword or phrase used in bid.                                                                                                             |
+| `matchType`                       | One of: `broad`, `phrase`, or `exact`.                                                                                                     |
+| `impressions`                     | Total ad impressions.                                                                                                                      |
+| `clicks`                          | Total ad clicks.                                                                                                                           |
+| `cost`                            | Total cost of all clicks. Can be divided by clicks to obtain average CPC.                                                                  |
+| `attributedSales14d`              | Number of attributed sales occurring within 14 days of click on an ad.                                                                     |
+| `attributedSales14dSameSKU`       | Aggregate value of attributed sales occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised.    |
+| `attributedConversions14d`        | Number of attributed conversion events occurring within 14 days of click on ad.                                                            |
 | `attributedConversions14dSameSKU` | Number of attributed conversion events occurring within 14 days of click on ad where the purchased SKU was the same as the one advertised. |
 
 ---

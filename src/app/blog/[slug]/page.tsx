@@ -13,7 +13,9 @@ interface Props {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params }: Readonly<Props>): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: Readonly<Props>): Promise<Metadata> {
   try {
     // Await the params to ensure they are fully resolved
     const { slug } = params;

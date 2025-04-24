@@ -85,24 +85,21 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="GitHub"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
-              >
-              </Link>
+              ></Link>
               <Link
                 href="https://linkedin.com/in/wesleyquintero"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
-              >
-              </Link>
+              ></Link>
               <Link
                 href="https://twitter.com/wesleyquintero"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
-              >
-              </Link>
+              ></Link>
               <Link
                 href="mailto:johnwesleyquintero@gmail.com"
                 aria-label="Email"

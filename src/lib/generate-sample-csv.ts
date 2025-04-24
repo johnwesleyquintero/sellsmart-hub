@@ -36,7 +36,8 @@ const dataGenerators = {
   string: (config: DataTypeConfig['options'] = {}) => {
     const { prefix = '', suffix = '', length = 8 } = config; // Default length 8
     // Security: Acceptable for sample data generation
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const randomValues = new Uint32Array(length);
     window.crypto.getRandomValues(randomValues); // Browser-specific crypto
     const randomStr = Array.from(
@@ -61,7 +62,8 @@ const dataGenerators = {
     const randomBuffer = new Uint32Array(1);
     window.crypto.getRandomValues(randomBuffer); // Browser-specific crypto
     // Generate dates within the last year
-    const randomPastTime = (randomBuffer[0] / 4294967295) * 365 * 24 * 60 * 60 * 1000;
+    const randomPastTime =
+      (randomBuffer[0] / 4294967295) * 365 * 24 * 60 * 60 * 1000;
     const date = new Date(Date.now() - randomPastTime);
     // Return YYYY-MM-DD format for better CSV compatibility usually
     return date.toISOString().split('T')[0];
@@ -120,12 +122,14 @@ const generateSampleData = (
         const generator =
           customGenerators[dataType.type] || dataGenerators[dataType.type];
         if (!generator) {
-          logger.warn(`Unsupported data type: ${dataType.type} for column ${name}. Skipping.`);
+          logger.warn(
+            `Unsupported data type: ${dataType.type} for column ${name}. Skipping.`,
+          );
           row[name] = ''; // Assign empty string if generator missing
           // Or throw error if preferred:
           // throw new Error(`Unsupported data type: ${dataType.type}`);
         } else {
-           row[name] = generator(dataType.options as any);
+          row[name] = generator(dataType.options as any);
         }
       });
 
@@ -201,9 +205,13 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         },
         required: true,
       },
-       { // Example: Adding CPC
+      {
+        // Example: Adding CPC
         name: 'cpc',
-        dataType: { type: 'number', options: { min: 0.1, max: 5.0, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 0.1, max: 5.0, decimals: 2 },
+        },
         required: false, // Make it optional
         description: 'Cost Per Click (Optional)',
       },
@@ -214,7 +222,8 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
   // Existing PPC config
   ppc: {
     columns: [
-       { // Added Date
+      {
+        // Added Date
         name: 'date',
         dataType: { type: 'date' },
         required: true,
@@ -230,7 +239,13 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         dataType: {
           type: 'enum',
           options: {
-            values: ['Auto', 'SP Keyword', 'SP ASIN', 'SB Keyword', 'SD Audience'], // More specific types
+            values: [
+              'Auto',
+              'SP Keyword',
+              'SP ASIN',
+              'SB Keyword',
+              'SD Audience',
+            ], // More specific types
           },
         },
         required: true,
@@ -261,7 +276,8 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         dataType: { type: 'number', options: { min: 0, max: 500 } }, // Adjusted min to 0
         required: true,
       },
-       { // Example: Adding Orders
+      {
+        // Example: Adding Orders
         name: 'orders',
         dataType: { type: 'number', options: { min: 0, max: 50 } },
         required: false, // Optional
@@ -275,7 +291,8 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
 
   acos: {
     columns: [
-      { // Added Date
+      {
+        // Added Date
         name: 'date',
         dataType: { type: 'date' },
         required: true,
@@ -295,13 +312,19 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'adSpend',
-        dataType: { type: 'number', options: { min: 10, max: 200, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 10, max: 200, decimals: 2 },
+        },
         required: true,
         description: 'Advertising Spend',
       },
       {
         name: 'sales',
-        dataType: { type: 'number', options: { min: 0, max: 1000, decimals: 2 } }, // Min 0
+        dataType: {
+          type: 'number',
+          options: { min: 0, max: 1000, decimals: 2 },
+        }, // Min 0
         required: true,
         description: 'Total Sales from Ads',
       },
@@ -323,7 +346,8 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
 
   sales: {
     columns: [
-      { // Added Date
+      {
+        // Added Date
         name: 'date',
         dataType: { type: 'date' },
         required: true,
@@ -335,7 +359,7 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         required: true,
         description: 'Amazon Standard Identification Number',
       },
-       {
+      {
         name: 'sku',
         dataType: { type: 'string', options: { prefix: 'SKU-', length: 12 } },
         required: false, // Optional
@@ -349,19 +373,28 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'revenue',
-        dataType: { type: 'number', options: { min: 0, max: 1000, decimals: 2 } }, // Min 0
+        dataType: {
+          type: 'number',
+          options: { min: 0, max: 1000, decimals: 2 },
+        }, // Min 0
         required: true,
         description: 'Total Revenue',
       },
       {
         name: 'ppcSpend',
-        dataType: { type: 'number', options: { min: 0, max: 100, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 0, max: 100, decimals: 2 },
+        },
         required: false,
         description: 'PPC Spend (Optional)',
       },
       {
         name: 'organicSales',
-        dataType: { type: 'number', options: { min: 0, max: 900, decimals: 2 } }, // Min 0
+        dataType: {
+          type: 'number',
+          options: { min: 0, max: 900, decimals: 2 },
+        }, // Min 0
         required: false,
         description: 'Organic Sales Revenue (Optional)',
       },
@@ -370,28 +403,35 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
   },
 
   competitor: {
-     columns: [
-      { // Added Date
+    columns: [
+      {
+        // Added Date
         name: 'date',
         dataType: { type: 'date' },
         required: true,
         description: 'Date of Competitor Snapshot',
       },
-       {
+      {
         name: 'asin',
         dataType: { type: 'asin' },
         required: true,
         description: 'Competitor ASIN',
       },
-       {
+      {
         name: 'name',
-        dataType: { type: 'string', options: { prefix: 'Competitor Product ' } },
+        dataType: {
+          type: 'string',
+          options: { prefix: 'Competitor Product ' },
+        },
         required: false, // Optional name
         description: 'Competitor Product Name (Optional)',
       },
       {
         name: 'price',
-        dataType: { type: 'number', options: { min: 10, max: 150, decimals: 2 } },
+        dataType: {
+          type: 'number',
+          options: { min: 10, max: 150, decimals: 2 },
+        },
         required: true,
         description: 'Competitor Price',
       },
@@ -403,7 +443,10 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'rating',
-        dataType: { type: 'number', options: { min: 1.0, max: 5.0, decimals: 1 } },
+        dataType: {
+          type: 'number',
+          options: { min: 1.0, max: 5.0, decimals: 1 },
+        },
         required: true,
         description: 'Average Rating',
       },
@@ -415,7 +458,10 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'click_through_rate',
-        dataType: { type: 'number', options: { min: 0.1, max: 5.0, decimals: 2 } }, // As percentage
+        dataType: {
+          type: 'number',
+          options: { min: 0.1, max: 5.0, decimals: 2 },
+        }, // As percentage
         required: false, // Often estimated, make optional
         description: 'Estimated Click-Through Rate (%) (Optional)',
       },
@@ -424,8 +470,9 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
   },
 
   inventory: {
-     columns: [
-      { // Added Date
+    columns: [
+      {
+        // Added Date
         name: 'date',
         dataType: { type: 'date' },
         required: true,
@@ -437,7 +484,7 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         required: true,
         description: 'Product Identifier (ASIN/SKU)',
       },
-       {
+      {
         name: 'productName',
         dataType: { type: 'string', options: { prefix: 'My Product-' } },
         required: false, // Optional
@@ -455,13 +502,13 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
         required: true,
         description: 'Average Daily Sales Velocity',
       },
-       {
+      {
         name: 'safetyStock',
         dataType: { type: 'number', options: { min: 0, max: 200 } },
         required: false, // Optional
         description: 'Safety Stock Level (Optional)',
       },
-       {
+      {
         name: 'leadTime', // In days
         dataType: { type: 'number', options: { min: 7, max: 90 } },
         required: false, // Optional
@@ -469,14 +516,16 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
       },
       {
         name: 'status',
-        dataType: { type: 'enum', options: { values: ['Healthy', 'Low', 'Excess', 'Critical'] } },
+        dataType: {
+          type: 'enum',
+          options: { values: ['Healthy', 'Low', 'Excess', 'Critical'] },
+        },
         required: false, // Optional
         description: 'Inventory Health Status (Optional)',
       },
     ],
     rowCount: 10,
   },
-
 };
 
 /**
@@ -496,9 +545,9 @@ export function generateSampleCsv(
   try {
     const data = generateSampleData(config);
     if (data.length === 0) {
-       // Generate header even if no data rows
-       const headers = config.columns.map(col => col.name);
-       return Papa.unparse([headers], { header: false }); // Unparse just the header array
+      // Generate header even if no data rows
+      const headers = config.columns.map((col) => col.name);
+      return Papa.unparse([headers], { header: false }); // Unparse just the header array
     }
     // Papaparse automatically uses the keys of the first object as headers
     return Papa.unparse(data, { header: true });
@@ -518,9 +567,16 @@ export function downloadSampleCsv(
   fileName?: string,
 ): void {
   // Ensure this runs only in the browser
-  if (typeof window === 'undefined' || typeof document === 'undefined' || typeof Blob === 'undefined' || typeof URL === 'undefined') {
-      logger.error('CSV download function called outside of browser environment.');
-      throw new Error('CSV download is only available in the browser.');
+  if (
+    typeof window === 'undefined' ||
+    typeof document === 'undefined' ||
+    typeof Blob === 'undefined' ||
+    typeof URL === 'undefined'
+  ) {
+    logger.error(
+      'CSV download function called outside of browser environment.',
+    );
+    throw new Error('CSV download is only available in the browser.');
   }
 
   try {
@@ -532,8 +588,10 @@ export function downloadSampleCsv(
       logger.error(
         `[CSV Download] Generated CSV string is empty for type ${dataType}, aborting download. Check logs for errors.`,
       );
-       // Optionally, inform the user via UI feedback (e.g., toast notification)
-      alert(`Could not generate sample CSV for ${dataType}. Please check the console for errors.`);
+      // Optionally, inform the user via UI feedback (e.g., toast notification)
+      alert(
+        `Could not generate sample CSV for ${dataType}. Please check the console for errors.`,
+      );
       return;
     }
     console.log(
@@ -563,17 +621,27 @@ export function downloadSampleCsv(
     URL.revokeObjectURL(url);
     console.log('[CSV Download] Completed download and cleaned up resources');
   } catch (error: unknown) {
-     // Log the specific error
-    logger.error('Error during CSV download process', { error, dataType, fileName });
+    // Log the specific error
+    logger.error('Error during CSV download process', {
+      error,
+      dataType,
+      fileName,
+    });
 
     // Provide user feedback
-    alert(`Failed to download sample CSV for ${dataType}. Please check the console for details.`);
+    alert(
+      `Failed to download sample CSV for ${dataType}. Please check the console for details.`,
+    );
 
     // Re-throw or handle as appropriate for the calling context
     if (error instanceof Error) {
-      throw new Error(`Failed to download CSV for ${dataType}: ${error.message}`);
+      throw new Error(
+        `Failed to download CSV for ${dataType}: ${error.message}`,
+      );
     } else {
-      throw new Error(`Failed to download CSV for ${dataType}: An unknown error occurred.`);
+      throw new Error(
+        `Failed to download CSV for ${dataType}: An unknown error occurred.`,
+      );
     }
   }
 }
