@@ -79,7 +79,6 @@ export const formatNumber = (value: number, decimals = 2): string => {
     });
     return '0';
   }
-};
   } catch (error) {
     logger.error('Error in formatNumber', {
       value,
@@ -88,7 +87,6 @@ export const formatNumber = (value: number, decimals = 2): string => {
     });
     return '0';
   }
-};
 
 /**
  * Calculates FBA metrics with improved error handling and validation

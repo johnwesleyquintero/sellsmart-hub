@@ -57,7 +57,7 @@ const dataGenerators = {
   },
 
   date: (config: DataTypeConfig['options'] = {}) => {
-    const { format = 'ISO' } = config;
+    const { format: _ = 'ISO' } = config; // Prefix with _ to indicate unused parameter
     // Security: Appropriate for non-cryptographic use
     const randomBuffer = new Uint32Array(1);
     window.crypto.getRandomValues(randomBuffer); // Browser-specific crypto

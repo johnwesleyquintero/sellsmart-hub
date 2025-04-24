@@ -209,69 +209,78 @@ function ChatInterface() {
   }, [messages]); // Run whenever messages array changes
 
   // --- Message Handling Logic ---
+  const handleRetryLimitReached = useCallback((timestamp: number, currentRetryCount: number) => {
+    console.warn(`Retry limit reached for message: ${timestamp}`);
+    dispatch({
+      type: 'UPDATE_MESSAGE',
+      payload: {
+        timestamp,
+        role: 'user',
+        updates: {
+          error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
+          retryCount: currentRetryCount,
+          retryStatus: 'failed',
+        },
+      },
+    });
+  }, []);
+
+  const applyExponentialBackoff = useCallback(async (currentRetryCount: number) => {
+    const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }, []);
+
+  const createUserMessage = useCallback((content: string, timestamp: number, isRetry: boolean, currentRetryCount: number) => {
+    return {
+      role: 'user',
+      content: content.trim(),
+      timestamp,
+      status: 'sending',
+      retryCount: currentRetryCount,
+      retryLimit: RETRY_LIMIT,
+      retryStatus: isRetry ? 'retrying' : undefined,
+    };
+  }, []);
+
+  const updateRetryingMessage = useCallback((timestamp: number, currentRetryCount: number) => {
+    dispatch({
+      type: 'UPDATE_MESSAGE',
+      payload: {
+        timestamp,
+        role: 'user',
+        updates: {
+          status: 'sending',
+          error: undefined,
+          retryCount: currentRetryCount,
+          retryStatus: 'retrying',
+        },
+      },
+    });
+  }, []);
+
   const handleMessageSubmit = useCallback(
     async (messageOrContent: Message | string) => {
       const isRetry = typeof messageOrContent !== 'string';
       const content = isRetry ? messageOrContent.content : messageOrContent;
       const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
-      const currentRetryCount = isRetry
-        ? (messageOrContent.retryCount ?? 0)
-        : 0;
+      const currentRetryCount = isRetry ? (messageOrContent.retryCount ?? 0) : 0;
 
       if (!content.trim()) return;
 
-      // Check retry limit
       if (isRetry && currentRetryCount >= RETRY_LIMIT) {
-        console.warn(`Retry limit reached for message: ${timestampToUse}`);
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          payload: {
-            timestamp: timestampToUse,
-            role: 'user',
-            updates: {
-              error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
-              retryCount: currentRetryCount,
-              retryStatus: 'failed',
-            },
-          },
-        });
+        handleRetryLimitReached(timestampToUse, currentRetryCount);
         return;
       }
 
-      // Apply exponential backoff delay for retries
       if (isRetry) {
-        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount); // Corrected: Use currentRetryCount for delay calculation before incrementing
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await applyExponentialBackoff(currentRetryCount);
       }
 
-      const userMessage: Message = {
-        role: 'user',
-        content: content.trim(),
-        timestamp: timestampToUse,
-        status: 'sending',
-        retryCount: currentRetryCount, // Use the count *before* this attempt
-        retryLimit: RETRY_LIMIT,
-        retryStatus: isRetry ? 'retrying' : undefined, // Set retryStatus if it's a retry attempt
-      };
+      const userMessage = createUserMessage(content, timestampToUse, isRetry, currentRetryCount);
 
-      // --- Optimistic UI Update ---
       if (isRetry) {
-        // If retrying, update the existing message's status
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          payload: {
-            timestamp: timestampToUse,
-            role: 'user',
-            updates: {
-              status: 'sending',
-              error: undefined,
-              retryCount: currentRetryCount, // Keep the count before this attempt for display
-              retryStatus: 'retrying',
-            },
-          },
-        });
+        updateRetryingMessage(timestampToUse, currentRetryCount);
       } else {
-        // If new message, add it and clear input
         dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
         dispatch({ type: 'SET_INPUT', payload: '' });
       }

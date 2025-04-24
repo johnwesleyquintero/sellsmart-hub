@@ -293,7 +293,6 @@ interface ProductEditorAreaProps {
 
 function ProductEditorArea({
   product,
-  prohibitedKeywords, // Keep this prop if needed elsewhere, though not directly used in this component anymore
   onDescriptionChange,
   onSave,
 }: Readonly<ProductEditorAreaProps>) {

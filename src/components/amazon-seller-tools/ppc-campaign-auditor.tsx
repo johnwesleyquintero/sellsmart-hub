@@ -236,7 +236,7 @@ function analyzeCampaignPerformance(
  */
 function validateRow(
   row: unknown,
-  rowIndex: number,
+  _rowIndex: number, // Prefix with _ to indicate unused parameter
 ): { data: ValidatedRow | null; error: string | null } {
   const item = row as RawCampaignData;
 

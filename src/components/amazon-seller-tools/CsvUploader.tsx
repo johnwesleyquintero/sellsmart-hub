@@ -129,7 +129,7 @@ const parseAndValidateCsv = <T extends Record<string, unknown>>(
         const errors: string[] = [];
 
         results.data.forEach(
-          (value: unknown, index: number, array: unknown[]) => {
+          (value: unknown, index: number) => {
             const row = value as Record<string, unknown>;
             const { validRow, error } = processRow(row, index, validateRowFn);
             if (validRow) {
