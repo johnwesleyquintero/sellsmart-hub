@@ -36,7 +36,7 @@ type MessageBubbleProps = {
 };
 
 export interface CodeBlockProps {
-  node?: any;
+  node?: unknown;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -316,7 +316,7 @@ function ChatInterface() {
                 errorMessage += ` (${errorData.details})`;
               }
             }
-          } catch (parseError) {
+          } catch {
             console.error('Failed to parse error JSON from API response', {
               status: apiResponse.status,
               statusText: apiResponse.statusText,
@@ -750,7 +750,7 @@ const renderMessage = (content: string) => (
       // Use custom CodeBlock component for rendering code elements
       code: CodeBlock as any, // Cast needed due to complex type inference
       // Customize other elements if needed, e.g., links to open in new tabs
-      a: ({ node, ...props }) => (
+      a: ({ ...props }) => (
         <a
           {...props}
           target="_blank"
@@ -759,8 +759,8 @@ const renderMessage = (content: string) => (
         />
       ),
       // Ensure paragraphs inside list items don't add extra margin
-      li: ({ node, ...props }) => <li {...props} className="my-0.5" />,
-      p: ({ node, ...props }) => <p {...props} className="my-2" />, // Adjust paragraph margin if needed
+      li: ({ ...props }) => <li {...props} className="my-0.5" />,
+      p: ({ ...props }) => <p {...props} className="my-2" />, // Adjust paragraph margin if needed
     }}
     // Disallow potentially dangerous HTML
     // rehypePlugins={[rehypeRaw]} // Use rehypeRaw carefully if you need to render raw HTML from the AI

@@ -60,13 +60,7 @@ export function trackPageView(url: string): void {
   }
 }
 
-// Custom event types
-type TrackEventParams = {
-  category: 'contact' | 'download' | 'tool-usage' | 'error';
-  action: string;
-  label?: string;
-  value?: number;
-};
+
 
 export const Analytics = {
   contactSubmitted: () =>

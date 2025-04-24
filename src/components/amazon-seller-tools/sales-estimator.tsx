@@ -151,7 +151,7 @@ export default function SalesEstimator() {
     setError(null);
 
     try {
-      const result = await new Promise<Papa.ParseResult<any>>(
+      const result = await new Promise<Papa.ParseResult<unknown>>(
         (resolve, reject) => {
           Papa.parse(file, {
             header: true,
@@ -168,13 +168,26 @@ export default function SalesEstimator() {
       }
 
       const processedData = result.data
-        .filter((row: any) => row.product && row.category && row.price)
-        .map((row: any) => {
+        .filter((row: unknown) => {
+          const typedRow = row as {
+            product?: string;
+            category?: string;
+            price?: number | string;
+          };
+          return typedRow.product && typedRow.category && typedRow.price;
+        })
+        .map((row: unknown) => {
+          const rowData = row as {
+            product: string;
+            category: string;
+            price: number | string;
+            competition?: CompetitionLevel;
+          };
           const validatedData = productSchema.parse({
-            product: row.product,
-            category: row.category,
-            price: Number(row.price),
-            competition: row.competition || 'Medium',
+            product: rowData.product,
+            category: rowData.category,
+            price: Number(rowData.price),
+            competition: rowData.competition || 'Medium',
           });
 
           const { estimatedSales, estimatedRevenue, confidence } =

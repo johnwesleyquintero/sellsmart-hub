@@ -58,16 +58,10 @@ import { logger } from '@/lib/logger';
  * @param decimals Number of decimal places (default 2)
  * @returns Formatted string representation
  */
-const formatNumber = (value: number, decimals: number = 2): string => {
-  try {
-    if (!isFinite(value)) {
-      logger.warn('Non-finite value encountered in formatNumber', { value });
-      if (value > 0) return '∞';
-      if (value < 0) return '-∞';
-      return '0';
-    }
 
-    if (decimals < 0) {
+export const formatNumber = (value: number, decimals = 2): string => {
+  try {
+    if (isNaN(decimals) || decimals < 0 || decimals > 20) {
       logger.warn('Invalid decimals value in formatNumber', { decimals });
       decimals = 2; // Reset to default
     }
@@ -77,6 +71,15 @@ const formatNumber = (value: number, decimals: number = 2): string => {
     if (absValue >= 1e6) return `${(value / 1e6).toFixed(decimals)}M`;
     if (absValue >= 1e3) return `${(value / 1e3).toFixed(decimals)}K`;
     return value.toFixed(decimals);
+  } catch (error) {
+    logger.error('Error in formatNumber', {
+      value,
+      decimals,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return '0';
+  }
+};
   } catch (error) {
     logger.error('Error in formatNumber', {
       value,
@@ -664,8 +667,5 @@ export default function FbaCalculator() {
     </div>
   );
 }
-const getMarginColorClass = (margin: number): string => {
-  if (margin > 0) return 'text-green-600 dark:text-green-400';
-  if (margin < 0) return 'text-red-600 dark:text-red-400';
-  return 'text-yellow-600 dark:text-yellow-400';
+
 };

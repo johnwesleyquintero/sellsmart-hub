@@ -328,7 +328,7 @@ function processRawCampaignData(rawData: unknown[]): {
   }
 
   rawData.forEach((row, index) => {
-    const rowIndex = index + 1; // User-friendly row number (1-based)
+    const rowIndex = index; // Use 0-based index
     const validationResult = validateRow(row, rowIndex);
 
     if (validationResult.error || !validationResult.data) {

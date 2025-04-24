@@ -440,7 +440,7 @@ async function isWithinRateLimit(keySuffix: string): Promise<boolean> {
       return false; // Fail closed on Redis error
     }
 
-    const [[_incrErr, currentCount], [_ttlErr, ttl]] = results;
+    const [[, currentCount], [, ttl]] = results;
 
     if (typeof currentCount !== 'number') {
       logger.error('Invalid count received from Redis INCR', {
@@ -499,7 +499,7 @@ async function acquireMutex(db: Db, key: string): Promise<boolean> {
 
 async function releaseMutex(db: Db, key: string): Promise<void> {
   try {
-    const result = await db.collection('mutexes').deleteOne({ key });
+    await db.collection('mutexes').deleteOne({ key });
     // Optional: Log based on whether the mutex was found and deleted.
     // if (result.deletedCount === 1) {
     //   logger.debug(`Mutex ${key} released.`);

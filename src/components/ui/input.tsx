@@ -12,7 +12,7 @@ export interface InputProps
   name?: string;
   placeholder?: string;
   required?: boolean;
-  disabled?: boolean;
+
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       name,
       placeholder,
       required,
-      disabled,
+
       ...props
     },
     ref,

@@ -22,11 +22,13 @@ export const productDescriptionSchema = z.object({
 });
 
 // Debounce function for performance optimization
+import type { Timeout } from 'node:timers';
+
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number,
 ): ((...args: Parameters<T>) => ReturnType<T>) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: Timeout;
 
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
