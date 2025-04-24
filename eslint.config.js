@@ -4,7 +4,15 @@ import typescriptParser from '@typescript-eslint/parser';
 import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 
+import next from 'eslint-plugin-next';
+
 export default [
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      next: next,
+    },
+  },
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -15,6 +23,7 @@ export default [
         ...globals.browser,
         ...globals.node,
         ...globals.es2021,
+        React: 'readonly',
       },
       parser: typescriptParser,
       parserOptions: {
@@ -36,6 +45,7 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       'sonarjs/no-duplicate-string': 'off',
       'sonarjs/cognitive-complexity': ['error', 15],
+      'react/react-in-jsx-scope': 'off',
     },
   },
   {

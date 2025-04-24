@@ -1,5 +1,5 @@
-import React from 'react';
 'use client';
+import React from 'react';
 
 // --- Style Imports ---
 import 'katex/dist/katex.min.css'; // For math rendering

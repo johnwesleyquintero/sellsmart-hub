@@ -1,5 +1,5 @@
-import React from 'react';
 'use client';
+import React from 'react';
 
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { DashboardSidebar } from '@/components/ui/dashboard-sidebar';
