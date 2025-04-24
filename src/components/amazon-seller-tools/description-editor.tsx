@@ -191,7 +191,7 @@ interface ManualAddProductFormProps {
 function ManualAddProductForm({
   onSubmit,
   isLoading,
-}: ManualAddProductFormProps) {
+}: Readonly<ManualAddProductFormProps>) {
   const [formData, setFormData] = useState({
     product: '',
     asin: '',
@@ -296,7 +296,7 @@ function ProductEditorArea({
   prohibitedKeywords, // Keep this prop if needed elsewhere, though not directly used in this component anymore
   onDescriptionChange,
   onSave,
-}: ProductEditorAreaProps) {
+}: Readonly<ProductEditorAreaProps>) {
   const [showPreview, setShowPreview] = useState(false);
 
   // Debounce the description change handler

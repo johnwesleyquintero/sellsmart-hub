@@ -6,7 +6,7 @@ interface DndProviderProps {
   children: React.ReactNode;
 }
 
-function DndProviderWrapper({ children }: DndProviderProps): JSX.Element {
+function DndProviderWrapper({ children }: Readonly<DndProviderProps>): JSX.Element {
   return <DndProvider backend={HTML5Backend}>{children}</DndProvider>;
 }
 

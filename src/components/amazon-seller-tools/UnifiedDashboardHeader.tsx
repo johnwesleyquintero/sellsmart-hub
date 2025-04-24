@@ -14,7 +14,7 @@ export function UnifiedDashboardHeader({
   error,
   onRefresh,
   onExport,
-}: HeaderProps) {
+}: Readonly<HeaderProps>) {
   return (
     <div className="flex justify-between items-center mb-6" aria-live="polite">
       <h1 className="text-2xl font-bold">Amazon Seller Tools Dashboard</h1>

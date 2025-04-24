@@ -16,7 +16,7 @@ export default function BlogImage({
   width,
   height,
   className,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <Image
       src={src}

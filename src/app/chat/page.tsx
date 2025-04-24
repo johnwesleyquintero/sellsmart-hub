@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import dynamic from 'next/dynamic';
 
 export default function ChatPage() {
-  const ChatWithLoading = dynamic<{}>(
+  const ChatWithLoading = dynamic<unknown>(
     () => import('@/components/ui/chat-interface').then((mod) => mod.default),
     {
       loading: () => (

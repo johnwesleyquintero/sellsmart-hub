@@ -11,7 +11,7 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { Info } from 'lucide-react';
 import Papa from 'papaparse';
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   CartesianGrid,
   Legend,

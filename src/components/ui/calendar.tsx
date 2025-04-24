@@ -1,5 +1,6 @@
-'use client';
+import React from 'react';
 import { DayPicker } from 'react-day-picker';
+'use client';
 
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

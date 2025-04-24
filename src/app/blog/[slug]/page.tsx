@@ -13,10 +13,10 @@ interface Props {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Readonly<Props>): Promise<Metadata> {
   try {
     // Await the params to ensure they are fully resolved
-    const { slug } = await params;
+    const { slug } = params;
     const post = await getPostBySlug(slug);
 
     const DEFAULT_IMAGE_URL = '/default-fallback.svg'; // Define the constant here
@@ -103,9 +103,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params }: Readonly<Props>) {
   // Await the params to ensure they are fully resolved
-  const post = await getPostBySlug(await params.slug);
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     notFound();

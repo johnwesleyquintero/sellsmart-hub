@@ -20,7 +20,7 @@ export default function FormDataDisplay({
   data,
   onExport,
   metrics,
-}: FormDataDisplayProps) {
+}: Readonly<FormDataDisplayProps>) {
   if (!data.length) return null;
 
   return (

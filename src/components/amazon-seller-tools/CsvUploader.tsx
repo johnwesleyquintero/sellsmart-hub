@@ -235,12 +235,12 @@ export const CsvUploader = <T extends Record<string, unknown>>({
     async (file: File) => {
       try {
         onUploadError?.(undefined);
-        await handleFileValidation(file);
+        handleFileValidation(file);
         const csvContent = await handleFileRead(file);
         const { validRows, errors } = await handleCsvProcessing(csvContent);
-        await handleUploadResults(validRows, errors);
+        handleUploadResults(validRows, errors);
       } catch (error) {
-        await handleProcessingError(error);
+        handleProcessingError(error);
       } finally {
         resetFileInput();
       }

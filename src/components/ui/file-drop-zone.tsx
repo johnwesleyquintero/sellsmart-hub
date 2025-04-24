@@ -21,7 +21,7 @@ export function FileDropZone({
   className,
   label = 'Drop your file here or click to browse',
   errorMessage = 'Invalid file. Please try again.',
-}: FileDropZoneProps) {
+}: Readonly<FileDropZoneProps>) {
   const [error, setError] = useState<string | undefined>(undefined);
 
   const onDrop = useCallback(

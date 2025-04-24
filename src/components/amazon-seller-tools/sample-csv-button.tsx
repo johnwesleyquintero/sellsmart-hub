@@ -27,7 +27,7 @@ export default function SampleCsvButton({
   variant = 'outline',
   size = 'sm',
   className,
-}: SampleCsvButtonProps) {
+}: Readonly<SampleCsvButtonProps>) {
   return (
     <Button
       variant={variant}

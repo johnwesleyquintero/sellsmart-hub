@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,9 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface Project {
   title: string;
@@ -109,9 +109,9 @@ export default function ProjectsSection() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <Github className="mr-2 h-4 w-4" /> GitHub
+                           GitHub
                         </Link>
-                      </Button>
+                    </Button>
                     )}
                     {project.demo && (
                       <Button asChild>

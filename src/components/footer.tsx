@@ -1,5 +1,5 @@
 import Logo from '@/components/Logo';
-import { Github, Linkedin, Mail, Triangle, Twitter } from 'lucide-react';
+import { Mail, Triangle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -86,7 +86,6 @@ export default function Footer() {
                 aria-label="GitHub"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
               >
-                <Github className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
               </Link>
               <Link
                 href="https://linkedin.com/in/wesleyquintero"
@@ -95,7 +94,6 @@ export default function Footer() {
                 aria-label="LinkedIn"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
               >
-                <Linkedin className="h-5 w-5" />
               </Link>
               <Link
                 href="https://twitter.com/wesleyquintero"
@@ -104,7 +102,6 @@ export default function Footer() {
                 aria-label="Twitter"
                 className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
               >
-                <Twitter className="h-5 w-5" />
               </Link>
               <Link
                 href="mailto:johnwesleyquintero@gmail.com"

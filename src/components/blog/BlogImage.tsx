@@ -17,7 +17,7 @@ export function BlogImage({
   width,
   height,
   className,
-}: BlogImageProps) {
+}: Readonly<BlogImageProps>) {
   const [error, setError] = useState(false);
 
   // Clean useEffect implementation after fixes

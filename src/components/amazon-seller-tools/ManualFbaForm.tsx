@@ -20,7 +20,7 @@ export default function ManualFbaForm({
   initialValues,
   onSubmit,
   onReset,
-}: ManualFbaFormProps) {
+}: Readonly<ManualFbaFormProps>) {
   const { toast } = useToast();
   const [values, setValues] =
     React.useState<FbaCalculationInput>(initialValues);

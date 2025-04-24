@@ -13,7 +13,7 @@ export default function Logo({
   className,
   title = 'Wesley Quintero Logo',
   ...props
-}: LogoProps) {
+}: Readonly<LogoProps>) {
   const uid = useId();
   const gradientId = `gradient-${uid}`;
   const shadowId = `shadow-${uid}`;

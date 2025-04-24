@@ -1,3 +1,4 @@
+import React from 'react';
 'use client';
 
 // --- Style Imports ---
@@ -497,7 +498,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   onRetry,
   onDelete,
-}) => {
+}: Readonly<MessageBubbleProps>) => {
   const isUser = message.role === 'user';
   // Conditional styling for user vs assistant, and dark mode
   const RETRY_LIMIT = 3;

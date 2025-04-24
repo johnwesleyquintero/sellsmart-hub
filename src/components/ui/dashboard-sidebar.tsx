@@ -18,7 +18,7 @@ interface DashboardSidebarProps {
   isDashboardPage?: boolean;
 }
 
-export function DashboardSidebar({ isDashboardPage }: DashboardSidebarProps) {
+export function DashboardSidebar({ isDashboardPage }: Readonly<DashboardSidebarProps>) {
   const [isOpen, setIsOpen] = useState(false);
 
   const pathname = usePathname();

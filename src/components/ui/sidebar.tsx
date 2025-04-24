@@ -36,17 +36,17 @@ type SidebarContext = {
   toggleSidebar: () => void;
 };
 
-const SidebarContext = React.createContext<SidebarContext | undefined>(
+const SidebarContextValue = React.createContext<SidebarContext | undefined>(
   undefined,
 );
 
 function useSidebar() {
-  const context = React.useContext(SidebarContext);
+  const context = React.useContext(SidebarContextValue);
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.');
   }
 
-  return context;
+  return context as SidebarContext;
 }
 
 const SidebarProvider = React.forwardRef<
@@ -144,7 +144,7 @@ const SidebarProvider = React.forwardRef<
     );
 
     return (
-      <SidebarContext.Provider value={contextValue}>
+      <SidebarContextValue.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
             style={
@@ -164,7 +164,7 @@ const SidebarProvider = React.forwardRef<
             {children}
           </div>
         </TooltipProvider>
-      </SidebarContext.Provider>
+      </SidebarContextValue.Provider>
     );
   },
 );
@@ -774,5 +774,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar,
+  useSidebar
 };
+

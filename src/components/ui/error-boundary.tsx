@@ -1,3 +1,4 @@
+import React from 'react';
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ interface ErrorBoundaryProps {
   children: React.ReactNode;
 }
 
-export default function ErrorBoundary({ children }: ErrorBoundaryProps) {
+export default function ErrorBoundary({ children }: Readonly<ErrorBoundaryProps>) {
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
 

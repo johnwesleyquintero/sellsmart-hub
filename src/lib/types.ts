@@ -57,9 +57,9 @@ export interface LoggerConfig {
 }
 
 // Add Sentry type declaration
-interface Sentry {
+interface SentryType {
   captureException: (error: unknown) => string;
   init: (config: { dsn: string }) => void;
 }
 
-declare const Sentry: Sentry;
+declare const Sentry: SentryType;

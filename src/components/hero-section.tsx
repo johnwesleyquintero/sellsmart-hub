@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Mail, Triangle, Twitter } from 'lucide-react';
+import { Mail, Triangle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -50,11 +50,11 @@ export default function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="group hover:scale-105 transition-transform duration-300 bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-purple-500"
+              className="group hover:scale-105 duration-300 bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-purple-500"
             >
               <Link href="#projects">
                 View Projects
-                <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
+                <span className="ml-2 group-hover:translate-x-1 duration-500">
                   →
                 </span>
               </Link>
@@ -63,7 +63,7 @@ export default function HeroSection() {
               asChild
               variant="outline"
               size="lg"
-              className="hover:scale-105 transition-transform duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700"
+              className="hover:scale-105 duration-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700"
             >
               <Link href="#tools">Amazon Tools</Link>
             </Button>
@@ -71,7 +71,7 @@ export default function HeroSection() {
               asChild
               variant="ghost"
               size="lg"
-              className="hover:scale-105 transition-transform duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300"
+              className="transition-transform duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300"
             >
               <Link href="#contact">Contact Me</Link>
             </Button>
@@ -85,7 +85,6 @@ export default function HeroSection() {
               aria-label="GitHub"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
             >
-              <Github className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
             </Link>
             <Link
               href="https://linkedin.com/in/wesleyquintero"
@@ -94,7 +93,6 @@ export default function HeroSection() {
               aria-label="LinkedIn"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
-              <Linkedin className="h-5 w-5" />
             </Link>
             <Link
               href="https://twitter.com/wesleyquintero"
@@ -103,7 +101,6 @@ export default function HeroSection() {
               aria-label="Twitter"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
             >
-              <Twitter className="h-5 w-5" />
             </Link>
             <Link
               href="mailto:johnwesleyquintero@gmail.com"
@@ -130,7 +127,7 @@ export default function HeroSection() {
             <Image
               priority
               quality={90}
-              className="rounded-lg shadow-xl transition-transform duration-300 hover:scale-105 object-cover hover:scale-105 transition-transform duration-500 group-hover:rotate-3 hover:animate-none"
+              className="rounded-lg shadow-xl transition-transform duration-300 hover:scale-105 object-cover group-hover:rotate-3 hover:animate-none"
               src="https://avatars.githubusercontent.com/u/190981914?v=4"
               alt="Wesley Quintero"
               fill

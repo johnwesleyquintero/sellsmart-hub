@@ -12,7 +12,7 @@ import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function BlogCard({ post }: { post: BlogPost }) {
+export default function BlogCard({ post }: { readonly post: BlogPost }) {
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="aspect-video overflow-hidden">

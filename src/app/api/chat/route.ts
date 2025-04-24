@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     const chat = model.startChat();
     const result = await chat.sendMessage(contextPrompt);
-    const response = await result.response;
+    const response = result.response;
 
     return NextResponse.json({
       response: response.text(),

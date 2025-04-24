@@ -1,3 +1,4 @@
+import React from 'react';
 'use client';
 
 import DragDropArea from '@/components/ui/DragDropArea';
@@ -37,7 +38,7 @@ export default function ToolForm({
   manualInputs,
   sampleCsvProps,
   children,
-}: ToolFormProps) {
+}: Readonly<ToolFormProps>) {
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       onFileUpload(acceptedFiles[0]);

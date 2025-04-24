@@ -9,11 +9,6 @@ interface DroppableProps {
 
 import { useCallback } from 'react';
 
-interface DroppableProps {
-  type: string;
-  onDrop: (item: string) => void;
-  children: React.ReactNode;
-}
 
 const Droppable: React.FC<DroppableProps> = ({ type, onDrop, children }) => {
   const [{ isOver }, drop] = useDrop(() => ({

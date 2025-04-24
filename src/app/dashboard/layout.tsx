@@ -1,3 +1,4 @@
+import React from 'react';
 'use client';
 
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
@@ -9,7 +10,7 @@ import { AuthDisplay } from './auth-display';
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const { status } = useSession();
 
