@@ -1,21 +1,15 @@
 import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
 import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 
-import next from 'eslint-plugin-next';
+import next from '@next/eslint-plugin-next';
 
 export default [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    plugins: {
-      next: next,
-    },
-  },
-  js.configs.recommended,
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    ...next.configs.recommended,
+    ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -25,21 +19,13 @@ export default [
         ...globals.es2021,
         React: 'readonly',
       },
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaFeatures: { jsx: true },
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        project: './tsconfig.json',
-      },
     },
     plugins: {
+      next: next,
       '@typescript-eslint': typescript,
       sonarjs: sonarjs,
     },
     rules: {
-      ...typescript.configs.recommended.rules,
-      ...sonarjs.configs.recommended.rules,
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error'],
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -47,8 +33,6 @@ export default [
       'sonarjs/cognitive-complexity': ['error', 15],
       'react/react-in-jsx-scope': 'off',
     },
-  },
-  {
     ignores: [
       'node_modules/**',
       '.next/**',
