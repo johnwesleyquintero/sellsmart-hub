@@ -1,20 +1,20 @@
-import chatContext from '@/data/chat-context.json';
-import { checkRedisConnection, rateLimiter, redis } from '@/lib/redis/config';
+import { chatContext } from '@/data/chat-context';
+import { rateLimiter } from '@/lib/rate-limiter';
+import { redis } from '@/lib/redis';
+import {
+  determineErrorType,
+  formatErrorResponse,
+  logErrorDetails,
+} from '@/lib/utils/error-handler';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Initialize Redis connection check
-checkRedisConnection().then((isConnected) => {
-  if (!isConnected) {
-    console.warn('Redis connection failed. Chat service may be degraded.');
-  }
-});
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
+// Remove duplicate checkRateLimit implementation
 async function checkRateLimit(request: NextRequest) {
   const identifier = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
   const { success } = await rateLimiter.limit(identifier);
@@ -37,11 +37,12 @@ async function validateRequest(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let body;
   try {
     const rateLimitResponse = await checkRateLimit(request);
     if (rateLimitResponse) return rateLimitResponse;
 
-    const body = await validateRequest(request);
+    body = await validateRequest(request);
     if (body instanceof NextResponse) return body;
 
     const { message, history = [] } = body;
@@ -121,66 +122,14 @@ export async function POST(request: NextRequest) {
 
     throw lastError;
   } catch (error: unknown) {
-    console.error('Chat API Error:', error);
-
-    // Determine specific error type and appropriate status code
-    let statusCode = 500;
-    let errorMessage =
-      'Our chat service is temporarily unavailable. Please try again later.';
-    let errorDetails = 'Unknown error';
-
-    if (error instanceof Error) {
-      errorDetails = error.message;
-
-      if (
-        'name' in error &&
-        (error.name === 'AbortError' || error.name === 'TimeoutError')
-      ) {
-        statusCode = 504; // Gateway Timeout
-        errorMessage = 'The request timed out. Please try again.';
-      } else if (
-        'message' in error &&
-        error.message?.includes('GEMINI_API_KEY')
-      ) {
-        statusCode = 503; // Service Unavailable
-        errorMessage =
-          'Chat service configuration error. Please try again later.';
-      } else if (
-        'message' in error &&
-        error.message?.toLowerCase().includes('rate limit')
-      ) {
-        statusCode = 429; // Too Many Requests
-        errorMessage =
-          'Too many requests. Please wait a moment before trying again.';
-      }
-    }
-
-    // Enhanced error logging
-    if (error instanceof Error) {
-      console.error('Chat API Error Details:', {
-        message: errorDetails,
-        timestamp: new Date().toISOString(),
-        statusCode,
-        ...(body?.message ? { lastMessage: body.message } : {}),
-        retryCount: MAX_RETRIES,
-        retryStatus: 'Failed after all retries',
-        redisAvailable: redis !== null,
-        requestId: request.headers.get('x-request-id') || 'unknown',
-      });
-    }
-    else {
-      console.error('Chat API Error:', error);
-    }
-
-    return NextResponse.json(
-      {
-        error: errorMessage,
-        ...(process.env.NODE_ENV === 'development' && {
-          details: errorDetails,
-          code: statusCode,
-        }),
-      },
-      { status: statusCode },
-    );
+    const errorResponse = determineErrorType(error);
+    logErrorDetails(error, {
+      retryCount: MAX_RETRIES,
+      retryStatus: 'Failed after all retries',
+      redisAvailable: redis !== null,
+      requestId: request.headers.get('x-request-id') || 'unknown',
+      ...(body?.message ? { lastMessage: body.message } : {}),
+    });
+    return formatErrorResponse(errorResponse);
   }
 }
