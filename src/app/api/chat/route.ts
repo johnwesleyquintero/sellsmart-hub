@@ -161,13 +161,14 @@ export async function POST(request: NextRequest) {
         message: errorDetails,
         timestamp: new Date().toISOString(),
         statusCode,
-        ...(body?.message && { lastMessage: body.message }),
+        ...(body?.message ? { lastMessage: body.message } : {}),
         retryCount: MAX_RETRIES,
         retryStatus: 'Failed after all retries',
         redisAvailable: redis !== null,
         requestId: request.headers.get('x-request-id') || 'unknown',
       });
-    } else {
+    }
+    else {
       console.error('Chat API Error:', error);
     }
 

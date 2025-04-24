@@ -22,25 +22,40 @@ export const productDescriptionSchema = z.object({
 });
 
 // Debounce function for performance optimization
-import type { Timeout } from 'node:timers';
 
-export const debounce = <T extends (...args: any[]) => any>(
+
+export function debounce<T extends (...args: unknown[]) => void>(
   func: T,
-  wait: number,
-): ((...args: Parameters<T>) => ReturnType<T>) => {
-  let timeout: Timeout;
+  wait: number
+): (this: ThisParameterType<T>, ...args: Parameters<T>) => void {
+  let timeoutId: number;
 
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     return new Promise((resolve) => {
-      timeout = setTimeout(() => {
-        resolve(func(...args));
-      }, wait);
-    }) as ReturnType<T>;
+      timeoutId = window.setTimeout(() => func.apply(this, args), wait);
   };
 };
 
 // Validate and sanitize product description
-export const validateProductDescription = (data: unknown) => {
+export function validateProductDescription(description: string): ValidationResult {
+  return productDescriptionSchema.parse(data);
+};
+
+export function debounce<T extends (...args: unknown[]) => void>(
+  func: T,
+  wait: number
+): (this: ThisParameterType<T>, ...args: Parameters<T>) => void {
+  let timeoutId: number;
+
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    return new Promise((resolve) => {
+      timeoutId = window.setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+// Validate and sanitize product description
+export function validateProductDescription(description: string): ValidationResult {
   return productDescriptionSchema.parse(data);
 };
