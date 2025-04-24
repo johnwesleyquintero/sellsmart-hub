@@ -1,5 +1,6 @@
 declare module '@upstash/redis' {
   interface Redis {
+    ping(): unknown;
     constructor(options: { url: string; token: string });
     hincrby(key: string, field: string, increment: number): Promise<number>;
     expire(key: string, seconds: number): Promise<number>;

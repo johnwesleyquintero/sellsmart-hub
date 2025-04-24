@@ -6,6 +6,7 @@ import 'katex/dist/katex.min.css'; // For math rendering
 import 'prismjs/themes/prism-tomorrow.css'; // For code block syntax highlighting
 
 // --- React and Hook Imports ---
+import { useToast } from '@/hooks/use-toast';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 
 // --- Markdown and Syntax Highlighting Imports ---
@@ -16,7 +17,7 @@ import remarkGfm from 'remark-gfm'; // Plugin for GitHub Flavored Markdown (tabl
 import remarkMath from 'remark-math'; // Plugin for math syntax
 
 // --- Interfaces ---
-interface Message {
+export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number; // Unique identifier for the message
@@ -24,15 +25,15 @@ interface Message {
   error?: string; // Error message if status is 'error'
   retryCount?: number; // How many times retry has been attempted
   retryLimit?: number; // Maximum number of retries allowed
+  retryStatus?: 'retrying' | 'failed'; // Visual status for retrying/failed state
   // Optional: Add personal info if needed, but handle privacy carefully
   // personalInfo?: { name: string; email: string; };
 }
-
-interface MessageBubbleProps {
+type MessageBubbleProps = {
   message: Message;
   onRetry?: (message: Message) => void; // Function to retry sending a message
   onDelete?: (timestamp: number) => void; // Function to delete a message
-}
+};
 
 export interface CodeBlockProps {
   node?: any;
@@ -145,7 +146,9 @@ function ChatInterface() {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { messages, input, isLoading, isChatOpen } = state;
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const RETRY_LIMIT = 3; // Define the retry limit
+  const { toast } = useToast();
+  const RETRY_LIMIT = 3;
+  const RETRY_BASE_DELAY_MS = 1000; // Base delay for exponential backoff
 
   // --- Effects ---
 
@@ -226,12 +229,19 @@ function ChatInterface() {
             timestamp: timestampToUse,
             role: 'user',
             updates: {
-              error: `Failed after ${RETRY_LIMIT} retries. Cannot send.`,
-              retryCount: currentRetryCount, // Keep the count for display
+              error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
+              retryCount: currentRetryCount,
+              retryStatus: 'failed',
             },
           },
         });
         return;
+      }
+
+      // Apply exponential backoff delay for retries
+      if (isRetry) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount); // Corrected: Use currentRetryCount for delay calculation before incrementing
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
 
       const userMessage: Message = {
@@ -239,8 +249,9 @@ function ChatInterface() {
         content: content.trim(),
         timestamp: timestampToUse,
         status: 'sending',
-        retryCount: currentRetryCount,
+        retryCount: currentRetryCount, // Use the count *before* this attempt
         retryLimit: RETRY_LIMIT,
+        retryStatus: isRetry ? 'retrying' : undefined, // Set retryStatus if it's a retry attempt
       };
 
       // --- Optimistic UI Update ---
@@ -254,7 +265,8 @@ function ChatInterface() {
             updates: {
               status: 'sending',
               error: undefined,
-              retryCount: currentRetryCount,
+              retryCount: currentRetryCount, // Keep the count before this attempt for display
+              retryStatus: 'retrying',
             },
           },
         });
@@ -267,6 +279,12 @@ function ChatInterface() {
       scrollToBottom(); // Scroll after adding/updating user message
 
       try {
+        console.log('Submitting message to /api/chat:', {
+          content: content.trim(),
+          history: messages
+            .filter((msg) => msg.status === 'sent')
+            .map(({ role, content }) => ({ role, content })),
+        });
         // --- Actual API Call ---
         const apiResponse = await fetch('/api/chat', {
           // Your backend endpoint
@@ -282,19 +300,36 @@ function ChatInterface() {
               .map(({ role, content }) => ({ role, content })), // Format for backend
           }),
         });
+        console.log('Submitting message:', content);
+
+        console.log('API response:', apiResponse);
 
         // --- Handle API Response ---
+
         if (!apiResponse.ok) {
-          const errorData = await apiResponse.json().catch(() => ({
-            error: `API Error: ${apiResponse.status} ${apiResponse.statusText}`,
-          }));
-          throw new Error(
-            errorData.error || `API Error: ${apiResponse.statusText}`,
-          ); // Throw the error after attempting to parse JSON
+          let errorMessage = `API Error: ${apiResponse.status} ${apiResponse.statusText}`;
+          try {
+            const errorData = await apiResponse.json();
+            if (errorData.error) {
+              errorMessage = errorData.error;
+              if (errorData.details) {
+                errorMessage += ` (${errorData.details})`;
+              }
+            }
+          } catch (parseError) {
+            console.error('Failed to parse error JSON from API response', {
+              status: apiResponse.status,
+              statusText: apiResponse.statusText,
+              url: apiResponse.url,
+              timestamp: new Date().toISOString(),
+              headers: Object.fromEntries(apiResponse.headers.entries()),
+            });
+          }
+          throw new Error(errorMessage);
         }
 
         const data = await apiResponse.json();
-        const aiContent = data.reply; // Adjust based on your backend response structure
+        const aiContent = data.response; // Match the backend response structure
 
         // --- Update State on Success ---
         // 1. Update user message status to 'sent'
@@ -303,7 +338,12 @@ function ChatInterface() {
           payload: {
             timestamp: userMessage.timestamp,
             role: 'user',
-            updates: { status: 'sent', error: undefined },
+            updates: {
+              status: 'sent',
+              error: undefined,
+              retryStatus: undefined, // Clear retry status on success
+              retryCount: currentRetryCount, // Keep the count for potential future reference if needed, or clear it
+            },
           },
         });
 
@@ -329,16 +369,26 @@ function ChatInterface() {
                 error instanceof Error
                   ? error.message
                   : 'An unknown error occurred',
-              retryCount: currentRetryCount + 1, // Increment retry count
+              retryCount: currentRetryCount + 1, // Increment retry count for the *next* potential attempt
+              retryStatus:
+                currentRetryCount + 1 >= RETRY_LIMIT ? 'failed' : undefined, // Set to 'failed' if limit reached
             },
           },
+        });
+        toast({
+          title: 'Error',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+          variant: 'destructive',
         });
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false });
         scrollToBottom(); // Scroll after potential AI response or error update
       }
     },
-    [messages, scrollToBottom],
+    [messages, scrollToBottom, toast],
   ); // Include messages and scrollToBottom in dependencies
 
   // --- Delete Handler ---
@@ -408,26 +458,27 @@ function ChatInterface() {
               />
             ))}
             {/* Typing Indicator */}
-            {isLoading && (
-              <div className="flex justify-start mb-4">
-                <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg p-3 max-w-[80%] break-words shadow-sm">
-                  <div className="flex items-center space-x-1.5">
-                    <span
-                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '0ms' }}
-                    ></span>
-                    <span
-                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '150ms' }}
-                    ></span>
-                    <span
-                      className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '300ms' }}
-                    ></span>
+            {isLoading &&
+              messages[messages.length - 1]?.role === 'user' && ( // Show indicator only if last message was user and we are loading
+                <div className="flex justify-start mb-4">
+                  <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg p-3 max-w-[80%] break-words shadow-sm">
+                    <div className="flex items-center space-x-1.5">
+                      <span
+                        className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '0ms' }}
+                      ></span>
+                      <span
+                        className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '150ms' }}
+                      ></span>
+                      <span
+                        className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '300ms' }}
+                      ></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
             <div ref={messagesEndRef} /> {/* Anchor for scrolling */}
           </div>
 
@@ -501,67 +552,97 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }: Readonly<MessageBubbleProps>) => {
   const isUser = message.role === 'user';
   // Conditional styling for user vs assistant, and dark mode
-  const RETRY_LIMIT = 3;
+  const RETRY_LIMIT = message.retryLimit ?? 3; // Use limit from message or default
   const bubbleClass = isUser
     ? 'bg-blue-500 text-white ml-auto'
     : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
   const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
   const canRetry =
-    message.status === 'error' &&
-    (message.retryCount ?? 0) < (message.retryLimit ?? RETRY_LIMIT);
+    message.status === 'error' && (message.retryCount ?? 0) < RETRY_LIMIT;
+  const isRetrying = message.retryStatus === 'retrying';
+  const hasFailed = message.retryStatus === 'failed';
 
   return (
     <div className={`${containerClass}`}>
       {' '}
-      {/* Removed mb-4, handled by space-y in parent */}
+      {/* Message bubble container */}
       <div
-        className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words shadow-sm`}
+        className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words shadow-sm relative group`} // Added relative and group for potential actions
       >
-        {/* Error State Display */}
-        {message.status === 'error' ? (
+        {/* Error/Retry State Display */}
+        {message.status === 'error' || isRetrying || hasFailed ? (
           <div className="flex flex-col gap-1.5">
-            <p className="text-red-300 dark:text-red-400 text-xs italic font-medium">
-              {/* Error Icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {message.error || 'Failed to send'}
-              {message.retryCount && message.retryCount > 0
-                ? ` (Attempt ${message.retryCount})`
-                : ''}
+            <p
+              className={`text-xs italic font-medium ${
+                isRetrying
+                  ? 'text-yellow-300 dark:text-yellow-400'
+                  : 'text-red-300 dark:text-red-400'
+              }`}
+            >
+              {/* Icon */}
+              {isRetrying ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom animate-spin"
+                  style={{ animationDuration: '1.5s' }}
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M15.312 11.424a5.5 5.5 0 01-9.204 2.101l-.713.713a7 7 0 109.919-9.919l-.713.713a5.5 5.5 0 01.001 7.092zM10 2.5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0V3.25A.75.75 0 0110 2.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              {/* Text */}
+              {isRetrying
+                ? `Retrying... (Attempt ${
+                    (message.retryCount ?? 0) + 1
+                  } of ${RETRY_LIMIT})`
+                : message.error || 'Failed to send'}
+              {hasFailed && ` (Failed after ${RETRY_LIMIT} attempts)`}
             </p>
             {/* Render original content slightly faded */}
             <div className="prose prose-sm max-w-none dark:prose-invert opacity-75">
               {renderMessage(message.content)}
             </div>
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 mt-1 border-t border-white/20 dark:border-gray-600 pt-1.5">
-              {canRetry && (
-                <button
-                  onClick={() => onRetry?.(message)}
-                  className="text-xs text-blue-200 hover:text-white dark:text-blue-300 dark:hover:text-blue-100 font-medium focus:outline-none focus:underline"
-                  aria-label="Retry sending message"
-                >
-                  Retry
-                </button>
-              )}
-              <button
-                onClick={() => onDelete?.(message.timestamp)}
-                className="text-xs text-red-300 hover:text-red-100 dark:text-red-400 dark:hover:text-red-200 font-medium focus:outline-none focus:underline"
-                aria-label="Delete message"
-              >
-                Delete
-              </button>
-            </div>
+            {(canRetry || onDelete) && ( // Show actions only if retry is possible or delete is available
+              <div className="flex items-center gap-3 mt-1 border-t border-white/20 dark:border-gray-600 pt-1.5">
+                {canRetry && (
+                  <button
+                    onClick={() => onRetry?.(message)}
+                    className="text-xs text-blue-200 hover:text-white dark:text-blue-300 dark:hover:text-blue-100 font-medium focus:outline-none focus:underline"
+                    aria-label="Retry sending message"
+                  >
+                    Retry Now
+                  </button>
+                )}
+                {onDelete && ( // Conditionally render delete button
+                  <button
+                    onClick={() => onDelete?.(message.timestamp)}
+                    className="text-xs text-red-300 hover:text-red-100 dark:text-red-400 dark:hover:text-red-200 font-medium focus:outline-none focus:underline"
+                    aria-label="Delete message"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           // Default Message Display
@@ -569,11 +650,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             {/* Render message content using Markdown */}
             {renderMessage(message.content)}
             {/* Sending Indicator (Optional) */}
-            {message.status === 'sending' && (
-              <span className="text-xs italic opacity-70 ml-2">
-                (Sending...)
-              </span>
-            )}
+            {message.status === 'sending' &&
+              !isRetrying && ( // Don't show "Sending..." if "Retrying..." is shown
+                <span className="text-xs italic opacity-70 ml-2">
+                  (Sending...)
+                </span>
+              )}
           </div>
         )}
       </div>
@@ -595,23 +677,64 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   // Handle Mermaid diagrams
   // Note: Requires the Mermaid library to be loaded and initialized elsewhere (e.g., in a useEffect)
   if (!inline && language === 'mermaid') {
+    // Ensure Mermaid is globally available or imported and initialized
+    // useEffect(() => {
+    //   if (typeof mermaid !== 'undefined') {
+    //     mermaid.contentLoaded();
+    //   }
+    // }, [children]);
     return <pre className="mermaid">{String(children).trim()}</pre>;
   }
 
   // Handle inline code
   if (inline) {
     return (
-      <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">
+      <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">
         {children}
       </code>
     );
   }
 
   // Handle regular code blocks (rehypePrismPlus handles the highlighting)
+  // Add copy button functionality
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(String(children))
+      .then(() => {
+        // Optional: Show a temporary "Copied!" message
+        console.log('Code copied to clipboard');
+      })
+      .catch((err) => {
+        console.error('Failed to copy code: ', err);
+      });
+  };
+
   return (
-    <pre className={className}>
-      <code>{children}</code>
-    </pre>
+    <div className="relative group my-2">
+      <pre className={className}>
+        <code>{children}</code>
+      </pre>
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 p-1 bg-gray-600/50 dark:bg-gray-700/70 text-gray-200 dark:text-gray-300 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-gray-400"
+        aria-label="Copy code"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+          />
+        </svg>
+      </button>
+    </div>
   );
 };
 
@@ -635,6 +758,9 @@ const renderMessage = (content: string) => (
           className="text-blue-600 dark:text-blue-400 hover:underline"
         />
       ),
+      // Ensure paragraphs inside list items don't add extra margin
+      li: ({ node, ...props }) => <li {...props} className="my-0.5" />,
+      p: ({ node, ...props }) => <p {...props} className="my-2" />, // Adjust paragraph margin if needed
     }}
     // Disallow potentially dangerous HTML
     // rehypePlugins={[rehypeRaw]} // Use rehypeRaw carefully if you need to render raw HTML from the AI

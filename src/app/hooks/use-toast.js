@@ -22,7 +22,8 @@ const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000;
 function genId() {
   const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
+  const crypto = typeof window !== 'undefined' ? window.crypto : global.crypto;
+  crypto.getRandomValues(array);
   return array[0].toString(36);
 }
 const toastTimeouts = new Map();

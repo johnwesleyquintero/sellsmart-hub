@@ -2,10 +2,10 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
 export const redis = new Redis({
-  url: (process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL || '').replace(
-    'rediss://',
-    'https://',
-  ),
+  url:
+    process.env.UPSTASH_REDIS_REST_URL?.replace(/^rediss:/, 'https:') ||
+    process.env.KV_URL?.replace(/^rediss:/, 'https:') ||
+    '',
   token:
     process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '',
 });
