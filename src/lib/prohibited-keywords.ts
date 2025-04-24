@@ -5,6 +5,7 @@ import {
 import { connectToDatabase } from './mongodb'; // Import connectToDatabase
 
 export async function getAll(): Promise<string[]> {
+  console.log('getAll called');
   try {
     const { db } = await connectToDatabase();
     const keywords = await db

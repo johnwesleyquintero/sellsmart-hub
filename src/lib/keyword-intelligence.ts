@@ -18,6 +18,7 @@ interface KeywordMetrics {
 
 export const KeywordIntelligence = {
   async analyze(keywords: string[]): Promise<KeywordAnalysis[]> {
+    console.log('analyze called');
     const prohibitedKeywords = await ProhibitedKeywords.getAll();
     return Promise.all(
       keywords.map(async (keyword) =>

@@ -123,7 +123,7 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
   fba: {
     columns: [
       {
-        name: 'productName',
+        name: 'product',
         dataType: { type: 'string', options: { prefix: 'Product-' } },
         required: true,
         description: 'Product name or identifier',
@@ -156,7 +156,7 @@ const sampleDataConfigs: Record<string, SampleDataConfig> = {
   keyword: {
     columns: [
       {
-        name: 'productName',
+        name: 'product',
         dataType: { type: 'string', options: { prefix: 'Product-' } },
         required: true,
       },
