@@ -423,6 +423,7 @@ function ProductEditorArea({
             />
             <p className="mt-2 text-xs text-muted-foreground">
               Use line breaks for paragraphs. Basic HTML like{' '}
+              {/* FIX: Use HTML entities to display tags as text */}
               <code>&lt;b&gt;</code>, <code>&lt;p&gt;</code>,{' '}
               <code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code> may be supported
               by Amazon. Aim for 1000-2000 characters.
@@ -494,12 +495,14 @@ export default function DescriptionEditor() {
       setProducts([]);
       setActiveProductId(undefined); // Also reset active product
 
+      console.log('Before Papa.parse');
       Papa.parse<CsvRowData>(file, {
         // Specify the expected row type
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
           try {
+            console.log('Papa.parse complete callback results:', results);
             // Log parsing start
             logger.info('CSV parsing complete.', {
               rowCount: results.data.length,
@@ -571,6 +574,7 @@ export default function DescriptionEditor() {
               component: 'DescriptionEditor/handleFileUpload',
             });
           } catch (err) {
+            console.error('Error in complete callback:', err);
             const message =
               err instanceof Error
                 ? err.message
@@ -594,6 +598,7 @@ export default function DescriptionEditor() {
           }
         },
         error: (err: Error) => {
+          console.error('Papa.parse error callback:', err);
           const message = `Error reading CSV file: ${err.message}`;
           setError(message);
           setIsLoading(false);
