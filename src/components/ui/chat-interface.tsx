@@ -209,61 +209,80 @@ function ChatInterface() {
   }, [messages]); // Run whenever messages array changes
 
   // --- Message Handling Logic ---
-  const handleRetryLimitReached = useCallback((timestamp: number, currentRetryCount: number) => {
-    console.warn(`Retry limit reached for message: ${timestamp}`);
-    dispatch({
-      type: 'UPDATE_MESSAGE',
-      payload: {
-        timestamp,
-        role: 'user',
-        updates: {
-          error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
-          retryCount: currentRetryCount,
-          retryStatus: 'failed',
+  const handleRetryLimitReached = useCallback(
+    (timestamp: number, currentRetryCount: number) => {
+      console.warn(`Retry limit reached for message: ${timestamp}`);
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        payload: {
+          timestamp,
+          role: 'user',
+          updates: {
+            error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
+            retryCount: currentRetryCount,
+            retryStatus: 'failed',
+          },
         },
-      },
-    });
-  }, []);
+      });
+    },
+    [],
+  );
 
-  const applyExponentialBackoff = useCallback(async (currentRetryCount: number) => {
-    const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }, []);
+  const applyExponentialBackoff = useCallback(
+    async (currentRetryCount: number) => {
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    },
+    [],
+  );
 
-  const createUserMessage = useCallback((content: string, timestamp: number, isRetry: boolean, currentRetryCount: number) => {
-    return {
-      role: 'user',
-      content: content.trim(),
-      timestamp,
-      status: 'sending',
-      retryCount: currentRetryCount,
-      retryLimit: RETRY_LIMIT,
-      retryStatus: isRetry ? 'retrying' : undefined,
-    };
-  }, []);
-
-  const updateRetryingMessage = useCallback((timestamp: number, currentRetryCount: number) => {
-    dispatch({
-      type: 'UPDATE_MESSAGE',
-      payload: {
-        timestamp,
+  const createUserMessage = useCallback(
+    (
+      content: string,
+      timestamp: number,
+      isRetry: boolean,
+      currentRetryCount: number,
+    ) => {
+      return {
         role: 'user',
-        updates: {
-          status: 'sending',
-          error: undefined,
-          retryCount: currentRetryCount,
-          retryStatus: 'retrying',
+        content: content.trim(),
+        timestamp,
+        status: 'sending',
+        retryCount: currentRetryCount,
+        retryLimit: RETRY_LIMIT,
+        retryStatus: isRetry ? 'retrying' : undefined,
+      };
+    },
+    [],
+  );
+
+  const updateRetryingMessage = useCallback(
+    (timestamp: number, currentRetryCount: number) => {
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        payload: {
+          timestamp,
+          role: 'user',
+          updates: {
+            status: 'sending',
+            error: undefined,
+            retryCount: currentRetryCount,
+            retryStatus: 'retrying',
+          },
         },
-      },
-    });
-  }, []);
+      });
+    },
+    [],
+  );
 
   const handleMessageSubmit = useCallback(
     async (messageOrContent: Message | string) => {
       const isRetry = typeof messageOrContent !== 'string';
       const content = isRetry ? messageOrContent.content : messageOrContent;
       const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
-      const currentRetryCount = isRetry ? (messageOrContent.retryCount ?? 0) : 0;
+      const currentRetryCount = isRetry
+        ? (messageOrContent.retryCount ?? 0)
+        : 0;
 
       if (!content.trim()) return;
 
@@ -276,7 +295,12 @@ function ChatInterface() {
         await applyExponentialBackoff(currentRetryCount);
       }
 
-      const userMessage = createUserMessage(content, timestampToUse, isRetry, currentRetryCount);
+      const userMessage = createUserMessage(
+        content,
+        timestampToUse,
+        isRetry,
+        currentRetryCount,
+      );
 
       if (isRetry) {
         updateRetryingMessage(timestampToUse, currentRetryCount);

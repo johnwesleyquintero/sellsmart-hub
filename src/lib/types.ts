@@ -55,5 +55,3 @@ export interface LoggerConfig {
   level: LogLevel;
   serviceName: string;
 }
-
-

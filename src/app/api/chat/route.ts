@@ -15,31 +15,35 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
+async function checkRateLimit(request: NextRequest) {
+  const identifier = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
+  const { success } = await rateLimiter.limit(identifier);
+  if (!success) {
+    return new NextResponse('Too many requests', { status: 429 });
+  }
+  return null;
+}
+
+async function validateRequest(request: NextRequest) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Missing GEMINI_API_KEY environment variable');
+  }
+
+  const body = await request.json();
+  if (!body || !body.message?.trim()) {
+    return new NextResponse('Message is required', { status: 400 });
+  }
+  return body;
+}
+
 export async function POST(request: NextRequest) {
-  const reqBody = await request.json();
-  console.log('Request body:', reqBody);
-
-  console.log('Request:', request);
-  console.log('Request body:', request.body);
-
-  let body = null;
   try {
-    console.log('Request body:', request.body);
-    const identifier = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
-    const { success } = await rateLimiter.limit(identifier);
+    const rateLimitResponse = await checkRateLimit(request);
+    if (rateLimitResponse) return rateLimitResponse;
 
-    if (!success) {
-      return new NextResponse('Too many requests', { status: 429 });
-    }
+    const body = await validateRequest(request);
+    if (body instanceof NextResponse) return body;
 
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('Missing GEMINI_API_KEY environment variable');
-    }
-
-    body = await request.json();
-    if (!body || !body.message?.trim()) {
-      return new NextResponse('Message is required', { status: 400 });
-    }
     const { message, history = [] } = body;
 
     // Create a context-aware prompt that includes portfolio information
@@ -62,7 +66,7 @@ export async function POST(request: NextRequest) {
     Amazon Expertise:
     - Certifications: ${chatContext.personalContext.amazonExpertise.certifications.map((c) => c.name).join(', ')}
     - Areas: ${chatContext.personalContext.amazonExpertise.areasOfExpertise.join(', ')}
-    
+
     Web App Information:
     - Project: ${chatContext.webappContext.projectOverview.name}
     - Description: ${chatContext.webappContext.projectOverview.description}

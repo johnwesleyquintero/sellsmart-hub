@@ -60,8 +60,6 @@ export function trackPageView(url: string): void {
   }
 }
 
-
-
 export const Analytics = {
   contactSubmitted: () =>
     trackEvent({

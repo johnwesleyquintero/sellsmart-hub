@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  Draggable,
-  DraggableProvided,
-} from 'react-beautiful-dnd';
+import { Draggable, DraggableProvided } from 'react-beautiful-dnd';
 
 interface DraggableItemProps {
   id: string;

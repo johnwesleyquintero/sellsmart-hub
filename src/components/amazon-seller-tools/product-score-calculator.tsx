@@ -49,10 +49,6 @@ export default function ProductScoreCalculator() {
   const [formData, setFormData] = useState<ProductListingData>(initialFormData);
   const [score, setScore] = useState<ProductScore | undefined>(undefined);
 
-
-
-
-
   const handleBulletPointChange = (index: number, value: string) => {
     const newBulletPoints = [...formData.bulletPoints];
     newBulletPoints[index] = value;

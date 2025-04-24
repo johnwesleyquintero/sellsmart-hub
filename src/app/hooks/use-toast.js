@@ -1,23 +1,22 @@
 'use client';
-var __rest =
-  (typeof self !== 'undefined' && self.__rest) ||
-  function (s, e) {
-    var t = {};
-    for (var p in s)
-      if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s !== undefined && typeof Object.getOwnPropertySymbols === 'function')
-      for (let i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-        if (
-          e.indexOf(p[i]) < 0 &&
-          Object.prototype.propertyIsEnumerable.call(s, p[i])
-        )
-          t[p[i]] = s[p[i]];
-      }
-    return t;
-  };
-// Inspired by react-hot-toast library
 import * as React from 'react';
+
+type ToastType = 'default' | 'destructive';
+
+interface ToastOptions {
+  title?: string;
+  description?: string;
+  type?: ToastType;
+}
+
+type ToastType = 'default' | 'destructive';
+
+interface ToastOptions {
+  title?: string;
+  description?: string;
+  type?: ToastType;
+}
+// Inspired by react-hot-toast library
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000;
 function genId() {

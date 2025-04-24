@@ -12,7 +12,6 @@ export interface InputProps
   name?: string;
   placeholder?: string;
   required?: boolean;
-
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

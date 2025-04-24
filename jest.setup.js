@@ -7,12 +7,8 @@ configure({
   testIdAttribute: 'data-testid',
 });
 
-// Define global window and global objects for Jest
-const { window } = global;
-const { global: globalObj } = global;
-
 // Mock window.matchMedia
-Object.defineProperty(globalObj.window, 'matchMedia', {
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
@@ -27,6 +23,7 @@ Object.defineProperty(globalObj.window, 'matchMedia', {
 });
 
 // Mock ResizeObserver
+const globalObj = typeof window !== 'undefined' ? window : global;
 globalObj.ResizeObserver = class ResizeObserver {
   observe = jest.fn();
   unobserve = jest.fn();
