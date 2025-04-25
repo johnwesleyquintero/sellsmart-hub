@@ -1,4 +1,3 @@
-import type { Redis } from '@upstash/ratelimit';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis as UpstashRedis } from '@upstash/redis';
 
@@ -13,14 +12,16 @@ function getRedisConfig(): RedisConfig {
   const token = process.env.KV_REST_API_TOKEN;
 
   if (!url || !token) {
-    throw new Error('Missing required Redis environment variables (KV_URL and KV_REST_API_TOKEN)');
+    throw new Error(
+      'Missing required Redis environment variables (KV_URL and KV_REST_API_TOKEN)',
+    );
   }
 
   return { url, token };
 }
 
-// Initialize Redis client with proper typing
-export const redis: Redis = new UpstashRedis(getRedisConfig()) as unknown as Redis;
+// Initialize Redis client
+export const redis = new UpstashRedis(getRedisConfig());
 
 // Configure rate limiting
 export const rateLimiter = new Ratelimit({
