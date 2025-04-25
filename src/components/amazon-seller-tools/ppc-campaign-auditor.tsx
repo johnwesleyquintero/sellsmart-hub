@@ -181,7 +181,7 @@ function analyzeCampaignPerformance(
   const recommendations: string[] = [];
   const { acos, ctr, conversionRate, clicks, type, spend } = campaign;
 
-  if (!isFinite(acos)) {
+  if (typeof acos === 'number' && !isFinite(acos)) {
     const noSalesResult = handleNoSalesCase(spend);
     issues.push(...noSalesResult.issues);
     recommendations.push(...noSalesResult.recommendations);

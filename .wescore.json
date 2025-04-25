@@ -1,5 +1,5 @@
 {
-  "runInParallel": false,
+  "runInParallel": true,
   "stopOnFail": true,
   "commandTimeout": 300000,
   "logLevel": "info",
@@ -22,6 +22,13 @@
       "name": "Type Checking (TSC)",
       "command": "npm run typecheck",
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
+    },
+    {
+      "id": "test",
+      "name": "Unit Testing (Jest)",
+      "command": "npm run test",
+      "enabled": true,
+      "description": "Runs unit tests using Jest."
     }
   ],
   "errorCategories": {

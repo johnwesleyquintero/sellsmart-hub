@@ -600,6 +600,10 @@ export function CompetitorAnalyzer({
       setRequiredError(
         'Please upload competitor data CSV or enter a competitor ASIN to analyze.',
       );
+      console.log(
+        'Setting requiredError',
+        'Please upload competitor data CSV or enter a competitor ASIN to analyze.',
+      );
       toast({
         title: 'Missing Input',
         description:
@@ -610,6 +614,7 @@ export function CompetitorAnalyzer({
     }
 
     setRequiredError(null);
+    console.log('validateData called', { competitorData, asin });
     return true;
   }, [competitorData, asin]);
 
