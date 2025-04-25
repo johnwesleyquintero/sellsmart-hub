@@ -1,4 +1,7 @@
-import { CodeBlockProps } from './chat-interface';
+export interface CodeBlockProps {
+  className?: string;
+  children?: React.ReactNode;
+}
 
 const RehypePrism = ({ className, children }: CodeBlockProps) => {
   const match = /language-(\w+)/.exec(className || '');

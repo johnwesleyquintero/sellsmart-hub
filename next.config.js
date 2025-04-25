@@ -2,6 +2,9 @@ import path from 'path';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    esmExternals: true,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -23,62 +23,6 @@ export const productDescriptionSchema = z.object({
 
 // Debounce function for performance optimization
 
-// Consolidated debounce function
-export function debounce<T extends (...args: unknown[]) => void>(
-  func: T,
-  wait: number,
-): (...args: Parameters<T>) => Promise<void> {
-  let timeoutId: number;
-
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    return new Promise((resolve) => {
-      timeoutId = window.setTimeout(() => {
-        func(...args);
-        resolve();
-      }, wait);
-    });
-  };
-}
-
-// Validate and sanitize product description
-export interface ValidationResult {
-  success: boolean;
-  data?: z.infer<typeof productDescriptionSchema>;
-  error?: z.ZodError;
-}
-
-export function validateProductDescription(
-  description: string,
-): ValidationResult {
-  try {
-    const result = productDescriptionSchema.parse({
-      description: description,
-    });
-    return { success: true, data: result };
-  } catch (error) {
-    return { success: false, error: error as z.ZodError };
-  }
-}
-
-// Consolidated debounce function
-export function debounce<T extends (...args: unknown[]) => void>(
-  func: T,
-  wait: number,
-): (...args: Parameters<T>) => Promise<void> {
-  let timeoutId: number;
-
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    return new Promise((resolve) => {
-      timeoutId = window.setTimeout(() => {
-        func(...args);
-        resolve();
-      }, wait);
-    });
-  };
-}
-
 // Validate and sanitize product description
 export interface ValidationResult {
   success: boolean;

@@ -414,8 +414,12 @@ const ProductAnalysisCard: React.FC<ProductAnalysisCardProps> = ({
                 <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
                 <Tooltip
                   contentStyle={{ fontSize: '12px', padding: '5px 10px' }}
-                  formatter={(value: number, name: string, props: any) => [
-                    `${value.toFixed(0)} ${props.payload.isProhibited ? '(Prohibited)' : ''}`,
+                  formatter={(
+                    value: number,
+                    name: string,
+                    props: { payload?: { isProhibited?: boolean } },
+                  ) => [
+                    `${value.toFixed(0)}${props?.payload?.isProhibited ? ' (Prohibited)' : ''}`,
                     'Score',
                   ]}
                   labelFormatter={(label: string) => `Keyword: ${label}`}

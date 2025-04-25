@@ -193,9 +193,7 @@ export function CompetitorAnalyzer() {
           setChartData(parsedData as ChartDataPoint[]);
           logger.info('Loaded chart data from sessionStorage');
         } else {
-          logger.warn(
-            'Invalid chart data found in sessionStorage, ignoring.',
-          );
+          logger.warn('Invalid chart data found in sessionStorage, ignoring.');
           sessionStorage.removeItem('chartData');
         }
       }
@@ -639,8 +637,12 @@ export function CompetitorAnalyzer() {
     } catch (error) {
       // Catch errors from processCsvData or fetchAndProcessApiData if they re-throw
       const errorMessage =
-        error instanceof Error ? error.message : 'An unknown analysis error occurred';
-      logger.error('Error during competitor analysis orchestration:', { error });
+        error instanceof Error
+          ? error.message
+          : 'An unknown analysis error occurred';
+      logger.error('Error during competitor analysis orchestration:', {
+        error,
+      });
       toast({
         title: 'Analysis Failed',
         description: errorMessage,
@@ -730,8 +732,8 @@ export function CompetitorAnalyzer() {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
-                      Upload CSV: asin, price, reviews, rating,
-                      conversion_rate, click_through_rate
+                      Upload CSV: asin, price, reviews, rating, conversion_rate,
+                      click_through_rate
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -759,9 +761,7 @@ export function CompetitorAnalyzer() {
                     <Info className="w-4 h-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>
-                      Upload CSV with same format OR enter ASIN below.
-                    </p>
+                    <p>Upload CSV with same format OR enter ASIN below.</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -818,10 +818,11 @@ export function CompetitorAnalyzer() {
                   checked={metrics.includes(metric)}
                   onChange={(e) => {
                     const isChecked = e.target.checked;
-                    setMetrics((prevMetrics) =>
-                      isChecked
-                        ? [...prevMetrics, metric] // Add metric
-                        : prevMetrics.filter((m) => m !== metric), // Remove metric
+                    setMetrics(
+                      (prevMetrics) =>
+                        isChecked
+                          ? [...prevMetrics, metric] // Add metric
+                          : prevMetrics.filter((m) => m !== metric), // Remove metric
                     );
                   }}
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -858,8 +859,10 @@ export function CompetitorAnalyzer() {
               setCompetitorData(null);
               setChartData(undefined);
               setMetrics(['price', 'reviews', 'rating']); // Reset metrics
-              if (sellerFileInputRef.current) sellerFileInputRef.current.value = '';
-              if (competitorFileInputRef.current) competitorFileInputRef.current.value = '';
+              if (sellerFileInputRef.current)
+                sellerFileInputRef.current.value = '';
+              if (competitorFileInputRef.current)
+                competitorFileInputRef.current.value = '';
               sessionStorage.removeItem('chartData');
               toast({ title: 'Inputs Cleared', variant: 'default' });
             }}
@@ -907,7 +910,9 @@ export function CompetitorAnalyzer() {
                     typeof value === 'number' ? value.toFixed(2) : value, // Format numbers
                     name
                       .split('_')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
                       .join(' '), // Format metric name nicely
                   ]}
                   labelStyle={{ fontWeight: 'bold', marginBottom: '5px' }}
@@ -920,7 +925,9 @@ export function CompetitorAnalyzer() {
                     dataKey={metric}
                     name={metric // Format name for legend
                       .split('_')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
                       .join(' ')}
                     stroke={getChartColor(metric)}
                     strokeWidth={2}

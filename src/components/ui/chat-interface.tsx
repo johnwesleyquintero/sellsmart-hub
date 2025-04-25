@@ -1,47 +1,48 @@
 'use client';
-import React from 'react';
 
 // --- Style Imports ---
 import 'katex/dist/katex.min.css'; // For math rendering
 import 'prismjs/themes/prism-tomorrow.css'; // For code block syntax highlighting
 
 // --- React and Hook Imports ---
+import { MessageBubble } from '@/components/ui/message-bubble';
 import { useToast } from '@/hooks/use-toast';
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react'; // Added React and useEffect
+
+// --- Helper Functions ---
+const scrollToBottom = () => {
+  // Add a check for window existence for SSR safety, although 'use client' should handle it
+  if (typeof window !== 'undefined') {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  }
+};
+
+const handleRetryLimitReached = (timestamp: number, retryCount: number) => {
+  console.error(
+    `Retry limit reached for message ${timestamp} after ${retryCount} attempts`,
+  );
+  // Optionally, inform the user via toast or message update
+};
 
 // --- Markdown and Syntax Highlighting Imports ---
-import ReactMarkdown from 'react-markdown';
-import rehypeKatex from 'rehype-katex'; // Plugin for math rendering
-import rehypePrismPlus from 'rehype-prism-plus'; // Plugin for code blocks
-import remarkGfm from 'remark-gfm'; // Plugin for GitHub Flavored Markdown (tables, etc.)
-import remarkMath from 'remark-math'; // Plugin for math syntax
+// (If you add markdown rendering, imports would go here)
 
 // --- Interfaces ---
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number; // Unique identifier for the message
-  status?: 'sending' | 'sent' | 'error'; // Status of the message
+  status?: 'sending' | 'sent' | 'error' | 'retrying'; // Status of the message
   error?: string; // Error message if status is 'error'
   retryCount?: number; // How many times retry has been attempted
   retryLimit?: number; // Maximum number of retries allowed
   retryStatus?: 'retrying' | 'failed'; // Visual status for retrying/failed state
-  // Optional: Add personal info if needed, but handle privacy carefully
-  // personalInfo?: { name: string; email: string; };
-}
-type MessageBubbleProps = {
-  message: Message;
-  onRetry?: (message: Message) => void; // Function to retry sending a message
-  onDelete?: (timestamp: number) => void; // Function to delete a message
-};
-
-export interface CodeBlockProps {
-  node?: unknown;
-  inline?: boolean;
-  className?: string;
-  children: React.ReactNode;
 }
 
+// --- State and Reducer ---
 type ChatState = {
   messages: Message[];
   input: string;
@@ -65,8 +66,6 @@ type ChatAction =
     }
   | { type: 'REMOVE_MESSAGE'; payload: number };
 
-// --- Helper Functions ---
-
 // Updates a specific message in the state array based on timestamp and role
 const updateMessageInState = (
   messages: Message[],
@@ -75,8 +74,9 @@ const updateMessageInState = (
   updates: Partial<Message>,
 ): Message[] => {
   return messages.map((msg) =>
+    // Find the specific message to update
     msg.timestamp === timestamp && msg.role === role
-      ? { ...msg, ...updates }
+      ? { ...msg, ...updates } // Apply updates
       : msg,
   );
 };
@@ -89,12 +89,11 @@ const removeMessageFromState = (
   return messages.filter((msg) => msg.timestamp !== timestamp);
 };
 
-// --- Reducer ---
 const initialState: ChatState = {
   messages: [],
   input: '',
   isLoading: false,
-  isChatOpen: false,
+  isChatOpen: false, // Start closed by default
 };
 
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
@@ -135,14 +134,13 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'TOGGLE_CHAT':
       return { ...state, isChatOpen: !state.isChatOpen };
     default:
-      // Ensure exhaustive check for action types if using TypeScript 4.9+
-      // const _exhaustiveCheck: never = action;
+      // const _exhaustiveCheck: never = action; // Uncomment for exhaustive checks
       return state;
   }
 }
 
 // --- Main Chat Component ---
-function ChatInterface() {
+const ChatInterface: React.FC = () => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { messages, input, isLoading, isChatOpen } = state;
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -150,108 +148,17 @@ function ChatInterface() {
   const RETRY_LIMIT = 3;
   const RETRY_BASE_DELAY_MS = 1000; // Base delay for exponential backoff
 
-  // --- Effects ---
-
-  // Scroll to bottom when new messages are added
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
+  // Scroll to bottom effect
   useEffect(() => {
     if (isChatOpen) {
       scrollToBottom();
     }
-  }, [messages.length, isChatOpen, scrollToBottom]); // Depend on messages length and chat open state
-
-  // Load messages from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedMessages = localStorage.getItem('chatMessages');
-      if (savedMessages) {
-        try {
-          const parsedMessages: Message[] = JSON.parse(savedMessages);
-          if (Array.isArray(parsedMessages)) {
-            // Filter out any potentially invalid message structures during load
-            const validMessages = parsedMessages.filter(
-              (msg) =>
-                msg &&
-                typeof msg === 'object' &&
-                msg.role &&
-                msg.content &&
-                msg.timestamp,
-            );
-            dispatch({ type: 'SET_MESSAGES', payload: validMessages });
-          } else {
-            console.warn('Invalid chat messages format found in localStorage.');
-            localStorage.removeItem('chatMessages');
-          }
-        } catch (error) {
-          console.error(
-            'Failed to parse chat messages from localStorage:',
-            error,
-          );
-          localStorage.removeItem('chatMessages');
-        }
-      }
-    }
-  }, []); // Run only once on mount
-
-  // Save messages to localStorage when they change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Avoid saving initial empty state unnecessarily
-      if (messages.length > 0 || localStorage.getItem('chatMessages')) {
-        // Filter out messages that might be in a temporary 'sending' state if desired,
-        // or save all including transient states. Saving all is simpler for resuming.
-        localStorage.setItem('chatMessages', JSON.stringify(messages));
-      }
-    }
-  }, [messages]); // Run whenever messages array changes
-
-  // --- Message Handling Logic ---
-  const handleRetryLimitReached = useCallback(
-    (timestamp: number, currentRetryCount: number) => {
-      console.warn(`Retry limit reached for message: ${timestamp}`);
-      dispatch({
-        type: 'UPDATE_MESSAGE',
-        payload: {
-          timestamp,
-          role: 'user',
-          updates: {
-            error: `Failed after ${RETRY_LIMIT} attempts. Please try again later.`,
-            retryCount: currentRetryCount,
-            retryStatus: 'failed',
-          },
-        },
-      });
-    },
-    [],
-  );
+  }, [messages, isChatOpen, isLoading]); // Trigger scroll on new messages, opening chat, or loading state change
 
   const applyExponentialBackoff = useCallback(
     async (currentRetryCount: number) => {
       const delay = RETRY_BASE_DELAY_MS * Math.pow(2, currentRetryCount);
       await new Promise((resolve) => setTimeout(resolve, delay));
-    },
-    [],
-  );
-
-  const createUserMessage = useCallback(
-    (
-      content: string,
-      timestamp: number,
-      isRetry: boolean,
-      currentRetryCount: number,
-    ) => {
-      return {
-        role: 'user',
-        content: content.trim(),
-        timestamp,
-        status: 'sending',
-        retryCount: currentRetryCount,
-        retryLimit: RETRY_LIMIT,
-        retryStatus: isRetry ? 'retrying' : undefined,
-      };
     },
     [],
   );
@@ -262,9 +169,9 @@ function ChatInterface() {
         type: 'UPDATE_MESSAGE',
         payload: {
           timestamp,
-          role: 'user',
+          role: 'user', // Assuming only user messages are retried
           updates: {
-            status: 'sending',
+            status: 'retrying', // Use 'retrying' status
             error: undefined,
             retryCount: currentRetryCount,
             retryStatus: 'retrying',
@@ -279,103 +186,112 @@ function ChatInterface() {
     async (messageOrContent: Message | string) => {
       const isRetry = typeof messageOrContent !== 'string';
       const content = isRetry ? messageOrContent.content : messageOrContent;
+      // Use the original message's timestamp for retries, generate new for new messages
       const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
-      const currentRetryCount = isRetry
-        ? (messageOrContent.retryCount ?? 0)
-        : 0;
+      let currentRetryCount = isRetry ? (messageOrContent.retryCount ?? 0) : 0;
 
       if (!content.trim()) return;
 
+      // Check retry limit *before* attempting retry
       if (isRetry && currentRetryCount >= RETRY_LIMIT) {
         handleRetryLimitReached(timestampToUse, currentRetryCount);
-        return;
+        // Update message status to 'failed' permanently
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            timestamp: timestampToUse,
+            role: 'user',
+            updates: {
+              status: 'error', // Keep error status
+              retryStatus: 'failed', // Mark as failed
+            },
+          },
+        });
+        toast({
+          title: 'Retry Failed',
+          description: `Message could not be sent after ${RETRY_LIMIT} attempts.`,
+          variant: 'destructive',
+        });
+        return; // Stop retrying
       }
 
+      // Apply backoff delay if it's a retry attempt
       if (isRetry) {
         await applyExponentialBackoff(currentRetryCount);
-      }
-
-      const userMessage = createUserMessage(
-        content,
-        timestampToUse,
-        isRetry,
-        currentRetryCount,
-      );
-
-      if (isRetry) {
+        // Update UI to show retrying state *before* the API call
         updateRetryingMessage(timestampToUse, currentRetryCount);
-      } else {
-        dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
-        dispatch({ type: 'SET_INPUT', payload: '' });
       }
+
+      // Prepare user message object (use original timestamp for retries)
+      const userMessage: Message = {
+        role: 'user',
+        content: content.trim(),
+        timestamp: timestampToUse, // Use consistent timestamp for the message being sent/retried
+        status: isRetry ? 'retrying' : 'sending',
+        retryCount: currentRetryCount, // Include current count
+      };
+
+      // Add new message or update existing one for retry
+      if (!isRetry) {
+        dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
+        dispatch({ type: 'SET_INPUT', payload: '' }); // Clear input only for new messages
+      }
+      // No need to update state again here if updateRetryingMessage was called
+
       dispatch({ type: 'SET_LOADING', payload: true });
-      scrollToBottom(); // Scroll after adding/updating user message
+      // scrollToBottom(); // Scroll is handled by useEffect now
 
       try {
         console.log('Submitting message to /api/chat:', {
           content: content.trim(),
+          // Filter history more carefully: only 'sent' messages
           history: messages
             .filter((msg) => msg.status === 'sent')
             .map(({ role, content }) => ({ role, content })),
         });
+
         // --- Actual API Call ---
         const apiResponse = await fetch('/api/chat', {
-          // Your backend endpoint
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: content.trim(),
-            // Send conversation history (successfully sent messages) for context
             history: messages
-              .filter((msg) => msg.status === 'sent') // Only send confirmed messages
-              .map(({ role, content }) => ({ role, content })), // Format for backend
+              .filter((msg) => msg.status === 'sent')
+              .map(({ role, content }) => ({ role, content })),
           }),
         });
-        console.log('Submitting message:', content);
 
-        console.log('API response:', apiResponse);
+        console.log('API response status:', apiResponse.status);
 
         // --- Handle API Response ---
-
         if (!apiResponse.ok) {
           let errorMessage = `API Error: ${apiResponse.status} ${apiResponse.statusText}`;
           try {
             const errorData = await apiResponse.json();
-            if (errorData.error) {
-              errorMessage = errorData.error;
-              if (errorData.details) {
-                errorMessage += ` (${errorData.details})`;
-              }
-            }
-          } catch {
-            console.error('Failed to parse error JSON from API response', {
-              status: apiResponse.status,
-              statusText: apiResponse.statusText,
-              url: apiResponse.url,
-              timestamp: new Date().toISOString(),
-              headers: Object.fromEntries(apiResponse.headers.entries()),
-            });
+            errorMessage = errorData.error || errorMessage;
+            if (errorData.details) errorMessage += ` (${errorData.details})`;
+          } catch (parseError) {
+            console.error('Failed to parse error JSON:', parseError);
           }
           throw new Error(errorMessage);
         }
 
         const data = await apiResponse.json();
-        const aiContent = data.response; // Match the backend response structure
+        const aiContent = data.response;
 
         // --- Update State on Success ---
-        // 1. Update user message status to 'sent'
+        // 1. Update user message status to 'sent' (using the correct timestamp)
         dispatch({
           type: 'UPDATE_MESSAGE',
           payload: {
-            timestamp: userMessage.timestamp,
+            timestamp: timestampToUse, // Use the original timestamp
             role: 'user',
             updates: {
               status: 'sent',
               error: undefined,
-              retryStatus: undefined, // Clear retry status on success
-              retryCount: currentRetryCount, // Keep the count for potential future reference if needed, or clear it
+              retryStatus: undefined, // Clear retry status
+              // Optionally reset retryCount on success: retryCount: 0
             },
           },
         });
@@ -384,17 +300,20 @@ function ChatInterface() {
         const assistantMessage: Message = {
           role: 'assistant',
           content: aiContent,
-          timestamp: Date.now(), // Use a new timestamp for the assistant message
+          timestamp: Date.now(), // New timestamp for assistant message
           status: 'sent',
         };
         dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
       } catch (error) {
         console.error('Failed to send/process message:', error);
+        const nextRetryCount = currentRetryCount + 1;
+        const isFailed = nextRetryCount >= RETRY_LIMIT;
+
         // --- Update State on Error ---
         dispatch({
           type: 'UPDATE_MESSAGE',
           payload: {
-            timestamp: userMessage.timestamp,
+            timestamp: timestampToUse, // Use the original timestamp
             role: 'user',
             updates: {
               status: 'error',
@@ -402,32 +321,42 @@ function ChatInterface() {
                 error instanceof Error
                   ? error.message
                   : 'An unknown error occurred',
-              retryCount: currentRetryCount + 1, // Increment retry count for the *next* potential attempt
-              retryStatus:
-                currentRetryCount + 1 >= RETRY_LIMIT ? 'failed' : undefined, // Set to 'failed' if limit reached
+              retryCount: nextRetryCount, // Increment for the *next* potential attempt
+              retryStatus: isFailed ? 'failed' : undefined, // Mark as failed if limit reached
             },
           },
         });
-        toast({
-          title: 'Error',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-          variant: 'destructive',
-        });
+
+        if (!isFailed) {
+          toast({
+            title: 'Message Failed',
+            description: `Attempt ${currentRetryCount + 1} failed. Retrying... (${error instanceof Error ? error.message : 'Unknown error'})`,
+            variant: 'destructive',
+          });
+        } else {
+          // Final failure toast handled in the retry limit check at the beginning
+        }
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false });
-        scrollToBottom(); // Scroll after potential AI response or error update
+        // scrollToBottom(); // Scroll handled by useEffect
       }
     },
-    [messages, scrollToBottom, toast],
-  ); // Include messages and scrollToBottom in dependencies
+    [
+      messages,
+      toast,
+      applyExponentialBackoff,
+      updateRetryingMessage,
+      dispatch, // Added dispatch dependency
+    ],
+  );
 
   // --- Delete Handler ---
-  const handleDeleteMessage = useCallback((timestamp: number) => {
-    dispatch({ type: 'REMOVE_MESSAGE', payload: timestamp });
-  }, []);
+  const handleDeleteMessage = useCallback(
+    (timestamp: number) => {
+      dispatch({ type: 'REMOVE_MESSAGE', payload: timestamp });
+    },
+    [dispatch], // Added dispatch dependency
+  );
 
   // --- Render ---
   return (
@@ -484,7 +413,7 @@ function ChatInterface() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
             {messages.map((msg) => (
               <MessageBubble
-                key={`${msg.role}-${msg.timestamp}`} // More robust key
+                key={`${msg.role}-${msg.timestamp}`} // Use timestamp as primary key part
                 message={msg}
                 onRetry={handleMessageSubmit}
                 onDelete={handleDeleteMessage}
@@ -492,7 +421,9 @@ function ChatInterface() {
             ))}
             {/* Typing Indicator */}
             {isLoading &&
-              messages[messages.length - 1]?.role === 'user' && ( // Show indicator only if last message was user and we are loading
+              messages.length > 0 && // Ensure there are messages before checking the last one
+              messages[messages.length - 1]?.role === 'user' &&
+              messages[messages.length - 1]?.status !== 'error' && ( // Don't show typing if user message failed
                 <div className="flex justify-start mb-4">
                   <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg p-3 max-w-[80%] break-words shadow-sm">
                     <div className="flex items-center space-x-1.5">
@@ -517,6 +448,7 @@ function ChatInterface() {
 
           {/* Input Area */}
           <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
+            {/* Corrected: Form should wrap input and button */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -531,18 +463,18 @@ function ChatInterface() {
                   dispatch({ type: 'SET_INPUT', payload: e.target.value })
                 }
                 placeholder="Type your message..."
-                disabled={isLoading} // Disable input while loading
+                disabled={isLoading}
                 className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
                 aria-label="Chat input"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center h-10 w-[70px]" // Fixed width for button consistency
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center h-10 w-[70px]" // Fixed width
                 aria-label="Send message"
               >
+                {/* Corrected: Conditional rendering inside button */}
                 {isLoading ? (
-                  // Loading Spinner Icon
                   <svg
                     className="animate-spin h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
@@ -564,8 +496,6 @@ function ChatInterface() {
                     ></path>
                   </svg>
                 ) : (
-                  // Send Icon (Optional, or keep text 'Send')
-                  // <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 16.571V11a1 1 0 112 0v5.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
                   'Send'
                 )}
               </button>
@@ -575,264 +505,9 @@ function ChatInterface() {
       )}
     </div>
   );
-}
-
-// --- Message Bubble Component ---
-const MessageBubble: React.FC<MessageBubbleProps> = ({
-  message,
-  onRetry,
-  onDelete,
-}: Readonly<MessageBubbleProps>) => {
-  const isUser = message.role === 'user';
-  // Conditional styling for user vs assistant, and dark mode
-  const RETRY_LIMIT = message.retryLimit ?? 3; // Use limit from message or default
-  const bubbleClass = isUser
-    ? 'bg-blue-500 text-white ml-auto'
-    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
-  const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
-  const canRetry =
-    message.status === 'error' && (message.retryCount ?? 0) < RETRY_LIMIT;
-  const isRetrying = message.retryStatus === 'retrying';
-  const hasFailed = message.retryStatus === 'failed';
-
-  return (
-    <div className={`${containerClass}`}>
-      {' '}
-      {/* Message bubble container */}
-      <div
-        className={`${bubbleClass} max-w-[80%] rounded-lg p-3 break-words shadow-sm relative group`} // Added relative and group for potential actions
-      >
-        {/* Error/Retry State Display */}
-        {message.status === 'error' || isRetrying || hasFailed ? (
-          <div className="flex flex-col gap-1.5">
-            <p
-              className={`text-xs italic font-medium ${
-                isRetrying
-                  ? 'text-yellow-300 dark:text-yellow-400'
-                  : 'text-red-300 dark:text-red-400'
-              }`}
-            >
-              {/* Icon */}
-              {isRetrying ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom animate-spin"
-                  style={{ animationDuration: '1.5s' }}
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M15.312 11.424a5.5 5.5 0 01-9.204 2.101l-.713.713a7 7 0 109.919-9.919l-.713.713a5.5 5.5 0 01.001 7.092zM10 2.5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0V3.25A.75.75 0 0110 2.5z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-              {/* Text */}
-              {isRetrying
-                ? `Retrying... (Attempt ${
-                    (message.retryCount ?? 0) + 1
-                  } of ${RETRY_LIMIT})`
-                : message.error || 'Failed to send'}
-              {hasFailed && ` (Failed after ${RETRY_LIMIT} attempts)`}
-            </p>
-            {/* Render original content slightly faded */}
-            <div className="prose prose-sm max-w-none dark:prose-invert opacity-75">
-              {renderMessage(message.content)}
-            </div>
-            {/* Action Buttons */}
-            {(canRetry || onDelete) && ( // Show actions only if retry is possible or delete is available
-              <div className="flex items-center gap-3 mt-1 border-t border-white/20 dark:border-gray-600 pt-1.5">
-                {canRetry && (
-                  <button
-                    onClick={() => onRetry?.(message)}
-                    className="text-xs text-blue-200 hover:text-white dark:text-blue-300 dark:hover:text-blue-100 font-medium focus:outline-none focus:underline"
-                    aria-label="Retry sending message"
-                  >
-                    Retry Now
-                  </button>
-                )}
-                {onDelete && ( // Conditionally render delete button
-                  <button
-                    onClick={() => onDelete?.(message.timestamp)}
-                    className="text-xs text-red-300 hover:text-red-100 dark:text-red-400 dark:hover:text-red-200 font-medium focus:outline-none focus:underline"
-                    aria-label="Delete message"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          // Default Message Display
-          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-li:my-0.5 prose-ul:my-2 prose-ol:my-2 prose-blockquote:my-2 prose-pre:my-2">
-            {/* Render message content using Markdown */}
-            {renderMessage(message.content)}
-            {/* Sending Indicator (Optional) */}
-            {message.status === 'sending' &&
-              !isRetrying && ( // Don't show "Sending..." if "Retrying..." is shown
-                <span className="text-xs italic opacity-70 ml-2">
-                  (Sending...)
-                </span>
-              )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
 };
 
-// --- Markdown Rendering Configuration ---
-
-// Custom renderer for code blocks (handles Mermaid and regular code)
-const CodeBlock: React.FC<CodeBlockProps> = ({
-  className,
-  children,
-  inline,
-}) => {
-  const match = /language-(\w+)/.exec(className || '');
-  const language = match ? match[1] : '';
-
-  // Handle Mermaid diagrams
-  // Note: Requires the Mermaid library to be loaded and initialized elsewhere (e.g., in a useEffect)
-  if (!inline && language === 'mermaid') {
-    // Ensure Mermaid is globally available or imported and initialized
-    // useEffect(() => {
-    //   if (typeof mermaid !== 'undefined') {
-    //     mermaid.contentLoaded();
-    //   }
-    // }, [children]);
-    return <pre className="mermaid">{String(children).trim()}</pre>;
-  }
-
-  // Handle inline code
-  if (inline) {
-    return (
-      <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">
-        {children}
-      </code>
-    );
-  }
-
-  // Handle regular code blocks (rehypePrismPlus handles the highlighting)
-  // Add copy button functionality
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(String(children))
-      .then(() => {
-        // Optional: Show a temporary "Copied!" message
-        console.log('Code copied to clipboard');
-      })
-      .catch((err) => {
-        console.error('Failed to copy code: ', err);
-      });
-  };
-
-  return (
-    <div className="relative group my-2">
-      <pre className={className}>
-        <code>{children}</code>
-      </pre>
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 p-1 bg-gray-600/50 dark:bg-gray-700/70 text-gray-200 dark:text-gray-300 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-gray-400"
-        aria-label="Copy code"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-          />
-        </svg>
-      </button>
-    </div>
-  );
-};
-
-// Memoized function to render message content with Markdown
-const renderMessage = (content: string) => (
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm, remarkMath]} // Enable GitHub Flavored Markdown and Math syntax
-    rehypePlugins={[
-      rehypeKatex, // Render math using KaTeX
-      [rehypePrismPlus, { showLineNumbers: false, ignoreMissing: true }], // Add syntax highlighting with Prism (line numbers disabled for chat)
-    ]}
-    components={{
-      // Use custom CodeBlock component for rendering code elements
-      code: CodeBlock as any, // Cast needed due to complex type inference
-      // Customize other elements if needed, e.g., links to open in new tabs
-      a: ({ ...props }) => (
-        <a
-          {...props}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 dark:text-blue-400 hover:underline"
-        />
-      ),
-      // Ensure paragraphs inside list items don't add extra margin
-      li: ({ ...props }) => <li {...props} className="my-0.5" />,
-      p: ({ ...props }) => <p {...props} className="my-2" />, // Adjust paragraph margin if needed
-    }}
-    // Disallow potentially dangerous HTML
-    // rehypePlugins={[rehypeRaw]} // Use rehypeRaw carefully if you need to render raw HTML from the AI
-  >
-    {content}
-  </ReactMarkdown>
-);
-
-// --- Export Component ---
+// Ensure only one default export
 export default ChatInterface;
 
-// --- Add Tailwind CSS for scrollbar styling (optional, add to your global CSS or tailwind.config.js) ---
-/*
-@layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: theme('colors.gray.300') theme('colors.gray.100');
-  }
-  .dark .scrollbar-thin {
-    scrollbar-color: theme('colors.gray.600') theme('colors.gray.800');
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 8px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: theme('colors.gray.100');
-    border-radius: 4px;
-  }
-  .dark .scrollbar-thin::-webkit-scrollbar-track {
-    background: theme('colors.gray.800');
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: theme('colors.gray.300');
-    border-radius: 4px;
-    border: 2px solid theme('colors.gray.100');
-  }
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: theme('colors.gray.600');
-    border: 2px solid theme('colors.gray.800');
-  }
-}
-*/
+// Removed duplicate definitions below this line

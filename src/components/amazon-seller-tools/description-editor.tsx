@@ -3,8 +3,8 @@
 
 import { getAllProhibitedKeywords } from '@/actions/keywordActions';
 import { useToast } from '@/hooks/use-toast';
-import { debounce } from '@/lib/description-validation'; // Assuming this exists and works
 import { logger } from '@/lib/logger';
+import debounce from '@/lib/utils/description-validation';
 import {
   AlertCircle,
   Download,
@@ -61,6 +61,8 @@ const manualProductSchema = z.object({
   asin: z.string().trim(), // Optional, no specific validation needed here unless required
   description: z.string().trim().min(1, 'Description cannot be empty.'),
 });
+
+type ManualProduct = z.infer<typeof manualProductSchema>;
 
 // --- Helper Functions (Moved Outside Component) ---
 
@@ -184,7 +186,7 @@ const processCsvRow = (
 
 // Form for adding a new product manually
 interface ManualAddProductFormProps {
-  onSubmit: (data: z.infer<typeof manualProductSchema>) => void;
+  onSubmit: (data: ManualProduct) => void;
   isLoading: boolean;
 }
 
@@ -301,12 +303,9 @@ function ProductEditorArea({
   // Debounce the description change handler
   // FIX: Added debounce to the dependency array
   const debouncedDescriptionChange = useCallback(
-    (newDescription: string) => {
-      const debouncedFn = debounce((text: string) => {
-        onDescriptionChange(product.product, text);
-      }, 300);
-      debouncedFn(newDescription);
-    },
+    debounce((newDescription: string) => {
+      onDescriptionChange(product.product, newDescription);
+    }, 300),
     [onDescriptionChange, product.product],
   );
 
