@@ -159,7 +159,12 @@ const getChartColor = (metric: MetricType): string => {
 };
 
 // --- Component ---
-export function CompetitorAnalyzer() {
+interface CompetitorAnalyzerProps {
+  onAnalyzeAction: (data: ProcessedRow[]) => void;
+}
+export function CompetitorAnalyzer({
+  onAnalyzeAction,
+}: CompetitorAnalyzerProps) {
   const [asin, setAsin] = useState('');
   const [metrics, setMetrics] = useState<MetricType[]>([
     'price',
@@ -582,6 +587,8 @@ export function CompetitorAnalyzer() {
     }
   }, [asin, metrics, setChartData]); // Dependencies
 
+  const [requiredError, setRequiredError] = useState<string | null>(null);
+
   const validateData = useCallback((): boolean => {
     // Checks if there's enough data to proceed with analysis
     // const hasSellerCsv = sellerData && sellerData.length > 0;
@@ -590,6 +597,9 @@ export function CompetitorAnalyzer() {
 
     // Require either competitor CSV or an ASIN
     if (!hasCompetitorCsv && !hasAsin) {
+      setRequiredError(
+        'Please upload competitor data CSV or enter a competitor ASIN to analyze.',
+      );
       toast({
         title: 'Missing Input',
         description:
@@ -598,11 +608,8 @@ export function CompetitorAnalyzer() {
       });
       return false;
     }
-    // Optionally require seller data if needed for specific comparisons (not currently used in chart)
-    // if (!hasSellerCsv) {
-    //   toast({ title: "Missing Input", description: "Please upload your seller data CSV.", variant: "destructive" });
-    //   return false;
-    // }
+
+    setRequiredError(null);
     return true;
   }, [competitorData, asin]);
 
@@ -621,11 +628,15 @@ export function CompetitorAnalyzer() {
       if (competitorData && competitorData.length > 0) {
         logger.info('Analyzing using uploaded Competitor CSV data.');
         processCsvData(); // This will update chartData and save to sessionStorage
+        onAnalyzeAction(competitorData);
       }
       // If no competitor CSV, but ASIN exists, fetch from API
       else if (asin.trim()) {
         logger.info(`Analyzing using ASIN: ${asin}`);
         await fetchAndProcessApiData(); // This updates chartData and saves
+        // Need to figure out how to pass the API data to onAnalyze in this case
+        // For now, pass an empty array
+        onAnalyzeAction([]);
       } else {
         // This case should be caught by validateData, but added for safety
         toast({
@@ -795,6 +806,9 @@ export function CompetitorAnalyzer() {
             <p className="text-xs text-muted-foreground">
               Provide either a Competitor CSV or an ASIN.
             </p>
+            {requiredError && (
+              <p className="text-red-500 text-sm mt-1">{requiredError}</p>
+            )}
           </div>
         </div>
 

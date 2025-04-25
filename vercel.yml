@@ -2,7 +2,6 @@
 build:
   env:
     NODE_ENV: production
-    EDGE_CONFIG_ID: ecfg_pofj3zhkxfj9rt7jg4sr9qbzlmlu
   command: npm install --legacy-peer-deps && npm run cq && npm run build
 
 routes:
@@ -10,7 +9,7 @@ routes:
     dest: /$1
     edge:
       env:
-        EDGE_CONFIG_ID: ecfg_pofj3zhkxfj9rt7jg4sr9qbzlmlu
+        EDGE_CONFIG_ID: ${process.env.EDGE_CONFIG_ID}
     headers:
       Cache-Control: public, max-age=3600
 

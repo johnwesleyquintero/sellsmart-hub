@@ -129,7 +129,14 @@ export const calculateFbaMetrics = async (
 };
 
 // --- Component ---
-export default function FbaCalculator() {
+
+interface FbaCalculatorProps {
+  onCalculateAction: (data: FbaCalculationResult[]) => void;
+}
+
+export default function FbaCalculator({
+  onCalculateAction,
+}: FbaCalculatorProps) {
   const { toast } = useToast();
   const [results, setResults] = useState<FbaCalculationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -279,6 +286,7 @@ export default function FbaCalculator() {
               description: `${processedMessage}.${skippedMessage}`,
               variant: 'default',
             });
+            onCalculateAction(validResults);
           } catch (err) {
             const message =
               err instanceof Error
@@ -474,6 +482,7 @@ export default function FbaCalculator() {
                     description: `Calculated metrics for ${values.product}`,
                     variant: 'default',
                   });
+                  onCalculateAction([{ ...values, ...metrics }]);
                 } catch (error) {
                   toast({
                     title: 'Calculation Failed',

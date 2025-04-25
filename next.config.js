@@ -5,8 +5,9 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const nextConfig = {
+  reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV !== 'production',
   },
   // Core settings
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
@@ -41,8 +42,8 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 3600,
     dangerouslyAllowSVG: true,
-    contentSecurityPolicy:
-      "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' data:; object-src 'none'; frame-src 'none'; sandbox;",
+    // Removed duplicate CSP header to avoid conflicts with middleware
+
     contentDispositionType: 'inline',
     unoptimized: process.env.NODE_ENV === 'development',
     disableStaticImages: false,

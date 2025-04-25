@@ -1,11 +1,11 @@
 'use client';
 
-import * as React from 'react';
 import { cn } from '@/lib/utils';
+import * as React from 'react';
 
 const Label = React.forwardRef<
   HTMLLabelElement,
-  React.LabelHTMLAttributes<HTMLLabelElement>
+  React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }
 >(({ className, ...props }, ref) => {
   return (
     <label

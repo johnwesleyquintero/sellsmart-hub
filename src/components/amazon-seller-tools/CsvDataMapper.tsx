@@ -44,7 +44,9 @@ interface ValidationResult {
 }
 
 // Use the generic type T in the component definition
-const CsvDataMapper = <T extends Record<string, unknown>>({
+const CsvDataMapper: React.FC<CsvDataMapperProps<Record<string, unknown>>> = <
+  T extends Record<string, unknown>,
+>({
   csvHeaders,
   targetMetrics,
   onMappingComplete,

@@ -2,25 +2,10 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { redis } from '../redis/config';
+
 function getRedisConfig() {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    throw new Error(
-      'Missing required Redis environment variables (KV_REST_API_URL and KV_REST_API_TOKEN)',
-    );
-  }
-
-  // Ensure URL starts with https://
-  const validatedUrl = url.startsWith('https://')
-    ? url
-    : url.replace(/^rediss?:\/\//, 'https://');
-
-  return {
-    url: validatedUrl,
-    token,
-  };
+  return redis;
 }
 
 export const rateLimiter = new Ratelimit({
