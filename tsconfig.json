@@ -22,42 +22,40 @@
         "name": "next"
       }
     ],
-    // Removed the extra '],' from the original line 23
     "paths": {
       "@/*": ["./*"],
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/app/components/*": ["./app/components/*"],
-      "@/hooks/*": ["./app/hooks/*"] // Ensure this line exists
+      "@/hooks/*": ["./app/hooks/*"]
     }
-    // Note: The 'paths' object is the last item within 'compilerOptions', so it does NOT need a trailing comma after its closing brace '}'.
-  }, // This closing brace '}' ends the 'compilerOptions' object. It needs a comma because 'types' follows it.
+  }, // Comma needed as 'types' follows
   "types": ["jest", "@testing-library/jest-dom", "node"],
   "include": [
-    "src/types/**/*",
+    "src/types/**/*", // This handles types inside src/types
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
     ".next/types/**/*.ts",
     "src/__tests__/setup.ts",
-    "src/**/*",
-    "types/**/*.d.ts",
-    "eslint.config.mjs"
+    "src/**/*" // This also covers src/types, but the specific entry is clearer
   ],
-  "typeRoots": ["./src/types", "./node_modules/@types"], // Added comma here because 'exclude' follows.
+
+  "typeRoots": ["./src/types", "./node_modules/@types"], // Comma needed as 'exclude' follows
+  // Added comma on the line above
   "exclude": [
     ".next",
+    ".wescore",
     "jest.config.js",
     "__mocks__/svg.js",
     "coverage/lcov-report/*",
     "dist/lib/models.js",
     "dist/lib/mongodb.js",
     "dist/scripts/*",
-    "eslint.config.mjs",
     "jest.setup.js",
     "next.config.js",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "eslint.config.mjs"
   ]
-  // Note: 'exclude' is the last item in the main object, so it does NOT need a trailing comma.
 }

@@ -1,9 +1,7 @@
 import { getAllProhibitedKeywords } from '@/actions/keywordActions';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
-// INCORRECT IMPORT: This likely imports a Zod schema, not the debounce function
-// import debounce from '@/lib/utils/description-validation';
-import debounce from 'lodash.debounce'; // CORRECT IMPORT: Import debounce from a utility library
+import debounce from 'lodash.debounce'; // Import debounce from a utility library
 import {
   AlertCircle,
   Download,
