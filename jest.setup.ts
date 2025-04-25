@@ -8,7 +8,9 @@ configure({
 });
 
 // Mock window.matchMedia
-interface MatchMediaMock {
+import { MockInstance } from 'jest-mock';
+
+interface MatchMediaMock extends MockInstance<(...args: any[]) => any> {
   matches: boolean;
   media: string;
   onchange: null;
@@ -19,9 +21,20 @@ interface MatchMediaMock {
   dispatchEvent: jest.Mock;
 }
 
+interface MediaQueryList {
+  matches: boolean;
+  media: string;
+  onchange: null;
+  addListener: (listener: any) => void;
+  removeListener: (listener: any) => void;
+  addEventListener: (type: string, listener: any) => void;
+  removeEventListener: (type: string, listener: any) => void;
+  dispatchEvent: (event: Event) => boolean;
+}
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query: string): MatchMediaMock => ({
+  value: jest.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -29,7 +42,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: jest.fn(),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    dispatchEvent: jest.fn(() => true), // Or false, depending on the desired behavior
   })),
 });
 

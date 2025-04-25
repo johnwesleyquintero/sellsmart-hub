@@ -523,9 +523,7 @@ export default function DescriptionEditor() {
             const actualHeaders = results.meta.fields || [];
             const requiredHeaders = ['product', 'description']; // Define required headers here
             const missingHeaders = requiredHeaders.filter(
-              (header) =>
-                // eslint-disable-next-line sonarjs/no-nested-functions
-                !actualHeaders.some((h) => h.toLowerCase() === header),
+              (header) => !actualHeaders.some((h) => h.toLowerCase() === header),
             );
 
             if (missingHeaders.length > 0) {
