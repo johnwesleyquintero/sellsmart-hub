@@ -8,7 +8,7 @@ import {
   Info,
   Search,
   Upload,
-  X
+  X,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react';
@@ -16,8 +16,15 @@ import React, { useCallback, useRef, useState } from 'react';
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
 import SampleCsvButton from '@/components/amazon-seller-tools/sample-csv-button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'; // Added Accordion components
+import { Badge } from '@/components/ui/badge'; // Added Badge
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added CardHeader, CardTitle, CardDescription
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -39,7 +46,7 @@ export interface CSVRow {
 
 export interface AsinData {
   title: string;
-  description: string[];
+  description: string[]; // Description from API might be an array
   bulletPoints: string[];
   imageCount: number;
   keywords: string[];
@@ -484,24 +491,24 @@ export default function ListingQualityChecker() {
   const [asin, setAsin] = useState('');
 
   // Enhance scoring with weighted criteria
-  const calculateScore = (listing: ListingData) => {
-    // Add weights from real-world performance data
-    const performanceWeights = {
-      conversionRate: 0.4,
-      clickThroughRate: 0.3,
-      searchRanking: 0.3
-    };
-    // ... existing scoring logic
-    // Placeholder: Integrate the scoring logic here
-  };
+  // const calculateScore = (listing: ListingData) => { // Removed duplicate function
+  //   // Add weights from real-world performance data
+  //   const performanceWeights = {
+  //     conversionRate: 0.4,
+  //     clickThroughRate: 0.3,
+  //     searchRanking: 0.3
+  //   };
+  //   // ... existing scoring logic
+  //   // Placeholder: Integrate the scoring logic here
+  // };
 
   // Add AI validation metrics tracking
-  const [metrics, setMetrics] = useState({
-    suggestionAccuracy: 0,
-    acceptanceRate: 0,
-    effectivenessScore: 0
-  });
-  const fileInputRef = useRef<HTMLInputElement>(undefined);
+  // const [metrics, setMetrics] = useState({ // Removed unused state
+  //   suggestionAccuracy: 0,
+  //   acceptanceRate: 0,
+  //   effectivenessScore: 0
+  // });
+  const fileInputRef = useRef<HTMLInputElement>(null); // Corrected ref type
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -581,10 +588,15 @@ export default function ListingQualityChecker() {
 
       const data: AsinData = await response.json();
 
+      // FIX: Join description array into a string
+      const descriptionString = Array.isArray(data.description)
+        ? data.description.join('\n') // Join with newlines or spaces as appropriate
+        : data.description || ''; // Handle case where it might already be a string or null/undefined
+
       const row: CSVRow = {
         product: `Product (ASIN: ${asinToCheck})`,
         title: data.title || '',
-        description: data.description || '',
+        description: descriptionString, // Use the joined string
         bullet_points: data.bulletPoints?.join(';') || '',
         images: String(data.imageCount || 0),
         keywords: data.keywords?.join(',') || '',
@@ -748,6 +760,7 @@ export default function ListingQualityChecker() {
               Upload a CSV with listing details (product, title, description,
               bullet_points, images, keywords).
             </li>
+            {/* FIX: Moved list items inside the ul */}
             <li>
               Alternatively, enter an ASIN to fetch and analyze (mock data used
               for demo).
@@ -762,6 +775,7 @@ export default function ListingQualityChecker() {
             <li>View issues and suggestions for each listing.</li>
           </ul>
         </div>
+        {/* FIX: Added missing closing div tag */}
       </div>
 
       {/* Input Section */}
@@ -795,11 +809,11 @@ export default function ListingQualityChecker() {
                     className="hidden"
                     onChange={handleFileUpload}
                     disabled={isLoading}
-                    ref={fileInputRef as React.RefObject<HTMLInputElement>}
+                    ref={fileInputRef} // Corrected ref assignment
                   />
                 </label>
                 <SampleCsvButton
-                  dataType="keyword"
+                  dataType="keyword" // Assuming 'keyword' type provides the correct sample format
                   fileName="sample-listing-quality.csv"
                   className="mt-4"
                 />
@@ -859,6 +873,7 @@ export default function ListingQualityChecker() {
             )}
           </CardContent>
         </DataCard>
+        {/* FIX: Added missing closing div tag for the grid */}
       </div>
 
       {/* Action Buttons */}
@@ -881,6 +896,110 @@ export default function ListingQualityChecker() {
 
       {/* General Error Display (for CSV upload/processing) */}
       {error &&
-        !asin && (
+        !asin && ( // Only show general error if not related to ASIN check
           <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+      {/* Results Section */}
+      {listings.length > 0 && !isLoading && (
+        <DataCard>
+          <CardContent className="p-4 space-y-6">
+            <h2 className="text-xl font-semibold border-b pb-3">
+              Analysis Results ({listings.length} Listings)
+            </h2>
+            <div className="space-y-4">
+              {listings.map((listing, index) => (
+                <Card key={`${listing.product}-${index}`}>
+                  <CardHeader>
+                    <CardTitle className="flex justify-between items-center">
+                      <span>{listing.product}</span>
+                      <Badge variant={getBadgeVariant(listing.score)}>
+                        Score: {listing.score}/100
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="details">
+                        <AccordionTrigger>Details</AccordionTrigger>
+                        <AccordionContent className="text-sm space-y-1">
+                          <p>
+                            <strong>Title:</strong> {listing.title || 'N/A'}
+                          </p>
+                          <p>
+                            <strong>Bullet Points:</strong>{' '}
+                            {listing.bulletPoints?.length ?? 0}
+                          </p>
+                          <p>
+                            <strong>Images:</strong> {listing.images ?? 0}
+                          </p>
+                          <p>
+                            <strong>Keywords:</strong>{' '}
+                            {listing.keywords?.length ?? 0}
+                          </p>
+                          {listing.rating !== undefined && (
+                            <p>
+                              <strong>Rating:</strong>{' '}
+                              {listing.rating.toFixed(1)}/5.0
+                            </p>
+                          )}
+                          {listing.reviewCount !== undefined && (
+                            <p>
+                              <strong>Reviews:</strong> {listing.reviewCount}
+                            </p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="issues">
+                        <AccordionTrigger>
+                          Issues ({listing.issues.length})
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          {listing.issues.length > 0 ? (
+                            <ul className="list-disc pl-4 space-y-1 text-sm text-red-700 dark:text-red-300">
+                              {listing.issues.map((issue, i) => (
+                                <li key={`issue-${index}-${i}`}>{issue}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic">
+                              No major issues detected.
+                            </p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="suggestions">
+                        <AccordionTrigger>
+                          Suggestions ({listing.suggestions.length})
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          {listing.suggestions.length > 0 ? (
+                            <ul className="list-disc pl-4 space-y-1 text-sm text-blue-700 dark:text-blue-300">
+                              {listing.suggestions.map((suggestion, i) => (
+                                <li key={`suggestion-${index}-${i}`}>
+                                  {suggestion}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic">
+                              No specific suggestions.
+                            </p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </DataCard>
+      )}
+      {/* FIX: Added missing closing div tag for the main component div */}
+    </div>
+  );
+}

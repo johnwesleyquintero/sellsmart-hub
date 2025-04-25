@@ -1,10 +1,9 @@
-// src/components/amazon-seller-tools/description-editor.tsx
-'use client';
-
 import { getAllProhibitedKeywords } from '@/actions/keywordActions';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
-import debounce from '@/lib/utils/description-validation';
+// INCORRECT IMPORT: This likely imports a Zod schema, not the debounce function
+// import debounce from '@/lib/utils/description-validation';
+import debounce from 'lodash.debounce'; // CORRECT IMPORT: Import debounce from a utility library
 import {
   AlertCircle,
   Download,
@@ -33,7 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import DataCard from './DataCard'; // Use consistent DataCard
+import DataCard from './DataCard';
 import SampleCsvButton from './sample-csv-button';
 
 // --- Types ---
@@ -295,23 +294,25 @@ interface ProductEditorAreaProps {
 
 function ProductEditorArea({
   product,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  prohibitedKeywords, // Pass prohibitedKeywords here
   onDescriptionChange,
   onSave,
 }: Readonly<ProductEditorAreaProps>) {
   const [showPreview, setShowPreview] = useState(false);
 
-  // Debounce the description change handler
-  // FIX: Added debounce to the dependency array
+  // Debounce the description change handler using lodash.debounce
   const debouncedDescriptionChange = useCallback(
     debounce((newDescription: string) => {
       onDescriptionChange(product.product, newDescription);
-    }, 300),
-    [onDescriptionChange, product.product],
+    }, 300), // Debounce time: 300ms
+    [onDescriptionChange, product.product], // Dependencies for useCallback
   );
 
   const handleTextareaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
+    // Call the debounced function with the current value
     debouncedDescriptionChange(event.target.value);
   };
 
