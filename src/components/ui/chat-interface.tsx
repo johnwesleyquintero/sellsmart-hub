@@ -182,75 +182,171 @@ const ChatInterface: React.FC = () => {
     [],
   );
 
+  const handleRetryLimit = (timestamp: number, retryCount: number) => {
+    handleRetryLimitReached(timestamp, retryCount);
+    dispatch({
+      type: 'UPDATE_MESSAGE',
+      payload: {
+        timestamp,
+        role: 'user',
+        updates: {
+          status: 'error',
+          retryStatus: 'failed',
+        },
+      },
+    });
+    toast({
+      title: 'Retry Failed',
+      description: `Message could not be sent after ${RETRY_LIMIT} attempts.`,
+      variant: 'destructive',
+    });
+  };
+
+  const getMessageDetails = (messageOrContent: Message | string) => {
+    const isMessage = typeof messageOrContent !== 'string';
+    return {
+      isMessage,
+      content: isMessage ? messageOrContent.content : messageOrContent,
+      timestamp: isMessage ? messageOrContent.timestamp : Date.now(),
+      retryCount: isMessage ? (messageOrContent.retryCount ?? 0) : 0,
+    };
+  };
+
+  const prepareUserMessage = (
+    isMessage: boolean,
+    content: string,
+    retryCount: number,
+    timestamp: number,
+    isRetry: boolean,
+  ): Message => {
+    return {
+      role: 'user',
+      content: content.trim(),
+      timestamp: timestamp,
+      status: isRetry ? 'retrying' : 'sending',
+      retryCount: isRetry ? retryCount : 0,
+    };
+  };
+
+  const handleApiResponse = async (response: Response) => {
+    if (!response.ok) {
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+        if (errorData.details) errorMessage += ` (${errorData.details})`;
+      } catch (parseError) {
+        console.error('Failed to parse error JSON:', parseError);
+      }
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  };
+
+  const updateMessageOnSuccess = (
+    timestampToUse: number,
+    aiContent: string,
+  ) => {
+    dispatch({
+      type: 'UPDATE_MESSAGE',
+      payload: {
+        timestamp: timestampToUse,
+        role: 'user',
+        updates: {
+          status: 'sent',
+          error: undefined,
+          retryStatus: undefined,
+        },
+      },
+    });
+
+    const assistantMessage: Message = {
+      role: 'assistant',
+      content: aiContent,
+      timestamp: Date.now(),
+      status: 'sent',
+    };
+    dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
+  };
+
+  const updateMessageOnError = (
+    error: unknown,
+    timestampToUse: number,
+    currentRetryCount: number,
+  ) => {
+    const nextRetryCount = currentRetryCount + 1;
+    const isFailed = nextRetryCount >= RETRY_LIMIT;
+
+    dispatch({
+      type: 'UPDATE_MESSAGE',
+      payload: {
+        timestamp: timestampToUse,
+        role: 'user',
+        updates: {
+          status: 'error',
+          error:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+          retryCount: nextRetryCount,
+          retryStatus: isFailed ? 'failed' : undefined,
+        },
+      },
+    });
+
+    if (!isFailed) {
+      toast({
+        title: 'Message Failed',
+        description: `Attempt ${currentRetryCount + 1} failed. Retrying... (${error instanceof Error ? error.message : 'Unknown error'})`,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleMessageSubmit = useCallback(
     async (messageOrContent: Message | string) => {
-      const isRetry = typeof messageOrContent !== 'string';
-      const content = isRetry ? messageOrContent.content : messageOrContent;
-      // Use the original message's timestamp for retries, generate new for new messages
-      const timestampToUse = isRetry ? messageOrContent.timestamp : Date.now();
-      let currentRetryCount = isRetry ? (messageOrContent.retryCount ?? 0) : 0;
+      const { isMessage, content, timestamp, retryCount } =
+        getMessageDetails(messageOrContent);
 
       if (!content.trim()) return;
 
-      // Check retry limit *before* attempting retry
-      if (isRetry && currentRetryCount >= RETRY_LIMIT) {
-        handleRetryLimitReached(timestampToUse, currentRetryCount);
-        // Update message status to 'failed' permanently
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          payload: {
-            timestamp: timestampToUse,
-            role: 'user',
-            updates: {
-              status: 'error', // Keep error status
-              retryStatus: 'failed', // Mark as failed
-            },
-          },
-        });
-        toast({
-          title: 'Retry Failed',
-          description: `Message could not be sent after ${RETRY_LIMIT} attempts.`,
-          variant: 'destructive',
-        });
-        return; // Stop retrying
+      if (isMessage && retryCount >= RETRY_LIMIT) {
+        handleRetryLimit(timestamp, retryCount);
+        return;
       }
 
-      // Apply backoff delay if it's a retry attempt
+      const isRetry = isMessage && retryCount > 0;
+      const currentRetryCount = isRetry ? retryCount : 0;
+      const timestampToUse = timestamp;
+
       if (isRetry) {
         await applyExponentialBackoff(currentRetryCount);
-        // Update UI to show retrying state *before* the API call
         updateRetryingMessage(timestampToUse, currentRetryCount);
       }
 
-      // Prepare user message object (use original timestamp for retries)
-      const userMessage: Message = {
-        role: 'user',
-        content: content.trim(),
-        timestamp: timestampToUse, // Use consistent timestamp for the message being sent/retried
-        status: isRetry ? 'retrying' : 'sending',
-        retryCount: currentRetryCount, // Include current count
-      };
+      const userMessage = prepareUserMessage(
+        isMessage,
+        content,
+        retryCount,
+        timestampToUse,
+        isRetry,
+      );
 
-      // Add new message or update existing one for retry
       if (!isRetry) {
         dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
-        dispatch({ type: 'SET_INPUT', payload: '' }); // Clear input only for new messages
+        dispatch({ type: 'SET_INPUT', payload: '' });
       }
-      // No need to update state again here if updateRetryingMessage was called
 
       dispatch({ type: 'SET_LOADING', payload: true });
-      // scrollToBottom(); // Scroll is handled by useEffect now
 
       try {
         console.log('Submitting message to /api/chat:', {
           content: content.trim(),
-          // Filter history more carefully: only 'sent' messages
           history: messages
             .filter((msg) => msg.status === 'sent')
             .map(({ role, content }) => ({ role, content })),
         });
 
-        // --- Actual API Call ---
         const apiResponse = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -263,91 +359,16 @@ const ChatInterface: React.FC = () => {
         });
 
         console.log('API response status:', apiResponse.status);
-
-        // --- Handle API Response ---
-        if (!apiResponse.ok) {
-          let errorMessage = `API Error: ${apiResponse.status} ${apiResponse.statusText}`;
-          try {
-            const errorData = await apiResponse.json();
-            errorMessage = errorData.error || errorMessage;
-            if (errorData.details) errorMessage += ` (${errorData.details})`;
-          } catch (parseError) {
-            console.error('Failed to parse error JSON:', parseError);
-          }
-          throw new Error(errorMessage);
-        }
-
-        const data = await apiResponse.json();
-        const aiContent = data.response;
-
-        // --- Update State on Success ---
-        // 1. Update user message status to 'sent' (using the correct timestamp)
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          payload: {
-            timestamp: timestampToUse, // Use the original timestamp
-            role: 'user',
-            updates: {
-              status: 'sent',
-              error: undefined,
-              retryStatus: undefined, // Clear retry status
-              // Optionally reset retryCount on success: retryCount: 0
-            },
-          },
-        });
-
-        // 2. Add the assistant's response
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content: aiContent,
-          timestamp: Date.now(), // New timestamp for assistant message
-          status: 'sent',
-        };
-        dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
+        const data = await handleApiResponse(apiResponse);
+        updateMessageOnSuccess(timestampToUse, data.response);
       } catch (error) {
         console.error('Failed to send/process message:', error);
-        const nextRetryCount = currentRetryCount + 1;
-        const isFailed = nextRetryCount >= RETRY_LIMIT;
-
-        // --- Update State on Error ---
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          payload: {
-            timestamp: timestampToUse, // Use the original timestamp
-            role: 'user',
-            updates: {
-              status: 'error',
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'An unknown error occurred',
-              retryCount: nextRetryCount, // Increment for the *next* potential attempt
-              retryStatus: isFailed ? 'failed' : undefined, // Mark as failed if limit reached
-            },
-          },
-        });
-
-        if (!isFailed) {
-          toast({
-            title: 'Message Failed',
-            description: `Attempt ${currentRetryCount + 1} failed. Retrying... (${error instanceof Error ? error.message : 'Unknown error'})`,
-            variant: 'destructive',
-          });
-        } else {
-          // Final failure toast handled in the retry limit check at the beginning
-        }
+        updateMessageOnError(error, timestampToUse, currentRetryCount);
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false });
-        // scrollToBottom(); // Scroll handled by useEffect
       }
     },
-    [
-      messages,
-      toast,
-      applyExponentialBackoff,
-      updateRetryingMessage,
-      dispatch, // Added dispatch dependency
-    ],
+    [messages, toast, applyExponentialBackoff, updateRetryingMessage, dispatch],
   );
 
   // --- Delete Handler ---

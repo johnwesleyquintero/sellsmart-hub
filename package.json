@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "cross-env NODE_ENV=production next build",
     "start": " cross-env NODE_ENV=production next start",
-    "lint": "",
+    "install": "npm install --legacy-peer-deps",
     "format": "prettier --write . --log-level warn",
     "typecheck": "tsc --noEmit",
     "test": "jest",
@@ -21,7 +21,7 @@
     "pm": "node .wescore/scripts/package-management.mjs",
     "ps": "node ./.wescore/scripts/package-static.mjs",
     "ut": "node ./.wescore/scripts/update-timestamps.cjs",
-    "lint:smells": "eslint --config eslint.config.mjs .",
+    "lint": "eslint --config eslint.config.mjs .",
     "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts"
   },
   "resolutions": {

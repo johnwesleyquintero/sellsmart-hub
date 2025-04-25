@@ -8,9 +8,6 @@ if (!process.env.MONGODB_DB) {
   throw new Error('Please add your MongoDB Database name to .env.local');
 }
 
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB;
-
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
@@ -46,9 +43,11 @@ export async function connectToDatabase() {
     cachedDb = db;
 
     return { client, db };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('MongoDB connection error:', error);
-    throw new Error(`Database connection failed: ${error.message}`);
+    throw new Error(
+      `Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 }
 

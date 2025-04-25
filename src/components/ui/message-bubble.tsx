@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { RefreshCw, Trash2 } from 'lucide-react';
 import { Message } from './chat-interface';
@@ -17,8 +16,6 @@ export function MessageBubble({
   onRetry,
   onDelete,
 }: MessageBubbleProps) {
-  const { toast } = useToast();
-
   return (
     <div
       className={cn(

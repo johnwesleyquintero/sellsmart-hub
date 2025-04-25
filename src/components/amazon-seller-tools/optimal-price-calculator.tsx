@@ -123,14 +123,17 @@ export default function OptimalPriceCalculator() {
       // Key updates in validation handling
       if (!validationResult.success) {
         // FIX 1 & 2: Check if error exists and handle ZodError vs string error
-        function isZodError(error: any): error is ZodError {
+        function isZodError(error: unknown): error is ZodError {
           return error instanceof ZodError;
         }
 
         if (validationResult.error) {
           if (isZodError(validationResult.error)) {
             const errorMessages = validationResult.error.issues
-              .map((issue: any) => `Validation error: ${issue.message}`) // Removed unnecessary object wrapping
+              .map(
+                (issue: { message: string }) =>
+                  `Validation error: ${issue.message}`,
+              )
               .join('\n');
             setError(errorMessages);
           } else if (typeof validationResult.error === 'string') {

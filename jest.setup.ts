@@ -10,7 +10,7 @@ configure({
 // Mock window.matchMedia
 import { MockInstance } from 'jest-mock';
 
-interface MatchMediaMock extends MockInstance<(...args: any[]) => any> {
+interface MatchMediaMock extends MockInstance<(...args: unknown[]) => unknown> {
   matches: boolean;
   media: string;
   onchange: null;
@@ -25,25 +25,33 @@ interface MediaQueryList {
   matches: boolean;
   media: string;
   onchange: null;
-  addListener: (listener: any) => void;
-  removeListener: (listener: any) => void;
-  addEventListener: (type: string, listener: any) => void;
-  removeEventListener: (type: string, listener: any) => void;
+  addListener: (listener: EventListenerOrEventListenerObject) => void;
+  removeListener: (listener: EventListenerOrEventListenerObject) => void;
+  addEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+  ) => void;
+  removeEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+  ) => void;
   dispatchEvent: (event: Event) => boolean;
 }
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(() => true), // Or false, depending on the desired behavior
-  })),
+  value: jest
+    .fn<(query: string) => MediaQueryList>()
+    .mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(() => true), // Or false, depending on the desired behavior
+    })),
 });
 
 // Mock ResizeObserver

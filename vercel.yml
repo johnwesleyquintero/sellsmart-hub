@@ -3,7 +3,7 @@ build:
   env:
     NODE_ENV: production
     EDGE_CONFIG_ID: ecfg_pofj3zhkxfj9rt7jg4sr9qbzlmlu
-  command: npm run cq && npm run build
+  command: npm install --legacy-peer-deps && npm run cq && npm run build
 
 routes:
   - src: /(.*)

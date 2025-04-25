@@ -11,15 +11,9 @@
       "description": "Checks code formatting using Prettier based on .prettierrc.json"
     },
     {
-      "id": "lint",
-      "name": "Linting (ESLint)",
+      "id": "lint smells",
+      "name": "Linting / Code Smell Analysis (ESLint/SonarJS)",
       "command": "npm run lint",
-      "description": "Checks for code style and potential errors using ESLint based on eslint.config.mjs"
-    },
-    {
-      "id": "smells",
-      "name": "Code Smell Analysis (ESLint/SonarJS)",
-      "command": "npm run lint:smells",
       "enabled": true,
       "description": "Detects potential code smells and maintainability issues."
     },
@@ -48,9 +42,11 @@
         "Parsing error:",
         "@typescript-eslint/",
         "Error:",
-        "eslint"
+        "eslint",
+        "code smell",
+        "maintainability"
       ],
-      "suggestion": "Execute `npm run lint --fix` for auto-fixable issues. Manually address remaining violations reported in the output. Repeat until the lint check passes cleanly."
+      "suggestion": "Execute `npm run lint --fix` for auto-fixable issues. Manually address remaining violations and code smells reported in the output. Repeat until the lint check passes cleanly."
     },
     "typecheck": {
       "patterns": [

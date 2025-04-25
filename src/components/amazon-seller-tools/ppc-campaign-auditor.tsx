@@ -234,10 +234,10 @@ function analyzeCampaignPerformance(
  * Validates a single raw row from the CSV.
  * Returns a validated row object or null if validation fails.
  */
-function validateRow(
-  row: unknown,
-  _rowIndex: number, // Prefix with _ to indicate unused parameter
-): { data: ValidatedRow | null; error: string | null } {
+function validateRow(row: unknown): {
+  data: ValidatedRow | null;
+  error: string | null;
+} {
   const item = row as RawCampaignData;
 
   // Basic structure check
@@ -329,7 +329,7 @@ function processRawCampaignData(rawData: unknown[]): {
 
   rawData.forEach((row, index) => {
     const rowIndex = index; // Use 0-based index
-    const validationResult = validateRow(row, rowIndex);
+    const validationResult = validateRow(row);
 
     if (validationResult.error || !validationResult.data) {
       errors.push({
