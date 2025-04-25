@@ -119,6 +119,7 @@
     "nodemailer": "6.10.1",
     "ora": "8.2.0",
     "papaparse": "5.5.2",
+    "path-browserify": "1.0.1",
     "prismjs": "1.30.0",
     "react": "19.1.0",
     "react-day-picker": "9.6.7",

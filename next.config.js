@@ -1,10 +1,10 @@
 import path from 'path';
 
 /** @type {import('next').NextConfig} */
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 const nextConfig = {
-  experimental: {
-    esmExternals: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -59,10 +59,11 @@ const nextConfig = {
 
   // Experimental features & optimizations
   experimental: {
-    // Enable optimizations for improved build performance
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    esmExternals: true,
+    // Disabled experimental features for build stability
+    webpackBuildWorker: false,
+    parallelServerBuildTraces: false,
+    parallelServerCompiles: false,
     // Enable server actions for form submissions
     serverActions: {
       allowedOrigins: ['localhost:3000'],
@@ -84,7 +85,15 @@ const nextConfig = {
     // Removed redundant DefinePlugin configuration
 
     // Alias for @/ imports (assuming source code is primarily in 'src')
-    config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(process.cwd(), 'src'),
+      path: require.resolve('path-browserify'),
+    };
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      path: false,
+    };
 
     // Rule for handling SVGs as React components using @svgr/webpack
     // Ensure you have @svgr/webpack installed (`npm install --save-dev @svgr/webpack`)
@@ -95,7 +104,8 @@ const nextConfig = {
         {
           loader: '@svgr/webpack',
           options: {
-            // svgo: false, // Optionally disable SVGO optimization if causing issues
+            svgo: false,
+            titleProp: true,
           },
         },
       ],
@@ -111,33 +121,30 @@ const nextConfig = {
       }),
     );
 
-    config.externals = [
-      ...(config.externals || []),
-      isServer
-        ? [
-            /^node:/,
-            /^mongodb/,
-            {
-              '@next-auth/mongodb-adapter':
-                'commonjs @next-auth/mongodb-adapter',
-              dns: 'commonjs dns',
-              fs: 'commonjs fs',
-              net: 'commonjs net',
-              tls: 'commonjs tls',
-              child_process: 'commonjs child_process',
-              path: 'commonjs path',
-              util: 'commonjs util',
-              stream: 'commonjs stream',
-              crypto: 'commonjs crypto',
-              os: 'commonjs os',
-              http: 'commonjs http',
-              https: 'commonjs https',
-              zlib: 'commonjs zlib',
-              process: 'commonjs process',
-            },
-          ]
-        : [],
-    ].flat();
+    config.externals = isServer
+      ? [
+          ...(config.externals || []),
+          /^node:/,
+          /^mongodb/,
+          {
+            '@next-auth/mongodb-adapter': 'commonjs @next-auth/mongodb-adapter',
+            dns: 'commonjs dns',
+            fs: 'commonjs fs',
+            net: 'commonjs net',
+            tls: 'commonjs tls',
+            child_process: 'commonjs child_process',
+            path: 'commonjs path',
+            util: 'commonjs util',
+            stream: 'commonjs stream',
+            crypto: 'commonjs crypto',
+            os: 'commonjs os',
+            http: 'commonjs http',
+            https: 'commonjs https',
+            zlib: 'commonjs zlib',
+            process: 'commonjs process',
+          },
+        ]
+      : config.externals;
 
     return config;
   },

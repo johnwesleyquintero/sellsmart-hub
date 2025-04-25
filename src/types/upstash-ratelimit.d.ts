@@ -1,5 +1,6 @@
 declare module '@upstash/ratelimit' {
   interface Redis {
+    ping(): unknown;
     hincrby: (key: string, field: string, value: number) => Promise<number>;
     expire: (key: string, seconds: number) => Promise<number>;
     eval: <T>(script: string, keys: string[], args: string[]) => Promise<T>;

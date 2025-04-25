@@ -27,7 +27,7 @@ echo --- Current directory: %cd% ---
 
 REM --- Removing node_modules, package-lock.json, .next (if they exist) ---
 echo --- Removing node_modules, package-lock.json, .next ---
-powershell -Command "Remove-Item -Recurse -Force node_modules, .next -ErrorAction SilentlyContinue; Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue"
+powershell -Command "Remove-Item -Recurse -Force node_modules, .next -ErrorAction SilentlyContinue"
 echo --- Removal finished ---
 
 REM --- Cleaning npm cache ---

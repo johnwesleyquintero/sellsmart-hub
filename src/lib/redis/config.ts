@@ -1,19 +1,31 @@
+import type { Redis } from '@upstash/ratelimit';
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis/cloudflare';
+import { Redis as UpstashRedis } from '@upstash/redis';
 
-// Initialize Redis client
-export const redisConfig = {
-  url: process.env.KV_URL || '',
-  token: process.env.KV_REST_API_TOKEN || '',
+type RedisConfig = {
+  url: string;
+  token: string;
 };
 
-export const redis: Redis = new Redis(redisConfig);
+// Validate environment variables
+function getRedisConfig(): RedisConfig {
+  const url = process.env.KV_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+
+  if (!url || !token) {
+    throw new Error('Missing required Redis environment variables (KV_URL and KV_REST_API_TOKEN)');
+  }
+
+  return { url, token };
+}
+
+// Initialize Redis client with proper typing
+export const redis: Redis = new UpstashRedis(getRedisConfig()) as unknown as Redis;
 
 // Configure rate limiting
-
 export const rateLimiter = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(5, '60s'), // 5 requests per minute
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '60s'),
   analytics: true,
   prefix: '@upstash/ratelimit',
 });
@@ -21,8 +33,7 @@ export const rateLimiter = new Ratelimit({
 // Helper function to check Redis connection
 export async function checkRedisConnection(): Promise<boolean> {
   try {
-    await redis.ping(); // Ensure 'ping' method is available or replace with a valid method
-    await redis.ping(); // Replace with a valid method if 'ping' is not available
+    await redis.ping();
     return true;
   } catch (error) {
     console.error('Redis connection error:', error);
