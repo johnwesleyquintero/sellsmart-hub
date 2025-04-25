@@ -9,18 +9,14 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // Core settings
-  // output: 'standalone', // Keep if needed for Docker/standalone deployment
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
 
   // Build-time checks
-  // --- ESLint block removed ---
-  // Recommendation: Run 'npm run lint' separately in your workflow/CI pipeline.
-
   typescript: {
-    // CRITICAL: Keep this false to ensure type safety in builds.
     ignoreBuildErrors: false,
   },
 
-  // Image Optimization (Looks good, keep as is unless specific needs arise)
+  // Enhanced Image Optimization
   images: {
     remotePatterns: [
       {
@@ -39,34 +35,30 @@ const nextConfig = {
         port: '3000',
         pathname: '/**',
       },
-      // Remove the empty hostname pattern below as it's invalid
-      /* DELETE THIS ENTRY - CAUSING BUILD FAILURE
-      {
-        protocol: 'http',
-        hostname: '', // Empty string is invalid
-        pathname: '/public/**',
-      },
-      */
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true, // Use with caution: Ensure SVGs are trusted/sanitized.
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    minimumCacheTTL: 3600,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy:
+      "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' data:; object-src 'none'; frame-src 'none'; sandbox;",
     contentDispositionType: 'inline',
+    unoptimized: process.env.NODE_ENV === 'development',
+    disableStaticImages: false,
+    domains: [],
   },
 
-  // Experimental features & optimizations
+  // Modern Experimental Features
+  serverExternalPackages: ['mongoose', '@next-auth/mongodb-adapter'],
   experimental: {
     esmExternals: true,
-    // Disabled experimental features for build stability
-    webpackBuildWorker: false,
-    parallelServerBuildTraces: false,
-    parallelServerCompiles: false,
-    // Enable server actions for form submissions
+    optimizeCss: true,
+    optimizeServerReact: true,
+
     serverActions: {
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: ['localhost:3000', 'wesleyquintero.vercel.app'],
+      bodySizeLimit: '4mb',
     },
   },
   // Compiler options

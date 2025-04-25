@@ -4,6 +4,8 @@ import { Redis as UpstashRedis } from '@upstash/redis';
 type RedisConfig = {
   url: string;
   token: string;
+  maxRetriesPerRequest?: number;
+  retryStrategy?: (times: number) => number | null;
 };
 
 // Validate environment variables
@@ -17,10 +19,15 @@ function getRedisConfig(): RedisConfig {
     );
   }
 
-  return { url, token };
+  return {
+    url,
+    token,
+    maxRetriesPerRequest: 3,
+    retryStrategy: (times) => Math.min(times * 100, 5000),
+  };
 }
 
-// Initialize Redis client
+// Initialize Redis client with connection pooling
 export const redis = new UpstashRedis(getRedisConfig());
 
 // Configure rate limiting
