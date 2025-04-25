@@ -42,7 +42,7 @@ echo --- npm cache clean finished ---
 
 REM --- Running npm install ---
 echo --- Running npm install ---
-call npm install
+call npm install --legacy-peer-deps --force
 if !errorlevel! neq 0 (
     echo ERROR: npm install failed!
     endlocal

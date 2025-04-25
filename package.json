@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "cross-env NODE_ENV=production next build",
     "start": " cross-env NODE_ENV=production next start",
-    "install": "npm install --legacy-peer-deps",
+    "in": "npm install --force",
     "format": "prettier --write . --log-level warn",
     "typecheck": "tsc --noEmit",
     "test": "jest",
