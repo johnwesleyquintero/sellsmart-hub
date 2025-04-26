@@ -26,6 +26,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { z } from 'zod'; // Import Zod
 
 // Local/UI Imports
 import { Badge } from '@/components/ui/badge';
@@ -58,7 +59,7 @@ type KeywordData = {
 interface CsvInputRow {
   product?: string;
   keywords: string;
-  searchVolume: number | undefined;
+  searchVolume?: number | string; // Allow string for PapaParse flexibility
   competition?: string;
 }
 
@@ -117,12 +118,15 @@ async function processCsvRow(
     const analysis = await processKeywordBatch(keywords); // Use batch processing
 
     const searchVolumeRaw = item.searchVolume;
+    // Handle both number and string inputs for searchVolume
     const searchVolume =
-      typeof searchVolumeRaw === 'string' &&
-      searchVolumeRaw !== '' &&
-      !isNaN(Number(searchVolumeRaw))
-        ? Number(searchVolumeRaw)
-        : undefined;
+      typeof searchVolumeRaw === 'number' && !isNaN(searchVolumeRaw)
+        ? searchVolumeRaw
+        : typeof searchVolumeRaw === 'string' &&
+            searchVolumeRaw !== '' &&
+            !isNaN(Number(searchVolumeRaw))
+          ? Number(searchVolumeRaw)
+          : undefined;
 
     const competitionRaw = item.competition?.trim().toLowerCase();
     const competition =
@@ -190,6 +194,24 @@ const getCompetitionVariant = (
 };
 
 // --- Sub-Components ---
+
+// Form validation schema
+const formSchema = z.object({
+  keyword: z.string().min(1, { message: 'Keyword is required' }),
+  category: z.string().min(1, { message: 'Product category is required' }),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const initialFormData: FormData = {
+  keyword: '',
+  category: '',
+};
+
+type FormErrors = {
+  keyword?: string;
+  category?: string;
+};
 
 const KeywordAnalyzerInfoBox: React.FC = () => (
   <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
@@ -530,6 +552,7 @@ interface LoadingIndicatorProps {
   progress: number | null;
 }
 
+// Corrected LoadingIndicator component
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   isLoading,
   progress,
@@ -545,7 +568,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
       />
       <p className="text-sm text-muted-foreground">
         {progress !== null
-          ? `Analyzing keywords... ${progress}%`
+          ? `Analyzing keywords... ${progress.toFixed(0)}%` // Show percentage
           : 'Analyzing keywords...'}
       </p>
     </div>
@@ -557,6 +580,7 @@ interface ErrorDisplayProps {
   onErrorDismiss: () => void;
 }
 
+// Corrected ErrorDisplay component
 const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   error,
   onErrorDismiss,
@@ -588,10 +612,111 @@ export default function KeywordAnalyzer() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualKeywords, setManualKeywords] = useState('');
-  const [progress, setProgress] = useState<number | null>(null); // Moved progress state here
+  const [progress, setProgress] = useState<number | null>(null);
+  const [formData, setFormData] = useState<FormData>(initialFormData); // State for the new form
+  const [formErrors, setFormErrors] = useState<FormErrors>({}); // State for form errors
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- Handlers ---
+  // Handler for the new form's input changes
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear the specific error when the user starts typing
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  // Handler for the new form's analyze button
+  const handleAnalyze = async () => {
+    try {
+      // Validate form data using Zod schema
+      const validatedData = formSchema.parse(formData);
+      setFormErrors({}); // Clear previous errors on successful validation
+
+      setIsLoading(true);
+      setError(null);
+      setProgress(null); // Use indeterminate for this analysis
+
+      const keywords = validatedData.keyword
+        .split(',')
+        .map((k) => k.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (keywords.length === 0) {
+        throw new Error('No valid keywords entered after trimming.');
+      }
+
+      const analysis = await processKeywordBatch(keywords); // Use batch processing
+
+      const prohibitedCount = analysis.filter((a) => a.isProhibited).length;
+      const totalScore = analysis.reduce((sum, a) => sum + a.score, 0);
+      const totalConfidence = analysis.reduce(
+        (sum, a) => sum + a.confidence,
+        0,
+      );
+      const averageScore =
+        analysis.length > 0 ? totalScore / analysis.length : 0;
+      const averageConfidence =
+        analysis.length > 0 ? totalConfidence / analysis.length : 0;
+      const suggestions = analysis
+        .filter((a) => !a.isProhibited && a.score >= 70 && a.confidence >= 0.8)
+        .map((a) => a.keyword);
+
+      const newProduct: KeywordData = {
+        // Use category as product name for this analysis type
+        product: `Analysis for Category: ${validatedData.category}`,
+        keywords,
+        analysis,
+        suggestions,
+        prohibitedCount,
+        averageScore,
+        averageConfidence,
+        searchVolume: undefined, // Not applicable for this form
+        competition: undefined, // Not applicable for this form
+      };
+
+      // Replace existing results or add to them based on desired behavior
+      setProducts([newProduct]); // Replace results with the new analysis
+      setFormData(initialFormData); // Reset the form
+      toast({
+        title: 'Analysis Complete',
+        description: `Analyzed ${keywords.length} keywords for category ${validatedData.category}.`,
+        variant: 'default',
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Handle Zod validation errors
+        const newErrors: FormErrors = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            newErrors[err.path[0] as keyof FormErrors] = err.message;
+          }
+        });
+        setFormErrors(newErrors);
+        toast({
+          variant: 'destructive',
+          title: 'Validation Error',
+          description: 'Please check the highlighted fields.',
+        });
+      } else {
+        // Handle other errors (e.g., API errors from processKeywordBatch)
+        const message =
+          error instanceof Error ? error.message : 'Failed to analyze keywords';
+        setError(message);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+      setProgress(null);
+    }
+  };
+
+  // --- Other Handlers (handleFileUpload, handleManualAnalysis, handleExport, clearData) ---
   const handleFileUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -630,7 +755,7 @@ export default function KeywordAnalyzer() {
         const actualHeaders =
           parseResult.meta.fields?.map((h) => h.toLowerCase()) || [];
         const missingHeaders = REQUIRED_CSV_HEADERS.filter(
-          (header) => !actualHeaders.includes(header),
+          (header) => !actualHeaders.includes(header.toLowerCase()), // Ensure case-insensitive check
         );
 
         if (missingHeaders.length > 0) {
@@ -793,9 +918,6 @@ export default function KeywordAnalyzer() {
         Match_Type: analysisItem.matchType,
         Search_Volume: product.searchVolume ?? '', // Include optional data
         Competition: product.competition ?? '', // Include optional data
-        // Include calculated averages if desired
-        // Avg_Product_Score: product.averageScore.toFixed(2),
-        // Avg_Product_Confidence: product.averageConfidence.toFixed(3),
       })),
     );
 
@@ -832,6 +954,8 @@ export default function KeywordAnalyzer() {
     setProducts([]);
     setError(null);
     setManualKeywords('');
+    setFormData(initialFormData); // Reset the new form data
+    setFormErrors({}); // Clear form errors
     setProgress(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -848,13 +972,72 @@ export default function KeywordAnalyzer() {
     <div className="space-y-6">
       <KeywordAnalyzerInfoBox />
 
-      {/* Input Section */}
+      {/* New Form Card */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+            Analyze Keyword by Category
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="keyword">Keyword(s)</Label>
+              <Input
+                id="keyword"
+                name="keyword"
+                value={formData.keyword}
+                onChange={handleInputChange}
+                placeholder="Enter keyword(s), comma-separated"
+                className="mt-1"
+              />
+              {formErrors.keyword && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.keyword}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="category">Product Category</Label>
+              {/* Using select for predefined categories */}
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+              >
+                <option value="">Select a category</option>
+                {/* Add more relevant categories */}
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="home">Home & Kitchen</option>
+                <option value="beauty">Beauty & Personal Care</option>
+                <option value="sports">Sports & Outdoors</option>
+                <option value="toys">Toys & Games</option>
+              </select>
+              {formErrors.category && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.category}</p>
+              )}
+            </div>
+
+            <Button
+              onClick={handleAnalyze} // Use the new handler
+              className="w-full"
+              disabled={isLoading} // Disable while loading
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Analyze Category Keywords
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Input Section (CSV and Old Manual) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <CsvUploadSection
           onFileUpload={handleFileUpload}
           isLoading={isLoading}
           fileInputRef={fileInputRef}
         />
+        {/* Keep the old manual section if still needed, or remove */}
         <ManualAnalysisSection
           manualKeywords={manualKeywords}
           onKeywordsChange={setManualKeywords}

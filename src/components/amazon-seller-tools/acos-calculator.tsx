@@ -100,7 +100,7 @@ const calculateLocalMetrics = (
 > => {
   console.log('calculateLocalMetrics: adSpend =', adSpend, 'sales =', sales);
   if (adSpend <= 0 || sales <= 0) {
-    throw new Error('values must be greater than 0');
+    throw new Error('Values must be greater than 0');
   }
   try {
     // Validate inputs

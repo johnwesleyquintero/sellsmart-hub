@@ -38,8 +38,14 @@ const keywordsSchema = z
   .trim()
   .min(1, 'Keywords cannot be empty')
   .refine(
-    (val) => val.split(/[,\n]/).filter((k) => k.trim()).length > 0, // Check based on split
-    'Must contain at least one valid keyword',
+    (val) => {
+      const keywords = val.split(/[,\n]/).filter((k) => k.trim());
+      return keywords.length > 0;
+    },
+    {
+      message: 'Must contain at least one valid keyword',
+      path: ['keywords'],
+    },
   );
 
 // --- Types ---
@@ -529,7 +535,7 @@ export default function KeywordDeduplicator() {
       {/* Error Display */}
       {error && (
         <div
-          className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+          className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-destructive dark:bg-red-900/30 dark:text-red-400"
           role="alert"
         >
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
