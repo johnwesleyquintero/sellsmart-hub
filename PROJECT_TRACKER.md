@@ -74,38 +74,6 @@
 
 **Instructions:** Mark items as complete by changing `[ ]` to `[x]`. Add notes or sub-tasks as needed.
 
-**Wescore Code-Quality Scripts:**
-
-```Shell
-npm run cq
-```
-
-```Shell
-npm run epic
-```
-
-**Individual Run: Code-Quality Scripts:**
-
-```Shell
-npm run format
-```
-
-```Shell
-npm run lint
-```
-
-```Shell
-npm run typecheck
-```
-
-```Shell
-npm run lint:smells
-```
-
-```Shell
-npm run test
-```
-
 ---
 
 ## QUALITY ISSUES (Immediate Attention Required)

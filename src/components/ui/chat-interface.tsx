@@ -235,8 +235,23 @@ const ChatInterface: React.FC = () => {
         const errorData = await response.json();
         errorMessage = errorData.error || errorMessage;
         if (errorData.details) errorMessage += ` (${errorData.details})`;
+
+        // Log additional error details for debugging
+        console.error('API Error Details:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          requestUrl: response.url,
+          timestamp: Date.now()
+        });
       } catch (parseError) {
-        console.error('Failed to parse error JSON:', parseError);
+        console.error('Failed to parse error JSON:', {
+          parseError,
+          responseText: await response.text(),
+          status: response.status,
+          statusText: response.statusText,
+          timestamp: Date.now()
+        });
       }
       throw new Error(errorMessage);
     }

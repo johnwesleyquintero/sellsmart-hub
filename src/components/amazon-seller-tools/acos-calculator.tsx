@@ -97,6 +97,9 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
+  if (adSpend <= 0 || sales <= 0) {
+    throw new Error('Invalid inputs: values must be greater than 0');
+  }
   try {
     // Validate inputs
     const validatedAdSpend = monetaryValueSchema.parse(adSpend);
