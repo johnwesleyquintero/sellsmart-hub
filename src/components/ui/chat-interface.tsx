@@ -229,10 +229,13 @@ const ChatInterface: React.FC = () => {
   };
 
   const handleApiResponse = async (response: Response) => {
+    // Clone the response to allow multiple reads of the body stream
+    const responseClone = response.clone();
+
     if (!response.ok) {
       let errorMessage = `API Error: ${response.status} ${response.statusText}`;
       try {
-        const errorData = await response.json();
+        const errorData = await responseClone.json();
         errorMessage = errorData.error || errorMessage;
         if (errorData.details) errorMessage += ` (${errorData.details})`;
 
@@ -247,7 +250,7 @@ const ChatInterface: React.FC = () => {
       } catch (parseError) {
         console.error('Failed to parse error JSON:', {
           parseError,
-          responseText: await response.text(),
+          responseText: await responseClone.text(),
           status: response.status,
           statusText: response.statusText,
           timestamp: Date.now(),
@@ -255,7 +258,10 @@ const ChatInterface: React.FC = () => {
       }
       throw new Error(errorMessage);
     }
-    return await response.json();
+
+    // Clone the response before reading to avoid stream consumption
+    const responseCloneForSuccess = response.clone();
+    return await responseCloneForSuccess.json();
   };
 
   const updateMessageOnSuccess = (

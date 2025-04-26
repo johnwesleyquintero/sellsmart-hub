@@ -15,7 +15,7 @@
     "reinstall": "npm install --legacy-peer-deps",
     "format": "prettier --write . --log-level warn",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest -u",
     "test:watch": "jest --watch",
     "cq": "node ./.wescore/scripts/check-quality.mjs",
     "cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs",
