@@ -162,6 +162,10 @@ export default function KeywordDeduplicator() {
       setProducts([]);
       setFile(currentFile); // Store the file
 
+      // Clear any previous validation errors
+      setManualKeywords('');
+      setManualProduct('');
+
       try {
         const result = await new Promise<Papa.ParseResult<CsvInputRow>>(
           (resolve, reject) => {
@@ -270,6 +274,12 @@ export default function KeywordDeduplicator() {
     try {
       // Validate inputs using Zod
       productNameSchema.parse(productName);
+
+      // Early return if keywords are empty
+      if (!manualKeywords.trim()) {
+        throw new Error('Keywords cannot be empty');
+      }
+
       const validationResult = keywordsSchema.safeParse(manualKeywords);
 
       if (!validationResult.success) {
