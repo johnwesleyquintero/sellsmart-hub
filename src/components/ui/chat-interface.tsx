@@ -242,7 +242,7 @@ const ChatInterface: React.FC = () => {
           statusText: response.statusText,
           errorData,
           requestUrl: response.url,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       } catch (parseError) {
         console.error('Failed to parse error JSON:', {
@@ -250,7 +250,7 @@ const ChatInterface: React.FC = () => {
           responseText: await response.text(),
           status: response.status,
           statusText: response.statusText,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
       throw new Error(errorMessage);

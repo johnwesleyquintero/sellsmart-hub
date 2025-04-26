@@ -88,11 +88,14 @@ const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
     }
 
     // Check for required metrics
-    targetMetrics.forEach((metric) => {
-      if (metric.required && !currentMapping[metric.key]) {
-        errors.push(`Required metric "${metric.label}" is not mapped`);
-      }
-    });
+    const requiredErrors = targetMetrics
+      .filter((metric) => metric.required && !currentMapping[metric.key])
+      .map((metric) => `Required metric "${metric.label}" is not mapped`);
+
+    if (requiredErrors.length > 0) {
+      errors.push(...requiredErrors);
+      errors.unshift('Required fields must be mapped:');
+    }
 
     return { isValid: errors.length === 0, errors };
   };
@@ -162,6 +165,11 @@ const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {!isMappingComplete && (
+          <div className="text-red-500 text-sm">
+            Required fields must be mapped
+          </div>
+        )}
         {targetMetrics.map((metric) => (
           <div
             key={metric.key as string}

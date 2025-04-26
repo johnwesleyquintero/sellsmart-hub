@@ -1,7 +1,7 @@
 # Amazon Seller Tools - Project Tracker & TODO List
 
 **Last Updated:** 2025-04-25 _(Documentation update and codebase scan)_ _(Please update this date when you make changes)
-**Last Code Review:** 2025-04-22 _(Please update this date when you make changes)_
+**Last Code Review:** 2025-04-22 _(Please update this date when you make changes)\_
 **Code Quality Status:** Issues being addressed - most critical issues resolved (see Quality Issues section below)
 
 ## Current Linting Issues

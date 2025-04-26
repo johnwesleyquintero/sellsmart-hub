@@ -72,13 +72,16 @@ export async function POST(request: NextRequest) {
     // Log additional error details for debugging
     if (error instanceof Error) {
       const body = await request.json();
-      const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
+      const ip =
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        '127.0.0.1';
 
       console.error('Detailed error:', {
         message: error.message,
         stack: error.stack,
         requestBody: body,
-        ip
+        ip,
       });
     }
 

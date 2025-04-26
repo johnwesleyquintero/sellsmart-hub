@@ -93,12 +93,14 @@ const calculateLocalMetrics = (
   sales: number,
   impressions?: number,
   clicks?: number,
+  onCalculate?: (acos: number) => void,
 ): Omit<
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
+  console.log('calculateLocalMetrics: adSpend =', adSpend, 'sales =', sales);
   if (adSpend <= 0 || sales <= 0) {
-    throw new Error('Invalid inputs: values must be greater than 0');
+    throw new Error('values must be greater than 0');
   }
   try {
     // Validate inputs
@@ -113,7 +115,9 @@ const calculateLocalMetrics = (
     const acos = (() => {
       if (validatedSales === 0 && validatedAdSpend === 0) return 0;
       if (validatedSales === 0) return Infinity;
-      return (validatedAdSpend / validatedSales) * 100;
+      const calculatedAcos = (validatedAdSpend / validatedSales) * 100;
+      if (onCalculate) onCalculate(calculatedAcos);
+      return calculatedAcos;
     })();
 
     // Handle edge cases for ROAS calculation
@@ -288,6 +292,7 @@ export default function AcosCalculator() {
   );
 
   const handleManualCalculate = useCallback(() => {
+    console.log('handleManualCalculate called');
     // Corrected: Use undefined instead of null
     setError(undefined);
     setIsLoading(true);
@@ -305,9 +310,9 @@ export default function AcosCalculator() {
       }
       const adSpend = Number.parseFloat(manualCampaign.adSpend);
       const sales = Number.parseFloat(manualCampaign.sales);
-      console.log('adSpend:', adSpend, 'sales:', sales);
+      console.log('Manual input: adSpend =', adSpend, 'sales =', sales);
       const metrics = calculateLocalMetrics(adSpend, sales);
-      console.log('metrics:', metrics);
+      console.log('Calculated metrics:', metrics);
       const newCampaign: CampaignData = {
         campaign: manualCampaign.campaign.trim(),
         adSpend,
@@ -316,11 +321,13 @@ export default function AcosCalculator() {
       };
       setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+      return metrics.acos;
     } catch (error) {
       console.error('Error calculating ACOS:', error);
       setError(
         error instanceof Error ? error.message : 'An unknown error occurred',
       );
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -560,6 +567,11 @@ export default function AcosCalculator() {
           </CardContent>
         </Card>
       </div>
+      {campaigns.length > 0 && (
+        <div data-testid="acos-value">
+          ACOS: {campaigns[campaigns.length - 1].acos}%
+        </div>
+      )}
 
       {/* Error Alert */}
       {error && (
