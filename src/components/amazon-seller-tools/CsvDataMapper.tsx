@@ -18,25 +18,26 @@ import {
 } from '@/components/ui/select';
 import { logError } from '@/lib/error-handling';
 import { useMemo, useState } from 'react';
+import { DashboardMetrics } from './unified-dashboard';
 
 // Use a generic type T for the metrics object structure.
 // This makes the component reusable if you need to map to different structures later.
 // The constraint `Record<string, any>` ensures T is an object-like type.
-interface CsvDataMapperProps<T extends Record<string, unknown>> {
+interface CsvDataMapperProps {
   csvHeaders: string[];
-  targetMetrics: Array<{
-    key: keyof T;
+  targetMetrics: {
+    key: keyof DashboardMetrics;
     label: string;
     required: boolean;
-  }>;
-  onMappingComplete: (mapping: Record<keyof T, string | null>) => void;
+  }[];
+  onMappingComplete: (mapping: Record<keyof DashboardMetrics, string>) => void;
   onCancel: () => void;
   title?: string;
   description?: string;
   onError?: (error: string) => void;
 }
 
-type MetricMapping<T> = Record<keyof T, string | null>;
+type MetricMapping = Record<keyof DashboardMetrics, string>;
 
 interface ValidationResult {
   isValid: boolean;
@@ -44,9 +45,7 @@ interface ValidationResult {
 }
 
 // Use the generic type T in the component definition
-const CsvDataMapper: React.FC<CsvDataMapperProps<Record<string, unknown>>> = <
-  T extends Record<string, unknown>,
->({
+const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
   csvHeaders,
   targetMetrics,
   onMappingComplete,
@@ -54,10 +53,8 @@ const CsvDataMapper: React.FC<CsvDataMapperProps<Record<string, unknown>>> = <
   title = 'Map CSV Columns',
   description = 'Match columns from your CSV to the dashboard metrics. Required fields (*) must be mapped. Optional fields can be left unmapped.',
   onError,
-}: CsvDataMapperProps<T>) => {
-  const validateMapping = (
-    currentMapping: MetricMapping<T>,
-  ): ValidationResult => {
+}: CsvDataMapperProps) => {
+  const validateMapping = (currentMapping: MetricMapping): ValidationResult => {
     const errors: string[] = [];
 
     if (!Array.isArray(csvHeaders)) {
@@ -101,22 +98,25 @@ const CsvDataMapper: React.FC<CsvDataMapperProps<Record<string, unknown>>> = <
   };
   // Initialize state dynamically based on targetMetrics keys
   const initialMapping = useMemo(() => {
-    const mapping: Partial<Record<keyof T, string | null>> = {};
+    const mapping: Partial<Record<keyof DashboardMetrics, string>> = {};
     targetMetrics.forEach((metric) => {
-      mapping[metric.key] = null;
+      mapping[metric.key] = '';
     });
-    return mapping as Record<keyof T, string | null>; // Assert type after initialization
+    return mapping as Record<keyof DashboardMetrics, string>; // Assert type after initialization
   }, [targetMetrics]);
 
   const [mapping, setMapping] =
-    useState<Record<keyof T, string | null>>(initialMapping);
+    useState<Record<keyof DashboardMetrics, string>>(initialMapping);
 
   // Handler for Select component changes
-  const handleMappingChange = (metricKey: keyof T, header: string) => {
+  const handleMappingChange = (
+    metricKey: keyof DashboardMetrics,
+    header: string,
+  ) => {
     // Treat the placeholder value ('') as null
     setMapping((prevMapping) => ({
       ...prevMapping,
-      [metricKey]: header === '' ? null : header,
+      [metricKey]: header === '' ? '' : header,
     }));
   };
 
@@ -124,7 +124,7 @@ const CsvDataMapper: React.FC<CsvDataMapperProps<Record<string, unknown>>> = <
   const isMappingComplete = useMemo(() => {
     return targetMetrics.every((metric) => {
       // If the metric is required, it must have a non-null value in the mapping
-      return !metric.required || mapping[metric.key] !== null;
+      return !metric.required || mapping[metric.key] !== '';
     });
   }, [mapping, targetMetrics]);
 

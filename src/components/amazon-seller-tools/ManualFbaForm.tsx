@@ -31,7 +31,8 @@ export default function ManualFbaForm({
     setValues((prev: FbaCalculationInput) => {
       const newValues = {
         ...prev,
-        [name]: name === 'product' ? value : Number(value) || 0,
+        [name]:
+          name === 'product' ? value : isNaN(Number(value)) ? 0 : Number(value),
       };
       return newValues;
     });
@@ -93,7 +94,11 @@ export default function ManualFbaForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4"
+      data-testid="manual-fba-form"
+    >
       <div className="space-y-2">
         <Label htmlFor="product">Product Name*</Label>
         <Input

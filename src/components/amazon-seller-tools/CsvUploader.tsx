@@ -255,6 +255,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   );
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      console.log('acceptedFiles', acceptedFiles);
       if (acceptedFiles.length > 0) {
         processFile(acceptedFiles[0]);
       } else {
@@ -313,6 +314,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
           {...getInputProps()}
           ref={fileInputRef}
           disabled={externalIsLoading ?? false}
+          data-testid="file-input"
         />
         <DragDropArea isDragActive={isDragActive}>
           {(externalIsLoading ?? false) ? (

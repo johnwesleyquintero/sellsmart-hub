@@ -37,6 +37,20 @@ export function validateProductDescription(
     const result = productDescriptionSchema.parse({
       description: description,
     });
+    const prohibitedKeywords = [
+      'counterfeit',
+      'fake',
+      'replica',
+      'knockoff',
+      'unauthorized',
+      'unauthorized seller',
+    ];
+    const containsProhibitedKeyword = prohibitedKeywords.some((keyword) =>
+      description.toLowerCase().includes(keyword.toLowerCase()),
+    );
+    if (containsProhibitedKeyword) {
+      console.log('Description contains prohibited keyword(s)!');
+    }
     return { success: true, data: result };
   } catch (error) {
     return { success: false, error: error as z.ZodError };

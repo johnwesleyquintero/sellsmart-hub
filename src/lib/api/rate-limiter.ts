@@ -1,5 +1,4 @@
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { redis } from '../redis/config';
@@ -9,7 +8,7 @@ function getRedisConfig() {
 }
 
 export const rateLimiter = new Ratelimit({
-  redis: new Redis(getRedisConfig()),
+  redis: getRedisConfig(),
   limiter: Ratelimit.slidingWindow(15, '10 s'),
   analytics: true,
 });

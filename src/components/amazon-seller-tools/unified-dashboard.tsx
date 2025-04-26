@@ -41,7 +41,7 @@ import SalesEstimator from './sales-estimator';
 
 // --- Interface ---
 // Define DashboardMetrics interface ONCE
-interface DashboardMetrics {
+export interface DashboardMetrics {
   date: string;
   sales: number;
   profit: number;
@@ -513,12 +513,13 @@ export default function UnifiedDashboard() {
     if (showMapper && csvHeaders.length > 0) {
       // --- Show Mapper ---
       return (
-        <CsvDataMapper<DashboardMetrics> // Specify the generic type
+        <CsvDataMapper
           csvHeaders={csvHeaders}
           targetMetrics={TARGET_METRICS_CONFIG}
           onMappingComplete={handleMappingComplete}
           onCancel={handleMappingCancel}
           title="Map Business Report Columns"
+          key={csvHeaders.join('-')}
           description="Match the columns from your uploaded Business Report CSV to the required dashboard fields. Required fields are needed for calculations."
         />
       );
@@ -861,7 +862,7 @@ export default function UnifiedDashboard() {
                   <TabsTrigger value="price">Optimal Price Calc</TabsTrigger>
                 </TabsList>
                 <TabsContent value="fba">
-                  <FbaCalculator />
+                  <FbaCalculator onCalculateAction={() => {}} />
                 </TabsContent>
                 <TabsContent value="acos">
                   <AcosCalculator />
@@ -904,7 +905,7 @@ export default function UnifiedDashboard() {
                   <TabsTrigger value="estimator">Sales Estimator</TabsTrigger>
                 </TabsList>
                 <TabsContent value="analyzer">
-                  <CompetitorAnalyzer />
+                  <CompetitorAnalyzer onAnalyzeAction={() => {}} />
                 </TabsContent>
                 <TabsContent value="estimator">
                   <SalesEstimator />

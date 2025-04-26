@@ -197,11 +197,12 @@ export default function AcosCalculator() {
       requiredHeaders: campaignHeaders.required,
       validateRow: (row) => {
         try {
-          const result = validateCampaignRow(row, 0);
-          // Additional validation for numeric fields
-          if (isNaN(Number(row.adSpend)) || isNaN(Number(row.sales))) {
+          const adSpend = Number(row.adSpend);
+          const sales = Number(row.sales);
+          if (isNaN(adSpend) || isNaN(sales)) {
             throw new Error('Ad spend and sales must be valid numbers');
           }
+          const result = validateCampaignRow({ ...row, adSpend, sales }, 0);
           return result as CampaignData;
         } catch (error) {
           throw new Error(
@@ -520,10 +521,14 @@ export default function AcosCalculator() {
                 onChange={handleManualInputChange}
                 placeholder="e.g., 150.75"
                 disabled={isLoading}
+                required
               />
+              {!manualCampaign.adSpend && (
+                <p className="text-sm text-red-500 mt-1">Required</p>
+              )}
             </div>
             <div>
-              <Label htmlFor="manual-sales">Sales ($)*</Label>
+              <Label htmlFor="manual-sales">Sales Revenue ($)*</Label>
               <Input
                 id="manual-sales"
                 name="sales"
@@ -533,7 +538,11 @@ export default function AcosCalculator() {
                 onChange={handleManualInputChange}
                 placeholder="e.g., 600.50"
                 disabled={isLoading}
+                required
               />
+              {!manualCampaign.sales && (
+                <p className="text-sm text-red-500 mt-1">Required</p>
+              )}
             </div>
             <Button
               onClick={handleManualCalculate}
