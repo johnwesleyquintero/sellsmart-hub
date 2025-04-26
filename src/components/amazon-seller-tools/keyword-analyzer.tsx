@@ -990,7 +990,9 @@ export default function KeywordAnalyzer() {
                 className="mt-1"
               />
               {formErrors.keyword && (
-                <p className="text-sm text-red-500 mt-1">{formErrors.keyword}</p>
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.keyword}
+                </p>
               )}
             </div>
 
@@ -1014,7 +1016,9 @@ export default function KeywordAnalyzer() {
                 <option value="toys">Toys & Games</option>
               </select>
               {formErrors.category && (
-                <p className="text-sm text-red-500 mt-1">{formErrors.category}</p>
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.category}
+                </p>
               )}
             </div>
 

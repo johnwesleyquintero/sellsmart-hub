@@ -11,7 +11,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { z } from 'zod'; // Import Zod
 
 // Local/UI Imports
@@ -37,6 +37,13 @@ const keywordsSchema = z
   .string()
   .trim()
   .min(1, 'Keywords cannot be empty')
+  .transform((val) => {
+    const keywords = val
+      .split(/[,\n]/)
+      .map((k) => k.trim())
+      .filter(Boolean);
+    return keywords.length > 0 ? val : '';
+  })
   .refine(
     (val) => {
       const keywords = val.split(/[,\n]/).filter((k) => k.trim());
@@ -142,35 +149,38 @@ export default function KeywordDeduplicator() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [manualKeywords, setManualKeywords] = useState('');
   const [manualProduct, setManualProduct] = useState('');
-  // FIX: Initialize useRef with null instead of undefined
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [, setFile] = useState<File | null>(null); // Keep track of the selected file if needed
 
   const handleFileUpload = useCallback(
-    // FIX: Make the callback async
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const currentFile = event.target.files?.[0]; // Rename to avoid conflict
+      if (!currentFile) return;
 
       setIsLoading(true);
       setError(undefined);
       setProducts([]);
+      setFile(currentFile); // Store the file
 
-      // FIX: Restructure with async/await and single try/catch/finally
       try {
         const result = await new Promise<Papa.ParseResult<CsvInputRow>>(
           (resolve, reject) => {
-            Papa.parse<CsvInputRow>(file, {
+            Papa.parse<CsvInputRow>(currentFile, {
               header: true,
               skipEmptyLines: true,
-              complete: resolve, // Resolve promise with results
-              error: reject, // Reject promise with error
+              complete: resolve,
+              error: reject,
             });
           },
         );
 
+        if (!result || !result.data) {
+          throw new Error('Failed to parse CSV file - no data received');
+        }
+
         // Process results after Papa.parse promise resolves
         logger.info('Starting CSV processing for Keyword Deduplicator', {
-          fileName: file.name,
+          fileName: currentFile.name,
           rowCount: result.data.length,
         });
 
@@ -221,35 +231,35 @@ export default function KeywordDeduplicator() {
           processedCount: processedData.length,
           skippedCount: result.data.length - processedData.length,
         });
-      } catch (err) {
-        // Handle all errors (parsing, validation, processing)
-        const message =
-          err instanceof Error
-            ? err.message
-            : 'An unknown error occurred during processing.';
-        setError(message);
-        setProducts([]);
-        toast({
-          title: 'Processing Failed',
-          description: message,
-          variant: 'destructive',
-        });
+      } catch (error) {
+        const errorMessage = error instanceof Error
+          ? error.message
+          : 'An unknown error occurred while processing the file';
+
         logError({
-          message: 'CSV processing failed',
+          message: 'Error processing CSV file',
           component: 'KeywordDeduplicator/handleFileUpload',
           severity: 'high',
-          error: err instanceof Error ? err : new Error(message),
-          context: { fileName: file.name },
+          error: error instanceof Error ? error : new Error(String(error)),
+          context: { fileName: currentFile?.name },
+        });
+
+        setError(errorMessage);
+        toast({
+          title: 'Processing Error',
+          description: errorMessage,
+          variant: 'destructive',
         });
       } finally {
-        // Cleanup runs regardless of success or failure
         setIsLoading(false);
+        // Reset file input value after processing
         if (event.target) {
-          event.target.value = ''; // Reset file input
+          event.target.value = '';
         }
+        setFile(null); // Clear stored file reference
       }
     },
-    [toast], // Keep toast dependency
+    [toast], // Add toast to dependency array
   );
 
   const handleManualProcess = useCallback(() => {
@@ -259,7 +269,15 @@ export default function KeywordDeduplicator() {
     try {
       // Validate inputs using Zod
       productNameSchema.parse(productName);
-      keywordsSchema.parse(manualKeywords); // Validate keywords string
+      const validationResult = keywordsSchema.safeParse(manualKeywords);
+
+      if (!validationResult.success) {
+        // Extract Zod error messages
+        const zodErrorMessages = validationResult.error.errors
+          .map((e) => e.message)
+          .join('. ');
+        throw new Error(zodErrorMessages);
+      }
 
       // Check for duplicate product name in existing results
       if (
@@ -359,6 +377,8 @@ export default function KeywordDeduplicator() {
         component: 'KeywordDeduplicator/handleExport',
         severity: 'high',
         error: err instanceof Error ? err : new Error(message),
+        // Removed context that doesn't exist in this scope
+        // context: { manualProduct, manualKeywords },
       });
     }
   }, [products, toast]);
@@ -368,6 +388,7 @@ export default function KeywordDeduplicator() {
     setError(undefined);
     setManualKeywords('');
     setManualProduct('');
+    setFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -441,7 +462,6 @@ export default function KeywordDeduplicator() {
                       void handleFileUpload(e);
                     }}
                     disabled={isLoading}
-                    // FIX: Pass the ref correctly
                     ref={fileInputRef}
                     aria-label="Upload CSV file"
                   />
@@ -491,11 +511,18 @@ export default function KeywordDeduplicator() {
                   onChange={(e) => setManualKeywords(e.target.value)}
                   placeholder="Enter keywords separated by commas or new lines (e.g., red shirt, cotton shirt, red shirt)"
                   rows={5}
-                  className="mt-1"
+                  // Conditionally apply border class based on error state
+                  className={`mt-1 ${error && !manualKeywords.trim() ? 'border-destructive' : ''}`}
                   disabled={isLoading}
                   required
                   aria-required="true"
+                  // Add aria-invalid if there's an error related to this field
+                  aria-invalid={!!(error && !manualKeywords.trim())}
                 />
+                {/* Show error message specifically for keywords if applicable */}
+                {error && !manualKeywords.trim() && (
+                  <p className="text-sm text-destructive mt-1">{error}</p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   Separate keywords with commas or new lines.
                 </p>
@@ -532,7 +559,7 @@ export default function KeywordDeduplicator() {
         </div>
       )}
 
-      {/* Error Display */}
+      {/* Error Display (General Errors) */}
       {error && (
         <div
           className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-destructive dark:bg-red-900/30 dark:text-red-400"
@@ -652,3 +679,4 @@ export default function KeywordDeduplicator() {
     </div>
   );
 }
+// Removed the duplicate component definition and related code blocks

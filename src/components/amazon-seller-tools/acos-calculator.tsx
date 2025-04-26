@@ -22,10 +22,10 @@ import {
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
 import { monetaryValueSchema, numberSchema } from '@/lib/input-validation';
-import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react'; // Corrected: Use import type for type-only imports
+import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react'; // Corrected: Use import type for type-only imports
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 // Import Recharts components
 import {
@@ -98,7 +98,6 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
-  console.log('calculateLocalMetrics: adSpend =', adSpend, 'sales =', sales);
   if (adSpend <= 0 || sales <= 0) {
     throw new Error('Values must be greater than 0');
   }
@@ -176,6 +175,15 @@ export default function AcosCalculator() {
     adSpend: '',
     sales: '',
   });
+  const [validationErrors, setValidationErrors] = useState<{
+    adSpend: string;
+    sales: string;
+    campaign: string;
+  }>({
+    adSpend: '',
+    sales: '',
+    campaign: '',
+  });
 
   // Cleanup effect for memory leak prevention
   useEffect(() => {
@@ -193,9 +201,9 @@ export default function AcosCalculator() {
     return (
       manualCampaign.campaign.trim() !== '' &&
       !isNaN(adSpendNum) &&
-      adSpendNum >= 0 &&
+      adSpendNum > 0 &&
       !isNaN(salesNum) &&
-      salesNum >= 0
+      salesNum > 0
     );
   }, [manualCampaign]);
 
@@ -293,24 +301,42 @@ export default function AcosCalculator() {
 
   const handleManualCalculate = useCallback(() => {
     console.log('handleManualCalculate called');
-    // Corrected: Use undefined instead of null
     setError(undefined);
+    setValidationErrors({ adSpend: '', sales: '', campaign: '' });
     setIsLoading(true);
     try {
-      if (!isManualInputValid) {
-        if (!manualCampaign.campaign.trim())
-          throw new Error('Please enter a campaign name.');
-        const adSpend = Number.parseFloat(manualCampaign.adSpend);
-        if (isNaN(adSpend) || adSpend < 0)
-          throw new Error('Ad Spend must be a valid non-negative number.');
-        const sales = Number.parseFloat(manualCampaign.sales);
-        if (isNaN(sales) || sales < 0)
-          throw new Error('Sales amount must be a valid non-negative number.');
-        throw new Error('Invalid input. Please check values.');
+      // Validate all fields and collect errors
+      const newValidationErrors = {
+        campaign: '',
+        adSpend: '',
+        sales: '',
+      };
+
+      if (!manualCampaign.campaign.trim()) {
+        newValidationErrors.campaign = 'Please enter a campaign name.';
       }
+
       const adSpend = Number.parseFloat(manualCampaign.adSpend);
+      if (isNaN(adSpend) || adSpend <= 0) {
+        newValidationErrors.adSpend = 'Ad Spend must be greater than 0.';
+      }
+
       const sales = Number.parseFloat(manualCampaign.sales);
-      console.log('Manual input: adSpend =', adSpend, 'sales =', sales);
+      if (isNaN(sales) || sales <= 0) {
+        newValidationErrors.sales = 'Sales amount must be greater than 0.';
+      }
+
+      // Check if there are any validation errors
+      const hasErrors = Object.values(newValidationErrors).some(
+        (error) => error !== '',
+      );
+      if (hasErrors) {
+        setValidationErrors(newValidationErrors);
+        throw new Error('Please fix the validation errors.');
+      }
+      // const adSpend1 = Number.parseFloat(manualCampaign.adSpend);
+      // const sales1 = Number.parseFloat(manualCampaign.sales);
+      // console.log('Manual input: adSpend =', adSpend1, 'sales =', sales1);
       const metrics = calculateLocalMetrics(adSpend, sales);
       console.log('Calculated metrics:', metrics);
       const newCampaign: CampaignData = {
@@ -521,7 +547,13 @@ export default function AcosCalculator() {
                 onChange={handleManualInputChange}
                 placeholder="e.g., SP - Auto - Product A"
                 disabled={isLoading}
+                className={validationErrors.campaign ? 'border-red-500' : ''}
               />
+              {validationErrors.campaign && (
+                <p className="text-sm text-red-500 mt-1">
+                  {validationErrors.campaign}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="manual-adSpend">Ad Spend ($)*</Label>
@@ -535,9 +567,16 @@ export default function AcosCalculator() {
                 placeholder="e.g., 150.75"
                 disabled={isLoading}
                 required
+                className={validationErrors.adSpend ? 'border-red-500' : ''}
               />
-              {!manualCampaign.adSpend && (
-                <p className="text-sm text-red-500 mt-1">Required</p>
+              {validationErrors.adSpend ? (
+                <p className="text-sm text-red-500 mt-1">
+                  {validationErrors.adSpend}
+                </p>
+              ) : (
+                !manualCampaign.adSpend && (
+                  <p className="text-sm text-red-500 mt-1">Required</p>
+                )
               )}
             </div>
             <div>
@@ -552,9 +591,16 @@ export default function AcosCalculator() {
                 placeholder="e.g., 600.50"
                 disabled={isLoading}
                 required
+                className={validationErrors.sales ? 'border-red-500' : ''}
               />
-              {!manualCampaign.sales && (
-                <p className="text-sm text-red-500 mt-1">Required</p>
+              {validationErrors.sales ? (
+                <p className="text-sm text-red-500 mt-1">
+                  {validationErrors.sales}
+                </p>
+              ) : (
+                !manualCampaign.sales && (
+                  <p className="text-sm text-red-500 mt-1">Required</p>
+                )
               )}
             </div>
             <Button
