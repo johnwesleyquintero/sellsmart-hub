@@ -302,7 +302,9 @@ export default function AcosCalculator() {
       }
       const adSpend = Number.parseFloat(manualCampaign.adSpend);
       const sales = Number.parseFloat(manualCampaign.sales);
+      console.log('adSpend:', adSpend, 'sales:', sales);
       const metrics = calculateLocalMetrics(adSpend, sales);
+      console.log('metrics:', metrics);
       const newCampaign: CampaignData = {
         campaign: manualCampaign.campaign.trim(),
         adSpend,
@@ -312,6 +314,7 @@ export default function AcosCalculator() {
       setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
     } catch (error) {
+      console.error('Error calculating ACOS:', error);
       setError(
         error instanceof Error ? error.message : 'An unknown error occurred',
       );
