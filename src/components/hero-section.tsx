@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Mail, Triangle } from 'lucide-react';
+import { Github, Linkedin, Mail, Triangle, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -25,7 +25,7 @@ export default function HeroSection() {
 
           <div className="animate-fadeIn">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              I&apos;m{' '}
+              I'm{' '}
               {/* Improved contrast with darker gradient colors and text shadow */}
               <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] hover:animate-none drop-shadow-sm">
                 Wesley Quintero
@@ -84,21 +84,27 @@ export default function HeroSection() {
               rel="noopener noreferrer"
               aria-label="GitHub"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 group hover:rotate-6"
-            ></Link>
+            >
+              <Github className="h-5 w-5" />
+            </Link>
             <Link
               href="https://linkedin.com/in/wesleyquintero"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
-            ></Link>
+            >
+              <Linkedin className="h-5 w-5" />
+            </Link>
             <Link
               href="https://twitter.com/wesleyquintero"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter"
               className="rounded-full bg-background p-2 text-muted-foreground transition-all hover:text-primary hover:scale-110 hover:shadow-lg hover:shadow-primary/20 duration-300 hover:bg-primary/10 hover:rotate-6 group"
-            ></Link>
+            >
+              <Twitter className="h-5 w-5" />
+            </Link>
             <Link
               href="mailto:johnwesleyquintero@gmail.com"
               aria-label="Email"
