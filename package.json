@@ -9,7 +9,7 @@
   "scripts": {
     "generate": "ts-node src/lib/generate-sample-csv.ts",
     "dev": "next dev",
-    "build": "cross-env NODE_ENV=production npm run log-env && next build",
+    "build": "cross-env NODE_ENV=production next build",
     "start": " cross-env NODE_ENV=production next start",
     "update-tracker": "node .wescore/scripts/update-tracker.mjs",
     "reinstall": "npm install --legacy-peer-deps",
@@ -24,8 +24,7 @@
     "ps": "node ./.wescore/scripts/package-static.mjs",
     "ut": "node ./.wescore/scripts/update-timestamps.cjs",
     "lint": "eslint --config eslint.config.mjs .",
-    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts",
-    "log-env": "echo $NPM_FLAGS"
+    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts"
   },
   "resolutions": {
     "@typescript-eslint/types": "8.31.0",
