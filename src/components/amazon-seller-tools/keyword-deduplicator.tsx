@@ -232,9 +232,10 @@ export default function KeywordDeduplicator() {
           skippedCount: result.data.length - processedData.length,
         });
       } catch (error) {
-        const errorMessage = error instanceof Error
-          ? error.message
-          : 'An unknown error occurred while processing the file';
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred while processing the file';
 
         logError({
           message: 'Error processing CSV file',
