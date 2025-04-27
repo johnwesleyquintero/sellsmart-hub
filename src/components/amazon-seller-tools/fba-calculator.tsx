@@ -454,6 +454,7 @@ export default function FbaCalculator({
                   onChange={handleFileUpload}
                   disabled={isLoading}
                   ref={fileInputRef}
+                  data-testid="file-upload-input"
                 />
               </label>
               <div className="flex justify-center mt-4">

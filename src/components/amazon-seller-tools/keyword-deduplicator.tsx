@@ -273,24 +273,30 @@ export default function KeywordDeduplicator() {
   const handleManualProcess = useCallback(() => {
     setError(undefined);
     const productName = manualProduct.trim() || 'Manual Entry'; // Default name
+    const keywordsInput = manualKeywords.trim();
 
     try {
-      // Validate inputs using Zod
-      productNameSchema.parse(productName);
+      // Validate inputs using Zod with detailed error messages
+      const productValidation = productNameSchema.safeParse(productName);
+      const keywordsValidation = keywordsSchema.safeParse(keywordsInput);
 
-      // Early return if keywords are empty
-      if (!manualKeywords.trim()) {
-        throw new Error('Keywords cannot be empty');
+      // Collect all validation errors
+      const errors: string[] = [];
+
+      if (!keywordsValidation.success) {
+        errors.push(
+          ...keywordsValidation.error.errors.map((e) => `${e.message}`),
+        );
       }
 
-      const validationResult = keywordsSchema.safeParse(manualKeywords);
+      if (!productValidation.success) {
+        errors.push(
+          ...productValidation.error.errors.map((e) => `${e.message}`),
+        );
+      }
 
-      if (!validationResult.success) {
-        // Extract Zod error messages
-        const zodErrorMessages = validationResult.error.errors
-          .map((e) => e.message)
-          .join('. ');
-        throw new Error(zodErrorMessages);
+      if (errors.length > 0) {
+        throw new Error(errors.join('\n'));
       }
 
       // Check for duplicate product name in existing results
@@ -335,6 +341,12 @@ export default function KeywordDeduplicator() {
         severity: 'medium', // User input error
         error: err instanceof Error ? err : new Error(message),
         context: { manualProduct, manualKeywords },
+      });
+      logger.info('handleManualProcess called', {
+        manualProduct,
+        manualKeywords,
+        products,
+        error: err,
       });
     }
   }, [manualKeywords, manualProduct, products, toast]);
@@ -536,7 +548,7 @@ export default function KeywordDeduplicator() {
                 {/* Show error message specifically for keywords if applicable */}
                 {error && (
                   <div
-                    role={VALIDATION_ERROR_ROLE}
+                    role="validation-error"
                     className="text-sm text-destructive"
                   >
                     {error}
