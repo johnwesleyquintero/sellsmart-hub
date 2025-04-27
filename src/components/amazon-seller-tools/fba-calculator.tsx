@@ -400,7 +400,10 @@ export default function FbaCalculator({
   return (
     <div className="space-y-6">
       {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+      <div
+        role="alert"
+        className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3"
+      >
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p className="font-medium">How it Works:</p>
