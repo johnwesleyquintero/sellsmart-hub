@@ -1,5 +1,9 @@
 # Amazon Seller Tools Test Plan
 
+Update the test plan with the following information here:
+
+[Test Directory README](./src/__tests__/README.md)
+
 ## Test Categories
 
 ### 1. Unit Tests
@@ -72,6 +76,35 @@
 2. Set up Cypress for E2E Testing
 3. Implement CI/CD Pipeline Integration
 4. Configure Test Coverage Reporting
+
+## Test Directory Structure
+
+```
+src/
+  __tests__/
+    unit/
+      components/
+        ErrorBoundary.test.tsx
+        AmazonToolsUI.test.tsx
+        SharedUI.test.tsx
+      utils/
+        calculations.test.ts
+        dataProcessing.test.ts
+        helpers.test.ts
+
+    integration/
+      components/
+        interactions.test.tsx
+      api/
+        endpoints.test.ts
+        errorHandling.test.ts
+
+    e2e/
+      workflows/
+        fileUpload.test.ts
+        dataPipeline.test.ts
+        reportGeneration.test.ts
+```
 
 ## Success Criteria
 

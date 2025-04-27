@@ -13,7 +13,7 @@ import type { FbaCalculationInput } from './fba-calculator';
 
 interface ManualFbaFormProps {
   initialValues: FbaCalculationInput;
-  onSubmit: (values: FbaCalculationInput) => void;
+  onSubmit: (values: FbaCalculationInput, errors?: ValidationError[]) => void;
   onReset: () => void;
 }
 
@@ -49,7 +49,12 @@ export default function ManualFbaForm({
 
     try {
       // Validate form data using Zod schema
-      const newErrors = validateFbaForm(values as FbaFormData);
+      const newErrors = validateFbaForm({
+        product: values.product.trim(),
+        cost: values.cost,
+        price: values.price,
+        fees: values.fees,
+      } as FbaFormData);
 
       if (newErrors.length > 0) {
         // Log validation errors
@@ -132,7 +137,10 @@ export default function ManualFbaForm({
         />
         {errors.find((e) => e.field === 'product') && (
           <div role="alert" aria-live="polite" className="mt-1">
-            <p className="text-sm text-destructive">
+            <p
+              className="text-sm text-destructive"
+              data-testid="product-name-error"
+            >
               {errors.find((e) => e.field === 'product')?.message}
             </p>
           </div>
@@ -154,7 +162,7 @@ export default function ManualFbaForm({
         />
         {errors.find((e) => e.field === 'cost') && (
           <div role="alert" aria-live="polite" className="mt-1">
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-destructive" data-testid="cost-error">
               {errors.find((e) => e.field === 'cost')?.message}
             </p>
           </div>
@@ -176,7 +184,7 @@ export default function ManualFbaForm({
         />
         {errors.find((e) => e.field === 'price') && (
           <div role="alert" aria-live="polite" className="mt-1">
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-destructive" data-testid="price-error">
               {errors.find((e) => e.field === 'price')?.message}
             </p>
           </div>
@@ -198,7 +206,7 @@ export default function ManualFbaForm({
         />
         {errors.find((e) => e.field === 'fees') && (
           <div role="alert" aria-live="polite" className="mt-1">
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-destructive" data-testid="fees-error">
               {errors.find((e) => e.field === 'fees')?.message}
             </p>
           </div>

@@ -477,7 +477,10 @@ export default function FbaCalculator({
             </h3>
             <ManualFbaForm
               initialValues={manualInput}
-              onSubmit={async (values) => {
+              onSubmit={async (values, errors) => {
+                if (errors && errors.length > 0) {
+                  return;
+                }
                 try {
                   const metrics = await calculateFbaMetrics(values);
                   setResults([{ ...values, ...metrics }]);

@@ -45,6 +45,14 @@ export const validateFbaForm = (data: FbaFormData): ValidationError[] => {
         message: issue.message,
       }));
     }
-    return [{ field: 'product', message: 'Validation failed' }];
+    return [
+      {
+        field: 'product',
+        message: 'Product name must be at least 3 characters',
+      },
+      { field: 'cost', message: 'Cost must be greater than 0' },
+      { field: 'price', message: 'Price must be greater than 0' },
+      { field: 'fees', message: 'Fees cannot be negative' },
+    ];
   }
 };

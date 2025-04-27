@@ -299,6 +299,11 @@ export default function KeywordDeduplicator() {
         throw new Error(errors.join('\n'));
       }
 
+      // Early return if no keywords after validation
+      if (!keywordsInput) {
+        throw new Error('Keywords cannot be empty');
+      }
+
       // Check for duplicate product name in existing results
       if (
         products.some(
