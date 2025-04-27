@@ -7,6 +7,7 @@ import {
   type FbaFormData,
 } from '@/lib/amazon-tools/fba-form-schema';
 import { logger } from '@/lib/logger';
+import { AlertCircle } from 'lucide-react';
 import React from 'react';
 import type { FbaCalculationInput } from './fba-calculator';
 
@@ -15,6 +16,8 @@ interface ManualFbaFormProps {
   onSubmit: (values: FbaCalculationInput) => void;
   onReset: () => void;
 }
+
+import { ValidationError } from '@/lib/amazon-tools/fba-form-schema';
 
 export default function ManualFbaForm({
   initialValues,
@@ -25,6 +28,7 @@ export default function ManualFbaForm({
   const [values, setValues] =
     React.useState<FbaCalculationInput>(initialValues);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errors, setErrors] = React.useState<ValidationError[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,6 +45,7 @@ export default function ManualFbaForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors([]); // Clear previous errors
 
     try {
       // Validate form data using Zod schema
@@ -54,11 +59,16 @@ export default function ManualFbaForm({
           formData: values,
         });
 
-        // Show first error to user
-        toast({
-          title: 'Validation Error',
-          description: validationErrors[0].message,
-          variant: 'destructive',
+        // Set errors state to display inline validation messages
+        setErrors(validationErrors);
+
+        // Show all validation errors to user
+        validationErrors.forEach((error) => {
+          toast({
+            title: 'Validation Error',
+            description: error.message,
+            variant: 'destructive',
+          });
         });
         return;
       }
@@ -99,6 +109,36 @@ export default function ManualFbaForm({
       className="space-y-4"
       data-testid="manual-fba-form"
     >
+      {validationErrors.length > 0 && (
+        <div
+          role="alert"
+          className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg flex items-start gap-3"
+        >
+          <AlertCircle className="h-5 w-5 text-red-500" />
+          <div className="space-y-1">
+            {validationErrors.map((error) => (
+              <p
+                key={error.field}
+                className="text-sm text-red-600 dark:text-red-400"
+              >
+                {error.message}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+      {errors.length > 0 && (
+        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+          <div className="space-y-1">
+            {errors.map((error, index) => (
+              <p key={index} className="text-sm text-red-600 dark:text-red-400">
+                {error.message}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="product">Product Name*</Label>
         <Input
@@ -109,6 +149,11 @@ export default function ManualFbaForm({
           placeholder="Enter product name"
           required
         />
+        {errors.find((e) => e.field === 'product') && (
+          <p className="text-sm text-destructive">
+            {errors.find((e) => e.field === 'product')?.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -124,6 +169,11 @@ export default function ManualFbaForm({
           step="0.01"
           required
         />
+        {errors.find((e) => e.field === 'cost') && (
+          <p className="text-sm text-destructive">
+            {errors.find((e) => e.field === 'cost')?.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -139,6 +189,11 @@ export default function ManualFbaForm({
           step="0.01"
           required
         />
+        {errors.find((e) => e.field === 'price') && (
+          <p className="text-sm text-destructive">
+            {errors.find((e) => e.field === 'price')?.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -154,6 +209,11 @@ export default function ManualFbaForm({
           step="0.01"
           required
         />
+        {errors.find((e) => e.field === 'fees') && (
+          <p className="text-sm text-destructive">
+            {errors.find((e) => e.field === 'fees')?.message}
+          </p>
+        )}
       </div>
 
       <div className="flex gap-2 pt-4">
