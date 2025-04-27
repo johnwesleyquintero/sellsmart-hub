@@ -34,7 +34,7 @@ async function processFile(
     Papa.parse(fileContent, {
       header: true,
       skipEmptyLines: true,
-      complete: (results: ParseResult<any>) => {
+      complete: (results: ParseResult<Record<string, unknown>>) => {
         const headers = results.meta.fields || [];
         const headerMap = new Map<string, string>();
 
@@ -75,43 +75,45 @@ async function processFile(
         }
 
         // Transform data using canonical names
-        const transformedData = results.data.map((row: any): ReportData => {
-          const transformedRow: ReportData = {};
-          console.log({ row });
+        const transformedData = results.data.map(
+          (row: Record<string, unknown>): ReportData => {
+            const transformedRow: ReportData = {};
+            console.log({ row });
 
-          Object.entries(row).forEach(([header, value]) => {
-            const canonicalName = headerMap.get(header);
-            if (canonicalName) {
-              // Clean and transform data
-              if (canonicalName === 'date') {
-                try {
-                  transformedRow[canonicalName] = parseDate(
-                    value as string,
-                    'yyyy-MM-dd',
-                    new Date(),
-                  );
-                } catch (e) {
-                  warnings.push(
-                    `Invalid date format in row: ${JSON.stringify(row)}`,
-                  );
-                  transformedRow[canonicalName] = null as any;
-                }
-              } else if (
-                ['cost', 'sales', 'units', 'clicks'].includes(canonicalName)
-              ) {
-                if (typeof value === 'string') {
-                  transformedRow[canonicalName] = parseFloat(value) || 0;
+            Object.entries(row).forEach(([header, value]) => {
+              const canonicalName = headerMap.get(header);
+              if (canonicalName) {
+                // Clean and transform data
+                if (canonicalName === 'date') {
+                  try {
+                    transformedRow[canonicalName] = parseDate(
+                      value as string,
+                      'yyyy-MM-dd',
+                      new Date(),
+                    );
+                  } catch (e) {
+                    warnings.push(
+                      `Invalid date format in row: ${JSON.stringify(row)}`,
+                    );
+                    transformedRow[canonicalName] = null as any;
+                  }
+                } else if (
+                  ['cost', 'sales', 'units', 'clicks'].includes(canonicalName)
+                ) {
+                  if (typeof value === 'string') {
+                    transformedRow[canonicalName] = parseFloat(value) || 0;
+                  } else {
+                    transformedRow[canonicalName] = value || 0;
+                  }
                 } else {
-                  transformedRow[canonicalName] = value || 0;
+                  transformedRow[canonicalName] = value;
                 }
-              } else {
-                transformedRow[canonicalName] = value;
               }
-            }
-          });
+            });
 
-          return transformedRow;
-        });
+            return transformedRow;
+          },
+        );
 
         resolve({
           status: warnings.length > 0 ? 'partial' : 'success',
@@ -119,7 +121,7 @@ async function processFile(
           warnings: warnings.length > 0 ? warnings : undefined,
         });
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         console.log({ error });
         resolve({
           status: 'error',
@@ -193,11 +195,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(response);
-  } catch (error: any) {
-    console.error('Error processing files:', error);
-    return NextResponse.json(
-      { error: `Failed to process files: ${error.message}` },
-      { status: 500 },
-    );
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error:', error.message);
+    } else {
+      console.error('Unknown error:', error);
+    }
   }
 }

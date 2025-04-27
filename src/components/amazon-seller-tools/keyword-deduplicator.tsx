@@ -55,6 +55,9 @@ const keywordsSchema = z
     },
   );
 
+// Role for validation error messages to distinguish from other alerts
+const VALIDATION_ERROR_ROLE = 'validation-error';
+
 // --- Types ---
 interface ProcessedKeywordData {
   product: string;
@@ -531,8 +534,13 @@ export default function KeywordDeduplicator() {
                   aria-invalid={!!(error && !manualKeywords.trim())}
                 />
                 {/* Show error message specifically for keywords if applicable */}
-                {error && !manualKeywords.trim() && (
-                  <p className="text-sm text-destructive mt-1">{error}</p>
+                {error && (
+                  <div
+                    role={VALIDATION_ERROR_ROLE}
+                    className="text-sm text-destructive"
+                  >
+                    {error}
+                  </div>
                 )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   Separate keywords with commas or new lines.
@@ -573,8 +581,8 @@ export default function KeywordDeduplicator() {
       {/* Error Display (General Errors) */}
       {error && (
         <div
+          role={VALIDATION_ERROR_ROLE}
           className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-destructive dark:bg-red-900/30 dark:text-red-400"
-          role="alert"
         >
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
           <span className="flex-grow break-words">{error}</span>

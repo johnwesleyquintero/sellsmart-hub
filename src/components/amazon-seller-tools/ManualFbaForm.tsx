@@ -108,6 +108,7 @@ export default function ManualFbaForm({
       onSubmit={handleSubmit}
       className="space-y-4"
       data-testid="manual-fba-form"
+      aria-label="FBA Calculator Form"
     >
       {errors.length > 0 && (
         <div
@@ -115,8 +116,8 @@ export default function ManualFbaForm({
           aria-live="assertive"
           className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg flex items-start gap-3"
         >
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <div className="space-y-1">
+          <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+          <div className="space-y-1 flex-grow">
             {errors.map((error) => (
               <p
                 key={error.field}
@@ -139,9 +140,11 @@ export default function ManualFbaForm({
           required
         />
         {errors.find((e) => e.field === 'product') && (
-          <p className="text-sm text-destructive">
-            {errors.find((e) => e.field === 'product')?.message}
-          </p>
+          <div role="alert" aria-live="polite" className="mt-1">
+            <p className="text-sm text-destructive">
+              {errors.find((e) => e.field === 'product')?.message}
+            </p>
+          </div>
         )}
       </div>
 
@@ -159,9 +162,11 @@ export default function ManualFbaForm({
           required
         />
         {errors.find((e) => e.field === 'cost') && (
-          <p className="text-sm text-destructive">
-            {errors.find((e) => e.field === 'cost')?.message}
-          </p>
+          <div role="alert" aria-live="polite" className="mt-1">
+            <p className="text-sm text-destructive">
+              {errors.find((e) => e.field === 'cost')?.message}
+            </p>
+          </div>
         )}
       </div>
 
@@ -179,9 +184,11 @@ export default function ManualFbaForm({
           required
         />
         {errors.find((e) => e.field === 'price') && (
-          <p className="text-sm text-destructive">
-            {errors.find((e) => e.field === 'price')?.message}
-          </p>
+          <div role="alert" aria-live="polite" className="mt-1">
+            <p className="text-sm text-destructive">
+              {errors.find((e) => e.field === 'price')?.message}
+            </p>
+          </div>
         )}
       </div>
 
@@ -199,9 +206,11 @@ export default function ManualFbaForm({
           required
         />
         {errors.find((e) => e.field === 'fees') && (
-          <p className="text-sm text-destructive">
-            {errors.find((e) => e.field === 'fees')?.message}
-          </p>
+          <div role="alert" aria-live="polite" className="mt-1">
+            <p className="text-sm text-destructive">
+              {errors.find((e) => e.field === 'fees')?.message}
+            </p>
+          </div>
         )}
       </div>
 
