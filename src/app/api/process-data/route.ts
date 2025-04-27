@@ -91,11 +91,11 @@ async function processFile(
                       'yyyy-MM-dd',
                       new Date(),
                     );
-                  } catch (e) {
+                  } catch {
                     warnings.push(
                       `Invalid date format in row: ${JSON.stringify(row)}`,
                     );
-                    transformedRow[canonicalName] = null as any;
+                    transformedRow[canonicalName] = null as unknown;
                   }
                 } else if (
                   ['cost', 'sales', 'units', 'clicks'].includes(canonicalName)
