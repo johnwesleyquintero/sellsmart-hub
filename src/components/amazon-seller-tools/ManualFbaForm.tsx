@@ -61,15 +61,6 @@ export default function ManualFbaForm({
 
         // Set errors state to display inline validation messages
         setErrors(newErrors);
-
-        // Show all validation errors to user
-        newErrors.forEach((error) => {
-          toast({
-            title: 'Validation Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        });
         return;
       }
 
