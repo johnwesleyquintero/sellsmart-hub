@@ -49,21 +49,21 @@ export default function ManualFbaForm({
 
     try {
       // Validate form data using Zod schema
-      const validationErrors = validateFbaForm(values as FbaFormData);
+      const newErrors = validateFbaForm(values as FbaFormData);
 
-      if (validationErrors.length > 0) {
+      if (newErrors.length > 0) {
         // Log validation errors
         logger.warn('FBA form validation failed', {
           component: 'ManualFbaForm',
-          errors: validationErrors,
+          errors: newErrors,
           formData: values,
         });
 
         // Set errors state to display inline validation messages
-        setErrors(validationErrors);
+        setErrors(newErrors);
 
         // Show all validation errors to user
-        validationErrors.forEach((error) => {
+        newErrors.forEach((error) => {
           toast({
             title: 'Validation Error',
             description: error.message,
@@ -109,30 +109,19 @@ export default function ManualFbaForm({
       className="space-y-4"
       data-testid="manual-fba-form"
     >
-      {validationErrors.length > 0 && (
+      {errors.length > 0 && (
         <div
           role="alert"
+          aria-live="assertive"
           className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg flex items-start gap-3"
         >
           <AlertCircle className="h-5 w-5 text-red-500" />
           <div className="space-y-1">
-            {validationErrors.map((error) => (
+            {errors.map((error) => (
               <p
                 key={error.field}
                 className="text-sm text-red-600 dark:text-red-400"
               >
-                {error.message}
-              </p>
-            ))}
-          </div>
-        </div>
-      )}
-      {errors.length > 0 && (
-        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-          <div className="space-y-1">
-            {errors.map((error, index) => (
-              <p key={index} className="text-sm text-red-600 dark:text-red-400">
                 {error.message}
               </p>
             ))}
