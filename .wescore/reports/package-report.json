@@ -10818,13 +10818,8 @@
         "name": "@vercel/nft",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "node-pre-gyp"
-        ],
-        "effects": [
-          "@vercel/redwood",
-          "@vercel/remix"
-        ],
+        "via": ["node-pre-gyp"],
+        "effects": ["@vercel/redwood", "@vercel/remix"],
         "range": "<=0.20.0",
         "nodes": [
           "node_modules/@vercel/redwood/node_modules/@vercel/nft",
@@ -10840,16 +10835,10 @@
         "name": "@vercel/node",
         "severity": "high",
         "isDirect": false,
-        "via": [
-          "node-fetch"
-        ],
-        "effects": [
-          "vercel"
-        ],
+        "via": ["node-fetch"],
+        "effects": ["vercel"],
         "range": "2.1.1-canary.0 - 2.4.4",
-        "nodes": [
-          "node_modules/@vercel/node"
-        ],
+        "nodes": ["node_modules/@vercel/node"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10860,18 +10849,10 @@
         "name": "@vercel/redwood",
         "severity": "high",
         "isDirect": false,
-        "via": [
-          "@vercel/nft",
-          "@vercel/routing-utils",
-          "semver"
-        ],
-        "effects": [
-          "vercel"
-        ],
+        "via": ["@vercel/nft", "@vercel/routing-utils", "semver"],
+        "effects": ["vercel"],
         "range": "0.2.1-canary.0 - 2.2.0",
-        "nodes": [
-          "node_modules/@vercel/redwood"
-        ],
+        "nodes": ["node_modules/@vercel/redwood"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10882,16 +10863,10 @@
         "name": "@vercel/remix",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "@vercel/nft"
-        ],
-        "effects": [
-          "vercel"
-        ],
+        "via": ["@vercel/nft"],
+        "effects": ["vercel"],
         "range": "<=1.0.2",
-        "nodes": [
-          "node_modules/vercel/node_modules/@vercel/remix"
-        ],
+        "nodes": ["node_modules/vercel/node_modules/@vercel/remix"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10902,16 +10877,10 @@
         "name": "@vercel/routing-utils",
         "severity": "high",
         "isDirect": false,
-        "via": [
-          "path-to-regexp"
-        ],
-        "effects": [
-          "@vercel/redwood"
-        ],
+        "via": ["path-to-regexp"],
+        "effects": ["@vercel/redwood"],
         "range": "<=3.1.0 || >=5.0.0",
-        "nodes": [
-          "node_modules/@vercel/routing-utils"
-        ],
+        "nodes": ["node_modules/@vercel/routing-utils"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10938,13 +10907,9 @@
             "range": "<11.8.5"
           }
         ],
-        "effects": [
-          "package-json"
-        ],
+        "effects": ["package-json"],
         "range": "<11.8.5",
-        "nodes": [
-          "node_modules/got"
-        ],
+        "nodes": ["node_modules/got"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10955,16 +10920,10 @@
         "name": "latest-version",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "package-json"
-        ],
-        "effects": [
-          "update-notifier"
-        ],
+        "via": ["package-json"],
+        "effects": ["update-notifier"],
         "range": "0.2.0 - 5.1.0",
-        "nodes": [
-          "node_modules/latest-version"
-        ],
+        "nodes": ["node_modules/latest-version"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -10983,11 +10942,7 @@
             "title": "node-fetch forwards secure headers to untrusted sites",
             "url": "https://github.com/advisories/GHSA-r683-j2x4-v87g",
             "severity": "high",
-            "cwe": [
-              "CWE-173",
-              "CWE-200",
-              "CWE-601"
-            ],
+            "cwe": ["CWE-173", "CWE-200", "CWE-601"],
             "cvss": {
               "score": 8.8,
               "vectorString": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
@@ -10995,13 +10950,9 @@
             "range": "<2.6.7"
           }
         ],
-        "effects": [
-          "@vercel/node"
-        ],
+        "effects": ["@vercel/node"],
         "range": "<2.6.7",
-        "nodes": [
-          "node_modules/@vercel/node/node_modules/node-fetch"
-        ],
+        "nodes": ["node_modules/@vercel/node/node_modules/node-fetch"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11012,16 +10963,10 @@
         "name": "node-pre-gyp",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "tar"
-        ],
-        "effects": [
-          "@vercel/nft"
-        ],
+        "via": ["tar"],
+        "effects": ["@vercel/nft"],
         "range": "*",
-        "nodes": [
-          "node_modules/node-pre-gyp"
-        ],
+        "nodes": ["node_modules/node-pre-gyp"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11032,16 +10977,10 @@
         "name": "package-json",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "got"
-        ],
-        "effects": [
-          "latest-version"
-        ],
+        "via": ["got"],
+        "effects": ["latest-version"],
         "range": "<=6.5.0",
-        "nodes": [
-          "node_modules/package-json"
-        ],
+        "nodes": ["node_modules/package-json"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11060,9 +10999,7 @@
             "title": "path-to-regexp outputs backtracking regular expressions",
             "url": "https://github.com/advisories/GHSA-9wv6-86v2-598j",
             "severity": "high",
-            "cwe": [
-              "CWE-1333"
-            ],
+            "cwe": ["CWE-1333"],
             "cvss": {
               "score": 7.5,
               "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
@@ -11070,9 +11007,7 @@
             "range": ">=4.0.0 <6.3.0"
           }
         ],
-        "effects": [
-          "@vercel/routing-utils"
-        ],
+        "effects": ["@vercel/routing-utils"],
         "range": "4.0.0 - 6.2.2",
         "nodes": [
           "node_modules/@vercel/routing-utils/node_modules/path-to-regexp"
@@ -11095,9 +11030,7 @@
             "title": "semver vulnerable to Regular Expression Denial of Service",
             "url": "https://github.com/advisories/GHSA-c2qf-rxjj-qqgw",
             "severity": "high",
-            "cwe": [
-              "CWE-1333"
-            ],
+            "cwe": ["CWE-1333"],
             "cvss": {
               "score": 7.5,
               "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
@@ -11105,13 +11038,9 @@
             "range": ">=6.0.0 <6.3.1"
           }
         ],
-        "effects": [
-          "@vercel/redwood"
-        ],
+        "effects": ["@vercel/redwood"],
         "range": "6.0.0 - 6.3.0",
-        "nodes": [
-          "node_modules/@vercel/redwood/node_modules/semver"
-        ],
+        "nodes": ["node_modules/@vercel/redwood/node_modules/semver"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11130,9 +11059,7 @@
             "title": "Denial of service while parsing a tar file due to lack of folders count validation",
             "url": "https://github.com/advisories/GHSA-f5x3-32g6-xq36",
             "severity": "moderate",
-            "cwe": [
-              "CWE-400"
-            ],
+            "cwe": ["CWE-400"],
             "cvss": {
               "score": 6.5,
               "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
@@ -11140,13 +11067,9 @@
             "range": "<6.2.1"
           }
         ],
-        "effects": [
-          "node-pre-gyp"
-        ],
+        "effects": ["node-pre-gyp"],
         "range": "<6.2.1",
-        "nodes": [
-          "node_modules/node-pre-gyp/node_modules/tar"
-        ],
+        "nodes": ["node_modules/node-pre-gyp/node_modules/tar"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11157,16 +11080,10 @@
         "name": "update-notifier",
         "severity": "moderate",
         "isDirect": false,
-        "via": [
-          "latest-version"
-        ],
-        "effects": [
-          "vercel"
-        ],
+        "via": ["latest-version"],
+        "effects": ["vercel"],
         "range": "0.2.0 - 5.1.0",
-        "nodes": [
-          "node_modules/update-notifier"
-        ],
+        "nodes": ["node_modules/update-notifier"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11185,9 +11102,7 @@
         ],
         "effects": [],
         "range": "19.1.3-canary.0 - 32.1.0",
-        "nodes": [
-          "node_modules/vercel"
-        ],
+        "nodes": ["node_modules/vercel"],
         "fixAvailable": {
           "name": "vercel",
           "version": "41.6.2",
@@ -11200,13 +11115,7 @@
     "count": 171,
     "conflicts": {
       "globals": {
-        "versions": [
-          "11.12.0",
-          "14.0.0",
-          "15.0.0",
-          "15.15.0",
-          "16.0.0"
-        ],
+        "versions": ["11.12.0", "14.0.0", "15.0.0", "15.15.0", "16.0.0"],
         "paths": [
           "portfolio > @eslint/eslintrc@3.3.1 > globals@14.0.0",
           "portfolio > eslint-plugin-unicorn@58.0.0 > globals@16.0.0",
@@ -11215,38 +11124,25 @@
         ]
       },
       "@sentry/core": {
-        "versions": [
-          "7.120.3",
-          "9.13.0"
-        ],
+        "versions": ["7.120.3", "9.13.0"],
         "paths": [
           "portfolio > @sentry/tracing@7.120.3 > @sentry-internal/tracing@7.120.3 > @sentry/core@7.120.3"
         ]
       },
       "css-tree": {
-        "versions": [
-          "2.2.1",
-          "2.3.1"
-        ],
+        "versions": ["2.2.1", "2.3.1"],
         "paths": [
           "portfolio > @svgr/webpack@8.1.0 > @svgr/plugin-svgo@8.1.0 > svgo@3.3.2 > csso@5.0.5 > css-tree@2.2.1"
         ]
       },
       "mdn-data": {
-        "versions": [
-          "2.0.28",
-          "2.0.30"
-        ],
+        "versions": ["2.0.28", "2.0.30"],
         "paths": [
           "portfolio > @svgr/webpack@8.1.0 > @svgr/plugin-svgo@8.1.0 > svgo@3.3.2 > csso@5.0.5 > css-tree@2.2.1 > mdn-data@2.0.28"
         ]
       },
       "ansi-styles": {
-        "versions": [
-          "4.3.0",
-          "5.2.0",
-          "6.2.1"
-        ],
+        "versions": ["4.3.0", "5.2.0", "6.2.1"],
         "paths": [
           "portfolio > @testing-library/dom@10.4.0 > pretty-format@27.5.1 > ansi-styles@5.2.0",
           "portfolio > @testing-library/jest-dom@6.6.3 > chalk@3.0.0 > ansi-styles@4.3.0",
@@ -11291,11 +11187,7 @@
         ]
       },
       "react-is": {
-        "versions": [
-          "16.13.1",
-          "17.0.2",
-          "18.3.1"
-        ],
+        "versions": ["16.13.1", "17.0.2", "18.3.1"],
         "paths": [
           "portfolio > @testing-library/dom@10.4.0 > pretty-format@27.5.1 > react-is@17.0.2",
           "portfolio > @types/jest@29.5.14 > pretty-format@29.7.0 > react-is@18.3.1",
@@ -11306,21 +11198,14 @@
         ]
       },
       "aria-query": {
-        "versions": [
-          "5.3.0",
-          "5.3.2"
-        ],
+        "versions": ["5.3.0", "5.3.2"],
         "paths": [
           "portfolio > @testing-library/jest-dom@6.6.3 > aria-query@5.3.2",
           "portfolio > eslint-config-next@15.3.1 > eslint-plugin-jsx-a11y@6.10.2 > aria-query@5.3.2"
         ]
       },
       "chalk": {
-        "versions": [
-          "3.0.0",
-          "4.1.2",
-          "5.4.1"
-        ],
+        "versions": ["3.0.0", "4.1.2", "5.4.1"],
         "paths": [
           "portfolio > @testing-library/jest-dom@6.6.3 > chalk@3.0.0",
           "portfolio > @types/jest@29.5.14 > expect@29.7.0 > jest-matcher-utils@29.7.0 > chalk@4.1.2",
@@ -11360,21 +11245,13 @@
         ]
       },
       "dom-accessibility-api": {
-        "versions": [
-          "0.5.16",
-          "0.6.3"
-        ],
+        "versions": ["0.5.16", "0.6.3"],
         "paths": [
           "portfolio > @testing-library/jest-dom@6.6.3 > dom-accessibility-api@0.6.3"
         ]
       },
       "pretty-format": {
-        "versions": [
-          "25.5.0",
-          "27.5.1",
-          "29.7.0",
-          "3.8.0"
-        ],
+        "versions": ["25.5.0", "27.5.1", "29.7.0", "3.8.0"],
         "paths": [
           "portfolio > @types/jest@29.5.14 > expect@29.7.0 > jest-matcher-utils@29.7.0 > jest-diff@29.7.0 > pretty-format@29.7.0",
           "portfolio > @types/jest@29.5.14 > expect@29.7.0 > jest-matcher-utils@29.7.0 > pretty-format@29.7.0",
@@ -11393,10 +11270,7 @@
         ]
       },
       "entities": {
-        "versions": [
-          "4.5.0",
-          "6.0.0"
-        ],
+        "versions": ["4.5.0", "6.0.0"],
         "paths": [
           "portfolio > @types/jsdom@21.1.7 > parse5@7.3.0 > entities@6.0.0",
           "portfolio > critters@0.0.23 > dom-serializer@2.0.0 > entities@4.5.0",
@@ -11404,20 +11278,14 @@
         ]
       },
       "mongodb": {
-        "versions": [
-          "5.9.2",
-          "6.15.0"
-        ],
+        "versions": ["5.9.2", "6.15.0"],
         "paths": [
           "portfolio > @types/mongoose@5.11.97 > mongoose@8.13.3 > mongodb@6.15.0",
           "portfolio > mongodb@5.9.2"
         ]
       },
       "@jest/types": {
-        "versions": [
-          "25.5.0",
-          "29.6.3"
-        ],
+        "versions": ["25.5.0", "29.6.3"],
         "paths": [
           "portfolio > @types/testing-library__dom@7.0.2 > pretty-format@25.5.0 > @jest/types@25.5.0",
           "portfolio > @types/testing-library__react@10.0.1 > pretty-format@25.5.0 > @jest/types@25.5.0",
@@ -11449,10 +11317,7 @@
         ]
       },
       "@types/istanbul-reports": {
-        "versions": [
-          "1.1.2",
-          "3.0.4"
-        ],
+        "versions": ["1.1.2", "3.0.4"],
         "paths": [
           "portfolio > @types/testing-library__dom@7.0.2 > pretty-format@25.5.0 > @jest/types@25.5.0 > @types/istanbul-reports@1.1.2",
           "portfolio > @types/testing-library__react@10.0.1 > pretty-format@25.5.0 > @jest/types@25.5.0 > @types/istanbul-reports@1.1.2",
@@ -11460,31 +11325,21 @@
         ]
       },
       "@types/whatwg-url": {
-        "versions": [
-          "11.0.5",
-          "13.0.0",
-          "8.2.2"
-        ],
+        "versions": ["11.0.5", "13.0.0", "8.2.2"],
         "paths": [
           "portfolio > @types/whatwg-url@13.0.0",
           "portfolio > mongodb@5.9.2 > mongodb-connection-string-url@2.6.0 > @types/whatwg-url@8.2.2"
         ]
       },
       "@types/yargs": {
-        "versions": [
-          "15.0.19",
-          "17.0.33"
-        ],
+        "versions": ["15.0.19", "17.0.33"],
         "paths": [
           "portfolio > @types/yargs@17.0.33",
           "portfolio > jest-environment-jsdom@29.7.0 > @jest/types@29.6.3 > @types/yargs@17.0.33"
         ]
       },
       "fast-glob": {
-        "versions": [
-          "3.3.1",
-          "3.3.3"
-        ],
+        "versions": ["3.3.1", "3.3.3"],
         "paths": [
           "portfolio > @typescript-eslint/parser@8.31.0 > @typescript-eslint/typescript-estree@8.31.0 > fast-glob@3.3.3",
           "portfolio > @vercel/remix@2.15.3 > ts-morph@12.0.0 > @ts-morph/common@0.11.1 > fast-glob@3.3.1",
@@ -11493,11 +11348,7 @@
         ]
       },
       "minimatch": {
-        "versions": [
-          "3.1.2",
-          "5.1.6",
-          "9.0.5"
-        ],
+        "versions": ["3.1.2", "5.1.6", "9.0.5"],
         "paths": [
           "portfolio > @typescript-eslint/parser@8.31.0 > @typescript-eslint/typescript-estree@8.31.0 > minimatch@9.0.5",
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > minimatch@9.0.5",
@@ -11517,10 +11368,7 @@
         ]
       },
       "brace-expansion": {
-        "versions": [
-          "1.1.11",
-          "2.0.1"
-        ],
+        "versions": ["1.1.11", "2.0.1"],
         "paths": [
           "portfolio > @typescript-eslint/parser@8.31.0 > @typescript-eslint/typescript-estree@8.31.0 > minimatch@9.0.5 > brace-expansion@2.0.1",
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > minimatch@9.0.5 > brace-expansion@2.0.1",
@@ -11530,12 +11378,7 @@
         ]
       },
       "semver": {
-        "versions": [
-          "5.7.2",
-          "6.1.1",
-          "6.3.1",
-          "7.7.1"
-        ],
+        "versions": ["5.7.2", "6.1.1", "6.3.1", "7.7.1"],
         "paths": [
           "portfolio > @typescript-eslint/parser@8.31.0 > @typescript-eslint/typescript-estree@8.31.0 > semver@7.7.1",
           "portfolio > @vercel/nft@0.29.2 > @mapbox/node-pre-gyp@2.0.0 > semver@7.7.1",
@@ -11563,10 +11406,7 @@
         ]
       },
       "@types/hast": {
-        "versions": [
-          "2.3.10",
-          "3.0.4"
-        ],
+        "versions": ["2.3.10", "3.0.4"],
         "paths": [
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-prism-plus@2.0.0 > refractor@4.9.0 > @types/hast@2.3.10",
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-prism-plus@2.0.0 > refractor@4.9.0 > hastscript@7.2.0 > @types/hast@2.3.10",
@@ -11602,10 +11442,7 @@
         ]
       },
       "@types/unist": {
-        "versions": [
-          "2.0.11",
-          "3.0.3"
-        ],
+        "versions": ["2.0.11", "3.0.3"],
         "paths": [
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-prism-plus@2.0.0 > refractor@4.9.0 > @types/hast@2.3.10 > @types/unist@2.0.11",
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-prism-plus@2.0.0 > refractor@4.9.0 > parse-entities@4.0.2 > @types/unist@2.0.11",
@@ -11638,10 +11475,7 @@
         ]
       },
       "property-information": {
-        "versions": [
-          "6.5.0",
-          "7.0.0"
-        ],
+        "versions": ["6.5.0", "7.0.0"],
         "paths": [
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-prism-plus@2.0.0 > refractor@4.9.0 > hastscript@7.2.0 > property-information@6.5.0",
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-raw@7.0.0 > hast-util-raw@9.1.0 > hast-util-from-parse5@8.0.3 > property-information@7.0.0",
@@ -11653,22 +11487,14 @@
         ]
       },
       "hastscript": {
-        "versions": [
-          "7.2.0",
-          "9.0.1"
-        ],
+        "versions": ["7.2.0", "9.0.1"],
         "paths": [
           "portfolio > @uiw/react-markdown-preview@5.1.3 > rehype-raw@7.0.0 > hast-util-raw@9.1.0 > hast-util-from-parse5@8.0.3 > hastscript@9.0.1",
           "portfolio > rehype-katex@7.0.1 > hast-util-from-html-isomorphic@2.0.0 > hast-util-from-dom@5.0.1 > hastscript@9.0.1"
         ]
       },
       "escape-string-regexp": {
-        "versions": [
-          "1.0.5",
-          "2.0.0",
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["1.0.5", "2.0.0", "4.0.0", "5.0.0"],
         "paths": [
           "portfolio > @uiw/react-markdown-preview@5.1.3 > remark-gfm@4.0.1 > mdast-util-gfm@3.1.0 > mdast-util-gfm-autolink-literal@2.0.1 > mdast-util-find-and-replace@3.0.2 > escape-string-regexp@5.0.0",
           "portfolio > eslint-plugin-unicorn@58.0.0 > clean-regexp@1.0.0 > escape-string-regexp@1.0.5",
@@ -11676,11 +11502,7 @@
         ]
       },
       "whatwg-url": {
-        "versions": [
-          "11.0.0",
-          "14.2.0",
-          "5.0.0"
-        ],
+        "versions": ["11.0.0", "14.2.0", "5.0.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > @mapbox/node-pre-gyp@2.0.0 > node-fetch@2.7.0 > whatwg-url@5.0.0",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > node-fetch@2.7.0 > whatwg-url@5.0.0",
@@ -11692,11 +11514,7 @@
         ]
       },
       "yallist": {
-        "versions": [
-          "3.1.1",
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["3.1.1", "4.0.0", "5.0.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > @mapbox/node-pre-gyp@2.0.0 > tar@7.4.3 > yallist@5.0.0",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1 > fs-minipass@2.1.0 > minipass@3.3.6 > yallist@4.0.0",
@@ -11709,11 +11527,7 @@
         ]
       },
       "emoji-regex": {
-        "versions": [
-          "10.4.0",
-          "8.0.0",
-          "9.2.2"
-        ],
+        "versions": ["10.4.0", "8.0.0", "9.2.2"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > string-width@5.1.2 > emoji-regex@9.2.2",
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > wrap-ansi-cjs@7.0.0 > string-width@4.2.3 > emoji-regex@8.0.0",
@@ -11729,11 +11543,7 @@
         ]
       },
       "strip-ansi": {
-        "versions": [
-          "3.0.1",
-          "6.0.1",
-          "7.1.0"
-        ],
+        "versions": ["3.0.1", "6.0.1", "7.1.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > string-width@5.1.2 > strip-ansi@7.1.0",
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > strip-ansi@7.1.0",
@@ -11764,11 +11574,7 @@
         ]
       },
       "ansi-regex": {
-        "versions": [
-          "2.1.1",
-          "5.0.1",
-          "6.1.0"
-        ],
+        "versions": ["2.1.1", "5.0.1", "6.1.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > strip-ansi@7.1.0 > ansi-regex@6.1.0",
           "portfolio > boxen@8.0.1 > string-width@7.2.0 > strip-ansi@7.1.0 > ansi-regex@6.1.0",
@@ -11780,12 +11586,7 @@
         ]
       },
       "string-width": {
-        "versions": [
-          "1.0.2",
-          "4.2.3",
-          "5.1.2",
-          "7.2.0"
-        ],
+        "versions": ["1.0.2", "4.2.3", "5.1.2", "7.2.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > wrap-ansi-cjs@7.0.0 > string-width@4.2.3",
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > jackspeak@3.4.3 > @isaacs/cliui@8.0.2 > wrap-ansi@8.1.0 > string-width@5.1.2",
@@ -11808,11 +11609,7 @@
         ]
       },
       "lru-cache": {
-        "versions": [
-          "10.4.3",
-          "5.1.1",
-          "6.0.0"
-        ],
+        "versions": ["10.4.3", "5.1.1", "6.0.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > path-scurry@1.11.1 > lru-cache@10.4.3",
           "portfolio > eslint-plugin-unicorn@58.0.0 > read-package-up@11.0.0 > read-pkg@9.0.1 > normalize-package-data@6.0.2 > hosted-git-info@7.0.2 > lru-cache@10.4.3",
@@ -11821,12 +11618,7 @@
         ]
       },
       "minipass": {
-        "versions": [
-          "2.9.0",
-          "3.3.6",
-          "5.0.0",
-          "7.1.2"
-        ],
+        "versions": ["2.9.0", "3.3.6", "5.0.0", "7.1.2"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > glob@10.4.5 > path-scurry@1.11.1 > minipass@5.0.0",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1 > fs-minipass@2.1.0 > minipass@3.3.6",
@@ -11839,10 +11631,7 @@
         ]
       },
       "resolve-from": {
-        "versions": [
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["4.0.0", "5.0.0"],
         "paths": [
           "portfolio > @vercel/nft@0.29.2 > resolve-from@5.0.0",
           "portfolio > babel-jest@29.7.0 > babel-plugin-istanbul@6.1.1 > @istanbuljs/load-nyc-config@1.1.0 > resolve-from@5.0.0",
@@ -11852,10 +11641,7 @@
         ]
       },
       "ajv": {
-        "versions": [
-          "6.12.6",
-          "8.6.3"
-        ],
+        "versions": ["6.12.6", "8.6.3"],
         "paths": [
           "portfolio > @vercel/remix@2.15.3 > @vercel/static-config@3.0.0 > ajv@8.6.3",
           "portfolio > eslint@9.25.1 > ajv@6.12.6",
@@ -11866,21 +11652,14 @@
         ]
       },
       "json-schema-traverse": {
-        "versions": [
-          "0.4.1",
-          "1.0.0"
-        ],
+        "versions": ["0.4.1", "1.0.0"],
         "paths": [
           "portfolio > @vercel/remix@2.15.3 > @vercel/static-config@3.0.0 > ajv@8.6.3 > json-schema-traverse@1.0.0",
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > @vercel/static-config@2.0.1 > ajv@8.6.3 > json-schema-traverse@1.0.0"
         ]
       },
       "mkdirp": {
-        "versions": [
-          "0.5.6",
-          "1.0.4",
-          "3.0.1"
-        ],
+        "versions": ["0.5.6", "1.0.4", "3.0.1"],
         "paths": [
           "portfolio > @vercel/remix@2.15.3 > ts-morph@12.0.0 > @ts-morph/common@0.11.1 > mkdirp@1.0.4",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1 > mkdirp@1.0.4",
@@ -11889,10 +11668,7 @@
         ]
       },
       "supports-color": {
-        "versions": [
-          "7.2.0",
-          "8.1.1"
-        ],
+        "versions": ["7.2.0", "8.1.1"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > @jest/transform@29.7.0 > jest-haste-map@29.7.0 > jest-worker@29.7.0 > supports-color@8.1.1",
           "portfolio > babel-jest@29.7.0 > chalk@4.1.2 > supports-color@7.2.0",
@@ -11920,10 +11696,7 @@
         ]
       },
       "signal-exit": {
-        "versions": [
-          "3.0.7",
-          "4.1.0"
-        ],
+        "versions": ["3.0.7", "4.1.0"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > @jest/transform@29.7.0 > write-file-atomic@4.0.2 > signal-exit@3.0.7",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > npmlog@5.0.1 > gauge@3.0.2 > signal-exit@3.0.7",
@@ -11937,11 +11710,7 @@
         ]
       },
       "camelcase": {
-        "versions": [
-          "5.3.1",
-          "6.3.0",
-          "8.0.0"
-        ],
+        "versions": ["5.3.1", "6.3.0", "8.0.0"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > babel-plugin-istanbul@6.1.1 > @istanbuljs/load-nyc-config@1.1.0 > camelcase@5.3.1",
           "portfolio > boxen@8.0.1 > camelcase@8.0.0",
@@ -11950,30 +11719,21 @@
         ]
       },
       "js-yaml": {
-        "versions": [
-          "3.14.1",
-          "4.1.0"
-        ],
+        "versions": ["3.14.1", "4.1.0"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > babel-plugin-istanbul@6.1.1 > @istanbuljs/load-nyc-config@1.1.0 > js-yaml@3.14.1",
           "portfolio > gray-matter@4.0.3 > js-yaml@3.14.1"
         ]
       },
       "argparse": {
-        "versions": [
-          "1.0.10",
-          "2.0.1"
-        ],
+        "versions": ["1.0.10", "2.0.1"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > babel-plugin-istanbul@6.1.1 > @istanbuljs/load-nyc-config@1.1.0 > js-yaml@3.14.1 > argparse@1.0.10",
           "portfolio > gray-matter@4.0.3 > js-yaml@3.14.1 > argparse@1.0.10"
         ]
       },
       "glob": {
-        "versions": [
-          "10.4.5",
-          "7.2.3"
-        ],
+        "versions": ["10.4.5", "7.2.3"],
         "paths": [
           "portfolio > babel-jest@29.7.0 > babel-plugin-istanbul@6.1.1 > test-exclude@6.0.0 > glob@7.2.3",
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > rimraf@3.0.2 > glob@7.2.3",
@@ -11987,10 +11747,7 @@
         ]
       },
       "@mapbox/node-pre-gyp": {
-        "versions": [
-          "1.0.11",
-          "2.0.0"
-        ],
+        "versions": ["1.0.11", "2.0.0"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > @mapbox/node-pre-gyp@1.0.11",
@@ -11998,10 +11755,7 @@
         ]
       },
       "https-proxy-agent": {
-        "versions": [
-          "5.0.1",
-          "7.0.6"
-        ],
+        "versions": ["5.0.1", "7.0.6"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > https-proxy-agent@5.0.1",
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > https-proxy-agent@5.0.1",
@@ -12009,10 +11763,7 @@
         ]
       },
       "agent-base": {
-        "versions": [
-          "6.0.2",
-          "7.1.3"
-        ],
+        "versions": ["6.0.2", "7.1.3"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > https-proxy-agent@5.0.1 > agent-base@6.0.2",
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > http-proxy-agent@5.0.0 > agent-base@6.0.2",
@@ -12021,66 +11772,42 @@
         ]
       },
       "nopt": {
-        "versions": [
-          "4.0.3",
-          "5.0.0",
-          "8.1.0"
-        ],
+        "versions": ["4.0.3", "5.0.0", "8.1.0"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > nopt@5.0.0",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > nopt@4.0.3"
         ]
       },
       "abbrev": {
-        "versions": [
-          "1.1.1",
-          "3.0.1"
-        ],
+        "versions": ["1.1.1", "3.0.1"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > nopt@5.0.0 > abbrev@1.1.1",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > nopt@4.0.3 > abbrev@1.1.1"
         ]
       },
       "tar": {
-        "versions": [
-          "4.4.19",
-          "6.2.1",
-          "7.4.3"
-        ],
+        "versions": ["4.4.19", "6.2.1", "7.4.3"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > tar@4.4.19"
         ]
       },
       "chownr": {
-        "versions": [
-          "1.1.4",
-          "2.0.0",
-          "3.0.0"
-        ],
+        "versions": ["1.1.4", "2.0.0", "3.0.0"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1 > chownr@2.0.0",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > tar@4.4.19 > chownr@1.1.4"
         ]
       },
       "minizlib": {
-        "versions": [
-          "1.3.3",
-          "2.1.2",
-          "3.0.2"
-        ],
+        "versions": ["1.3.3", "2.1.2", "3.0.2"],
         "paths": [
           "portfolio > bcrypt@5.1.1 > @mapbox/node-pre-gyp@1.0.11 > tar@6.2.1 > minizlib@2.1.2",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > tar@4.4.19 > minizlib@1.3.3"
         ]
       },
       "wrap-ansi": {
-        "versions": [
-          "6.2.0",
-          "7.0.0",
-          "8.1.0",
-          "9.0.0"
-        ],
+        "versions": ["6.2.0", "7.0.0", "8.1.0", "9.0.0"],
         "paths": [
           "portfolio > boxen@8.0.1 > wrap-ansi@9.0.0",
           "portfolio > lint-staged@15.5.0 > listr2@8.3.2 > log-update@6.1.0 > wrap-ansi@9.0.0",
@@ -12091,10 +11818,7 @@
         ]
       },
       "debug": {
-        "versions": [
-          "3.2.7",
-          "4.4.0"
-        ],
+        "versions": ["3.2.7", "4.4.0"],
         "paths": [
           "portfolio > eslint-config-next@15.3.1 > eslint-import-resolver-node@0.3.9 > debug@3.2.7",
           "portfolio > eslint-config-next@15.3.1 > eslint-import-resolver-typescript@3.10.1 > debug@4.4.0",
@@ -12115,19 +11839,13 @@
         ]
       },
       "@types/json5": {
-        "versions": [
-          "0.0.29",
-          "0.0.30"
-        ],
+        "versions": ["0.0.29", "0.0.30"],
         "paths": [
           "portfolio > eslint-config-next@15.3.1 > eslint-plugin-import@2.31.0 > tsconfig-paths@3.15.0 > @types/json5@0.0.29"
         ]
       },
       "json5": {
-        "versions": [
-          "1.0.2",
-          "2.2.3"
-        ],
+        "versions": ["1.0.2", "2.2.3"],
         "paths": [
           "portfolio > eslint-config-next@15.3.1 > eslint-plugin-import@2.31.0 > tsconfig-paths@3.15.0 > json5@1.0.2",
           "portfolio > node-loader@2.1.0 > loader-utils@2.0.4 > json5@2.2.3",
@@ -12135,10 +11853,7 @@
         ]
       },
       "resolve": {
-        "versions": [
-          "1.22.10",
-          "2.0.0-next.5"
-        ],
+        "versions": ["1.22.10", "2.0.0-next.5"],
         "paths": [
           "portfolio > eslint-config-next@15.3.1 > eslint-plugin-react@7.37.5 > resolve@2.0.0-next.5",
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-resolve@29.7.0 > resolve@1.22.10",
@@ -12147,29 +11862,20 @@
         ]
       },
       "@typescript-eslint/utils": {
-        "versions": [
-          "5.62.0",
-          "8.31.0"
-        ],
+        "versions": ["5.62.0", "8.31.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0",
           "portfolio > typescript-eslint@8.31.0 > @typescript-eslint/utils@8.31.0"
         ]
       },
       "@typescript-eslint/scope-manager": {
-        "versions": [
-          "5.62.0",
-          "8.31.0"
-        ],
+        "versions": ["5.62.0", "8.31.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/scope-manager@5.62.0"
         ]
       },
       "@typescript-eslint/types": {
-        "versions": [
-          "5.62.0",
-          "8.31.0"
-        ],
+        "versions": ["5.62.0", "8.31.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/scope-manager@5.62.0 > @typescript-eslint/types@5.62.0",
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/scope-manager@5.62.0 > @typescript-eslint/visitor-keys@5.62.0 > @typescript-eslint/types@5.62.0",
@@ -12178,20 +11884,14 @@
         ]
       },
       "@typescript-eslint/visitor-keys": {
-        "versions": [
-          "5.62.0",
-          "8.31.0"
-        ],
+        "versions": ["5.62.0", "8.31.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/scope-manager@5.62.0 > @typescript-eslint/visitor-keys@5.62.0",
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/typescript-estree@5.62.0 > @typescript-eslint/visitor-keys@5.62.0"
         ]
       },
       "eslint-visitor-keys": {
-        "versions": [
-          "3.4.3",
-          "4.2.0"
-        ],
+        "versions": ["3.4.3", "4.2.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/scope-manager@5.62.0 > @typescript-eslint/visitor-keys@5.62.0 > eslint-visitor-keys@3.4.3",
           "portfolio > eslint-plugin-unicorn@58.0.0 > @eslint-community/eslint-utils@4.6.1 > eslint-visitor-keys@3.4.3",
@@ -12199,19 +11899,13 @@
         ]
       },
       "@typescript-eslint/typescript-estree": {
-        "versions": [
-          "5.62.0",
-          "8.31.0"
-        ],
+        "versions": ["5.62.0", "8.31.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/typescript-estree@5.62.0"
         ]
       },
       "tslib": {
-        "versions": [
-          "1.14.1",
-          "2.8.1"
-        ],
+        "versions": ["1.14.1", "2.8.1"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > @typescript-eslint/typescript-estree@5.62.0 > tsutils@3.21.0 > tslib@1.14.1",
           "portfolio > eslint-plugin-prettier@5.2.6 > synckit@0.11.4 > tslib@2.8.1",
@@ -12219,10 +11913,7 @@
         ]
       },
       "estraverse": {
-        "versions": [
-          "4.3.0",
-          "5.3.0"
-        ],
+        "versions": ["4.3.0", "5.3.0"],
         "paths": [
           "portfolio > eslint-plugin-jest@27.9.0 > @typescript-eslint/utils@5.62.0 > eslint-scope@5.1.1 > estraverse@4.3.0",
           "portfolio > eslint-plugin-unicorn@58.0.0 > esquery@1.6.0 > estraverse@5.3.0",
@@ -12232,111 +11923,69 @@
         ]
       },
       "indent-string": {
-        "versions": [
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["4.0.0", "5.0.0"],
         "paths": [
           "portfolio > eslint-plugin-unicorn@58.0.0 > indent-string@5.0.0"
         ]
       },
       "builtin-modules": {
-        "versions": [
-          "3.3.0",
-          "5.0.0"
-        ],
+        "versions": ["3.3.0", "5.0.0"],
         "paths": [
           "portfolio > eslint-plugin-unicorn@58.0.0 > is-builtin-module@5.0.0 > builtin-modules@5.0.0"
         ]
       },
       "parse-json": {
-        "versions": [
-          "5.2.0",
-          "8.3.0"
-        ],
+        "versions": ["5.2.0", "8.3.0"],
         "paths": [
           "portfolio > eslint-plugin-unicorn@58.0.0 > read-package-up@11.0.0 > read-pkg@9.0.1 > parse-json@8.3.0",
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-config@29.7.0 > parse-json@5.2.0"
         ]
       },
       "jsesc": {
-        "versions": [
-          "3.0.2",
-          "3.1.0"
-        ],
+        "versions": ["3.0.2", "3.1.0"],
         "paths": [
           "portfolio > eslint-plugin-unicorn@58.0.0 > regjsparser@0.12.0 > jsesc@3.0.2"
         ]
       },
       "strip-indent": {
-        "versions": [
-          "3.0.0",
-          "4.0.0"
-        ],
+        "versions": ["3.0.0", "4.0.0"],
         "paths": [
           "portfolio > eslint-plugin-unicorn@58.0.0 > strip-indent@4.0.0"
         ]
       },
       "@eslint/js": {
-        "versions": [
-          "8.57.0",
-          "9.25.1"
-        ],
-        "paths": [
-          "portfolio > eslint@9.25.1 > @eslint/js@9.25.1"
-        ]
+        "versions": ["8.57.0", "9.25.1"],
+        "paths": ["portfolio > eslint@9.25.1 > @eslint/js@9.25.1"]
       },
       "@humanwhocodes/retry": {
-        "versions": [
-          "0.3.1",
-          "0.4.2"
-        ],
-        "paths": [
-          "portfolio > eslint@9.25.1 > @humanwhocodes/retry@0.4.2"
-        ]
+        "versions": ["0.3.1", "0.4.2"],
+        "paths": ["portfolio > eslint@9.25.1 > @humanwhocodes/retry@0.4.2"]
       },
       "eslint-scope": {
-        "versions": [
-          "5.1.1",
-          "8.3.0"
-        ],
-        "paths": [
-          "portfolio > eslint@9.25.1 > eslint-scope@8.3.0"
-        ]
+        "versions": ["5.1.1", "8.3.0"],
+        "paths": ["portfolio > eslint@9.25.1 > eslint-scope@8.3.0"]
       },
       "find-up": {
-        "versions": [
-          "4.1.0",
-          "5.0.0"
-        ],
+        "versions": ["4.1.0", "5.0.0"],
         "paths": [
           "portfolio > eslint@9.25.1 > find-up@5.0.0",
           "portfolio > jest@29.7.0 > import-local@3.2.0 > pkg-dir@4.2.0 > find-up@4.1.0"
         ]
       },
       "locate-path": {
-        "versions": [
-          "5.0.0",
-          "6.0.0"
-        ],
+        "versions": ["5.0.0", "6.0.0"],
         "paths": [
           "portfolio > eslint@9.25.1 > find-up@5.0.0 > locate-path@6.0.0"
         ]
       },
       "p-locate": {
-        "versions": [
-          "4.1.0",
-          "5.0.0"
-        ],
+        "versions": ["4.1.0", "5.0.0"],
         "paths": [
           "portfolio > eslint@9.25.1 > find-up@5.0.0 > locate-path@6.0.0 > p-locate@5.0.0"
         ]
       },
       "p-limit": {
-        "versions": [
-          "2.3.0",
-          "3.1.0"
-        ],
+        "versions": ["2.3.0", "3.1.0"],
         "paths": [
           "portfolio > eslint@9.25.1 > find-up@5.0.0 > locate-path@6.0.0 > p-locate@5.0.0 > p-limit@3.1.0",
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > p-limit@3.1.0",
@@ -12345,10 +11994,7 @@
         ]
       },
       "glob-parent": {
-        "versions": [
-          "5.1.2",
-          "6.0.2"
-        ],
+        "versions": ["5.1.2", "6.0.2"],
         "paths": [
           "portfolio > eslint@9.25.1 > glob-parent@6.0.2",
           "portfolio > tailwindcss@3.4.17 > chokidar@3.6.0 > glob-parent@5.1.2",
@@ -12357,10 +12003,7 @@
         ]
       },
       "path-key": {
-        "versions": [
-          "3.1.1",
-          "4.0.0"
-        ],
+        "versions": ["3.1.1", "4.0.0"],
         "paths": [
           "portfolio > execa@9.5.2 > npm-run-path@6.0.0 > path-key@4.0.0",
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > npm-run-path@4.0.1 > path-key@3.1.1",
@@ -12368,29 +12011,19 @@
         ]
       },
       "unicorn-magic": {
-        "versions": [
-          "0.1.0",
-          "0.3.0"
-        ],
+        "versions": ["0.1.0", "0.3.0"],
         "paths": [
           "portfolio > execa@9.5.2 > npm-run-path@6.0.0 > unicorn-magic@0.3.0"
         ]
       },
       "@types/jsdom": {
-        "versions": [
-          "20.0.1",
-          "21.1.7"
-        ],
+        "versions": ["20.0.1", "21.1.7"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > @types/jsdom@20.0.1"
         ]
       },
       "ci-info": {
-        "versions": [
-          "2.0.0",
-          "3.9.0",
-          "4.2.0"
-        ],
+        "versions": ["2.0.0", "3.9.0", "4.2.0"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jest-util@29.7.0 > ci-info@3.9.0",
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > ci-info@3.9.0",
@@ -12399,10 +12032,7 @@
         ]
       },
       "picomatch": {
-        "versions": [
-          "2.3.1",
-          "4.0.2"
-        ],
+        "versions": ["2.3.1", "4.0.2"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jest-util@29.7.0 > picomatch@2.3.1",
           "portfolio > lint-staged@15.5.0 > micromatch@4.0.8 > picomatch@2.3.1",
@@ -12411,10 +12041,7 @@
         ]
       },
       "jsdom": {
-        "versions": [
-          "20.0.3",
-          "26.1.0"
-        ],
+        "versions": ["20.0.3", "26.1.0"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3",
           "portfolio > jsdom-global@3.0.2 > jsdom@26.1.0",
@@ -12422,19 +12049,13 @@
         ]
       },
       "cssom": {
-        "versions": [
-          "0.3.8",
-          "0.5.0"
-        ],
+        "versions": ["0.3.8", "0.5.0"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > cssstyle@2.3.0 > cssom@0.3.8"
         ]
       },
       "webidl-conversions": {
-        "versions": [
-          "3.0.1",
-          "7.0.0"
-        ],
+        "versions": ["3.0.1", "7.0.0"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > domexception@4.0.0 > webidl-conversions@7.0.0",
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > webidl-conversions@7.0.0",
@@ -12445,11 +12066,7 @@
         ]
       },
       "tr46": {
-        "versions": [
-          "0.0.3",
-          "3.0.0",
-          "5.1.1"
-        ],
+        "versions": ["0.0.3", "3.0.0", "5.1.1"],
         "paths": [
           "portfolio > jest-environment-jsdom@29.7.0 > jsdom@20.0.3 > whatwg-url@11.0.0 > tr46@3.0.0",
           "portfolio > jsdom@26.1.0 > whatwg-url@14.2.0 > tr46@5.1.1",
@@ -12457,30 +12074,20 @@
         ]
       },
       "istanbul-lib-instrument": {
-        "versions": [
-          "5.2.1",
-          "6.0.3"
-        ],
+        "versions": ["5.2.1", "6.0.3"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > @jest/reporters@29.7.0 > istanbul-lib-instrument@6.0.3"
         ]
       },
       "make-dir": {
-        "versions": [
-          "3.1.0",
-          "4.0.0"
-        ],
+        "versions": ["3.1.0", "4.0.0"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > @jest/reporters@29.7.0 > istanbul-lib-report@3.0.1 > make-dir@4.0.0",
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > configstore@5.0.1 > make-dir@3.1.0"
         ]
       },
       "type-fest": {
-        "versions": [
-          "0.20.2",
-          "0.21.3",
-          "4.40.0"
-        ],
+        "versions": ["0.20.2", "0.21.3", "4.40.0"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > ansi-escapes@4.3.2 > type-fest@0.21.3",
           "portfolio > msw@2.7.5 > type-fest@4.40.0",
@@ -12489,24 +12096,14 @@
         ]
       },
       "execa": {
-        "versions": [
-          "5.1.1",
-          "8.0.1",
-          "9.5.2"
-        ],
+        "versions": ["5.1.1", "8.0.1", "9.5.2"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1"
         ]
       },
       "get-stream": {
-        "versions": [
-          "4.1.0",
-          "5.2.0",
-          "6.0.1",
-          "8.0.1",
-          "9.0.1"
-        ],
+        "versions": ["4.1.0", "5.2.0", "6.0.1", "8.0.1", "9.0.1"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > get-stream@6.0.1",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > get-stream@8.0.1",
@@ -12515,150 +12112,89 @@
         ]
       },
       "human-signals": {
-        "versions": [
-          "2.1.0",
-          "5.0.0",
-          "8.0.1"
-        ],
+        "versions": ["2.1.0", "5.0.0", "8.0.1"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > human-signals@2.1.0",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > human-signals@5.0.0"
         ]
       },
       "is-stream": {
-        "versions": [
-          "2.0.1",
-          "3.0.0",
-          "4.0.1"
-        ],
+        "versions": ["2.0.1", "3.0.0", "4.0.1"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > is-stream@2.0.1",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > is-stream@3.0.0"
         ]
       },
       "npm-run-path": {
-        "versions": [
-          "4.0.1",
-          "5.3.0",
-          "6.0.0"
-        ],
+        "versions": ["4.0.1", "5.3.0", "6.0.0"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > npm-run-path@4.0.1",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > npm-run-path@5.3.0"
         ]
       },
       "strip-final-newline": {
-        "versions": [
-          "2.0.0",
-          "3.0.0",
-          "4.0.0"
-        ],
+        "versions": ["2.0.0", "3.0.0", "4.0.0"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-changed-files@29.7.0 > execa@5.1.1 > strip-final-newline@2.0.0",
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > strip-final-newline@3.0.0"
         ]
       },
       "strip-bom": {
-        "versions": [
-          "3.0.0",
-          "4.0.0"
-        ],
+        "versions": ["3.0.0", "4.0.0"],
         "paths": [
           "portfolio > jest@29.7.0 > @jest/core@29.7.0 > jest-runtime@29.7.0 > strip-bom@4.0.0"
         ]
       },
       "cssstyle": {
-        "versions": [
-          "2.3.0",
-          "4.3.1"
-        ],
-        "paths": [
-          "portfolio > jsdom@26.1.0 > cssstyle@4.3.1"
-        ]
+        "versions": ["2.3.0", "4.3.1"],
+        "paths": ["portfolio > jsdom@26.1.0 > cssstyle@4.3.1"]
       },
       "data-urls": {
-        "versions": [
-          "3.0.2",
-          "5.0.0"
-        ],
-        "paths": [
-          "portfolio > jsdom@26.1.0 > data-urls@5.0.0"
-        ]
+        "versions": ["3.0.2", "5.0.0"],
+        "paths": ["portfolio > jsdom@26.1.0 > data-urls@5.0.0"]
       },
       "whatwg-mimetype": {
-        "versions": [
-          "3.0.0",
-          "4.0.0"
-        ],
+        "versions": ["3.0.0", "4.0.0"],
         "paths": [
           "portfolio > jsdom@26.1.0 > data-urls@5.0.0 > whatwg-mimetype@4.0.0",
           "portfolio > jsdom@26.1.0 > whatwg-mimetype@4.0.0"
         ]
       },
       "html-encoding-sniffer": {
-        "versions": [
-          "3.0.0",
-          "4.0.0"
-        ],
-        "paths": [
-          "portfolio > jsdom@26.1.0 > html-encoding-sniffer@4.0.0"
-        ]
+        "versions": ["3.0.0", "4.0.0"],
+        "paths": ["portfolio > jsdom@26.1.0 > html-encoding-sniffer@4.0.0"]
       },
       "whatwg-encoding": {
-        "versions": [
-          "2.0.0",
-          "3.1.1"
-        ],
+        "versions": ["2.0.0", "3.1.1"],
         "paths": [
           "portfolio > jsdom@26.1.0 > html-encoding-sniffer@4.0.0 > whatwg-encoding@3.1.1",
           "portfolio > jsdom@26.1.0 > whatwg-encoding@3.1.1"
         ]
       },
       "http-proxy-agent": {
-        "versions": [
-          "5.0.0",
-          "7.0.2"
-        ],
-        "paths": [
-          "portfolio > jsdom@26.1.0 > http-proxy-agent@7.0.2"
-        ]
+        "versions": ["5.0.0", "7.0.2"],
+        "paths": ["portfolio > jsdom@26.1.0 > http-proxy-agent@7.0.2"]
       },
       "tough-cookie": {
-        "versions": [
-          "4.1.4",
-          "5.1.2"
-        ],
+        "versions": ["4.1.4", "5.1.2"],
         "paths": [
           "portfolio > jsdom@26.1.0 > tough-cookie@5.1.2",
           "portfolio > msw@2.7.5 > @bundled-es-modules/tough-cookie@0.1.6 > tough-cookie@4.1.4"
         ]
       },
       "w3c-xmlserializer": {
-        "versions": [
-          "4.0.0",
-          "5.0.0"
-        ],
-        "paths": [
-          "portfolio > jsdom@26.1.0 > w3c-xmlserializer@5.0.0"
-        ]
+        "versions": ["4.0.0", "5.0.0"],
+        "paths": ["portfolio > jsdom@26.1.0 > w3c-xmlserializer@5.0.0"]
       },
       "xml-name-validator": {
-        "versions": [
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["4.0.0", "5.0.0"],
         "paths": [
           "portfolio > jsdom@26.1.0 > w3c-xmlserializer@5.0.0 > xml-name-validator@5.0.0",
           "portfolio > jsdom@26.1.0 > xml-name-validator@5.0.0"
         ]
       },
       "commander": {
-        "versions": [
-          "13.1.0",
-          "4.1.1",
-          "7.2.0",
-          "8.3.0"
-        ],
+        "versions": ["13.1.0", "4.1.1", "7.2.0", "8.3.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > commander@13.1.0",
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-dsv@3.0.1 > commander@7.2.0",
@@ -12667,32 +12203,20 @@
         ]
       },
       "onetime": {
-        "versions": [
-          "5.1.2",
-          "6.0.0",
-          "7.0.0"
-        ],
+        "versions": ["5.1.2", "6.0.0", "7.0.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > onetime@6.0.0",
           "portfolio > ora@8.2.0 > cli-cursor@5.0.0 > restore-cursor@5.1.0 > onetime@7.0.0"
         ]
       },
       "mimic-fn": {
-        "versions": [
-          "2.1.0",
-          "4.0.0"
-        ],
+        "versions": ["2.1.0", "4.0.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > execa@8.0.1 > onetime@6.0.0 > mimic-fn@4.0.0"
         ]
       },
       "is-fullwidth-code-point": {
-        "versions": [
-          "1.0.0",
-          "3.0.0",
-          "4.0.0",
-          "5.0.0"
-        ],
+        "versions": ["1.0.0", "3.0.0", "4.0.0", "5.0.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > listr2@8.3.2 > cli-truncate@4.0.0 > slice-ansi@5.0.0 > is-fullwidth-code-point@4.0.0",
           "portfolio > lint-staged@15.5.0 > listr2@8.3.2 > log-update@6.1.0 > slice-ansi@7.1.0 > is-fullwidth-code-point@5.0.0",
@@ -12704,65 +12228,44 @@
         ]
       },
       "ansi-escapes": {
-        "versions": [
-          "4.3.2",
-          "7.0.0"
-        ],
+        "versions": ["4.3.2", "7.0.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > listr2@8.3.2 > log-update@6.1.0 > ansi-escapes@7.0.0",
           "portfolio > msw@2.7.5 > @inquirer/confirm@5.1.9 > @inquirer/core@10.1.10 > ansi-escapes@4.3.2"
         ]
       },
       "slice-ansi": {
-        "versions": [
-          "5.0.0",
-          "7.1.0"
-        ],
+        "versions": ["5.0.0", "7.1.0"],
         "paths": [
           "portfolio > lint-staged@15.5.0 > listr2@8.3.2 > log-update@6.1.0 > slice-ansi@7.1.0"
         ]
       },
       "pkg-types": {
-        "versions": [
-          "1.3.1",
-          "2.1.0"
-        ],
+        "versions": ["1.3.1", "2.1.0"],
         "paths": [
           "portfolio > mermaid@11.6.0 > @iconify/utils@2.3.0 > mlly@1.7.4 > pkg-types@1.3.1"
         ]
       },
       "confbox": {
-        "versions": [
-          "0.1.8",
-          "0.2.2"
-        ],
+        "versions": ["0.1.8", "0.2.2"],
         "paths": [
           "portfolio > mermaid@11.6.0 > @iconify/utils@2.3.0 > mlly@1.7.4 > pkg-types@1.3.1 > confbox@0.1.8"
         ]
       },
       "cose-base": {
-        "versions": [
-          "1.0.3",
-          "2.2.0"
-        ],
+        "versions": ["1.0.3", "2.2.0"],
         "paths": [
           "portfolio > mermaid@11.6.0 > cytoscape-fcose@2.2.0 > cose-base@2.2.0"
         ]
       },
       "layout-base": {
-        "versions": [
-          "1.0.2",
-          "2.0.1"
-        ],
+        "versions": ["1.0.2", "2.0.1"],
         "paths": [
           "portfolio > mermaid@11.6.0 > cytoscape-fcose@2.2.0 > cose-base@2.2.0 > layout-base@2.0.1"
         ]
       },
       "d3-array": {
-        "versions": [
-          "2.12.1",
-          "3.2.4"
-        ],
+        "versions": ["2.12.1", "3.2.4"],
         "paths": [
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-array@3.2.4",
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-contour@4.0.2 > d3-array@3.2.4",
@@ -12773,19 +12276,13 @@
         ]
       },
       "internmap": {
-        "versions": [
-          "1.0.1",
-          "2.0.3"
-        ],
+        "versions": ["1.0.1", "2.0.3"],
         "paths": [
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-array@3.2.4 > internmap@2.0.3"
         ]
       },
       "d3-path": {
-        "versions": [
-          "1.0.9",
-          "3.1.0"
-        ],
+        "versions": ["1.0.9", "3.1.0"],
         "paths": [
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-chord@3.0.1 > d3-path@3.1.0",
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-path@3.1.0",
@@ -12793,57 +12290,34 @@
         ]
       },
       "d3-shape": {
-        "versions": [
-          "1.3.7",
-          "3.2.0"
-        ],
+        "versions": ["1.3.7", "3.2.0"],
         "paths": [
           "portfolio > mermaid@11.6.0 > d3@7.9.0 > d3-shape@3.2.0",
           "portfolio > recharts@2.15.0 > victory-vendor@36.9.2 > d3-shape@3.2.0"
         ]
       },
       "bson": {
-        "versions": [
-          "5.5.1",
-          "6.10.3"
-        ],
-        "paths": [
-          "portfolio > mongodb@5.9.2 > bson@5.5.1"
-        ]
+        "versions": ["5.5.1", "6.10.3"],
+        "paths": ["portfolio > mongodb@5.9.2 > bson@5.5.1"]
       },
       "mongodb-connection-string-url": {
-        "versions": [
-          "2.6.0",
-          "3.0.2"
-        ],
+        "versions": ["2.6.0", "3.0.2"],
         "paths": [
           "portfolio > mongodb@5.9.2 > mongodb-connection-string-url@2.6.0"
         ]
       },
       "sprintf-js": {
-        "versions": [
-          "1.0.3",
-          "1.1.3"
-        ],
+        "versions": ["1.0.3", "1.1.3"],
         "paths": [
           "portfolio > mongodb@5.9.2 > socks@2.8.4 > ip-address@9.0.5 > sprintf-js@1.1.3"
         ]
       },
       "uuid": {
-        "versions": [
-          "11.1.0",
-          "8.3.2"
-        ],
-        "paths": [
-          "portfolio > next-auth@4.24.11 > uuid@8.3.2"
-        ]
+        "versions": ["11.1.0", "8.3.2"],
+        "paths": ["portfolio > next-auth@4.24.11 > uuid@8.3.2"]
       },
       "estree-walker": {
-        "versions": [
-          "0.6.1",
-          "2.0.2",
-          "3.0.3"
-        ],
+        "versions": ["0.6.1", "2.0.2", "3.0.3"],
         "paths": [
           "portfolio > next-mdx-remote@5.0.0 > @mdx-js/mdx@3.1.0 > estree-walker@3.0.3",
           "portfolio > next-mdx-remote@5.0.0 > @mdx-js/mdx@3.1.0 > recma-build-jsx@1.0.0 > estree-util-build-jsx@3.0.1 > estree-walker@3.0.3",
@@ -12853,10 +12327,7 @@
         ]
       },
       "source-map": {
-        "versions": [
-          "0.6.1",
-          "0.7.4"
-        ],
+        "versions": ["0.6.1", "0.7.4"],
         "paths": [
           "portfolio > next-mdx-remote@5.0.0 > @mdx-js/mdx@3.1.0 > recma-jsx@1.0.0 > estree-util-to-js@2.0.0 > source-map@0.7.4",
           "portfolio > next-mdx-remote@5.0.0 > @mdx-js/mdx@3.1.0 > source-map@0.7.4",
@@ -12864,10 +12335,7 @@
         ]
       },
       "unist-util-is": {
-        "versions": [
-          "5.2.1",
-          "6.0.0"
-        ],
+        "versions": ["5.2.1", "6.0.0"],
         "paths": [
           "portfolio > next-mdx-remote@5.0.0 > unist-util-remove@3.1.1 > unist-util-is@5.2.1",
           "portfolio > next-mdx-remote@5.0.0 > unist-util-remove@3.1.1 > unist-util-visit-parents@5.1.3 > unist-util-is@5.2.1",
@@ -12877,20 +12345,14 @@
         ]
       },
       "unist-util-visit-parents": {
-        "versions": [
-          "5.1.3",
-          "6.0.1"
-        ],
+        "versions": ["5.1.3", "6.0.1"],
         "paths": [
           "portfolio > next-mdx-remote@5.0.0 > unist-util-remove@3.1.1 > unist-util-visit-parents@5.1.3",
           "portfolio > rehype-katex@7.0.1 > unist-util-visit-parents@6.0.1"
         ]
       },
       "postcss": {
-        "versions": [
-          "8.4.31",
-          "8.5.3"
-        ],
+        "versions": ["8.4.31", "8.5.3"],
         "paths": [
           "portfolio > next@15.3.1 > postcss@8.4.31",
           "portfolio > postcss@8.5.3",
@@ -12902,250 +12364,160 @@
         ]
       },
       "is-arrayish": {
-        "versions": [
-          "0.2.1",
-          "0.3.2"
-        ],
+        "versions": ["0.2.1", "0.3.2"],
         "paths": [
           "portfolio > next@15.3.1 > sharp@0.34.1 > color@4.2.3 > color-string@1.9.1 > simple-swizzle@0.2.2 > is-arrayish@0.3.2"
         ]
       },
       "node-fetch": {
-        "versions": [
-          "2.6.1",
-          "2.7.0",
-          "3.3.2"
-        ],
+        "versions": ["2.6.1", "2.7.0", "3.3.2"],
         "paths": [
           "portfolio > node-fetch@3.3.2",
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > node-fetch@2.6.1"
         ]
       },
       "is-unicode-supported": {
-        "versions": [
-          "1.3.0",
-          "2.1.0"
-        ],
+        "versions": ["1.3.0", "2.1.0"],
         "paths": [
           "portfolio > ora@8.2.0 > log-symbols@6.0.0 > is-unicode-supported@1.3.0"
         ]
       },
       "date-fns": {
-        "versions": [
-          "3.6.0",
-          "4.1.0"
-        ],
-        "paths": [
-          "portfolio > react-day-picker@9.6.7 > date-fns@4.1.0"
-        ]
+        "versions": ["3.6.0", "4.1.0"],
+        "paths": ["portfolio > react-day-picker@9.6.7 > date-fns@4.1.0"]
       },
       "react-markdown": {
-        "versions": [
-          "10.1.0",
-          "9.0.3"
-        ],
-        "paths": [
-          "portfolio > react-markdown@10.1.0"
-        ]
+        "versions": ["10.1.0", "9.0.3"],
+        "paths": ["portfolio > react-markdown@10.1.0"]
       },
       "regenerator-runtime": {
-        "versions": [
-          "0.13.11",
-          "0.14.1"
-        ],
+        "versions": ["0.13.11", "0.14.1"],
         "paths": [
           "portfolio > react-to-pdf@2.0.0 > jspdf@3.0.1 > canvg@3.0.11 > regenerator-runtime@0.13.11"
         ]
       },
       "eventemitter3": {
-        "versions": [
-          "4.0.7",
-          "5.0.1"
-        ],
-        "paths": [
-          "portfolio > recharts@2.15.0 > eventemitter3@4.0.7"
-        ]
+        "versions": ["4.0.7", "5.0.1"],
+        "paths": ["portfolio > recharts@2.15.0 > eventemitter3@4.0.7"]
       },
       "hast-util-parse-selector": {
-        "versions": [
-          "3.1.1",
-          "4.0.0"
-        ],
+        "versions": ["3.1.1", "4.0.0"],
         "paths": [
           "portfolio > rehype-katex@7.0.1 > hast-util-from-html-isomorphic@2.0.0 > hast-util-from-dom@5.0.1 > hastscript@9.0.1 > hast-util-parse-selector@4.0.0"
         ]
       },
       "object-hash": {
-        "versions": [
-          "2.2.0",
-          "3.0.0"
-        ],
-        "paths": [
-          "portfolio > tailwindcss@3.4.17 > object-hash@3.0.0"
-        ]
+        "versions": ["2.2.0", "3.0.0"],
+        "paths": ["portfolio > tailwindcss@3.4.17 > object-hash@3.0.0"]
       },
       "postcss-selector-parser": {
-        "versions": [
-          "6.0.10",
-          "6.1.2"
-        ],
+        "versions": ["6.0.10", "6.1.2"],
         "paths": [
           "portfolio > tailwindcss@3.4.17 > postcss-nested@6.2.0 > postcss-selector-parser@6.1.2",
           "portfolio > tailwindcss@3.4.17 > postcss-selector-parser@6.1.2"
         ]
       },
       "@jridgewell/trace-mapping": {
-        "versions": [
-          "0.3.25",
-          "0.3.9"
-        ],
+        "versions": ["0.3.25", "0.3.9"],
         "paths": [
           "portfolio > ts-node@10.9.2 > @cspotcode/source-map-support@0.8.1 > @jridgewell/trace-mapping@0.3.9"
         ]
       },
       "arg": {
-        "versions": [
-          "4.1.3",
-          "5.0.2"
-        ],
+        "versions": ["4.1.3", "5.0.2"],
         "paths": [
           "portfolio > ts-node@10.9.2 > arg@4.1.3",
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > ts-node@8.9.1 > arg@4.1.3"
         ]
       },
       "@vercel/static-config": {
-        "versions": [
-          "2.0.1",
-          "3.0.0"
-        ],
+        "versions": ["2.0.1", "3.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > @vercel/static-config@2.0.1"
         ]
       },
       "picocolors": {
-        "versions": [
-          "1.0.0",
-          "1.1.1"
-        ],
+        "versions": ["1.0.0", "1.1.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > edge-runtime@1.0.1 > picocolors@1.0.0"
         ]
       },
       "pretty-ms": {
-        "versions": [
-          "7.0.1",
-          "9.2.0"
-        ],
+        "versions": ["7.0.1", "9.2.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > edge-runtime@1.0.1 > pretty-ms@7.0.1"
         ]
       },
       "parse-ms": {
-        "versions": [
-          "2.1.0",
-          "4.0.0"
-        ],
+        "versions": ["2.1.0", "4.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > edge-runtime@1.0.1 > pretty-ms@7.0.1 > parse-ms@2.1.0"
         ]
       },
       "ts-node": {
-        "versions": [
-          "10.9.2",
-          "8.9.1"
-        ],
+        "versions": ["10.9.2", "8.9.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > ts-node@8.9.1"
         ]
       },
       "source-map-support": {
-        "versions": [
-          "0.5.13",
-          "0.5.21"
-        ],
+        "versions": ["0.5.13", "0.5.21"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > ts-node@8.9.1 > source-map-support@0.5.21"
         ]
       },
       "typescript": {
-        "versions": [
-          "4.3.4",
-          "5.8.3"
-        ],
+        "versions": ["4.3.4", "5.8.3"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > ts-node@8.9.1 > typescript@4.3.4",
           "portfolio > vercel@25.2.0 > @vercel/node@2.3.0 > typescript@4.3.4"
         ]
       },
       "@vercel/nft": {
-        "versions": [
-          "0.19.1",
-          "0.29.2"
-        ],
+        "versions": ["0.19.1", "0.29.2"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1",
           "portfolio > vercel@25.2.0 > @vercel/remix@1.0.2 > @vercel/nft@0.19.1"
         ]
       },
       "detect-libc": {
-        "versions": [
-          "1.0.3",
-          "2.0.4"
-        ],
+        "versions": ["1.0.3", "2.0.4"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > detect-libc@1.0.3"
         ]
       },
       "iconv-lite": {
-        "versions": [
-          "0.4.24",
-          "0.6.3"
-        ],
+        "versions": ["0.4.24", "0.6.3"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > needle@2.9.1 > iconv-lite@0.4.24"
         ]
       },
       "npmlog": {
-        "versions": [
-          "4.1.2",
-          "5.0.1"
-        ],
+        "versions": ["4.1.2", "5.0.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2"
         ]
       },
       "are-we-there-yet": {
-        "versions": [
-          "1.1.7",
-          "2.0.0"
-        ],
+        "versions": ["1.1.7", "2.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7"
         ]
       },
       "readable-stream": {
-        "versions": [
-          "2.3.8",
-          "3.6.2"
-        ],
+        "versions": ["2.3.8", "3.6.2"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7 > readable-stream@2.3.8"
         ]
       },
       "isarray": {
-        "versions": [
-          "1.0.0",
-          "2.0.5"
-        ],
+        "versions": ["1.0.0", "2.0.5"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7 > readable-stream@2.3.8 > isarray@1.0.0"
         ]
       },
       "safe-buffer": {
-        "versions": [
-          "5.1.2",
-          "5.2.1"
-        ],
+        "versions": ["5.1.2", "5.2.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7 > readable-stream@2.3.8 > safe-buffer@5.1.2",
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7 > readable-stream@2.3.8 > string_decoder@1.1.1 > safe-buffer@5.1.2",
@@ -13154,145 +12526,95 @@
         ]
       },
       "string_decoder": {
-        "versions": [
-          "1.1.1",
-          "1.3.0"
-        ],
+        "versions": ["1.1.1", "1.3.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > are-we-there-yet@1.1.7 > readable-stream@2.3.8 > string_decoder@1.1.1"
         ]
       },
       "gauge": {
-        "versions": [
-          "2.7.4",
-          "3.0.2"
-        ],
+        "versions": ["2.7.4", "3.0.2"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > gauge@2.7.4"
         ]
       },
       "aproba": {
-        "versions": [
-          "1.2.0",
-          "2.0.0"
-        ],
+        "versions": ["1.2.0", "2.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > npmlog@4.1.2 > gauge@2.7.4 > aproba@1.2.0"
         ]
       },
       "strip-json-comments": {
-        "versions": [
-          "2.0.1",
-          "3.1.1"
-        ],
+        "versions": ["2.0.1", "3.1.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > rc@1.2.8 > strip-json-comments@2.0.1"
         ]
       },
       "rimraf": {
-        "versions": [
-          "2.7.1",
-          "3.0.2"
-        ],
+        "versions": ["2.7.1", "3.0.2"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > rimraf@2.7.1"
         ]
       },
       "fs-minipass": {
-        "versions": [
-          "1.2.7",
-          "2.1.0"
-        ],
+        "versions": ["1.2.7", "2.1.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/nft@0.19.1 > node-pre-gyp@0.13.0 > tar@4.4.19 > fs-minipass@1.2.7"
         ]
       },
       "path-to-regexp": {
-        "versions": [
-          "6.1.0",
-          "6.3.0"
-        ],
+        "versions": ["6.1.0", "6.3.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > @vercel/redwood@1.0.2 > @vercel/routing-utils@1.13.5 > path-to-regexp@6.1.0"
         ]
       },
       "@vercel/remix": {
-        "versions": [
-          "1.0.2",
-          "2.15.3"
-        ],
-        "paths": [
-          "portfolio > vercel@25.2.0 > @vercel/remix@1.0.2"
-        ]
+        "versions": ["1.0.2", "2.15.3"],
+        "paths": ["portfolio > vercel@25.2.0 > @vercel/remix@1.0.2"]
       },
       "boxen": {
-        "versions": [
-          "5.1.2",
-          "8.0.1"
-        ],
+        "versions": ["5.1.2", "8.0.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > boxen@5.1.2"
         ]
       },
       "cli-boxes": {
-        "versions": [
-          "2.2.1",
-          "3.0.0"
-        ],
+        "versions": ["2.2.1", "3.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > boxen@5.1.2 > cli-boxes@2.2.1"
         ]
       },
       "widest-line": {
-        "versions": [
-          "3.1.0",
-          "5.0.0"
-        ],
+        "versions": ["3.1.0", "5.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > boxen@5.1.2 > widest-line@3.1.0"
         ]
       },
       "write-file-atomic": {
-        "versions": [
-          "3.0.3",
-          "4.0.2"
-        ],
+        "versions": ["3.0.3", "4.0.2"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > configstore@5.0.1 > write-file-atomic@3.0.3"
         ]
       },
       "ini": {
-        "versions": [
-          "1.3.8",
-          "2.0.0"
-        ],
+        "versions": ["1.3.8", "2.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > is-installed-globally@0.4.0 > global-dirs@3.0.1 > ini@2.0.0"
         ]
       },
       "keyv": {
-        "versions": [
-          "3.1.0",
-          "4.5.4"
-        ],
+        "versions": ["3.1.0", "4.5.4"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > latest-version@5.1.0 > package-json@6.5.0 > got@9.6.0 > cacheable-request@6.1.0 > keyv@3.1.0"
         ]
       },
       "json-buffer": {
-        "versions": [
-          "3.0.0",
-          "3.0.1"
-        ],
+        "versions": ["3.0.0", "3.0.1"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > latest-version@5.1.0 > package-json@6.5.0 > got@9.6.0 > cacheable-request@6.1.0 > keyv@3.1.0 > json-buffer@3.0.0"
         ]
       },
       "lowercase-keys": {
-        "versions": [
-          "1.0.1",
-          "2.0.0"
-        ],
+        "versions": ["1.0.1", "2.0.0"],
         "paths": [
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > latest-version@5.1.0 > package-json@6.5.0 > got@9.6.0 > cacheable-request@6.1.0 > responselike@1.0.2 > lowercase-keys@1.0.1",
           "portfolio > vercel@25.2.0 > update-notifier@5.1.0 > latest-version@5.1.0 > package-json@6.5.0 > got@9.6.0 > lowercase-keys@1.0.1"

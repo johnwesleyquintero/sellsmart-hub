@@ -1,5 +1,84 @@
 {
-  "cline.modelSettings.o3Mini.reasoningEffort": "high",
-  "liveServer.settings.port": 5501,
-  "editor.codeActionsOnSave": {}
+  // --- Existing Settings (Keep if needed) ---
+  "cline.modelSettings.o3Mini.reasoningEffort": "high", // Keep if you use 'cline'
+  "liveServer.settings.port": 5501, // Keep for Live Server
+
+  // --- Formatting (Project Specific) ---
+  "editor.formatOnSave": true, // Ensure format on save is enabled for this project
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // Explicitly set Prettier for this project
+
+  // --- Code Actions on Save (Crucial!) ---
+  // Apply ESLint fixes automatically when saving files in this project
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit", // Enable ESLint auto-fix on save
+    "source.organizeImports": "explicit" // Optional: Enable import sorting on save (if configured)
+    // Add "source.fixAll.stylelint": true if you use Stylelint
+  },
+
+  // --- Language-Specific Formatting Overrides (Ensures Prettier) ---
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // --- ESLint Configuration (Project Specific) ---
+  "eslint.validate": [
+    // Tell ESLint which files to check in this project
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  // If your ESLint config isn't at the root, specify directories:
+  // "eslint.workingDirectories": [ "./client", "./server" ], // Example
+
+  // --- Search & File Watcher Exclusions (Improves Performance) ---
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true, // Important for Next.js
+    "**/*.code-search": true,
+    "**/yarn.lock": true,
+    "**/package-lock.json": true,
+    "**/coverage": true // Exclude test coverage reports
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/bower_components/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true // Important for Next.js
+  }
+
+  // --- Optional: Tabnine Priority Frameworks (If different from global) ---
+  // You could override this here if this project uses different tech
+  // "tabnine.priorityFrameworks": [
+  //   "react",
+  //   "typescript",
+  //   "nextjs",
+  //   "tailwindcss",
+  //   "graphql" // Example: Added GraphQL for this specific project
+  // ]
 }
