@@ -21,8 +21,9 @@ import figlet from 'figlet'; // For imposing ASCII headers
 // === CONFIGURATION CONSTANTS ===
 const CONFIG_FILENAME = '.wescore.json';
 const CONFIG_PATH = path.resolve(process.cwd(), CONFIG_FILENAME);
-const REPORT_FILENAME = 'quality-check-report.log'; // <<< ADD THIS
-const REPORT_PATH = path.resolve(process.cwd(), REPORT_FILENAME); // <<< ADD THIS
+const REPORT_FILENAME = 'quality-check-report.log';
+const REPORT_PATH = path.resolve(process.cwd(), REPORT_FILENAME);
+const FAILURE_REPORT_HEADER = `Quality Check Failure Report\n\nNext Steps:\n1. Review the Relevant Output above or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run cq).\n5. Commit your fixes once all checks pass successfully.\n\nTimestamp: ${new Date().toISOString()}\n=================================\n`;
 const DEFAULT_LOG_LEVEL = 'INFO';
 const LOG_LEVELS = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 }; // Added SILENT
 
@@ -582,12 +583,14 @@ async function printSummary(results, startTime, endTime, gitCommitHash) {
  * @param {object[]} failedChecks - Array of failed check result objects.
  */
 async function printFailureDetails(failedChecks) {
-  // <<< Make async
   if (failedChecks.length === 0) {
     // Optional: Delete the report file if checks passed after failing previously
     // try { await fs.unlink(REPORT_PATH); } catch (e) { /* Ignore if file doesn't exist */ }
     return;
   }
+
+  // Write standardized failure report header
+  await fs.writeFile(REPORT_PATH, FAILURE_REPORT_HEADER);
 
   console.log(
     `\n${C.error.bold(`${ICONS.failure} Failure Details & Troubleshooting`)}`,
@@ -595,9 +598,10 @@ async function printFailureDetails(failedChecks) {
   printSeparator();
 
   const useBoxen = config.config.visuals.useBoxen && isTTY;
-  let reportContent = `Quality Check Failure Report\n`;
+  let reportContent = `Wescore Checks Failure Report\n\nNext Steps:\n1. Review the Relevant Output below or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run cq).\n5. Commit your fixes once all checks pass successfully.\n\n`;
+  reportContent += `===============================================================================\n`;
   reportContent += `Timestamp: ${new Date().toISOString()}\n`;
-  reportContent += `=================================\n\n`;
+  reportContent += `===============================================================================\n\n`;
 
   failedChecks.forEach((check, index) => {
     // Prioritize showing stderr if it exists, otherwise combined output

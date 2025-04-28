@@ -27,7 +27,11 @@
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/app/components/*": ["./app/components/*"],
-      "@/hooks/*": ["./app/hooks/*"]
+      "@/hooks/*": ["./app/hooks/*"],
+      "@/stores/*": ["./stores/*"],
+      "@/__tests__/*": ["./__tests__/*"],
+      "@/lib/dataProcessing": ["./lib/dataProcessing/index"],
+      "@/lib/helpers": ["./lib/helpers/index"]
     }
   }, // Comma needed as 'types' follows
   "types": ["jest", "@testing-library/jest-dom", "node"],

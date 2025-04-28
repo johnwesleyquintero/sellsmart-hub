@@ -142,9 +142,16 @@ function joinData(
   return sqpData.map((sqpRow: ReportData): ReportData => {
     console.log({ sqpData, businessData });
     const matchingBusinessRow = businessData.find(
-      (businessRow) =>
-        businessRow.date?.getTime() === sqpRow.date?.getTime() &&
-        businessRow.asin === sqpRow.asin,
+      (businessRow: ReportData) => {
+        const businessDate = businessRow.date as Date;
+        const sqpDate = sqpRow.date as Date;
+        return (
+          businessDate &&
+          sqpDate &&
+          businessDate.getTime() === sqpDate.getTime() &&
+          businessRow.asin === sqpRow.asin
+        );
+      }
     );
 
     return {
