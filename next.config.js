@@ -11,6 +11,14 @@ const nextConfig = {
   },
   // Core settings
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  // Resolve SWC/Babel conflict
+  experimental: {
+    forceSwcTransforms: true,
+  },
+  // Enable importAttributes syntax
+  compiler: {
+    styledComponents: true,
+  },
 
   // Build-time checks
   typescript: {
