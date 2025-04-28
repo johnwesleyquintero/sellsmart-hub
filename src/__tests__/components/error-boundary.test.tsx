@@ -37,7 +37,7 @@ describe('ErrorBoundary', () => {
   it('renders children when there is no error', () => {
     // jest.useFakeTimers(); // Already called in beforeAll
     const { container } = render(
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<div>Error</div>}>
         <div>Test content</div>
       </ErrorBoundary>
     );

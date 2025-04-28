@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#f8fafc"/>
+  <rect x="50" y="50" width="700" height="500" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="400" y="100" font-family="Arial" font-size="36" font-weight="bold" text-anchor="middle" fill="#1e293b">QuickFill FAQs</text>
+  <path d="M100 150 L700 150" stroke="#e2e8f0" stroke-width="2"/>
+  <g font-family="Arial" font-size="18" fill="#334155">
+    <text x="100" y="200">• Common Questions</text>
+    <text x="100" y="250">• Technical Expertise</text>
+    <text x="100" y="300">• Development Process</text>
+    <text x="100" y="350">• Amazon Integration</text>
+    <text x="100" y="400">• Automation Solutions</text>
+  </g>
+  <circle cx="650" cy="500" r="40" fill="#3b82f6"/>
+  <text x="650" y="500" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">?</text>
+</svg>

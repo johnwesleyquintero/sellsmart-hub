@@ -1,5 +1,5 @@
 type ReportData = {
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export default ReportData;

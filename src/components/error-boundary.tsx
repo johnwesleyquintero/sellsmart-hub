@@ -7,6 +7,8 @@ import { Component } from 'react';
 
 interface Props {
   children: React.ReactNode;
+  fallback: React.ReactNode;
+  onError?: (error: Error, info: React.ErrorInfo) => void;
 }
 
 interface State {
