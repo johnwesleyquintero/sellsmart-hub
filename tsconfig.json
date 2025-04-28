@@ -39,7 +39,8 @@
     "**/*.js",
     ".next/types/**/*.ts",
     "src/__tests__/setup.ts",
-    "src/**/*" // This also covers src/types, but the specific entry is clearer
+    "src/**/*", // This also covers src/types, but the specific entry is clearer
+    "src/__tests__/**/*"
   ],
 
   "typeRoots": ["./src/types", "./node_modules/@types"], // Comma needed as 'exclude' follows

@@ -21,6 +21,8 @@ import figlet from 'figlet'; // For imposing ASCII headers
 // === CONFIGURATION CONSTANTS ===
 const CONFIG_FILENAME = '.wescore.json';
 const CONFIG_PATH = path.resolve(process.cwd(), CONFIG_FILENAME);
+const REPORT_FILENAME = 'quality-check-report.log'; // <<< ADD THIS
+const REPORT_PATH = path.resolve(process.cwd(), REPORT_FILENAME); // <<< ADD THIS
 const DEFAULT_LOG_LEVEL = 'INFO';
 const LOG_LEVELS = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 }; // Added SILENT
 
@@ -576,11 +578,16 @@ async function printSummary(results, startTime, endTime, gitCommitHash) {
 }
 
 /**
- * Prints detailed information for failed checks using Boxen (if TTY and enabled).
+ * Prints detailed information for failed checks to console and writes a report file.
  * @param {object[]} failedChecks - Array of failed check result objects.
  */
-function printFailureDetails(failedChecks) {
-  if (failedChecks.length === 0) return;
+async function printFailureDetails(failedChecks) {
+  // <<< Make async
+  if (failedChecks.length === 0) {
+    // Optional: Delete the report file if checks passed after failing previously
+    // try { await fs.unlink(REPORT_PATH); } catch (e) { /* Ignore if file doesn't exist */ }
+    return;
+  }
 
   console.log(
     `\n${C.error.bold(`${ICONS.failure} Failure Details & Troubleshooting`)}`,
@@ -588,6 +595,9 @@ function printFailureDetails(failedChecks) {
   printSeparator();
 
   const useBoxen = config.config.visuals.useBoxen && isTTY;
+  let reportContent = `Quality Check Failure Report\n`;
+  reportContent += `Timestamp: ${new Date().toISOString()}\n`;
+  reportContent += `=================================\n\n`;
 
   failedChecks.forEach((check, index) => {
     // Prioritize showing stderr if it exists, otherwise combined output
@@ -630,12 +640,42 @@ function printFailureDetails(failedChecks) {
       // Simple text fallback
       console.log(detailLines.join('\n') + '\n');
     }
+
+    // --- Build Report String (New Logic) ---
+    reportContent += `✖ Check Failed: ${check.name}\n`;
+    reportContent += `  Command:   ${check.command}\n`;
+    reportContent += `  Exit Code: ${check.exitCode ?? 'N/A'}\n`;
+    reportContent += `  Duration:  ${formatDuration(check.durationMs)}\n`;
+    if (check.error) {
+      reportContent += `  Error:     ${check.error.shortMessage || check.error.message}\n`;
+    }
+    reportContent += `\n  Relevant Output (Truncated):\n`;
+    reportContent += `  --------------------\n`;
+    // Use uncolored, untruncated (or less truncated) output for the file
+    const fileOutput = truncateOutput(primaryOutput, 50); // Show more lines in file
+    reportContent += fileOutput
+      .split('\n')
+      .map((line) => `  ${line}`) // Indent lines
+      .join('\n');
+    reportContent += `\n  --------------------\n\n`;
   });
 
-  // Print next steps guidance after all details
+  // --- Write Report File (New Logic) ---
+  try {
+    await fs.writeFile(REPORT_PATH, reportContent.trim());
+    log('INFO', `Failure details written to ${C.filePath(REPORT_FILENAME)}`);
+  } catch (err) {
+    log(
+      'ERROR',
+      `Failed to write failure report to ${C.filePath(REPORT_PATH)}: ${err.message}`,
+      err,
+    );
+  }
+
+  // --- Console Next Steps (Existing Logic) ---
   console.log(`\n${C.bold('Next Steps:')}`);
   console.log(
-    `1. Review the ${C.warn('Relevant Output')} for each failed check above.`,
+    `1. Review the ${C.warn('Relevant Output')} above or check the ${C.filePath(REPORT_FILENAME)} file.`, // Modified step 1
   );
   console.log(
     `2. Identify the root cause (e.g., lint errors, test failures, command issues).`,
@@ -776,7 +816,7 @@ async function runQualityChecks() {
     await printSummary(results, checksStartTime, checksEndTime, gitCommitHash);
 
     const failedCheckDetails = results.filter((r) => r.status === 'failed');
-    printFailureDetails(failedCheckDetails);
+    await printFailureDetails(failedCheckDetails); // <<< Add this line with await
 
     // 7. Exit
     log(

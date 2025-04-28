@@ -48,7 +48,7 @@ describe('ErrorBoundary', () => {
   it('renders error UI when there is an error', async () => {
     // Use act for the initial render that throws an error
     render(
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<div>Error</div>}>
         <ThrowError />
       </ErrorBoundary>,
     );
@@ -88,7 +88,7 @@ describe('ErrorBoundary', () => {
 
     // Initial render that throws an error
     const { rerender } = render(
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<div>Error</div>}>
         <TestComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
@@ -106,7 +106,7 @@ describe('ErrorBoundary', () => {
     // Use act for rerender as it causes state updates
     act(() => {
       rerenderFunc( // Use the stored rerender function
-        <ErrorBoundary>
+        <ErrorBoundary fallback={<div>Error</div>}>
           <TestComponent shouldThrow={false} />
         </ErrorBoundary>,
       );
