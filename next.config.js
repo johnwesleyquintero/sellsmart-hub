@@ -66,6 +66,8 @@ const nextConfig = {
   compiler: {
     // Remove console logs in production builds
     removeConsole: process.env.NODE_ENV === 'production',
+    // Enable SWC for next/font
+    styledComponents: true,
   },
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
