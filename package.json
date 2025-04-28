@@ -7,47 +7,38 @@
     "node": ">=18.18.0"
   },
   "scripts": {
-    "generate": "ts-node src/lib/generate-sample-csv.ts",
-    "dev": "next dev",
     "build": "cross-env NODE_ENV=production next build",
-    "start": " cross-env NODE_ENV=production next start",
-    "update-tracker": "node .wescore/scripts/update-tracker.mjs",
-    "reinstall": "npm install --legacy-peer-deps",
-    "reset": "powershell -ExecutionPolicy Bypass -File ./cleanup.ps1 && npm install --legacy-peer-deps && npm build && npm start",
+    "build-storybook": "build-storybook",
+    "check": "npm-run-all --parallel lint typecheck test",
+    "clean": "rimraf node_modules .next && npm install --legacy-peer-deps",
+    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts",
+    "dev": "next dev",
     "format": "prettier --write . --log-level warn",
-    "typecheck": "tsc --noEmit",
-    "test": "jest -u",
-    "test:watch": "jest --watch",
-    "cq": "node ./.wescore/scripts/check-quality.mjs",
-    "cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs",
-    "epic": "node ./.wescore/scripts/wescore-epic.mjs",
-    "pm": "node .wescore/scripts/package-management.mjs",
-    "ps": "node ./.wescore/scripts/package-static.mjs",
-    "ut": "node ./.wescore/scripts/update-timestamps.cjs",
+    "generate": "ts-node src/lib/generate-sample-csv.ts",
     "lint": "eslint --config eslint.config.mjs .",
-    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts"
-  },
-  "resolutions": {
-    "@typescript-eslint/types": "8.31.0",
-    "@typescript-eslint/typescript-estree": "8.31.0",
-    "@typescript-eslint/visitor-keys": "8.31.0",
-    "@typescript-eslint/scope-manager": "8.31.0",
-    "@typescript-eslint/utils": "8.31.0",
-    "@typescript-eslint/parser": "8.31.0",
-    "@typescript-eslint/eslint-plugin": "8.31.0",
-    "globals": "15.0.0",
-    "mongodb": "5.9.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "chalk": "5.4.1",
-    "postcss": "8.5.3",
-    "typescript": "5.8.3",
-    "next": "15.3.1",
-    "@next/eslint-plugin-next": "15.3.1",
-    "eslint": "9.25.1",
-    "eslint-plugin-unicorn": "58.0.0",
-    "prettier": "3.5.3",
-    "tailwindcss": "3.4.17"
+    "lint:fix": "eslint --fix --config eslint.config.mjs .",
+    "prepare": "husky install",
+    "preview": "next start",
+    "reinstall": "npm install --legacy-peer-deps",
+    "reset": "rimraf package-lock.json node_modules .next && npm cache clean --force && npm install --legacy-peer-deps",
+    "start": " cross-env NODE_ENV=production next start",
+    "storybook": "start-storybook -p 6006",
+    "test": "jest -u",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc --noEmit",
+    "test:coverage": "jest --coverage",
+    "prepare": "husky install",
+    "preview": "next start",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "check": "npm-run-all --parallel lint typecheck test",
+    "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
+    "wes-cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs",
+    "wes-epic": "node ./.wescore/scripts/wescore-epic.mjs",
+    "wes-pm": "node .wescore/scripts/package-management.mjs",
+    "wes-update-tracker": "node .wescore/scripts/update-tracker.mjs",
+    "wes-ut": "node ./.wescore/scripts/update-timestamps.cjs"
   },
   "dependencies": {
     "@babel/preset-typescript": "7.27.0",
@@ -280,10 +271,28 @@
   },
   "overrides": {
     "@remix-run/react": {
-      "react": "$react"
+      "react": "$react",
+      "react-dom": "$react-dom"
     },
     "@remix-run/dev": {
-      "react": "$react"
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
+  "overrides": {
+    "@remix-run/react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "@remix-run/dev": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "eslint-plugin-jest": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-jest": {
+      "@typescript-eslint/eslint-plugin": "$@typescript-eslint/eslint-plugin"
     }
   }
 }
