@@ -13,6 +13,7 @@
     "start": " cross-env NODE_ENV=production next start",
     "update-tracker": "node .wescore/scripts/update-tracker.mjs",
     "reinstall": "npm install --legacy-peer-deps",
+    "reset": "powershell -ExecutionPolicy Bypass -File ./cleanup.ps1 && npm install --legacy-peer-deps",
     "format": "prettier --write . --log-level warn",
     "typecheck": "tsc --noEmit",
     "test": "jest -u",
