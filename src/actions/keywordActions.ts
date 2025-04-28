@@ -7,7 +7,6 @@ import {
 import { connectToDatabase } from '@/lib/mongodb';
 
 export async function getAllProhibitedKeywords(): Promise<string[]> {
-  'use server';
   try {
     const { db } = await connectToDatabase();
     const keywords = await db
@@ -24,7 +23,6 @@ export async function getAllProhibitedKeywords(): Promise<string[]> {
 export async function addProhibitedKeyword(
   keyword: string,
 ): Promise<{ success: boolean; message: string }> {
-  'use server';
   if (
     !keyword ||
     typeof keyword !== 'string' ||
