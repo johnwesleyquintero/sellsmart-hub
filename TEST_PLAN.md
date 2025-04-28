@@ -82,28 +82,17 @@ Update the test plan with the following information here:
 ```
 src/
   __tests__/
-    unit/
-      components/
-        ErrorBoundary.test.tsx
-        AmazonToolsUI.test.tsx
-        SharedUI.test.tsx
-      utils/
-        calculations.test.ts
-        dataProcessing.test.ts
-        helpers.test.ts
-
+    components/
+      ErrorBoundary/
+      amazon-seller-tools/
+        __snapshots__/
     integration/
-      components/
-        interactions.test.tsx
       api/
-        endpoints.test.ts
-        errorHandling.test.ts
-
-    e2e/
-      workflows/
-        fileUpload.test.ts
-        dataPipeline.test.ts
-        reportGeneration.test.ts
+      components/
+    lib/
+      calculations/
+      dataProcessing/
+      helpers/
 ```
 
 ## Success Criteria
