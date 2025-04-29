@@ -152,9 +152,6 @@ export default function KeywordDeduplicator() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [manualKeywords, setManualKeywords] = useState('');
   const [manualProduct, setManualProduct] = useState('');
-  const [validationError, setValidationError] = useState<string | undefined>(
-    undefined,
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Removed unused setFile state
 

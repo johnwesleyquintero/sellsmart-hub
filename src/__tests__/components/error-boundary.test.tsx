@@ -1,5 +1,6 @@
 import ErrorBoundary from '@/components/error-boundary';
 import { jest } from '@jest/globals';
+import '@testing-library/jest-dom';
 import {
   act,
   fireEvent,
@@ -39,7 +40,7 @@ describe('ErrorBoundary', () => {
     const { container } = render(
       <ErrorBoundary fallback={<div>Error</div>}>
         <div>Test content</div>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
     // jest.useRealTimers(); // Not needed if timers are managed globally for the suite
     expect(container).toHaveTextContent('Test content');
@@ -96,7 +97,9 @@ describe('ErrorBoundary', () => {
 
     // Wait for the error UI to appear
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Reload Page/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Reload Page/i }),
+      ).toBeInTheDocument();
     });
 
     const tryAgainButton = screen.getByRole('button', { name: /Reload Page/i });
@@ -105,13 +108,13 @@ describe('ErrorBoundary', () => {
     // This simulates fixing the underlying cause before clicking "retry"
     // Use act for rerender as it causes state updates
     act(() => {
-      rerenderFunc( // Use the stored rerender function
+      rerenderFunc(
+        // Use the stored rerender function
         <ErrorBoundary fallback={<div>Error</div>}>
           <TestComponent shouldThrow={false} />
         </ErrorBoundary>,
       );
     });
-
 
     // Click the button to reset the ErrorBoundary state
     // Use act for user events that cause state updates
@@ -119,11 +122,12 @@ describe('ErrorBoundary', () => {
       fireEvent.click(tryAgainButton);
     });
 
-
     // Wait for the original content to reappear after reset
     await waitFor(() => {
       expect(screen.getByText('Test content')).toBeInTheDocument();
-      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Something went wrong'),
+      ).not.toBeInTheDocument();
     });
   });
 });
