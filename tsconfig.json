@@ -1,4 +1,7 @@
 {
+  "typeAcquisition": {
+    "include": ["aria-query"]
+  },
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",

@@ -12,6 +12,7 @@ import { ReactElement } from 'react';
 
 // Remove duplicate jest import and fix the multi-line import syntax
 // jest and useFakeTimers are handled by @jest/globals
+// jest.useFakeTimers();
 
 describe('ErrorBoundary', () => {
   beforeAll(() => {
@@ -21,6 +22,8 @@ describe('ErrorBoundary', () => {
   const ThrowError = () => {
     throw new Error('Test error');
   };
+
+  const mockReportError = jest.fn(); // Mock the onError function
 
   beforeEach(() => {
     // Prevent console.error from cluttering test output
@@ -38,7 +41,7 @@ describe('ErrorBoundary', () => {
   it('renders children when there is no error', () => {
     // jest.useFakeTimers(); // Already called in beforeAll
     const { container } = render(
-      <ErrorBoundary fallback={<div>Error</div>}>
+      <ErrorBoundary fallback={<div>Error</div>} onError={mockReportError}>
         <div>Test content</div>
       </ErrorBoundary>,
     );
@@ -49,7 +52,7 @@ describe('ErrorBoundary', () => {
   it('renders error UI when there is an error', async () => {
     // Use act for the initial render that throws an error
     render(
-      <ErrorBoundary fallback={<div>Error</div>}>
+      <ErrorBoundary fallback={<div>Error</div>} onError={mockReportError}>
         <ThrowError />
       </ErrorBoundary>,
     );
@@ -76,6 +79,27 @@ describe('ErrorBoundary', () => {
     );
   });
 
+  it('logs errors to monitoring service', async () => {
+    const error = new Error('Test error');
+    const componentStack = 'at ErrorComponent';
+    const mockReportError = jest.fn();
+
+    render(
+      <ErrorBoundary fallback={<div>Error</div>} onError={mockReportError}>
+        <ThrowError />
+      </ErrorBoundary>,
+    );
+
+    await waitFor(() => {
+      expect(mockReportError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          componentStack: expect.stringContaining('at ThrowError'),
+        }),
+      );
+    });
+  });
+
   it('resets error state when try again button is clicked', async () => {
     const TestComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
       if (shouldThrow) {
@@ -89,7 +113,7 @@ describe('ErrorBoundary', () => {
 
     // Initial render that throws an error
     const { rerender } = render(
-      <ErrorBoundary fallback={<div>Error</div>}>
+      <ErrorBoundary fallback={<div>Error</div>} onError={mockReportError}>
         <TestComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
@@ -110,7 +134,7 @@ describe('ErrorBoundary', () => {
     act(() => {
       rerenderFunc(
         // Use the stored rerender function
-        <ErrorBoundary fallback={<div>Error</div>}>
+        <ErrorBoundary fallback={<div>Error</div>} onError={mockReportError}>
           <TestComponent shouldThrow={false} />
         </ErrorBoundary>,
       );
