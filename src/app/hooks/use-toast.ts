@@ -174,7 +174,11 @@ function useToast() {
       }
     };
   }, [state]);
-
+  console.log('useToast useEffect called');
+  console.log('useToast state:', state);
+  console.log('useToast state type:', typeof state);
+  console.log('useToast state.toasts:', state.toasts);
+  console.trace();
   return {
     ...state,
     toast,

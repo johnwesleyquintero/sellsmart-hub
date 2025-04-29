@@ -18,7 +18,7 @@ REM Clean build artifacts
 powershell -File cleanup.ps1
 
 REM Deploying Production Build
-call npm run cq || exit /b 1
+call npm run wes-cq || exit /b 1
 call npx vercel deploy --prod --yes %*
 
 endlocal

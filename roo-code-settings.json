@@ -77,7 +77,7 @@
       "npm run clean:all",
       "npm run build",
       "npm run install",
-      "npm run cq",
+      "npm run wes-cq",
       "dotnet build",
       "dotnet clean",
       "python -m src.main",

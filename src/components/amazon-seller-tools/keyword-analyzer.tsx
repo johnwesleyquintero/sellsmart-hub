@@ -1016,7 +1016,10 @@ export default function KeywordAnalyzer() {
                 <option value="toys">Toys & Games</option>
               </select>
               {formErrors.category && (
-                <p className="text-sm text-red-500 mt-1">
+                <p
+                  data-testid="category-error"
+                  className="text-sm text-red-500 mt-1"
+                >
                   {formErrors.category}
                 </p>
               )}

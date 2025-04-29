@@ -32,5 +32,6 @@
     "prettier.bracketSpacing": true,
     "prettier.arrowParens": "always",
     "prettier.endOfLine": "lf",
+    "search.useGlobalIgnoreFiles": true,
   },
 }

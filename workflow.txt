@@ -11,7 +11,7 @@ GENERAL WORKFLOW
    - Test each fix to maintain functionality.
 
 3. VERIFY:
-   - Run `npm run cq` to check fixes.
+   - Run `npm run wes-cq` to check fixes.
    - Identify any remaining issues.
 
 4. ITERATE:
@@ -27,7 +27,7 @@ CODE QUALITY CHECK WORKFLOW
 ===================================================================
 
 1. RUN QUALITY CHECKS:
-   - Execute `npm run cq` to perform code quality checks and identify any issues.
+   - Execute `npm run wes-cq` to perform code quality checks and identify any issues.
 
 2. ANALYZE RESULTS:
    - Review the output for errors, warnings, and potential improvements.
@@ -36,7 +36,7 @@ CODE QUALITY CHECK WORKFLOW
    - Systematically fix identified issues and ensure code adheres to quality standards.
 
 4. REPEAT:
-   - Continue running `npm run cq` and addressing issues until all checks pass successfully.
+   - Continue running `npm run wes-cq` and addressing issues until all checks pass successfully.
 
 
 ===================================================================

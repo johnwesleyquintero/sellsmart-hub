@@ -27,12 +27,8 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
-    "test:coverage": "jest --coverage",
-    "prepare": "husky install",
-    "preview": "next start",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "check": "npm-run-all --parallel lint typecheck test",
+    "test:json": "jest --json --outputFile=jest-results.json || true",
+    "test:report": "npm run test:json && node ./.wescore/scripts/parse-jest-results.mjs",
     "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
     "wes-cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs",
     "wes-epic": "node ./.wescore/scripts/wescore-epic.mjs",
@@ -277,21 +273,9 @@
     "@remix-run/dev": {
       "react": "$react",
       "react-dom": "$react-dom"
-    }
-  },
-  "overrides": {
-    "@remix-run/react": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    },
-    "@remix-run/dev": {
-      "react": "$react",
-      "react-dom": "$react-dom"
     },
     "eslint-plugin-jest": {
-      "eslint": "$eslint"
-    },
-    "eslint-plugin-jest": {
+      "eslint": "$eslint",
       "@typescript-eslint/eslint-plugin": "$@typescript-eslint/eslint-plugin"
     }
   }

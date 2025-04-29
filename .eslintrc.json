@@ -11,6 +11,12 @@
       "env": {
         "browser": true
       }
+    },
+    {
+      "files": ["scripts/**/*.mjs"],
+      "env": {
+        "node": true
+      }
     }
   ]
 }

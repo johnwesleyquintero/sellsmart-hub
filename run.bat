@@ -27,7 +27,7 @@ echo --- Current directory: %cd% ---
 
 REM --- Running code quality checks ---
 echo --- Running code quality checks ---
-call npm run cq %*
+call npm run wes-cq %*
 if !errorlevel! neq 0 (
     echo ERROR: Code quality checks failed! Not starting dev server.
     endlocal

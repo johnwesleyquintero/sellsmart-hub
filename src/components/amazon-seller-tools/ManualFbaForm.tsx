@@ -66,6 +66,11 @@ export default function ManualFbaForm({
 
         // Set errors state to display inline validation messages
         setErrors(newErrors);
+        toast({
+          title: 'Validation Error',
+          description: 'Please correct the errors in the form.',
+          variant: 'destructive',
+        });
         return;
       }
 
