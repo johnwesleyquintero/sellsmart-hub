@@ -5,13 +5,12 @@ import {
   AlertCircle,
   Download,
   FileText,
-  Filter,
   Info,
   Upload,
   XCircle,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import { ChangeEvent, useCallback, useRef, useState } from 'react';
+import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { z } from 'zod'; // Import Zod
 
 // Local/UI Imports
@@ -432,150 +431,147 @@ export default function KeywordDeduplicator() {
 
   // --- Render ---
   return (
-    <div className="space-y-6">
-      {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
-        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-        <div className="text-sm text-blue-700 dark:text-blue-300">
-          <p className="font-medium">How it Works:</p>
-          <ul className="list-disc list-inside ml-4">
-            <li>
-              Upload a CSV with `product` and comma-separated `keywords`
-              columns.
-            </li>
-            <li>
-              Or, manually enter keywords (comma or newline separated) and an
-              optional product name.
-            </li>
-            <li>
-              The tool removes duplicate keywords (case-insensitive) for each
-              product.
-            </li>
-            <li>
-              View the original and cleaned keyword lists, plus the number of
-              duplicates removed.
-            </li>
-            <li>Export the cleaned results to a new CSV file.</li>
-          </ul>
+    <React.Fragment>
+      {error && (
+        <div role="alert" className="text-red-500" data-testid="error-message">
+          {error}
         </div>
-      </div>
+      )}
+      {products.length > 0 && (
+        <div data-testid="success-message">
+          {products.map((product, index) => (
+            <div key={index}>
+              {`Deduplicated keywords for "${product.product}". ${product.duplicatesRemoved} duplicates removed.`}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="space-y-6">
+        {/* Info Box */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+          <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-700 dark:text-blue-300">
+            <p className="font-medium">How it Works:</p>
+            <ul className="list-disc list-inside ml-4">
+              <li>
+                Upload a CSV with `product` and comma-separated `keywords`
+                columns.
+              </li>
+              <li>
+                Or, manually enter keywords (comma or newline separated) and an
+                optional product name.
+              </li>
+              <li>
+                The tool removes duplicate keywords (case-insensitive) for each
+                product.
+              </li>
+              <li>
+                View the original and cleaned keyword lists, plus the number of
+                duplicates removed.
+              </li>
+              <li>Export the cleaned results to a new CSV file.</li>
+            </ul>
+          </div>
+        </div>
 
-      {/* Input Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CSV Upload Card */}
-        <DataCard>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center gap-4 text-center">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Upload className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Upload Keywords CSV</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Bulk deduplicate keywords from a CSV file
-                </p>
-              </div>
-              <div className="w-full">
-                <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
-                  <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click or drag CSV file here
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    (Requires: product, keywords)
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv, text/csv"
-                    className="hidden"
-                    // Wrap async function call
-                    onChange={(e) => {
-                      void handleFileUpload(e);
-                    }}
-                    disabled={isLoading}
-                    ref={fileInputRef}
-                    aria-label="Upload CSV file"
-                  />
-                </label>
-                <div className="flex justify-center mt-4">
-                  <SampleCsvButton
-                    dataType="keyword-dedup"
-                    fileName="sample-keyword-deduplicator.csv"
-                  />
+        {/* Input Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* CSV Upload Card */}
+          <DataCard>
+            <CardContent className="p-6">
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
+                <div className="rounded-full bg-primary/10 p-3">
+                  <Upload className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Upload Keywords CSV</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Bulk deduplicate keywords from a CSV file
+                  </p>
+                </div>
+                <div className="w-full">
+                  <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
+                    <FileText className="mb-2 h-8 w-8 text-primary/60" />
+                    <span className="text-sm font-medium">
+                      Click or drag CSV file here
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-1">
+                      (Requires: product, keywords)
+                    </span>
+                    <input
+                      type="file"
+                      accept=".csv, text/csv"
+                      className="hidden"
+                      // Wrap async function call
+                      onChange={(e) => {
+                        void handleFileUpload(e);
+                      }}
+                      disabled={isLoading}
+                      ref={fileInputRef}
+                      aria-label="Upload CSV file"
+                    />
+                  </label>
+                  <div className="flex justify-center mt-4">
+                    <SampleCsvButton dataType="keyword-dedup" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </DataCard>
+            </CardContent>
+          </DataCard>
 
-        {/* Manual Entry Card */}
-        <DataCard>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
-              Manual Entry
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="manual-product" className="text-sm font-medium">
-                  Product Name (Optional)
-                </Label>
-                <Input
-                  id="manual-product"
-                  type="text"
-                  value={manualProduct}
-                  onChange={(e) => setManualProduct(e.target.value)}
-                  placeholder="Defaults to 'Manual Entry'"
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="manual-keywords"
-                  className="text-sm font-medium"
+          {/* Manual Entry Card */}
+          <DataCard>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
+                Manual Entry
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="manual-product">
+                    Product Name (Optional)
+                  </Label>
+                  <Input
+                    id="manual-product"
+                    placeholder="Defaults to 'Manual Entry'"
+                    type="text"
+                    value={manualProduct}
+                    onChange={(e) => setManualProduct(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="manual-keywords">Keywords*</Label>
+                  <Textarea
+                    id="manual-keywords"
+                    placeholder="Enter keywords separated by commas or new lines (e.g., red shirt, cotton shirt, red shirt)"
+                    required
+                    rows={5}
+                    value={manualKeywords}
+                    onChange={(e) => setManualKeywords(e.target.value)}
+                    className={`mt-1 ${error && !manualKeywords.trim() ? 'border-destructive' : ''}`}
+                    disabled={isLoading}
+                    aria-invalid={!!(error && !manualKeywords.trim())}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Separate keywords with commas or new lines.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleManualProcess}
+                  disabled={isLoading || !manualKeywords.trim()}
                 >
-                  Keywords*
-                </Label>
-                <Textarea
-                  id="manual-keywords"
-                  value={manualKeywords}
-                  onChange={(e) => setManualKeywords(e.target.value)}
-                  placeholder="Enter keywords separated by commas or new lines (e.g., red shirt, cotton shirt, red shirt)"
-                  rows={5}
-                  // Conditionally apply border class based on error state
-                  className={`mt-1 ${error && !manualKeywords.trim() ? 'border-destructive' : ''}`}
-                  disabled={isLoading}
-                  required
-                  aria-required="true"
-                  // Add aria-invalid if there's an error related to this field
-                  aria-invalid={!!(error && !manualKeywords.trim())}
-                />
-                {/* Show error message specifically for keywords if applicable */}
-
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Separate keywords with commas or new lines.
-                </p>
+                  {isLoading ? 'Processing...' : 'Remove Duplicates'}
+                </Button>
               </div>
-              <Button
-                onClick={handleManualProcess}
-                className="w-full"
-                disabled={isLoading || !manualKeywords.trim()}
-                aria-live="polite" // Announce loading state changes
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                {isLoading ? 'Processing...' : 'Remove Duplicates'}
-              </Button>
-            </div>
-          </CardContent>
-        </DataCard>
-      </div>
+            </CardContent>
+          </DataCard>
+        </div>
 
-      {/* Action Buttons */}
-      {products.length > 0 && !isLoading && (
+        {/* Results Section */}
         <div className="flex justify-end gap-2 mb-6">
           <Button variant="outline" onClick={handleExport} disabled={isLoading}>
             <Download className="mr-2 h-4 w-4" />
-            Export Cleaned Keywords
+            Export CSV
           </Button>
           <Button
             variant="destructive"
@@ -586,126 +582,98 @@ export default function KeywordDeduplicator() {
             Clear Results
           </Button>
         </div>
-      )}
 
-      {/* Error Display (General Errors) */}
-      {error && (
-        <div
-          role={VALIDATION_ERROR_ROLE}
-          className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-destructive dark:bg-red-900/30 dark:text-red-400"
-        >
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setError(undefined)}
-            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
-            aria-label="Dismiss error"
-          >
-            <XCircle className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+        {/* Error Message */}
+        {error && (
+          <DataCard>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="text-destructive h-4 w-4" />
+                <span className="flex-grow break-words">{error}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setError(undefined)}
+              >
+                Dismiss
+              </Button>
+            </CardContent>
+          </DataCard>
+        )}
 
-      {/* Loading Indicator */}
-      {isLoading && (
-        <div className="space-y-2 py-4 text-center" aria-live="polite">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />
-          <p className="text-sm text-muted-foreground">
-            Processing keywords...
-          </p>
-        </div>
-      )}
+        {/* Loading State */}
+        {isLoading && (
+          <DataCard>
+            <CardContent className="p-4 flex items-center justify-center">
+              <Progress value={undefined} className="max-w-md" />
+            </CardContent>
+          </DataCard>
+        )}
 
-      {/* Results Section */}
-      {products.length > 0 && !isLoading && (
-        <DataCard>
-          <CardContent className="p-4 space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-3">
-              Deduplication Results ({products.length} Products)
-            </h2>
-            <div className="space-y-4">
+        {/* Results Display */}
+        {products.length > 0 && !isLoading && (
+          <DataCard>
+            <CardContent className="p-4 space-y-6">
+              <h2 className="text-lg font-semibold">
+                Deduplication Results ({products.length} Products)
+              </h2>
               {products.map((product, index) => (
                 <Card key={`${product.product}-${index}`}>
                   <CardContent className="p-4">
                     <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                      <h3 className="text-lg font-medium break-all">
-                        {product.product}
-                      </h3>
-                      <Badge
-                        variant={
-                          product.duplicatesRemoved > 0
-                            ? 'default'
-                            : 'secondary'
-                        }
-                        className="whitespace-nowrap self-start sm:self-center"
-                      >
-                        {product.duplicatesRemoved > 0
-                          ? `Removed ${product.duplicatesRemoved} duplicates`
-                          : 'No duplicates found'}
+                      <h3 className="text-md font-medium">{product.product}</h3>
+                      <Badge variant="secondary">
+                        {product.duplicatesRemoved} duplicates removed
                       </Badge>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div>
-                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                          Original Keywords ({product.originalKeywords.length})
-                        </h4>
-                        <div className="rounded-lg border bg-muted/30 p-3 min-h-[100px] overflow-y-auto max-h-40">
-                          {product.originalKeywords.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {product.originalKeywords.map((keyword, i) => (
-                                <Badge
-                                  key={`orig-${index}-${i}`}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {keyword}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-xs text-muted-foreground italic">
-                              No original keywords provided.
-                            </p>
-                          )}
+                    {/* Original Keywords */}
+                    <div>
+                      <h4 className="mb-2 text-sm font-semibold">
+                        Original Keywords:
+                      </h4>
+                      {product.originalKeywords.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {product.originalKeywords.map((keyword, i) => (
+                            <Badge key={`${keyword}-${i}`} variant="outline">
+                              {keyword}
+                            </Badge>
+                          ))}
                         </div>
-                      </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">
+                          No original keywords found.
+                        </p>
+                      )}
+                    </div>
 
-                      <div>
-                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
-                          Cleaned Keywords ({product.cleanedKeywords.length})
-                        </h4>
-                        <div className="rounded-lg border p-3 min-h-[100px] overflow-y-auto max-h-40">
-                          {product.cleanedKeywords.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {product.cleanedKeywords.map((keyword, i) => (
-                                <Badge
-                                  key={`clean-${index}-${i}`}
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {keyword}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-xs text-muted-foreground italic">
-                              No keywords remaining after deduplication.
-                            </p>
-                          )}
+                    {/* Cleaned Keywords */}
+                    <div>
+                      <h4 className="mb-2 text-sm font-semibold">
+                        Cleaned Keywords:
+                      </h4>
+                      {product.cleanedKeywords.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {product.cleanedKeywords.map((keyword, i) => (
+                            <Badge key={`${keyword}-${i}`} variant="outline">
+                              {keyword}
+                            </Badge>
+                          ))}
                         </div>
-                      </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">
+                          No keywords remaining after deduplication.
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </CardContent>
-        </DataCard>
-      )}
-    </div>
+            </CardContent>
+          </DataCard>
+        )}
+      </div>
+    </React.Fragment>
   );
 }
-// Removed the duplicate component definition and related code blocks
