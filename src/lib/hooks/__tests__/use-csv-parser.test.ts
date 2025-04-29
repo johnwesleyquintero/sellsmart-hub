@@ -1,6 +1,26 @@
 import { act, renderHook } from '@testing-library/react';
 import { useCsvParser } from '../use-csv-parser';
 
+// Mock browser APIs
+const mockFile = (
+  fileBits: BlobPart[],
+  fileName: string,
+  options?: FilePropertyBag,
+): File => {
+  return new File(fileBits, fileName, options);
+};
+
+const mockBlob = (blobParts: BlobPart[], options?: BlobPropertyBag): Blob => {
+  return new Blob(blobParts, options);
+};
+
+beforeAll(() => {
+  // Mock File and Blob constructors
+  // Assign mock implementations
+  (global as any).File = mockFile;
+  (global as any).Blob = mockBlob;
+});
+
 describe('useCsvParser', () => {
   const mockOptions = {
     requiredHeaders: ['name', 'value'],
@@ -11,7 +31,8 @@ describe('useCsvParser', () => {
   };
 
   const createMockFile = (content: string): File => {
-    return new File([content], 'test.csv', { type: 'text/csv' });
+    const blob = new Blob([content], { type: 'text/csv' });
+    return new File([blob], 'test.csv', { type: 'text/csv' });
   };
 
   it('should parse valid CSV data correctly', async () => {
