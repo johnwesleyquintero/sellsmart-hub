@@ -1,6 +1,29 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis as UpstashRedis } from '@upstash/redis';
 
+export const redisConfig = {
+  url: process.env.REDIS_URL || process.env.KV_URL,
+  token: process.env.REDIS_TOKEN || process.env.KV_REST_API_TOKEN,
+  readOnlyToken: process.env.KV_REST_API_READ_ONLY_TOKEN,
+  apiUrl: process.env.KV_REST_API_URL,
+};
+
+export function getRedisUrl() {
+  const url = redisConfig.url;
+  if (!url) {
+    throw new Error('Redis URL not configured');
+  }
+  return url;
+}
+
+export function getRedisToken() {
+  const token = redisConfig.token;
+  if (!token) {
+    throw new Error('Redis token not configured');
+  }
+  return token;
+}
+
 type RedisConfig = {
   url: string;
   token: string;
@@ -10,14 +33,8 @@ type RedisConfig = {
 
 // Validate environment variables
 function getRedisConfig(): RedisConfig {
-  const url = process.env.KV_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    throw new Error(
-      'Missing required Redis environment variables (KV_URL and KV_REST_API_TOKEN)',
-    );
-  }
+  const url = getRedisUrl();
+  const token = getRedisToken();
 
   return {
     url,

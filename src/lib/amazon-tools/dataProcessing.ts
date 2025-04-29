@@ -1,8 +1,8 @@
-interface AmazonDataItem {
-  [key: string]: any;
+interface AmazonData {
+  [key: string]: unknown;
 }
 
-export function processAmazonData(data: AmazonDataItem[]) {
+export function processAmazonData(data: AmazonData[]) {
   if (!data) throw new Error('Invalid data');
   if (data.length === 0) return [];
 

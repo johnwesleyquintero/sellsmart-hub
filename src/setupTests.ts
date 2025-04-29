@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 if (typeof TextEncoder === 'undefined') {
   // @ts-ignore
   global.TextEncoder = require('util').TextEncoder;

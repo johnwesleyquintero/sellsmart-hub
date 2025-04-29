@@ -1,98 +1,106 @@
-import { type LogLevel } from './types';
+import { monitor } from './monitoring';
 
-interface LogContext {
-  [key: string]: unknown;
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  data?: unknown;
 }
-
-interface LoggerConfig {
-  minLevel: LogLevel;
-  enableConsole: boolean;
-  enableMetrics: boolean;
-  environment: string;
-}
-
-const defaultConfig: LoggerConfig = {
-  minLevel: 'info',
-  enableConsole: true,
-  enableMetrics: true,
-  environment: process.env.NODE_ENV || 'development',
-};
-
-const logLevels: Record<LogLevel, number> = {
-  debug: 0,
-  info: 1,
-  warn: 2,
-  error: 3,
-};
 
 class Logger {
-  private config: LoggerConfig;
+  private isDevelopment = process.env.NODE_ENV === 'development';
 
-  constructor(config: Partial<LoggerConfig> = {}) {
-    this.config = { ...defaultConfig, ...config };
-  }
-
-  private shouldLog(level: LogLevel): boolean {
-    return logLevels[level] >= logLevels[this.config.minLevel];
-  }
-
-  private formatMessage(
+  private formatLogEntry(
     level: LogLevel,
     message: string,
-    context?: LogContext,
-  ): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
+    data?: unknown,
+  ): LogEntry {
+    return {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      ...(data ? { data } : {}),
+    };
   }
 
-  private log(level: LogLevel, message: string, context?: LogContext): void {
-    if (!this.shouldLog(level)) return;
+  private log(level: LogLevel, message: string, data?: unknown) {
+    const entry = this.formatLogEntry(level, message, data);
 
-    const formattedMessage = this.formatMessage(level, message, context);
+    // Development logging
+    if (this.isDevelopment) {
+      const consoleMethod =
+        level === 'error'
+          ? 'error'
+          : level === 'warn'
+            ? 'warn'
+            : level === 'debug'
+              ? 'debug'
+              : 'log';
 
-    if (this.config.enableConsole) {
-      switch (level) {
-        case 'error':
-          console.error(formattedMessage);
-          break;
-        case 'warn':
-          console.warn(formattedMessage);
-          break;
-        case 'info':
-          console.info(formattedMessage);
-          break;
-        case 'debug':
-          console.debug(formattedMessage);
-          break;
+      console[consoleMethod](
+        `[${entry.timestamp}] ${level.toUpperCase()}: ${message}`,
+        data ? '\n' : '',
+        data || '',
+      );
+    }
+
+    // Production logging
+    if (process.env.NODE_ENV === 'production') {
+      // Track errors in monitoring system
+      if (level === 'error') {
+        monitor.trackError(data instanceof Error ? data : new Error(message), {
+          ...entry,
+        });
+      }
+
+      // Send to logging service if configured
+      if (process.env.NEXT_PUBLIC_LOGGING_ENDPOINT) {
+        fetch(process.env.NEXT_PUBLIC_LOGGING_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry),
+        }).catch((error) => {
+          console.error('Failed to send log to logging service:', error);
+        });
       }
     }
+  }
 
-    if (this.config.enableMetrics) {
-      // Implement metrics collection here
-      // Example: send to monitoring service
+  debug(message: string, data?: unknown) {
+    if (this.isDevelopment) {
+      this.log('debug', message, data);
     }
   }
 
-  debug(message: string, context?: LogContext): void {
-    this.log('debug', message, context);
+  info(message: string, data?: unknown) {
+    this.log('info', message, data);
   }
 
-  info(message: string, context?: LogContext): void {
-    this.log('info', message, context);
+  warn(message: string, data?: unknown) {
+    this.log('warn', message, data);
   }
 
-  warn(message: string, context?: LogContext): void {
-    this.log('warn', message, context);
+  error(message: string, error?: unknown) {
+    this.log('error', message, error);
   }
 
-  error(message: string, context?: LogContext): void {
-    this.log('error', message, context);
-  }
+  // Create child logger with context
+  child(context: Record<string, unknown>) {
+    const childLogger = new Logger();
+    const originalLog = childLogger.log.bind(childLogger);
 
-  setConfig(config: Partial<LoggerConfig>): void {
-    this.config = { ...this.config, ...config };
+    childLogger.log = (level: LogLevel, message: string, data?: unknown) => {
+      originalLog(level, message, {
+        ...context,
+        ...(data ? { data } : {}),
+      });
+    };
+
+    return childLogger;
   }
 }
 
+// Export singleton instance
 export const logger = new Logger();

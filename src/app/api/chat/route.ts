@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip') ??
       '127.0.0.1'; // Fallback IP
 
-    const { success } = await rateLimiter.limit(ip);
+    const { success } = await rateLimiter.limit();
 
     if (!success) {
       const rateLimitError = determineErrorType(

@@ -3,6 +3,13 @@ setlocal EnableDelayedExpansion
 
 echo --- Starting Preview Script ---
 
+REM --- Initialize environment and system checks ---
+powershell -File "%~dp0scripts\system-info.ps1"
+if %ERRORLEVEL% neq 0 (
+    echo Error: System initialization failed
+    exit /b 1
+)
+
 REM --- Define the port your dev server runs on (default Next.js is 3000) ---
 set DEV_PORT=3000
 

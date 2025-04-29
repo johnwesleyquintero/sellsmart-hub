@@ -128,3 +128,4 @@ jest.setup.js
 __mocks__/
 .vercel
 .log
+.env.local

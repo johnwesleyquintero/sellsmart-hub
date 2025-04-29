@@ -1,4 +1,4 @@
-import BlogImage from '@/components/blog/blog-image';
+import { BlogImage } from '@/components/blog/blog-image';
 import { MDXComponents as mdxComponents } from '@/components/blog/mdx-components';
 import { Badge } from '@/components/ui/badge';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';

@@ -1,1 +1,0 @@
-npm install --save-dev @types/aria-query @types/babel__core @types/babel__traverse @types/bcrypt @types/d3-fetch @types/d3-force @types/d3-format @types/d3-geo @types/d3-hierarchy @types/d3-timer @types/estree @types/papaparse @types/testing-library__react

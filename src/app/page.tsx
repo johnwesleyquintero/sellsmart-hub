@@ -1,44 +1,51 @@
 import Footer from '@/components/footer';
 import Header from '@/components/header';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { ContentSkeleton } from '@/components/ui/loading-skeleton';
+import { QueryErrorBoundary } from '@/components/ui/query-error-boundary';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import ClientChatWrapper from '@/components/client-chat-wrapper';
 
-// Only disable SSR for components that truly need client-side features
-const ErrorBoundary = dynamic(() => import('@/components/ui/error-boundary'), {
-  loading: () => <div className="min-h-[400px]" />,
-});
-
-const ClientChatInterface = dynamic(
-  () => import('@/components/ui/client-chat-interface'),
-);
-
-// Enable SSR for static content sections
+// Prioritize above-the-fold content
 const HeroSection = dynamic(() => import('@/components/hero-section'), {
-  ssr: true,
+  loading: () => <ContentSkeleton />,
 });
 
+// Lazy load below-the-fold content
 const UnifiedDashboard = dynamic(
   () => import('@/components/amazon-seller-tools/unified-dashboard'),
-  { ssr: true },
+  {
+    loading: () => <ContentSkeleton />,
+    ssr: true,
+  },
 );
 
 const ProjectsSection = dynamic(() => import('@/components/projects-section'), {
+  loading: () => <ContentSkeleton />,
   ssr: true,
 });
 
 const AboutSection = dynamic(() => import('@/components/about-section'), {
+  loading: () => <ContentSkeleton />,
   ssr: true,
 });
 
 const CertificationsSection = dynamic(
   () => import('@/components/certifications-section'),
-  { ssr: true },
+  {
+    loading: () => <ContentSkeleton />,
+    ssr: true,
+  },
 );
 
 const BlogSection = dynamic(() => import('@/components/blog-section'), {
+  loading: () => <ContentSkeleton />,
   ssr: true,
 });
 
 const ContactSection = dynamic(() => import('@/components/contact-section'), {
+  loading: () => <ContentSkeleton />,
   ssr: true,
 });
 
@@ -49,15 +56,44 @@ export default function Home() {
       <div className="relative">
         <Header />
         <ErrorBoundary>
-          <HeroSection />
-          <UnifiedDashboard />
-          <ProjectsSection />
-          <AboutSection />
-          <CertificationsSection />
-          <BlogSection />
-          <ContactSection />
+          <Suspense fallback={<ContentSkeleton />}>
+            <HeroSection />
+          </Suspense>
+
+          <QueryErrorBoundary>
+            <Suspense fallback={<ContentSkeleton />}>
+              <UnifiedDashboard />
+            </Suspense>
+          </QueryErrorBoundary>
+
+          <QueryErrorBoundary>
+            <Suspense fallback={<ContentSkeleton />}>
+              <ProjectsSection />
+            </Suspense>
+          </QueryErrorBoundary>
+
+          <QueryErrorBoundary>
+            <Suspense fallback={<ContentSkeleton />}>
+              <AboutSection />
+            </Suspense>
+          </QueryErrorBoundary>
+
+          <Suspense fallback={<ContentSkeleton />}>
+            <CertificationsSection />
+          </Suspense>
+
+          <QueryErrorBoundary>
+            <Suspense fallback={<ContentSkeleton />}>
+              <BlogSection />
+            </Suspense>
+          </QueryErrorBoundary>
+
+          <Suspense fallback={<ContentSkeleton />}>
+            <ContactSection />
+          </Suspense>
+
           {/* Add the client-side chat interface */}
-          <ClientChatInterface />
+          <ClientChatWrapper />
         </ErrorBoundary>
         <Footer />
       </div>

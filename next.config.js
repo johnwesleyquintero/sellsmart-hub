@@ -13,7 +13,13 @@ const nextConfig = {
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
   // Resolve SWC/Babel conflict
   experimental: {
-    forceSwcTransforms: true,
+    forceSwcTransforms: false,
+    optimizeCss: false,
+    optimizeServerReact: false,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'wesleyquintero.vercel.app'],
+      bodySizeLimit: '4mb',
+    },
   },
   // Enable importAttributes syntax
   compiler: {
@@ -50,9 +56,8 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 3600,
     dangerouslyAllowSVG: true,
-    // Removed duplicate CSP header to avoid conflicts with middleware
-
     contentDispositionType: 'inline',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     unoptimized: process.env.NODE_ENV === 'development',
     disableStaticImages: false,
     domains: [],
@@ -60,16 +65,6 @@ const nextConfig = {
 
   // Modern Experimental Features
   serverExternalPackages: ['mongoose', '@next-auth/mongodb-adapter'],
-  experimental: {
-    esmExternals: true,
-    optimizeCss: true,
-    optimizeServerReact: true,
-
-    serverActions: {
-      allowedOrigins: ['localhost:3000', 'wesleyquintero.vercel.app'],
-      bodySizeLimit: '4mb',
-    },
-  },
   // Compiler options
   compiler: {
     // Remove console logs in production builds
@@ -79,10 +74,8 @@ const nextConfig = {
   },
   // Webpack customization
   webpack: (config, { webpack: webpackInstance, isServer, dev }) => {
-    // Enable minification in production for better performance
-    if (!dev) {
-      config.optimization.minimize = true;
-    }
+    // Disable minification completely to avoid WebpackError constructor issues
+    config.optimization.minimize = false;
     // Define environment variables (build-time/server-side)
     // Use NEXT_PUBLIC_ prefix for variables needed in the browser
     // Removed redundant DefinePlugin configuration
