@@ -129,3 +129,4 @@ __mocks__/
 .vercel
 .log
 .env.local
+jest-results.json

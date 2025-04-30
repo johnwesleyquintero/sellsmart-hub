@@ -152,24 +152,45 @@ const parseAndValidateCsv = <T extends Record<string, unknown>>(
 // --- Component ---
 
 interface CsvUploaderProps<T extends Record<string, unknown>> {
-  onUploadSuccess: (data: T[]) => void;
-  onUploadError?: (error: string | undefined) => void; // Allow undefined to clear error
+  onUploadSuccessAction: (data: T[]) => void;
+  onUploadError?: (error: string | undefined) => void;
   allowedFileTypes?: string[];
-  maxFileSize?: number; // in bytes
-  validateRow?: (row: Record<string, unknown>) => T | null;
+  maxFileSize?: number;
+  validateRowAction?: (row: Record<string, unknown>) => T | null;
   requiredColumns?: string[];
-  // Added props for controlling state from parent if needed (optional)
   isLoading?: boolean;
   hasData?: boolean;
-  onClear?: () => void; // Callback for when clear is clicked
+  onClear?: () => void;
 }
 
+interface RowType {
+  id: string;
+  impressions: string;
+  clicks: string;
+}
+
+const defaultValidateRow = (row: Record<string, unknown>): RowType | null => {
+  if (
+    typeof row.id === 'string' &&
+    typeof row.impressions === 'string' &&
+    typeof row.clicks === 'string' &&
+    !isNaN(Number(row.impressions)) &&
+    !isNaN(Number(row.clicks))
+  ) {
+    const { id, impressions, clicks } = row;
+    return { id, impressions, clicks };
+  }
+  return null;
+};
+
 export const CsvUploader = <T extends Record<string, unknown>>({
-  onUploadSuccess,
+  onUploadSuccessAction,
   onUploadError,
   allowedFileTypes = ['.csv'],
   maxFileSize = 5 * 1024 * 1024, // 5MB default
-  validateRow,
+  validateRowAction = defaultValidateRow as (
+    row: Record<string, unknown>,
+  ) => T | null,
   requiredColumns = ['id', 'impressions', 'clicks'],
   isLoading: externalIsLoading, // Use props if provided
   hasData: externalHasData,
@@ -194,10 +215,10 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       return await parseAndValidateCsv<T>(
         csvContent,
         requiredColumns,
-        validateRow,
+        validateRowAction,
       );
     },
-    [requiredColumns, validateRow],
+    [requiredColumns, validateRowAction],
   );
 
   const handleUploadResults = useCallback(
@@ -205,12 +226,12 @@ export const CsvUploader = <T extends Record<string, unknown>>({
       if (validRows.length === 0) {
         throw new Error('No valid data found in CSV file');
       }
-      onUploadSuccess(validRows);
+      onUploadSuccessAction(validRows);
       if (errors.length > 0) {
         console.warn('CSV validation warnings:', errors);
       }
     },
-    [onUploadSuccess],
+    [onUploadSuccessAction],
   );
 
   const handleProcessingError = useCallback(

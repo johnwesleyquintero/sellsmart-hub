@@ -24,6 +24,7 @@ function processParsedData<T>(
   result: ParseResult<Record<string, unknown>>, // Explicitly type the row data
   options: CsvParserOptions<T>,
 ): CsvParserResult<T> {
+  console.log('processParsedData: Starting processing');
   // Validate required headers
   const actualHeaders = result.meta.fields || [];
   const missingHeaders = options.requiredHeaders.filter(
@@ -63,6 +64,7 @@ function processParsedData<T>(
     );
   }
 
+  console.log('processParsedData: Finishing processing');
   return {
     data: validRows,
     skippedRows,
@@ -79,6 +81,7 @@ export function useCsvParser<T>(
 
   const parseFile = useCallback(
     (file: File) => {
+      console.log('parseFile: Starting parsing of file', file.name);
       return new Promise<CsvParserResult<T>>((resolve, reject) => {
         setIsLoading(true);
         setError(null);
@@ -97,6 +100,7 @@ export function useCsvParser<T>(
         setIsLoading(true);
         setError(null);
 
+        console.log('parseFile: Before Papa.parse');
         Papa.parse<Record<string, unknown>>(file, {
           header: true,
           dynamicTyping: true, // Enable automatic type conversion
@@ -113,6 +117,7 @@ export function useCsvParser<T>(
           },
           transformHeader: (header) => header.trim(),
           complete: (result) => {
+            console.log('parseFile: Papa.parse complete callback');
             setIsLoading(false);
             try {
               if (result.errors.length > 0) {
@@ -139,6 +144,7 @@ export function useCsvParser<T>(
             reject(new Error(errorMessage));
           },
         });
+        console.log('parseFile: After Papa.parse');
       });
     },
     [options, onError, onComplete],
