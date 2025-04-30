@@ -24,11 +24,10 @@
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
     },
     {
-      "id": "test",
-      "name": "Unit Testing (Jest)",
-      "command": "npm run test:report",
-      "enabled": true,
-      "description": "Runs unit tests using Jest."
+      "id": "build",
+      "name": "Build (Next.js)",
+      "command": "npm run build",
+      "description": "Builds the Next.js application using the production configuration"
     }
   ],
   "errorCategories": {

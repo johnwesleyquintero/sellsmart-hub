@@ -19,7 +19,6 @@ interface BlogPostCardProps {
 }
 
 export function BlogPostCard({ post }: Readonly<BlogPostCardProps>) {
-
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg group hover:border-primary">
       <div className="aspect-video overflow-hidden relative">
