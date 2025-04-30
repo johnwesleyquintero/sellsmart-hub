@@ -345,8 +345,8 @@ export default function AcosCalculator() {
         sales,
         ...metrics,
       };
-      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       return metrics.acos;
     } catch (error) {
       console.error('Error calculating ACOS:', error);
@@ -592,6 +592,7 @@ export default function AcosCalculator() {
                 disabled={isLoading}
                 required
                 className={validationErrors.sales ? 'border-red-500' : ''}
+                data-testid="sales-input"
               />
               {validationErrors.sales ? (
                 <p className="text-sm text-red-500 mt-1">
@@ -607,6 +608,7 @@ export default function AcosCalculator() {
               onClick={handleManualCalculate}
               disabled={!isManualInputValid || isLoading}
               className="w-full"
+              data-testid="calculate-button"
             >
               {isLoading ? 'Calculating...' : 'Calculate & Add'}
             </Button>

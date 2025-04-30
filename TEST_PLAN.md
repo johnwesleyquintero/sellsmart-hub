@@ -4,18 +4,34 @@ Update the test plan with the following information here:
 
 [Test Directory README](./src/__tests__/README.md)
 
+## Test Commands Available
+
+```bash
+"test": "jest --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\" --passWithNoTests",
+"test:ci": "jest --ci --runInBand --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\"",
+"test:update": "jest -u",
+"test:coverage": "jest --coverage",
+"test:watch": "jest --watch",
+"typecheck": "tsc --noEmit",
+"test:json": "jest --json --outputFile=jest-results.json || true",
+"test:report": "npm run test:json -- --clearCache && node ./.wescore/scripts/parse-jest-results.mjs"
+```
+
 ## Test Categories
 
 ### 1. Unit Tests
 
-- Components
-  - Error Boundary Component
-  - Amazon Tools UI Components
-  - Shared UI Components
-- Utilities
-  - Calculation Functions
-  - Data Processing Functions
-  - Helper Functions
+#### Components
+
+- Error Boundary Component
+- Amazon Tools UI Components
+- Shared UI Components
+
+#### Utilities
+
+- Calculation Functions
+- Data Processing Functions
+- Helper Functions
 
 ### 2. Integration Tests
 

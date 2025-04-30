@@ -223,6 +223,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
 
   const handleUploadResults = useCallback(
     (validRows: T[], errors: string[]) => {
+      console.log('handleUploadResults called');
       if (validRows.length === 0) {
         throw new Error('No valid data found in CSV file');
       }
@@ -252,6 +253,7 @@ export const CsvUploader = <T extends Record<string, unknown>>({
 
   const processFile = useCallback(
     async (file: File) => {
+      console.log('processFile called');
       try {
         onUploadError?.(undefined);
         handleFileValidation(file);
@@ -276,9 +278,11 @@ export const CsvUploader = <T extends Record<string, unknown>>({
   );
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      console.log('onDrop called');
       console.log('acceptedFiles', acceptedFiles);
       if (acceptedFiles.length > 0) {
         processFile(acceptedFiles[0]);
+        console.log('processFile called from onDrop');
       } else {
         // Handle rejected files (e.g., wrong type, too large) - react-dropzone might provide details
         onUploadError?.('File rejected. Check type or size.');

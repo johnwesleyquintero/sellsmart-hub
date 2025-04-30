@@ -27,13 +27,13 @@ This document outlines the essential rules and guidelines for developing the Ama
 - **Type Safety:**
   - Write strongly-typed TypeScript code. Avoid `any` wherever possible; use specific types or `unknown`.
   - Address all type errors reported by `npm run typecheck`.
-  - Mark component props as `readonly` where applicable (see `PROJECT_TRACKER.md` for examples).
+  - Mark component props as `readonly` where applicable (see `project-tracker.mdx` for examples).
 - **Code Smells:** Regularly check for code smells using `npm run lint:smells` and address identified issues.
 - **Quality Checks:** Before creating a Pull Request, run the full quality suite: `npm run wes-cq`. Address all reported issues.
 - **Naming Conventions:** Follow standard TypeScript/React naming conventions (e.g., `PascalCase` for components and types, `camelCase` for variables and functions).
 - **Simplicity & Readability:** Write clear, concise, and well-commented code, especially for complex logic.
 
-**Rule:** Code must pass all formatting, linting, type-checking, and code smell checks before being merged. Prioritize fixing issues identified in the `PROJECT_TRACKER.md` under "Current Linting Issues" and "Code Quality".
+**Rule:** Code must pass all formatting, linting, type-checking, and code smell checks before being merged. Prioritize fixing issues identified in the `project-tracker.mdx` under "Current Linting Issues" and "Code Quality".
 
 ## 3. Development Workflow
 
@@ -45,7 +45,7 @@ This document outlines the essential rules and guidelines for developing the Ama
   - Commit small, logical units of work.
 - **Pull Requests (PRs):**
   - Create PRs targeting the `main` branch.
-  - Link PRs to relevant issues or tasks in `PROJECT_TRACKER.md`.
+  - Link PRs to relevant issues or tasks in `project-tracker.mdx`.
   - Ensure all automated checks (CI/CD, Vercel deployments) pass.
   - Require at least one code review approval before merging (if applicable to team structure).
   - Clearly describe the changes made in the PR description.
@@ -86,7 +86,7 @@ This document outlines the essential rules and guidelines for developing the Ama
 
 - **Code Comments:** Add comments to explain complex logic, algorithms, or non-obvious code sections.
 - **`README.md`:** Keep the main `README.md` updated with project setup, core technologies, and available scripts.
-- **`PROJECT_TRACKER.md`:** Regularly update the status of tasks, add new findings, and modify priorities as needed. Update the "Last Updated" date.
+- **`project-tracker.mdx`:** Regularly update the status of tasks, add new findings, and modify priorities as needed. Update the "Last Updated" date.
 - **Tool Documentation:** Maintain specific documentation for each tool (e.g., `amazon-seller-tools.mdx` or dedicated files referenced in the tracker) reflecting its current status, features, and known issues.
 - **Architecture:** [Optional but Recommended] Maintain high-level diagrams or descriptions of the application architecture.
 
