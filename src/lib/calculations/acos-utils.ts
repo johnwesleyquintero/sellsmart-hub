@@ -16,8 +16,8 @@ export const calculateMetrics = (
     sales === 0
       ? Infinity
       : isNaN(adSpend) || isNaN(sales)
-      ? NaN
-      : (adSpend / sales) * 100;
+        ? NaN
+        : (adSpend / sales) * 100;
   const roas = isNaN(adSpend) || isNaN(sales) ? NaN : sales / adSpend;
 
   let ctr, conversionRate, cpc;

@@ -14,14 +14,11 @@ import { BlogPost } from '@/lib/static-data-types';
 import { ArrowRight, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-
 interface BlogPostCardProps {
   post: BlogPost;
 }
 
 export function BlogPostCard({ post }: Readonly<BlogPostCardProps>) {
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg group hover:border-primary">
