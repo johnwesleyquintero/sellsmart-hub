@@ -22,7 +22,7 @@ import {
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
 import { monetaryValueSchema, numberSchema } from '@/lib/input-validation';
-import { AlertCircle, Download, Info, Upload, X, XCircle } from 'lucide-react';
+import { AlertCircle, Download, Info, Upload } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -98,9 +98,6 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
-  // Calculate ACoS (Advertising Cost of Sale)
-  const acos = sales === 0 ? Infinity : (adSpend / sales) * 100;
-  onCalculate?.(acos);
   try {
     // Validate inputs
     const validatedAdSpend = monetaryValueSchema.parse(adSpend);
@@ -280,7 +277,7 @@ export default function AcosCalculator() {
     [csvParser], // csvParser dependency is correct
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { 'text/csv': ['.csv'] },
     multiple: false,
@@ -345,11 +342,7 @@ export default function AcosCalculator() {
       // const sales1 = Number.parseFloat(manualCampaign.sales);
       // console.log('Manual input: adSpend =', adSpend1, 'sales =', sales1);
       const metrics = calculateLocalMetrics(adSpend, sales);
-      if (sales === 0) {
-        metrics.acos = Infinity;
-      } else {
-        metrics.acos = (adSpend / sales) * 100;
-      }
+
       console.log('Calculated metrics:', metrics);
       const newCampaign: CampaignData = {
         campaign: manualCampaign.campaign.trim(),
@@ -512,9 +505,9 @@ export default function AcosCalculator() {
         </div>
       </div>
 
-      {/* Input Section */}
+      {/* Upload & Manual Input Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CSV Upload Card */}
+        {/* Upload CSV Card */}
         <Card>
           <CardHeader>
             <CardTitle>Upload Campaign Data</CardTitle>
@@ -522,193 +515,162 @@ export default function AcosCalculator() {
           <CardContent>
             <div
               {...getRootProps()}
-              className={`relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5 ${isDragActive ? 'border-primary bg-primary/10' : ''}`}
+              className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5 "
+              role="presentation"
+              tabIndex={0}
             >
-              <input {...getInputProps()} disabled={isLoading} />
+              <input
+                {...getInputProps()}
+                accept="text/csv,.csv"
+                style={{
+                  border: '0px',
+                  clip: 'rect(0px, 0px, 0px, 0px)',
+                  clipPath: 'inset(50%)',
+                  height: '1px',
+                  margin: '0px -1px -1px 0px',
+                  overflow: 'hidden',
+                  padding: '0px',
+                  position: 'absolute',
+                  width: '1px',
+                  whiteSpace: 'nowrap',
+                }}
+                tabIndex={-1}
+                type="file"
+              />
               <Upload className="mb-2 h-8 w-8 text-primary/60" />
               <span className="text-sm font-medium">
-                {isDragActive
-                  ? 'Drop the CSV file here...'
-                  : 'Click or drag CSV file here'}
+                Click or drag CSV file here
               </span>
               <span className="text-xs text-muted-foreground mt-1">
                 (Requires: campaign, adSpend, sales)
               </span>
             </div>
-            <SampleCsvButton
-              dataType="acos"
-              fileName="sample-acos-data.csv"
-              className="mt-4 w-full"
-              onClick={() =>
-                console.log('SampleCsvButton clicked in acos-calculator.tsx')
-              }
-            />
+            <SampleCsvButton dataType="campaign-performance" />
           </CardContent>
         </Card>
 
-        {/* Manual Entry Card */}
+        {/* Manual Input Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Manual Calculation</CardTitle>
+            <CardTitle>Enter Campaign Manually</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="manual-campaign">Campaign Name*</Label>
+              <Label htmlFor="campaign">Campaign Name</Label>
               <Input
-                id="manual-campaign"
+                type="text"
+                id="campaign"
                 name="campaign"
                 value={manualCampaign.campaign}
                 onChange={handleManualInputChange}
-                placeholder="e.g., SP - Auto - Product A"
-                disabled={isLoading}
-                className={validationErrors.campaign ? 'border-red-500' : ''}
+                placeholder="Campaign Name"
+                maxLength={100}
               />
-              {validationErrors.campaign && (
-                <p className="text-sm text-red-500 mt-1">
-                  {validationErrors.campaign}
-                </p>
-              )}
             </div>
             <div>
-              <Label htmlFor="manual-adSpend">Ad Spend ($)*</Label>
+              <Label htmlFor="adSpend">Ad Spend ($)*</Label>
               <Input
-                id="manual-adSpend"
-                name="adSpend"
                 type="text"
-                inputMode="decimal"
+                id="adSpend"
+                name="adSpend"
                 value={manualCampaign.adSpend}
                 onChange={handleManualInputChange}
-                placeholder="e.g., 150.75"
-                disabled={isLoading}
+                placeholder="0.00"
                 required
-                className={validationErrors.adSpend ? 'border-red-500' : ''}
               />
               {validationErrors.adSpend ? (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-xs text-red-500">
                   {validationErrors.adSpend}
                 </p>
-              ) : (
-                !manualCampaign.adSpend && (
-                  <p className="text-sm text-red-500 mt-1">Required</p>
-                )
-              )}
+              ) : null}
             </div>
             <div>
-              <Label htmlFor="manual-sales">Sales Revenue ($)*</Label>
+              <Label htmlFor="sales">Sales Amount</Label>
               <Input
-                id="manual-sales"
-                name="sales"
                 type="text"
-                inputMode="decimal"
+                id="sales"
+                name="sales"
                 value={manualCampaign.sales}
                 onChange={handleManualInputChange}
-                placeholder="e.g., 600.50"
-                disabled={isLoading}
-                required
-                className={validationErrors.sales ? 'border-red-500' : ''}
-                data-testid="sales-input"
+                placeholder="0.00"
               />
               {validationErrors.sales ? (
-                <p className="text-sm text-red-500 mt-1">
-                  {validationErrors.sales}
-                </p>
-              ) : (
-                !manualCampaign.sales && (
-                  <p className="text-sm text-red-500 mt-1">Required</p>
-                )
-              )}
+                <p className="text-xs text-red-500">{validationErrors.sales}</p>
+              ) : null}
             </div>
             <Button
               onClick={handleManualCalculate}
-              disabled={!isManualInputValid || isLoading}
+              disabled={isLoading || !isManualInputValid}
               className="w-full"
-              data-testid="calculate-button"
             >
-              {isLoading ? 'Calculating...' : 'Calculate & Add'}
+              {isLoading ? (
+                <>
+                  Calculating...
+                  <Progress value={undefined} className="w-1/3 ml-2" />
+                </>
+              ) : (
+                'Calculate'
+              )}
             </Button>
           </CardContent>
         </Card>
       </div>
-      <div data-testid="acos-value">
-        {campaigns.length > 0
-          ? campaigns[campaigns.length - 1]?.acos === Infinity
-            ? 'ACoS: Infinity%' // Corrected: Use 'Infinity' string
-            : `ACoS: ${campaigns[campaigns.length - 1]?.acos?.toFixed(2)}%`
-          : 'ACoS: 0.00%'}
-      </div>
 
-      {/* Error Alert */}
+      {/* Error & Data Controls */}
       {error && (
         <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>
-            {error.includes('warnings') ? 'Warning' : 'Error'}
-          </AlertTitle>
+          <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2"
-            // Corrected: Use undefined instead of null
-            onClick={() => setError(undefined)}
-          >
-            <XCircle className="h-4 w-4" />
-          </Button>
         </Alert>
       )}
-
-      {/* Action Buttons Row */}
       <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          disabled={campaigns.length === 0 || isLoading}
-        >
-          <Download className="mr-2 h-4 w-4" />
-          Export Data
-        </Button>
         {campaigns.length > 0 && (
-          <Button
-            variant="destructive"
-            onClick={clearData}
-            disabled={isLoading}
-          >
-            <X className="mr-2 h-4 w-4" />
+          <Button variant="outline" onClick={clearData} disabled={isLoading}>
             Clear Data
           </Button>
         )}
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          disabled={isLoading || campaigns.length === 0}
+        >
+          Export CSV <Download className="ml-2 h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Metric Selection Buttons */}
-      <div className="flex flex-wrap items-center gap-2 rounded-md bg-muted p-2">
-        <span className="text-sm font-medium mr-2">View Metric:</span>
-        {Object.entries(chartConfig).map(([key, config]) => (
-          <Button
-            key={key}
-            variant={selectedMetric === key ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedMetric(key as keyof typeof chartConfig)}
-          >
-            {config.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Charts Row */}
-      {(campaigns.length > 0 || isLoading) && (
-        <div className="grid grid-cols-1 gap-6">
-          {/* Bar Chart */}
-          <Card>
+      {/* Metric Selection & Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Campaign Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-6">
             <CardHeader>
-              <CardTitle>
-                {chartConfig[selectedMetric].label} Distribution
-              </CardTitle>
+              <CardTitle>Select Metric</CardTitle>
             </CardHeader>
-            {/* --- Use the chartContent variable here --- */}
-            <CardContent>{chartContent}</CardContent>
-          </Card>
-        </div>
-      )}
+            <div className="flex gap-2">
+              {Object.entries(chartConfig).map(([key, config]) => (
+                <Button
+                  key={key}
+                  variant={selectedMetric === key ? 'default' : 'outline'}
+                  onClick={() =>
+                    setSelectedMetric(key as keyof typeof chartConfig)
+                  }
+                  disabled={isLoading}
+                >
+                  {config.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Chart Display */}
+      <Card>
+        <CardContent>{chartContent}</CardContent>
+      </Card>
 
       {/* ACoS Rating Guide */}
       <Card>
@@ -716,24 +678,17 @@ export default function AcosCalculator() {
           <CardTitle>ACoS Rating Guide</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-1 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {acosRatingGuide.map((item) => (
-              <li key={item.label} className="flex items-center gap-2">
-                <span
-                  className={`inline-block h-3 w-3 rounded-full ${item.color.replace('text-', 'bg-')}`}
-                />
-                <span className="font-medium">{item.label}:</span>
-                <span className={`font-semibold ${item.color}`}>
-                  {item.range}
-                </span>
-              </li>
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-md border p-2"
+              >
+                <span>{item.label}</span>
+                <span className={item.color}>{item.range}</span>
+              </div>
             ))}
-          </ul>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Note: Ideal ACoS varies by product, category, and campaign goals.
-            Lower ACoS generally indicates higher profitability from ads.
-            Infinity ACoS means no sales were generated from ad spend.
-          </p>
+          </div>
         </CardContent>
       </Card>
     </div>

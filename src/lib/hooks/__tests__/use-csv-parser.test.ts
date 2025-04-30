@@ -74,12 +74,13 @@ describe('useCsvParser', () => {
     await act(async () => {
       try {
         await result.current.parseFile(file);
+        fail('Expected error to be thrown');
       } catch (error: any) {
         expect(error.message).toContain('No valid data found after processing');
       }
     });
 
-    expect(result.current.error).toBeNull();
+    expect(result.current.error).not.toBeNull();
     expect(result.current.isLoading).toBe(false);
   });
 

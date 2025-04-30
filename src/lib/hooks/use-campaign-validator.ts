@@ -85,15 +85,9 @@ export function validateNumericField(
     return { isValid: true, errors, sanitizedValue: 0 };
   }
 
-  // Handle percentage values
-  let numericValue: number;
-  if (stringValue.endsWith('%')) {
-    numericValue = Number(stringValue.slice(0, -1)) / 100;
-  } else {
-    // Remove currency symbols and commas
-    const cleanValue = stringValue.replace(/[$,]/g, '');
-    numericValue = Number(cleanValue);
-  }
+  // Remove currency symbols and commas
+  const cleanValue = stringValue.replace(/[$,]/g, '');
+  const numericValue = Number(cleanValue);
 
   if (isNaN(numericValue)) {
     errors.push({

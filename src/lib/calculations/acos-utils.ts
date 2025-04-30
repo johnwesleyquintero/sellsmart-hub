@@ -12,8 +12,13 @@ export const calculateMetrics = (
   impressions?: number,
   clicks?: number,
 ): CampaignMetrics => {
-  const acos = (adSpend / sales) * 100;
-  const roas = sales / adSpend;
+  const acos =
+    sales === 0
+      ? Infinity
+      : isNaN(adSpend) || isNaN(sales)
+      ? NaN
+      : (adSpend / sales) * 100;
+  const roas = isNaN(adSpend) || isNaN(sales) ? NaN : sales / adSpend;
 
   let ctr, conversionRate, cpc;
 

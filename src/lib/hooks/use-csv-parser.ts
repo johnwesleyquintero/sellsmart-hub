@@ -83,6 +83,7 @@ export function useCsvParser<T>(
   const parseFile = useCallback(
     (file: File) => {
       console.log('parseFile: Starting parsing of file', file.name);
+      let isLoadingSettled = false;
       return new Promise<CsvParserResult<T>>((resolve, reject) => {
         setIsLoading(true);
         setError(null);
@@ -94,7 +95,10 @@ export function useCsvParser<T>(
           setError(error.message);
           onError?.(error);
           reject(error);
-          setIsLoading(false); // Ensure isLoading is set to false on rejection
+          if (!isLoadingSettled) {
+            setIsLoading(false); // Ensure isLoading is set to false on rejection
+            isLoadingSettled = true;
+          }
           return;
         }
 
@@ -111,15 +115,28 @@ export function useCsvParser<T>(
               value = value.trim();
               // Convert percentage values to numbers
               if (value.endsWith('%')) {
-                return parseFloat(value) / 100;
+                return parseFloat(value.slice(0, -1)) / 100;
               }
             }
             return value;
           },
           transformHeader: (header) => header.trim(),
+          error: (err: Error) => {
+            const errorMessage = `Error parsing CSV file: ${err.message}`;
+            setError(errorMessage);
+            onError?.(new Error(errorMessage));
+            if (!isLoadingSettled) {
+              setIsLoading(false);
+              isLoadingSettled = true;
+            }
+            return reject(new Error(errorMessage));
+          },
           complete: (result) => {
             console.log('parseFile: Papa.parse complete callback');
-            setIsLoading(false);
+            if (!isLoadingSettled) {
+              setIsLoading(false);
+              isLoadingSettled = true;
+            }
             try {
               if (result.errors.length > 0) {
                 throw new Error(
@@ -136,13 +153,6 @@ export function useCsvParser<T>(
               onError?.(new Error(errorMessage));
               reject(new Error(errorMessage));
             }
-          },
-          error: (err: Error) => {
-            setIsLoading(false);
-            const errorMessage = `Error parsing CSV file: ${err.message}`;
-            setError(errorMessage);
-            onError?.(new Error(errorMessage));
-            reject(new Error(errorMessage));
           },
         });
         console.log('parseFile: After Papa.parse');

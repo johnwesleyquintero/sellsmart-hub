@@ -1,3 +1,13 @@
+jest.mock('@/lib/config', () => ({
+  validateEnv: () => ({
+    REDIS_URL: 'test',
+    REDIS_TOKEN: 'test',
+    GITHUB_TOKEN: 'test',
+    LINKEDIN_API_KEY: 'test',
+    NEXTAUTH_URL: 'test',
+    NEXTAUTH_SECRET: 'test',
+  }),
+}));
 import '@testing-library/jest-dom';
 if (typeof TextEncoder === 'undefined') {
   // @ts-ignore
