@@ -1,0 +1,338 @@
+[{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/amazon-seller-tools/acos-calculator.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "AcosCalculator Component > calculates ACoS correctly with valid input\n-----\nError: expect(element).toHaveTextContent()\n\nExpected element to have text content:\n  /acos: 20.00%/i\nReceived:\n  ACoS: 0.00%",
+	"source": "Jest",
+	"startLineNumber": 26,
+	"startColumn": 1,
+	"endLineNumber": 26,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/amazon-seller-tools/acos-calculator.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "AcosCalculator Component > calculates ACoS correctly with zero sales\n-----\nError: expect(element).toHaveTextContent()\n\nExpected element to have text content:\n  /acos: infinity%/i\nReceived:\n  ACoS: 0.00%",
+	"source": "Jest",
+	"startLineNumber": 79,
+	"startColumn": 1,
+	"endLineNumber": 79,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-card.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogPostCard > renders image with correct attributes\n-----\nError: expect(element).toHaveAttribute(\"src\", StringContaining \"/test-image.jpg\") // element.getAttribute(\"src\") === StringContaining \"/test-image.jpg\"\n\nExpected the element to have attribute:\n  src=StringContaining \"/test-image.jpg\"\nReceived:\n  src=\"/_next/image?url=%2Ftest-image.jpg&w=1920&q=75\"",
+	"source": "Jest",
+	"startLineNumber": 33,
+	"startColumn": 1,
+	"endLineNumber": 33,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-card.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogPostCard > applies loading animation to image\n-----\nError: expect(element).toHaveClass(\"opacity-0\")\n\nExpected the element to have class:\n  opacity-0\nReceived:\n  object-cover transition-transform duration-300 group-hover:scale-105 opacity-100",
+	"source": "Jest",
+	"startLineNumber": 55,
+	"startColumn": 1,
+	"endLineNumber": 55,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-card.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogPostCard > renders all tags with correct styling\n-----\nError: expect(element).toHaveClass(\"text-xs\")\n\nExpected the element to have class:\n  text-xs\nReceived:\n  text-sm text-muted-foreground line-clamp-3",
+	"source": "Jest",
+	"startLineNumber": 73,
+	"startColumn": 1,
+	"endLineNumber": 73,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-card.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogPostCard > applies hover effects correctly\n-----\nTestingLibraryElementError: Unable to find an accessible element with the role \"article\"\n\nHere are the accessible roles:\n\n  img:\n\n  Name \"Test Blog Post\":\n  <img\n    alt=\"Test Blog Post\"\n    class=\"object-cover transition-transform duration-300 group-hover:scale-105 opacity-100\"\n    data-nimg=\"1\"\n    data-testid=\"blog-image\"\n    decoding=\"async\"\n    height=\"400\"\n    loading=\"lazy\"\n    src=\"/_next/image?url=%2Ftest-image.jpg&w=1920&q=75\"\n    srcset=\"/_next/image?url=%2Ftest-image.jpg&w=828&q=75 1x, /_next/image?url=%2Ftest-image.jpg&w=1920&q=75 2x\"\n    style=\"color: transparent;\"\n    width=\"800\"\n  />\n\n  --------------------------------------------------\n  heading:\n\n  Name \"Test Blog Post\":\n  <h3\n    class=\"font-semibold tracking-tight line-clamp-2 text-lg\"\n  />\n\n  --------------------------------------------------\n  link:\n\n  Name \"Read Article\":\n  <a\n    class=\"inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-10 p-0 hover:bg-transparent group flex items-center text-primary group-hover:underline\"\n    href=\"/blog/test-post\"\n  />\n\n  --------------------------------------------------\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <div\n      class=\"rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg group hover:border-primary\"\n    >\n      <div\n        class=\"aspect-video overflow-hidden relative\"\n      >\n        <img\n          alt=\"Test Blog Post\"\n          class=\"object-cover transition-transform duration-300 group-hover:scale-105 opacity-100\"\n          data-nimg=\"1\"\n          data-testid=\"blog-image\"\n          decoding=\"async\"\n          height=\"400\"\n          loading=\"lazy\"\n          src=\"/_next/image?url=%2Ftest-image.jpg&w=1920&q=75\"\n          srcset=\"/_next/image?url=%2Ftest-image.jpg&w=828&q=75 1x, /_next/image?url=%2Ftest-image.jpg&w=1920&q=75 2x\"\n          style=\"color: transparent;\"\n          width=\"800\"\n        />\n        <div\n          class=\"absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300\"\n          data-testid=\"image-overlay\"\n        />\n      </div>\n      <div\n        class=\"flex flex-col space-y-1.5 p-4\"\n      >\n        <div\n          class=\"flex items-center gap-2 text-sm text-muted-foreground\"\n        >\n          <svg\n            class=\"lucide lucide-calendar h-4 w-4\"\n            fill=\"none\"\n            height=\"24\"\n            stroke=\"currentColor\"\n            stroke-linecap=\"round\"\n            stroke-linejoin=\"round\"\n            stroke-width=\"2\"\n            viewBox=\"0 0 24 24\"\n            width=\"24\"\n            xmlns=\"http://www.w3.org/2000/svg\"\n          >\n            <path\n              d=\"M8 2v4\"\n            />\n            <path\n              d=\"M16 2v4\"\n            />\n            <rect\n              height=\"18\"\n              rx=\"2\"\n              width=\"18\"\n              x=\"3\"\n              y=\"4\"\n            />\n            <path\n              d=\"M3 10h18\"\n            />\n          </svg>\n          <span>\n            April 30, 2025\n          </span>\n        </div>\n        <div\n          class=\"flex items-center gap-2 text-sm text-muted-foreground\"\n        >\n          <span>\n            5 min read\n          </span>\n        </div>\n        <h3\n          class=\"font-semibold tracking-tight line-clamp-2 text-lg\"\n        >\n          Test Blog Post\n        </h3>\n        <p\n          class=\"text-sm text-muted-foreground line-clamp-3\"\n        >\n          This is a test blog post description\n        </p>\n      </div>\n      <div\n        class=\"p-4 pt-0\"\n      >\n        <div\n          class=\"flex flex-wrap gap-2\"\n        >\n          <div\n            class=\"inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xs\"\n            data-testid=\"blog-tag\"\n          >\n            test\n          </div>\n          <div\n            class=\"inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xs\"\n            data-testid=\"blog-tag\"\n          >\n            blog\n          </div>\n        </div>\n      </div>\n      <div\n        class=\"flex items-center p-4 pt-0\"\n      >\n        <a\n          class=\"inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-10 p-0 hover:bg-transparent group flex items-center text-primary group-hover:underline\"\n          href=\"/blog/test-post\"\n        >\n          Read Article\n           \n          <svg\n            class=\"lucide lucide-arrow-right ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300\"\n            data-testid=\"arrow-icon\"\n            fill=\"none\"\n            height=\"24\"\n            stroke=\"currentColor\"\n            stroke-linecap=\"round\"\n            stroke-linejoin=\"round\"\n            stroke-width=\"2\"\n            viewBox=\"0 0 24 24\"\n            width=\"24\"\n            xmlns=\"http://www.w3.org/2000/svg\"\n          >\n            <path\n              d=\"M5 12h14\"\n            />\n            <path\n              d=\"m12 5 7 7-7 7\"\n            />\n          </svg>\n        </a>\n      </div>\n    </div>\n  </div>\n</body>",
+	"source": "Jest",
+	"startLineNumber": 88,
+	"startColumn": 1,
+	"endLineNumber": 88,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-section.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogSection > renders blog section with posts\n-----\nError: expect(received).toBeInTheDocument()\n\nreceived value must be an HTMLElement or an SVGElement.\nReceived has type:  array\nReceived has value: [<h3 class=\"font-semibold tracking-tight line-clamp-2 text-lg\">Test Blog Post</h3>]",
+	"source": "Jest",
+	"startLineNumber": 52,
+	"startColumn": 1,
+	"endLineNumber": 52,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-section.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogSection > displays multiple blog posts\n-----\nError: expect(received).toBeInTheDocument()\n\nreceived value must be an HTMLElement or an SVGElement.\nReceived has type:  array\nReceived has value: [<h3 class=\"font-semibold tracking-tight line-clamp-2 text-lg\">Another Post</h3>]",
+	"source": "Jest",
+	"startLineNumber": 61,
+	"startColumn": 1,
+	"endLineNumber": 61,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-section.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogSection > renders empty state when no posts are available\n-----\nError: expect(received).toBeInTheDocument()\n\nreceived value must be an HTMLElement or an SVGElement.\nReceived has type:  array\nReceived has value: [<a class=\"inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8\" href=\"/blog\">View All Articles <svg class=\"lucide lucide-arrow-right ml-2 h-4 w-4\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M5 12h14\" /><path d=\"m12 5 7 7-7 7\" /></svg></a>]",
+	"source": "Jest",
+	"startLineNumber": 69,
+	"startColumn": 1,
+	"endLineNumber": 69,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-section.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogSection > displays dates correctly\n-----\nError: expect(received).toBeInTheDocument()\n\nreceived value must be an HTMLElement or an SVGElement.\nReceived has type:  array\nReceived has value: [<span>April 30, 2025</span>]",
+	"source": "Jest",
+	"startLineNumber": 75,
+	"startColumn": 1,
+	"endLineNumber": 75,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/__tests__/components/blog-section.test.tsx",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "BlogSection > includes a link to view all articles\n-----\nError: expect(received).toBeInTheDocument()\n\nreceived value must be an HTMLElement or an SVGElement.\nReceived has type:  array\nReceived has value: [<a class=\"inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8\" href=\"/blog\">View All Articles <svg class=\"lucide lucide-arrow-right ml-2 h-4 w-4\" fill=\"none\" height=\"24\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M5 12h14\" /><path d=\"m12 5 7 7-7 7\" /></svg></a>]",
+	"source": "Jest",
+	"startLineNumber": 99,
+	"startColumn": 1,
+	"endLineNumber": 99,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "typescript",
+	"code": "2451",
+	"severity": 8,
+	"message": "Cannot redeclare block-scoped variable 'acos'.",
+	"source": "ts",
+	"startLineNumber": 102,
+	"startColumn": 9,
+	"endLineNumber": 102,
+	"endColumn": 13,
+	"extensionID": "vscode.typescript-language-features"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "typescript",
+	"code": "2451",
+	"severity": 8,
+	"message": "Cannot redeclare block-scoped variable 'acos'.",
+	"source": "ts",
+	"startLineNumber": 105,
+	"startColumn": 9,
+	"endLineNumber": 105,
+	"endColumn": 13,
+	"extensionID": "vscode.typescript-language-features"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "eslint",
+	"code": {
+		"value": "no-redeclare",
+		"target": {
+			"$mid": 1,
+			"path": "/docs/latest/rules/no-redeclare",
+			"scheme": "https",
+			"authority": "eslint.org"
+		}
+	},
+	"severity": 8,
+	"message": "'acos' is already defined.",
+	"source": "eslint",
+	"startLineNumber": 105,
+	"startColumn": 9,
+	"endLineNumber": 105,
+	"endColumn": 13,
+	"extensionID": "dbaeumer.vscode-eslint"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "typescript",
+	"code": "2451",
+	"severity": 8,
+	"message": "Cannot redeclare block-scoped variable 'acos'.",
+	"source": "ts",
+	"startLineNumber": 108,
+	"startColumn": 9,
+	"endLineNumber": 108,
+	"endColumn": 13,
+	"extensionID": "vscode.typescript-language-features"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "eslint",
+	"code": {
+		"value": "no-redeclare",
+		"target": {
+			"$mid": 1,
+			"path": "/docs/latest/rules/no-redeclare",
+			"scheme": "https",
+			"authority": "eslint.org"
+		}
+	},
+	"severity": 8,
+	"message": "'acos' is already defined.",
+	"source": "eslint",
+	"startLineNumber": 108,
+	"startColumn": 9,
+	"endLineNumber": 108,
+	"endColumn": 13,
+	"extensionID": "dbaeumer.vscode-eslint"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/amazon-seller-tools/acos-calculator.tsx",
+	"owner": "typescript",
+	"code": "2532",
+	"severity": 8,
+	"message": "Object is possibly 'undefined'.",
+	"source": "ts",
+	"startLineNumber": 640,
+	"startColumn": 24,
+	"endLineNumber": 640,
+	"endColumn": 60,
+	"extensionID": "vscode.typescript-language-features"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/blog/blog-card.tsx",
+	"owner": "eslint",
+	"code": {
+		"value": "@typescript-eslint/no-unused-vars",
+		"target": {
+			"$mid": 1,
+			"path": "/rules/no-unused-vars",
+			"scheme": "https",
+			"authority": "typescript-eslint.io"
+		}
+	},
+	"severity": 8,
+	"message": "'imageLoaded' is assigned a value but never used.",
+	"source": "eslint",
+	"startLineNumber": 24,
+	"startColumn": 10,
+	"endLineNumber": 24,
+	"endColumn": 21,
+	"extensionID": "dbaeumer.vscode-eslint"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/components/blog/blog-card.tsx",
+	"owner": "eslint",
+	"code": {
+		"value": "@typescript-eslint/no-unused-vars",
+		"target": {
+			"$mid": 1,
+			"path": "/rules/no-unused-vars",
+			"scheme": "https",
+			"authority": "typescript-eslint.io"
+		}
+	},
+	"severity": 8,
+	"message": "'setImageLoaded' is assigned a value but never used.",
+	"source": "eslint",
+	"startLineNumber": 24,
+	"startColumn": 23,
+	"endLineNumber": 24,
+	"endColumn": 37,
+	"extensionID": "dbaeumer.vscode-eslint"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should parse valid CSV data correctly\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should handle missing required headers\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should handle invalid row data\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should handle empty CSV file\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should handle file size limit\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should handle percentage values correctly\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should call onError callback when provided\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+},{
+	"resource": "/c:/Users/johnw/OneDrive/Desktop/portfolio/src/lib/hooks/__tests__/use-csv-parser.test.ts",
+	"owner": "Jest (portfolio)",
+	"severity": 8,
+	"message": "useCsvParser > should call onComplete callback when provided\n-----\nRangeError: Maximum call stack size exceeded",
+	"source": "Jest",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 9007199254740992,
+	"extensionID": "Orta.vscode-jest"
+}]

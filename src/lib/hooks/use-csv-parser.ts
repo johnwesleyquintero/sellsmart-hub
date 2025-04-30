@@ -21,10 +21,12 @@ interface UseCsvParserResult<T> {
 
 // Helper function to process the parsed results
 function processParsedData<T>(
-  result: ParseResult<Record<string, unknown>>, // Explicitly type the row data
+  result: ParseResult<Record<string, unknown>>,
   options: CsvParserOptions<T>,
 ): CsvParserResult<T> {
   console.log('processParsedData: Starting processing');
+  console.log('processParsedData: result.data.length', result.data.length);
+
   // Validate required headers
   const actualHeaders = result.meta.fields || [];
   const missingHeaders = options.requiredHeaders.filter(
@@ -39,24 +41,23 @@ function processParsedData<T>(
   const validRows: T[] = [];
   const skippedRows: Array<{ index: number; reason: string }> = [];
 
-  // Explicitly type row as Record<string, unknown> which is correct for header: true
-  result.data.forEach((row: Record<string, unknown>, index: number) => {
+  // Use for loop instead of forEach to avoid potential recursion
+  for (let i = 0; i < result.data.length; i++) {
+    const row = result.data[i];
     try {
-      // Ensure row is actually an object before validation, skip if not (e.g., empty lines parsed weirdly)
       if (typeof row === 'object' && row !== null) {
-        const validatedRow = options.validateRow(row, index);
+        const validatedRow = options.validateRow(row, i);
         validRows.push(validatedRow);
       } else {
-        // Optionally skip or log rows that aren't objects if needed
-        // skippedRows.push({ index, reason: 'Row is not a valid object' });
+        skippedRows.push({ index: i, reason: 'Row is not a valid object' });
       }
     } catch (err) {
       skippedRows.push({
-        index,
+        index: i,
         reason: err instanceof Error ? err.message : String(err),
       });
     }
-  });
+  }
 
   if (validRows.length === 0 && result.data.length > 0) {
     throw new Error(
@@ -103,7 +104,7 @@ export function useCsvParser<T>(
         console.log('parseFile: Before Papa.parse');
         Papa.parse<Record<string, unknown>>(file, {
           header: true,
-          dynamicTyping: true, // Enable automatic type conversion
+          //dynamicTyping: true, // Enable automatic type conversion
           skipEmptyLines: 'greedy',
           transform: (value) => {
             if (typeof value === 'string') {

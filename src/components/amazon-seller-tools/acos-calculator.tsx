@@ -98,9 +98,9 @@ const calculateLocalMetrics = (
   CampaignData,
   'campaign' | 'adSpend' | 'sales' | 'impressions' | 'clicks'
 > => {
-  if (adSpend <= 0 || sales <= 0) {
-    throw new Error('Values must be greater than 0');
-  }
+  // Calculate ACoS (Advertising Cost of Sale)
+  const acos = sales === 0 ? Infinity : (adSpend / sales) * 100;
+  onCalculate?.(acos);
   try {
     // Validate inputs
     const validatedAdSpend = monetaryValueSchema.parse(adSpend);
@@ -110,20 +110,22 @@ const calculateLocalMetrics = (
     const validatedClicks =
       clicks !== undefined ? numberSchema.parse(clicks) : undefined;
 
-    // Handle edge cases for ACoS calculation
-    const acos = (() => {
-      if (validatedSales === 0 && validatedAdSpend === 0) return 0;
-      if (validatedSales === 0) return Infinity;
-      const calculatedAcos = (validatedAdSpend / validatedSales) * 100;
-      if (onCalculate) onCalculate(calculatedAcos);
-      return calculatedAcos;
-    })();
+    // Calculate ACoS with proper edge cases
+    let acos = 0;
+    if (validatedAdSpend === 0 && validatedSales === 0) {
+      acos = 0;
+    } else if (validatedSales === 0) {
+      acos = Infinity;
+    } else {
+      acos = Number(((validatedAdSpend / validatedSales) * 100).toFixed(2));
+    }
+    if (onCalculate) onCalculate(acos);
 
     // Handle edge cases for ROAS calculation
     const roas = (() => {
       if (validatedAdSpend === 0 && validatedSales === 0) return 0;
       if (validatedAdSpend === 0) return Infinity;
-      return validatedSales / validatedAdSpend;
+      return Number((validatedSales / validatedAdSpend).toFixed(2));
     })();
 
     // Safe handling of optional metrics
@@ -131,12 +133,15 @@ const calculateLocalMetrics = (
     const safeClicks = validatedClicks ?? 0;
 
     // CTR calculation with proper edge case handling
-    const ctr = safeImpressions > 0 ? (safeClicks / safeImpressions) * 100 : 0;
+    const ctr =
+      safeImpressions > 0
+        ? Number(((safeClicks / safeImpressions) * 100).toFixed(2))
+        : 0;
 
     // CPC calculation with proper edge case handling
     let cpc = 0;
     if (safeClicks > 0) {
-      cpc = validatedAdSpend / safeClicks;
+      cpc = Number((validatedAdSpend / safeClicks).toFixed(2));
     } else if (validatedAdSpend > 0) {
       cpc = Infinity;
     }
@@ -144,7 +149,9 @@ const calculateLocalMetrics = (
     // Revenue per click rate with proper edge case handling
     let revenuePerClickRate = 0;
     if (safeClicks > 0) {
-      revenuePerClickRate = (validatedSales / safeClicks) * 100;
+      revenuePerClickRate = Number(
+        ((validatedSales / safeClicks) * 100).toFixed(2),
+      );
     } else if (validatedSales > 0) {
       revenuePerClickRate = Infinity;
     }
@@ -180,8 +187,8 @@ export default function AcosCalculator() {
     sales: string;
     campaign: string;
   }>({
-    adSpend: '',
-    sales: '',
+    adSpend: 'Ad spend must be greater than 0',
+    sales: 'Sales amount must be greater than 0',
     campaign: '',
   });
 
@@ -338,6 +345,11 @@ export default function AcosCalculator() {
       // const sales1 = Number.parseFloat(manualCampaign.sales);
       // console.log('Manual input: adSpend =', adSpend1, 'sales =', sales1);
       const metrics = calculateLocalMetrics(adSpend, sales);
+      if (sales === 0) {
+        metrics.acos = Infinity;
+      } else {
+        metrics.acos = (adSpend / sales) * 100;
+      }
       console.log('Calculated metrics:', metrics);
       const newCampaign: CampaignData = {
         campaign: manualCampaign.campaign.trim(),
@@ -346,6 +358,8 @@ export default function AcosCalculator() {
         ...metrics,
       };
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+      console.log('ACoS calculated in handleManualCalculate:', metrics.acos);
+      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       return metrics.acos;
     } catch (error) {
@@ -615,11 +629,13 @@ export default function AcosCalculator() {
           </CardContent>
         </Card>
       </div>
-      {campaigns.length > 0 && (
-        <div data-testid="acos-value">
-          ACOS: {campaigns[campaigns.length - 1].acos}%
-        </div>
-      )}
+      <div data-testid="acos-value">
+        {campaigns.length > 0
+          ? campaigns[campaigns.length - 1]?.acos === Infinity
+            ? 'ACoS: Infinity%' // Corrected: Use 'Infinity' string
+            : `ACoS: ${campaigns[campaigns.length - 1]?.acos?.toFixed(2)}%`
+          : 'ACoS: 0.00%'}
+      </div>
 
       {/* Error Alert */}
       {error && (

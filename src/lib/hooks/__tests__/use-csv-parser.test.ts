@@ -24,10 +24,9 @@ beforeAll(() => {
 describe('useCsvParser', () => {
   const mockOptions = {
     requiredHeaders: ['name', 'value'],
-    validateRow: (row: Record<string, unknown>) => ({
-      name: String(row.name),
-      value: Number(row.value),
-    }),
+    validateRow: (row: Record<string, unknown>, index: number) => {
+      return row;
+    },
   };
 
   const createMockFile = (content: string): File => {
@@ -36,7 +35,7 @@ describe('useCsvParser', () => {
   };
 
   it('should parse valid CSV data correctly', async () => {
-    const csvContent = 'name,value\nTest,123';
+    const csvContent = 'name,value\nTest1,1\nTest2,2';
     const file = createMockFile(csvContent);
 
     const { result } = renderHook(() => useCsvParser(mockOptions));
@@ -162,7 +161,7 @@ describe('useCsvParser', () => {
 
   it('should call onComplete callback when provided', async () => {
     const mockOnComplete = jest.fn();
-    const csvContent = 'name,value\nTest,123';
+    const csvContent = 'name,value\nTest1,1\nTest2,2';
     const file = createMockFile(csvContent);
 
     const { result } = renderHook(() =>

@@ -1,114 +1,73 @@
-===================================================================
-GENERAL WORKFLOW
-===================================================================
+=========================================
+TEST WORKFLOW
+=========================================
 
-1. REVIEW & ANALYZE:
-   - Review `TODO.md` for errors and pending implementations.
-   - Identify root causes of issues.
+Analyze the following Jest test report, identifying root causes for failures and suggesting specific code fixes. Focus on component rendering, data processing, and integration issues. Provide actionable insights for improving test coverage and stability.
 
-2. IMPLEMENT FIXES:
-   - Address issues systematically based on log analysis.
-   - Test each fix to maintain functionality.
+Test Report Input:
+@/jest-failure-report.log / User Chat Input
 
-3. VERIFY:
-   - Run `npm run wes-cq` to check fixes.
-   - Identify any remaining issues.
+Desired Output:
 
-4. ITERATE:
-   - Repeat steps until all quality checks pass.
+A structured analysis of the test report, including:
 
-5. BUILD:
-   - Run `npm run build` for production deployment.
-   - Ensure build completes successfully.
+1. Categorization of Failures:
+   - Group failures by component, integration, or utility function.
 
+2. Root Cause Analysis:
+   - Identify the underlying reasons for each failure, referencing specific error messages and code snippets.
 
-===================================================================
-CODE QUALITY CHECK WORKFLOW
-===================================================================
+3. Suggested Code Fixes:
+   - Provide concrete code changes to address the identified root causes.
 
-1. RUN QUALITY CHECKS:
-   - Execute `npm run wes-cq` to perform code quality checks and identify any issues.
+4. Test Coverage Improvements:
+   - Suggest new tests or modifications to existing tests to improve coverage and prevent future regressions.
 
-2. ANALYZE RESULTS:
-   - Review the output for errors, warnings, and potential improvements.
+5. Performance Considerations:
+   - Note any tests with unusually long durations and suggest potential optimizations.
 
-3. ADDRESS ISSUES:
-   - Systematically fix identified issues and ensure code adheres to quality standards.
+6. Prioritization:
+   - Rank the failures by severity and impact, guiding developers on which issues to address first.
 
-4. REPEAT:
-   - Continue running `npm run wes-cq` and addressing issues until all checks pass successfully.
+7. Specific Questions:
+   - Pose targeted questions to the development team to clarify ambiguous error messages or gather additional context.
 
+8. Environment Details:
+   - Assume a React/Next.js environment with Jest and Testing Library for testing.
 
-===================================================================
-BUILD WORKFLOW
-===================================================================
+=========================================
+ISSUES/ERROR WORKFLOW
+=========================================
 
-1. RUN BUILD:
-   - Execute `npm run build` to initiate the production deployment build process.
+Analyze the following issues/error report, identifying root causes for failures and suggesting specific code fixes. Focus on component rendering, data processing, and integration issues. Provide actionable insights for improving test coverage and stability.
 
-2. MONITOR BUILD:
-   - Observe the build process for any errors or warnings that may arise.
+Issue/Error Report Input:
+@/issues.txt / User Chat Input
 
-3. ADDRESS ISSUES:
-   - Fix any identified issues to ensure a successful build.
+Desired Output:
 
-4. VERIFY:
-   - Confirm that the build completes successfully and is ready for deployment.
+A structured analysis of the issues report, including:
 
+1. Categorization of Failures:
+   - Group failures by component, integration, or utility function.
 
-===================================================================
-LINTING WORKFLOW
-===================================================================
+2. Root Cause Analysis:
+   - Identify the underlying reasons for each failure, referencing specific error messages and code snippets.
 
-1. RUN LINTING:
-   - Execute `npm run lint` to check the codebase for stylistic errors and inconsistencies.
+3. Suggested Code Fixes:
+   - Provide concrete code changes to address the identified root causes.
 
-2. REVIEW RESULTS:
-   - Analyze the linting output for any reported issues or warnings.
+4. Test Coverage Improvements:
+   - Suggest new tests or modifications to existing tests to improve coverage and prevent future regressions.
 
-3. FIX ISSUES:
-   - Address each linting issue to ensure code adheres to style guidelines.
+5. Performance Considerations:
+   - Note any tests with unusually long durations and suggest potential optimizations.
 
-4. REPEAT:
-   - Continue running `npm run lint` and resolving issues until the codebase is free of linting errors.
+6. Prioritization:
+   - Rank the failures by severity and impact, guiding developers on which issues to address first.
 
+7. Specific Questions:
+   - Pose targeted questions to the development team to clarify ambiguous error messages or gather additional context.
 
-===================================================================
-TYPE CHECK WORKFLOW
-===================================================================
-
-1. RUN TYPE CHECKS:
-   - Execute `npm run typecheck` to verify type safety across the codebase.
-
-2. REVIEW OUTPUT:
-   - Examine the type check results for any type errors or inconsistencies.
-
-3. RESOLVE ISSUES:
-   - Address each type error to ensure the codebase is type-safe and consistent.
-
-4. REPEAT:
-   - Continue running `npm run typecheck` and fixing issues until no type errors remain.
-
-
-===================================================================
-FORMATTING WORKFLOW
-===================================================================
-
-1. RUN FORMATTING:
-   - Execute `npm run format` to automatically format the codebase for consistency.
-
-2. REVIEW CHANGES:
-   - Check the formatted code for any unexpected changes or issues.
-
-3. ADDRESS ISSUES:
-   - Resolve any formatting problems to ensure code readability and consistency.
-
-4. VERIFY:
-   - Ensure the entire codebase is properly formatted and ready for further development.
-
-===================================================================
-
-
-
-
-
+8. Environment Details:
+   - Assume a React/Next.js environment with Jest and Testing Library for testing.

@@ -21,10 +21,11 @@ export default async function BlogSection() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {recentPosts.map((post) => (
-            <BlogPostCard
-              key={post.id}
-              post={{ ...post, relatedPosts: post.relatedPosts || [] }}
-            />
+            <article key={post.id}>
+              <BlogPostCard
+                post={{ ...post, relatedPosts: post.relatedPosts || [] }}
+              />
+            </article>
           ))}
         </div>
 

@@ -33,17 +33,27 @@ export function BlogPostCard({ post }: Readonly<BlogPostCardProps>) {
           height={400}
           quality={75}
           loading="lazy"
-          className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setImageLoaded(true)}
+          className="object-cover transition-transform duration-300 group-hover:scale-105 opacity-100"
+          data-testid="blog-image"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          data-testid="image-overlay"
+        ></div>
       </div>
       <CardHeader className="p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          <span>{post.date}</span>
+          <span>
+            {new Date(post.date).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>{post.readingTime}</span>
         </div>
         <CardTitle className="line-clamp-2 text-lg">{post.title}</CardTitle>
         <CardDescription className="line-clamp-3">
@@ -53,7 +63,12 @@ export function BlogPostCard({ post }: Readonly<BlogPostCardProps>) {
       <CardContent className="p-4 pt-0">
         <div className="flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="text-xs"
+              data-testid="blog-tag"
+            >
               {tag}
             </Badge>
           ))}
@@ -70,7 +85,10 @@ export function BlogPostCard({ post }: Readonly<BlogPostCardProps>) {
             className="flex items-center text-primary group-hover:underline"
           >
             Read Article{' '}
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+            <ArrowRight
+              className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300"
+              data-testid="arrow-icon"
+            />
           </Link>
         </Button>
       </CardFooter>

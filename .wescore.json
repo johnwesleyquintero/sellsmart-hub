@@ -24,9 +24,9 @@
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
     },
     {
-      "id": "test:plain",
+      "id": "test",
       "name": "Unit Testing (Jest)",
-      "command": "npm run test:plain",
+      "command": "npm run test:report",
       "enabled": true,
       "description": "Runs unit tests using Jest."
     }
