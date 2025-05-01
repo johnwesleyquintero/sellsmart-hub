@@ -4,25 +4,29 @@ import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-// Security headers configuration
-const securityHeaders = {
-  'Content-Security-Policy':
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
-    "font-src 'self'; " +
-    "connect-src 'self' https://api.github.com https://api.linkedin.com; " +
-    "frame-ancestors 'none'; " +
-    "form-action 'self';",
+// Security headers configuration with nonce for enhanced security
+const generateSecurityHeaders = (nonce?: string) => ({
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    `script-src 'self' ${nonce ? `'nonce-${nonce}'` : "'unsafe-inline'"} 'unsafe-eval'`,
+    `style-src 'self' ${nonce ? `'nonce-${nonce}'` : "'unsafe-inline'"} https:`,
+    "img-src 'self' data: blob: https:",
+    "font-src 'self'",
+    "connect-src 'self' https://api.github.com https://api.linkedin.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    'upgrade-insecure-requests',
+  ].join('; '),
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy':
     'camera=(), microphone=(), geolocation=(), interest-cohort=()',
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-};
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+});
 
 // List of public paths that don't require authentication
 const publicPaths = [
@@ -36,10 +40,21 @@ const publicPaths = [
 
 export async function middleware(request: NextRequest) {
   try {
+    // Generate nonce for CSP
+    const { randomUUID } = await import('node:crypto');
+    const nonce = Buffer.from(randomUUID()).toString('base64');
+
     // Check maintenance mode first
     const maintenanceMode = await get('maintenance_mode');
     if (maintenanceMode) {
-      return NextResponse.redirect(new URL('/maintenance', request.url));
+      const response = NextResponse.redirect(
+        new URL('/maintenance', request.url),
+      );
+      const headers = generateSecurityHeaders(nonce);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+      return response;
     }
 
     const path = request.nextUrl.pathname;
@@ -64,13 +79,16 @@ export async function middleware(request: NextRequest) {
       response = NextResponse.next();
     }
 
-    // Apply security headers
-    Object.entries(securityHeaders).forEach(([key, value]) => {
+    // Apply security headers with nonce
+    const headers = generateSecurityHeaders(nonce);
+    Object.entries(headers).forEach(([key, value]) => {
       response.headers.set(key, value);
     });
 
+    // Set nonce in header for use in components
+    response.headers.set('x-nonce', nonce);
+
     // Add request ID for tracking
-    const { randomUUID } = await import('node:crypto');
     const requestId = randomUUID();
     response.headers.set('X-Request-ID', requestId);
 
@@ -83,7 +101,8 @@ export async function middleware(request: NextRequest) {
 
     // Return 500 error with security headers
     const errorResponse = NextResponse.error();
-    Object.entries(securityHeaders).forEach(([key, value]) => {
+    const headers = generateSecurityHeaders();
+    Object.entries(headers).forEach(([key, value]) => {
       errorResponse.headers.set(key, value);
     });
     return errorResponse;

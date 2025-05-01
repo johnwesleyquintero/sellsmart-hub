@@ -22,12 +22,6 @@
       "name": "Type Checking (TSC)",
       "command": "npm run typecheck",
       "description": "Performs static type checking using the TypeScript Compiler based on tsconfig.json"
-    },
-    {
-      "id": "build",
-      "name": "Build (Next.js)",
-      "command": "npm run build",
-      "description": "Builds the Next.js application using the production configuration"
     }
   ],
   "errorCategories": {

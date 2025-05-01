@@ -37,7 +37,13 @@
       "@/lib/helpers": ["./lib/helpers/index"]
     }
   }, // Comma needed as 'types' follows
-  "types": ["jest", "@testing-library/jest-dom", "node"],
+  "types": [
+    "jest",
+    "@testing-library/jest-dom",
+    "node",
+    "find-cache-dir",
+    "mime"
+  ],
   "include": [
     "src/types/**/*", // This handles types inside src/types
     "next-env.d.ts",
