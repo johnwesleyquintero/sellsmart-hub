@@ -1,62 +1,61 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // --- Primary Debugging Configuration ---
     {
-      "name": "Debug: Next.js Full Stack", // Renamed for clarity
-      "type": "compound", // Runs multiple configurations
+      "name": "Next.js: Full",
       "request": "launch",
-      "configurations": [
-        "Debug: Next.js Server-side", // Reference the server config below
-        "Debug: Next.js Client-side" // Reference the client config below
-      ],
-      // Explicitly use the label from tasks.json for robustness
-      "preLaunchTask": "Run Dev Server",
-      "stopAll": true // Ensure stopping this stops both server and client debuggers
+      "type": "node",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/.next/**/*.js"]
     },
-
-    // --- Server-Side Debugging (Node.js) ---
+    {
+      "name": "Next.js: Client",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Next.js: Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--inspect"],
+      "skipFiles": ["<node_internals>/**"]
+    },
     {
       "name": "Debug: Next.js Server-side",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
-      // Runs 'npm run dev' and tells the Node process started by Next.js to listen for a debugger
       "runtimeArgs": ["run", "dev", "--", "--inspect"],
-      "port": 9229, // Default Node.js debug port
-      "console": "integratedTerminal", // Show server output in VS Code terminal
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"], // Skip internal/library code
-      "restart": true, // Automatically try to re-attach if the server restarts (e.g., on file change)
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "restart": true,
       "serverReadyAction": {
-        // Automatically launch the client-side debugger when the server is ready
-        "pattern": "- Local:.+?http://localhost:(\\d+)", // Common Next.js ready pattern (adjust if needed)
+        "pattern": "- Local:.+?http://localhost:(\\d+)",
         "uriFormat": "http://localhost:%s",
-        "action": "debugWithChrome", // Tells VS Code to launch the "Debug: Next.js Client-side" config
+        "action": "debugWithChrome",
         "killOnServerStop": true
       }
     },
-
-    // --- Client-Side Debugging (Chrome) ---
     {
       "name": "Debug: Next.js Client-side",
       "type": "chrome",
-      "request": "launch", // Launch a new Chrome instance
-      "url": "http://localhost:3000", // Matches the port in your "Run Dev Server" task
-      "webRoot": "${workspaceFolder}", // Map workspace files to browser sources
-      "sourceMaps": true, // Essential for debugging TS/JSX
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
       "sourceMapPathOverrides": {
-        "webpack://_N_E/*": "${webRoot}/*" // Common Next.js source map override
+        "webpack://_N_E/*": "${webRoot}/*"
       },
-      "userDataDir": false // Optional: Use a clean Chrome profile for debugging
-      // "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile" // Or specify a persistent profile dir
+      "userDataDir": false
     },
-
-    // --- Attach Configurations (Optional but useful) ---
     {
       "name": "Attach: Node Process",
       "type": "node",
       "request": "attach",
-      "port": 9229, // Default debug port
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "sourceMaps": true
     },
@@ -64,24 +63,27 @@
       "name": "Attach: Chrome",
       "type": "chrome",
       "request": "attach",
-      "port": 9223, // Default Chrome debug port (check chrome://inspect)
-      "urlFilter": "http://localhost:3000/*", // Filter for your app's URL
+      "urlFilter": "http://localhost:3000/*",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
       "sourceMapPathOverrides": {
         "webpack://_N_E/*": "${webRoot}/*"
       }
     },
-
-    // --- Run Production Build ---
     {
-      "name": "Run Production Build (npm start)", // Renamed for clarity
-      "command": "npm run start", // Assumes 'npm run build' was done first
+      "name": "Run Production Build (npm start)",
       "request": "launch",
-      "type": "node-terminal", // Runs in the integrated terminal
-      "console": "integratedTerminal"
+      "type": "node"
     }
-
-    // Removed the original "Launch Chrome" on port 8080 as it seemed unrelated
+  ],
+  "compounds": [
+    {
+      "name": "Debug: Next.js Full Stack",
+      "configurations": [
+        "Debug: Next.js Server-side",
+        "Debug: Next.js Client-side"
+      ],
+      "preLaunchTask": "Run Dev Server"
+    }
   ]
 }

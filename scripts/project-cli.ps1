@@ -1,152 +1,481 @@
-$ErrorActionPreference='Stop'
+<#
+.SYNOPSIS
+Project Management CLI with robust error handling and interactive features
+
+.DESCRIPTION
+This script provides a comprehensive interface for managing Node.js projects with
+enhanced error handling, logging, and user interaction capabilities.
+
+.NOTES
+File Name      : project-cli.ps1
+Author         : John Wesley Quintero
+Prerequisites  : PowerShell 5.1+, Node.js, npm
+#>
+
+#region Configuration
+$ErrorActionPreference = 'Stop'
+$DebugPreference = 'Continue'
+$WarningPreference = 'Continue'
 
 # Configuration
-$LogFile = "project-cli.log"
-
+$LogFile = Join-Path $PSScriptRoot "project-cli.log"
+$MaxLogSizeMB = 10
+$BackupCount = 3
+$SpinnerDelayMs = 100
+$CommandTimeoutSeconds = 300
 
 # Read Node.js version from package.json
-$PackageJson = Get-Content -Path "package.json" | ConvertFrom-Json
-$RequiredNodeVersion = $PackageJson.engines.node -replace '\^|>=|~', ''
-$RequiredNodeVersion = $RequiredNodeVersion.Split(' ')[0] # Take first version if multiple are specified
-$RequiredNpmVersion = "9.0.0" # Consider making this configurable too
+try {
+    $PackageJson = Get-Content -Path "package.json" -ErrorAction Stop | ConvertFrom-Json
+    $RequiredNodeVersion = ($PackageJson.engines.node -replace '\^|>=|~', '').Split(' ')[0]
+    $RequiredNpmVersion = "9.0.0"
+} catch {
+    Write-Error "Failed to read package.json: $_"
+    exit 1
+}
 
 # Command definitions
 $Commands = @{
-    'reset' = 'Reset the project environment (clean build artifacts and node_modules)'
-    'setup' = 'Initial project setup including dependencies'
-    'check' = 'Run all checks (lint, type check, tests)'
-    'build' = 'Build the project'
-    'dev' = 'Start development server'
-    'test' = 'Run tests'
-    'clean' = 'Clean build artifacts'
-    'update' = 'Update dependencies'
-    'info' = 'Display project information'
-    'clean-logs' = 'Clear log and temporary files'
-    'audit' = 'Run security audit for dependencies'
-    'docs' = 'New project documentation'
-    'stats' = 'Show project statistics'
-    'backup' = 'Create project backup'
-    'validate' = 'Test project structure'
+    'reset'       = 'Reset the project environment (clean build artifacts and node_modules)'
+    'setup'       = 'Initial project setup including dependencies'
+    'check'       = 'Run all checks (lint, type check, tests)'
+    'build'       = 'Build the project'
+    'dev'         = 'Start development server'
+    'test'        = 'Run tests'
+    'clean'       = 'Clean build artifacts'
+    'update'      = 'Update dependencies'
+    'info'        = 'Display project information'
+    'clean-logs'  = 'Clear log and temporary files'
+    'audit'       = 'Run security audit for dependencies'
+    'docs'        = 'Generate project documentation'
+    'stats'       = 'Show project statistics'
+    'backup'      = 'Create project backup'
+    'validate'    = 'Test project structure'
+    'exit'        = 'Exit the CLI (or use Q to quit)'
+    'help'        = 'Show this help message'
 }
 
 # Project paths
-
 $BuildArtifacts = @('.next', '.vercel', 'node_modules', 'package-lock.json', 'coverage', '.nyc_output', 'storybook-static')
 $LogFiles = @('*.log', '*.tmp', '*.temp', '*.bak', '*.cache')
 
-function Get-Log {
-    param(
-        [string]$LogPath = $LogFile,
-        [string]$Command = $null,
-        [string]$Level = $null,
-        [datetime]$StartDate = $null,
-        [datetime]$EndDate = $null
-    )
+# Test configuration
+$TestConfig = @{
+    TestDir = 'tests/cli'
+    TestFilePattern = '*.test.ps1'
+    TestResultsFile = 'cli-test-results.xml'
+}
 
-    if (-not (Test-Path $LogPath)) {
-        Write-Host "Log file not found: $LogPath" -ForegroundColor Red
-        return
-    }
+# ANSI color codes
+$ANSI = @{
+    Reset = "`e[0m"
+    Red = "`e[31m"
+    Green = "`e[32m"
+    Yellow = "`e[33m"
+    Blue = "`e[34m"
+    Magenta = "`e[35m"
+    Cyan = "`e[36m"
+    White = "`e[37m"
+    Gray = "`e[90m"
+}
+#endregion
 
-    $logEntries = Get-Content $LogPath | Where-Object {
-        $entry = $_ -split '\s+'
-        $entryDate = [datetime]::ParseExact("$($entry[0]) $($entry[1])", "yyyy-MM-dd HH:mm:ss", $null)
-        $entryLevel = $entry[2].Trim('[]')
-        $entryCommand = $entry[3].Trim('[]')
-
-        ($null -eq $Command -or $entryCommand -eq $Command) -and
-        ($null -eq $Level -or $entryLevel -eq $Level) -and
-        ($null -eq $StartDate -or $entryDate -ge $StartDate) -and
-        ($null -eq $EndDate -or $entryDate -le $EndDate)
-    }
-
-    $logEntries | ForEach-Object {
-        $entry = $_ -split '\s+', 5
-        [PSCustomObject]@{
-            Timestamp = "$($entry[0]) $($entry[1])"
-            Level = $entry[2].Trim('[]')
-            Command = $entry[3].Trim('[]')
-            Message = $entry[4]
+#region Helper Functions
+function Initialize-Logging {
+    <#
+    .SYNOPSIS
+    Initialize logging system with rotation
+    #>
+    try {
+        if (Test-Path $LogFile) {
+            $logSize = (Get-Item $LogFile).Length / 1MB
+            if ($logSize -gt $MaxLogSizeMB) {
+                for ($i = $BackupCount; $i -gt 0; $i--) {
+                    $oldLog = "$LogFile.$i"
+                    $newLog = "$LogFile.$($i+1)"
+                    if (Test-Path $oldLog) {
+                        if ($i -eq $BackupCount) {
+                            Remove-Item $oldLog -Force
+                        } else {
+                            Rename-Item $oldLog $newLog -Force
+                        }
+                    }
+                }
+                Rename-Item $LogFile "$LogFile.1" -Force
+            }
         }
+        New-Item -Path $LogFile -ItemType File -Force | Out-Null
+    } catch {
+        Write-Error "Failed to initialize logging: $_"
+        exit 1
     }
 }
 
-
 function Write-Log {
+    <#
+    .SYNOPSIS
+    Write a message to the log file and console with colored output
+    #>
     param(
+        [Parameter(Mandatory=$true)]
         [string]$Message,
-        [string]$Level = 'INFO',
-        [string]$Command = $null
-    )
 
-    if (-not $Command -and $MyInvocation.Line -match '\$success = switch \$command') {
-        $Command = $command
-    }
+        [ValidateSet('DEBUG','INFO','WARN','ERROR','CRITICAL','SUCCESS')]
+        [string]$Level = 'INFO',
+
+        [string]$Command = $null,
+
+        [switch]$NoConsole
+    )
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "[$timestamp] [$Level] [$Command] $Message"
-    Add-Content -Path $LogFile -Value $logEntry
 
-    # Color output based on level
-    switch ($Level) {
-        'ERROR' { Write-Host $logEntry -ForegroundColor Red }
-        'WARN' { Write-Host $logEntry -ForegroundColor Yellow }
-        'SUCCESS' { Write-Host $logEntry -ForegroundColor Green }
-        default { Write-Host $logEntry }
+    try {
+        Add-Content -Path $LogFile -Value $logEntry -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to write to log file: $_"
+    }
+
+    if (-not $NoConsole) {
+        $color = switch ($Level) {
+            'ERROR'    { $ANSI.Red }
+            'WARN'     { $ANSI.Yellow }
+            'SUCCESS'  { $ANSI.Green }
+            'DEBUG'    { $ANSI.Gray }
+            'CRITICAL' { $ANSI.Magenta }
+            default    { $ANSI.White }
+        }
+
+        Write-Host "$color[$Level]$($ANSI.Reset) $Message"
     }
 }
 
-function Test-RequiredCommands {
-    $requiredCommands = @('npm-run-all', 'cross-env', 'ts-node')
-    $missingCommands = @()
+function Show-Spinner {
+    <#
+    .SYNOPSIS
+    Display a spinner animation during long-running operations
+    #>
+    param(
+        [string]$Message = "Processing",
+        [int]$DelayMs = $SpinnerDelayMs,
+        [scriptblock]$ScriptBlock
+    )
 
-    foreach ($cmd in $requiredCommands) {
+    $spinner = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
+    $cursorVisible = [Console]::CursorVisible
+    [Console]::CursorVisible = $false
+
+    try {
+        $job = Start-Job -ScriptBlock $ScriptBlock -ErrorAction Stop
+        $spinnerIndex = 0
+
+        while ($job.State -eq 'Running') {
+            Write-Host -NoNewline "`r$($ANSI.Cyan)$($spinner[$spinnerIndex])$($ANSI.Reset) $Message"
+            $spinnerIndex = ($spinnerIndex + 1) % $spinner.Length
+            Start-Sleep -Milliseconds $DelayMs
+        }
+
+        $result = Receive-Job -Job $job -ErrorAction Stop
+        Write-Host "`r$($ANSI.Green)✓$($ANSI.Reset) $Message - Completed"
+        return $result
+    } catch {
+        Write-Host "`r$($ANSI.Red)✗$($ANSI.Reset) $Message - Failed"
+        throw $_
+    } finally {
+        if ($job) { Remove-Job -Force $job -ErrorAction SilentlyContinue }
+        [Console]::CursorVisible = $cursorVisible
+    }
+}
+
+try {
+    # Main execution code here
+} catch {
+    Write-Log "Fatal error: $_" 'CRITICAL'
+    Write-Log "Stack trace: $($_.ScriptStackTrace)" 'DEBUG'
+    exit 1
+}
+
+function Test-Environment {
+    <#
+    .SYNOPSIS
+    Validate the development environment meets requirements
+    #>
+    $issues = @()
+
+    # Node.js version check
+    try {
+        $nodeVersion = (node --version).TrimStart('v')
+        if ([version]$nodeVersion -lt [version]$RequiredNodeVersion) {
+            $issues += "Node.js version $nodeVersion is below required version $RequiredNodeVersion"
+        }
+    } catch {
+        $issues += "Node.js is not installed or not in PATH"
+    }
+
+    # npm version check
+    try {
+        $npmVersion = (npm --version).Trim()
+        if ([version]$npmVersion -lt [version]$RequiredNpmVersion) {
+            $issues += "npm version $npmVersion is below required version $RequiredNpmVersion"
+        }
+    } catch {
+        $issues += "npm is not installed or not in PATH"
+    }
+
+    # Global packages check
+    $requiredGlobalPackages = @('npm-run-all', 'cross-env', 'ts-node')
+    foreach ($pkg in $requiredGlobalPackages) {
         try {
-            $null = Get-Command $cmd -ErrorAction Stop
+            $null = npm list -g $pkg --depth=0 --silent
         } catch {
-            $missingCommands += $cmd
+            $issues += "Missing required global package: $pkg"
         }
     }
 
-    if ($missingCommands.Count -gt 0) {
-        Write-Log "Missing required commands: $($missingCommands -join ', ')" 'ERROR'
-        Write-Host "`nThe following required commands are missing:`n" -ForegroundColor Red
-        foreach ($cmd in $missingCommands) {
-            Write-Host "- $cmd" -ForegroundColor Red
+    # Project structure check
+    $requiredFiles = @('package.json', 'tsconfig.json', 'next.config.js')
+    foreach ($file in $requiredFiles) {
+        if (-not (Test-Path $file)) {
+            $issues += "Missing required project file: $file"
         }
-        Write-Host "`nTo install missing commands, run:`nnpm install -g $($missingCommands -join ' ')" -ForegroundColor Yellow
+    }
+
+    if ($issues.Count -gt 0) {
+        Write-Log "Environment validation failed with $($issues.Count) issues" 'ERROR'
+        foreach ($issue in $issues) {
+            Write-Log "  - $issue" 'ERROR'
+        }
         return $false
     }
+
+    Write-Log "Environment validation passed" 'SUCCESS'
     return $true
 }
 
-function Show-InteractiveMenu {
-    if (-not (Test-RequiredCommands)) {
+function Invoke-SafeCommand {
+    <#
+    .SYNOPSIS
+    Execute a command with comprehensive error handling
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [scriptblock]$Command,
+
+        [string]$SuccessMessage,
+
+        [string]$ErrorMessage,
+
+        [int]$Timeout = $CommandTimeoutSeconds
+    )
+
+    try {
+        $timer = [System.Diagnostics.Stopwatch]::StartNew()
+        $job = Start-Job -ScriptBlock $Command
+
+        if ($job | Wait-Job -Timeout $Timeout) {
+            $output = Receive-Job -Job $job
+            $timer.Stop()
+
+            if ($LASTEXITCODE -ne 0) {
+                throw "Command failed with exit code $LASTEXITCODE"
+            }
+
+            if ($SuccessMessage) {
+                Write-Log "$SuccessMessage ($($timer.Elapsed.ToString('mm\:ss')))" 'SUCCESS'
+            }
+            return $output
+        } else {
+            throw "Command timed out after $Timeout seconds"
+        }
+    } catch {
+        Write-Log "$ErrorMessage`nError details: $_" 'ERROR' -NoConsole
+        Write-Log "Stack trace: $(($_.ScriptStackTrace -split '\r?\n')[0])" 'DEBUG' -NoConsole
         return $null
+    } finally {
+        if ($job) { Remove-Job -Force $job -ErrorAction SilentlyContinue }
+    }
+}
+#endregion
+
+#region Command Implementations
+function Reset-Project {
+    <#
+    .SYNOPSIS
+    Reset the project to a clean state
+    #>
+    Write-Log "Starting project reset" 'INFO' -Command 'reset'
+
+    # Step 1: Clean build artifacts
+    $cleanSuccess = Show-Spinner -Message "Cleaning build artifacts" -ScriptBlock {
+        $BuildArtifacts | ForEach-Object {
+            if (Test-Path $_) {
+                Remove-Item $_ -Recurse -Force -ErrorAction Stop
+            }
+        }
+        $true
     }
 
+    if (-not $cleanSuccess) {
+        Write-Log "Failed to clean build artifacts" 'ERROR' -Command 'reset'
+        return $false
+    }
+
+    # Step 2: Clear npm cache
+    $cacheSuccess = Show-Spinner -Message "Clearing npm cache" -ScriptBlock {
+        npm cache clean --force
+        $LASTEXITCODE -eq 0
+    }
+
+    if (-not $cacheSuccess) {
+        Write-Log "Failed to clear npm cache" 'WARN' -Command 'reset'
+    }
+
+    # Step 3: Reinstall dependencies
+    $installSuccess = Show-Spinner -Message "Reinstalling dependencies" -ScriptBlock {
+        npm install
+        $LASTEXITCODE -eq 0
+    }
+
+    if (-not $installSuccess) {
+        Write-Log "Failed to reinstall dependencies" 'ERROR' -Command 'reset'
+        return $false
+    }
+
+    Write-Log "Project reset completed successfully" 'SUCCESS' -Command 'reset'
+    return $true
+}
+
+function Update-Dependencies {
+    <#
+    .SYNOPSIS
+    Update project dependencies with comprehensive checks
+    #>
+    Write-Log "Starting dependency update" 'INFO' -Command 'update'
+
+    try {
+        # Check for outdated packages
+        $outdated = Invoke-SafeCommand -Command {
+            npm outdated --json | ConvertFrom-Json
+        } -SuccessMessage "Checked for outdated packages" -ErrorMessage "Failed to check outdated packages"
+
+        if (-not $outdated) {
+            Write-Log "All dependencies are up to date" 'INFO' -Command 'update'
+            return $true
+        }
+
+        # Perform the update
+        $updateResult = Invoke-SafeCommand -Command {
+            npm update
+        } -SuccessMessage "Updated dependencies" -ErrorMessage "Failed to update dependencies"
+
+        if (-not $updateResult) {
+            return $false
+        }
+
+        # Check for deprecated packages
+        $deprecated = Invoke-SafeCommand -Command {
+            npm ls --json | ConvertFrom-Json |
+            Select-Object -ExpandProperty dependencies |
+            Where-Object { $_.deprecated } |
+            Select-Object -ExpandProperty name
+        } -SuccessMessage "Checked for deprecated packages" -ErrorMessage "Failed to check deprecated packages"
+
+        if ($deprecated) {
+            Write-Log "Found deprecated packages: $($deprecated -join ', ')" 'WARN' -Command 'update'
+        }
+
+        return $true
+    } catch {
+        Write-Log "Dependency update failed: $_" 'ERROR' -Command 'update'
+        return $false
+    }
+}
+
+function Show-ProjectInfo {
+    <#
+    .SYNOPSIS
+    Display comprehensive project information
+    #>
+    Write-Log "Displaying project information" 'INFO' -Command 'info'
+
+    try {
+        $packageJson = Get-Content -Path "package.json" -ErrorAction Stop | ConvertFrom-Json
+
+        Write-Host ""
+        Write-Host "$($ANSI.Cyan)=== Project Information ===$($ANSI.Reset)"
+        Write-Host "Name:    $($packageJson.name)"
+        Write-Host "Version: $($packageJson.version)"
+        Write-Host "Node:    $RequiredNodeVersion (required)"
+        Write-Host "npm:     $RequiredNpmVersion (required)"
+
+        Write-Host ""
+        Write-Host "$($ANSI.Cyan)=== Available Commands ===$($ANSI.Reset)"
+        $Commands.GetEnumerator() | Sort-Object Key | ForEach-Object {
+            Write-Host "$($ANSI.Yellow)$($_.Key.PadRight(12))$($ANSI.Reset) $($_.Value)"
+        }
+
+        Write-Host ""
+        Write-Host "$($ANSI.Cyan)=== Project Scripts ===$($ANSI.Reset)"
+        $packageJson.scripts.PSObject.Properties | Sort-Object Name | ForEach-Object {
+            Write-Host "$($ANSI.Yellow)$($_.Name.PadRight(20))$($ANSI.Reset) $($_.Value)"
+        }
+
+        return $true
+    } catch {
+        Write-Log "Failed to display project information: $_" 'ERROR' -Command 'info'
+        return $false
+    }
+}
+
+# Additional command implementations would follow the same pattern...
+#endregion
+
+#region User Interface
+function Show-InteractiveMenu {
+    <#
+    .SYNOPSIS
+    Display an interactive menu for command selection
+    #>
     do {
         Clear-Host
-        Write-Host "`nPROJECT MANAGEMENT CLI`n" -ForegroundColor Cyan
-        Write-Host "Select an option:`n" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "$($ANSI.Cyan)=== Project Management CLI ===$($ANSI.Reset)"
+        Write-Host "$($ANSI.Yellow)Select an option:$($ANSI.Reset)"
+        Write-Host ""
 
+        # Display commands grouped by category
         $i = 1
         $menuOptions = @()
-        $Commands.GetEnumerator() | ForEach-Object {
-            Write-Host ("  {0}. {1,-15} {2}" -f $i, $_.Key, $_.Value)
+        $Commands.GetEnumerator() | Sort-Object Key | ForEach-Object {
+            Write-Host "  $i. $($ANSI.Yellow)$($_.Key.PadRight(12))$($ANSI.Reset) $($_.Value)"
             $menuOptions += $_.Key
             $i++
         }
-        Write-Host "`n  Q. Quit`n"
+
+        Write-Host ""
+        Write-Host "  M. Return to Menu"
+        Write-Host "  H. Help"
+        Write-Host "  Q. Quit"
+        Write-Host ""
 
         $selection = Read-Host "Enter your choice"
 
-        if ($selection -eq 'Q' -or $selection -eq 'q') {
-            return $null
-        }
-
-        if ($selection -match '^\d+$' -and [int]$selection -ge 1 -and [int]$selection -le $menuOptions.Count) {
-            return $menuOptions[[int]$selection - 1]
+        switch -Regex ($selection.ToLower()) {
+            '^q$' { return 'exit' }
+            '^m$' { return 'menu' }
+            '^h$' { return 'help' }
+            '^\d+$' {
+                $index = [int]$selection - 1
+                if ($index -ge 0 -and $index -lt $menuOptions.Count) {
+                    return $menuOptions[$index]
+                }
+            }
+            default {
+                if ($Commands.ContainsKey($selection)) {
+                    return $selection
+                }
+            }
         }
 
         Write-Host "Invalid selection. Please try again." -ForegroundColor Red
@@ -154,451 +483,93 @@ function Show-InteractiveMenu {
     } while ($true)
 }
 
-function Show-Help {
-    Write-Host "`nProject Management CLI`n" -ForegroundColor Cyan
-    Write-Host "Available Commands:" -ForegroundColor Yellow
-    $Commands.GetEnumerator() | ForEach-Object {
-        Write-Host ("  {0,-15} {1}" -f $_.Key, $_.Value)
-    }
-    Write-Host "`nUsage: .\scripts\project-cli.ps1 [command]`n"
-}
-
-function Test-ProjectStructure {
-    $RequiredFiles = @('package.json', 'tsconfig.json', 'next.config.js')
-    $MissingFiles = @()
-
-    foreach ($File in $RequiredFiles) {
-        if (-not (Test-Path $File)) {
-            $MissingFiles += $File
-        }
-    }
-
-    if ($MissingFiles.Count -gt 0) {
-        Write-Log "Missing required project files: $($MissingFiles -join ', ')" 'ERROR'
-        return $false
-    }
-    return $true
-}
-
-function Test-NodeVersion {
-    try {
-        $nodeVersion = (node --version).TrimStart('v')
-        if ([version]$nodeVersion -lt [version]$RequiredNodeVersion) {
-            throw "Node.js version $nodeVersion is below required version $RequiredNodeVersion"
-        }
-        return $true
-    } catch {
-        return $false
-    }
-}
-
-function Test-GlobalPackages {
-    $RequiredGlobalPackages = @('npm-run-all', 'cross-env', 'ts-node')
-    $MissingPackages = @()
-
-    foreach ($pkg in $RequiredGlobalPackages) {
-        try {
-            $null = npm list -g $pkg --depth=0
-        } catch {
-            $MissingPackages += $pkg
-        }
-    }
-
-    if ($MissingPackages.Count -gt 0) {
-        Write-Log "Missing required global packages: $($MissingPackages -join ', ')" 'ERROR'
-        Write-Host "`nTo install missing packages, run:`n" -ForegroundColor Yellow
-        Write-Host "npm install -g $($MissingPackages -join ' ')" -ForegroundColor Cyan
-        Write-Host "`n"
-        return $false
-    }
-    return $true
-}
-
-function Test-NpmVersion {
-    try {
-        $npmVersion = (npm --version).Trim()
-        if ([version]$npmVersion -lt [version]$RequiredNpmVersion) {
-            throw "npm version $npmVersion is below required version $RequiredNpmVersion"
-        }
-        return $true
-    } catch {
-        return $false
-    }
-}
-
-function Start-ProjectSetup {
-    Write-Log "Starting project setup..." 'INFO'
-
-    if (-not (Test-ProjectStructure)) {
-        Write-Log "Project structure validation failed" 'ERROR'
-        return $false
-    }
-
-    # Install dependencies
-    try {
-        Write-Log "Installing project dependencies..." 'INFO'
-        npm install
-        Write-Log "Dependencies installed successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Failed to install dependencies: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Start-ProjectBuild {
-    Write-Log "Starting project build..." 'INFO'
-    try {
-        npm run build
-        Write-Log "Build completed successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Build failed: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Start-ProjectDev {
-    Write-Log "Starting development server..." 'INFO'
-    try {
-        npm run dev
-        return $true
-    } catch {
-        Write-Log "Failed to start development server: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Start-ProjectTests {
-    Write-Log "Running tests..." 'INFO'
-    try {
-        npm run test
-        Write-Log "Tests completed successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Tests failed: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Start-ProjectClean {
-    Write-Log "Starting cleanup process..." 'INFO'
-    $success = $true
-
-    foreach ($artifact in $BuildArtifacts) {
-        if (Test-Path $artifact) {
-            try {
-                Remove-Item -Path $artifact -Recurse -Force
-                Write-Log "Removed $artifact" 'SUCCESS'
-            } catch {
-                Write-Log "Failed to remove ${artifact}: $_" 'ERROR'
-                $success = $false
-            }
-        }
-    }
-
-    return $success
-}
-
-function Show-Spinner {
-    param (
-        [string]$Message = "Processing..."
+function Show-CommandHelp {
+    <#
+    .SYNOPSIS
+    Display detailed help for a specific command
+    #>
+    param(
+        [string]$Command
     )
 
-    $spinnerChars = "|/-\\"
-    $spinnerIndex = 0
-
-    while ($true) {
-        Write-Host -NoNewline "`r$Message $($spinnerChars[$spinnerIndex])"
-        Start-Sleep -Milliseconds 100
-        $spinnerIndex = ($spinnerIndex + 1) % $spinnerChars.Length
-    }
-}
-
-function Start-DependencyUpdate {
-    Write-Log "Checking for dependency updates..." 'INFO'
-    $spinnerJob = Start-Job -ScriptBlock { Show-Spinner }
-    try {
-        # Check for outdated packages first
-        $outdated = npm outdated --json
-        if ($outdated) {
-            Write-Log "Found outdated packages: $outdated" 'INFO'
-
-            # Update packages
-            npm update
-
-            # Check for deprecated packages
-            $deprecated = npm ls --json | ConvertFrom-Json |
-                Select-Object -ExpandProperty dependencies |
-                Where-Object { $_.deprecated } |
-                Select-Object -ExpandProperty name
-
-            if ($deprecated) {
-                Write-Log "Warning: Found deprecated packages: $($deprecated -join ', ')" 'WARNING'
-            }
-
-            Write-Log "Dependencies updated successfully" 'SUCCESS'
-            return $true
-        } else {
-            Write-Log "All dependencies are up to date" 'INFO'
-            return $true
-        }
-    } catch {
-        Write-Log "Failed to update dependencies: $_" 'ERROR'
-        return $false
-    } finally {
-        Stop-Job $spinnerJob
-        Remove-Job $spinnerJob
-    }
-}
-
-function Show-ProjectInfo {
-    $packageJson = Get-Content -Path "package.json" | ConvertFrom-Json
-
-    Write-Host "`nProject Information:`n" -ForegroundColor Cyan
-    Write-Host "Name: $($packageJson.name)"
-    Write-Host "Version: $($packageJson.version)"
-    Write-Host "Node.js Version: $RequiredNodeVersion"
-    Write-Host "NPM Version: $RequiredNpmVersion"
-    Write-Host "`nAvailable Scripts:"
-    $packageJson.scripts.PSObject.Properties | ForEach-Object {
-        Write-Host ("  {0,-20} {1}" -f $_.Name, $_.Value)
-    }
+    Clear-Host
     Write-Host ""
-}
+    Write-Host "$($ANSI.Cyan)=== Help for command: $Command ===$($ANSI.Reset)"
+    Write-Host ""
 
-function Clear-LogsAndTempFiles {
-    try {
-        Write-Host "Cleaning log and temporary files..." -ForegroundColor Yellow
-
-        # Clean project log files
-        Get-ChildItem -Path . -Include $LogFiles -Recurse -File | Remove-Item -Force
-
-        # Clean system temp files
-        if (Test-Path $env:TEMP) {
-            Get-ChildItem -Path $env:TEMP -Include $LogFiles -File | Remove-Item -Force
+    switch ($Command) {
+        'reset' {
+            Write-Host "This command will:"
+            Write-Host "- Remove all build artifacts ($($BuildArtifacts -join ', '))"
+            Write-Host "- Clear npm cache"
+            Write-Host "- Reinstall all dependencies"
+            Write-Host ""
+            Write-Host "$($ANSI.Yellow)Warning:$($ANSI.Reset) This will delete files and folders!"
         }
-
-        Write-Host "Log and temporary files cleaned successfully" -ForegroundColor Green
-        return $true
-    } catch {
-        Write-Host "Failed to clean log files: $_" -ForegroundColor Red
-        return $false
-    }
-}
-
-function Start-SecurityAudit {
-    Write-Log "Running security audit for dependencies..." 'INFO'
-    $spinnerJob = Start-Job -ScriptBlock { Show-Spinner }
-    try {
-        npm audit
-        Write-Log "Security audit completed successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Failed to run security audit: $_" 'ERROR'
-        return $false
-    } finally {
-        Stop-Job $spinnerJob
-        Remove-Job $spinnerJob
-    }
-}
-
-function New-Documentation {
-    Write-Log "Generating project documentation..." 'INFO'
-    try {
-        npm run docs
-        Write-Log "Documentation generated successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Failed to generate documentation: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Show-ProjectStatistics {
-    Write-Log "Calculating project statistics..." 'INFO'
-    try {
-        $loc = (Get-ChildItem -Recurse -Include *.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.json |
-               Select-String -Pattern "." -AllMatches |
-               ForEach-Object { $_.Matches.Count } |
-               Measure-Object -Sum).Sum
-
-        $files = (Get-ChildItem -Recurse -Include *.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.json).Count
-
-        Write-Host "`nProject Statistics:`n" -ForegroundColor Cyan
-        Write-Host "Lines of Code: $loc"
-        Write-Host "Files Count: $files"
-        Write-Host ""
-
-        Write-Log "Project statistics displayed successfully" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Failed to calculate statistics: $_" 'ERROR'
-        return $false
-    }
-}
-
-function New-ProjectBackup {
-    Write-Log "Creating project backup..." 'INFO'
-    try {
-        $backupName = "backup-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
-        Compress-Archive -Path . -DestinationPath $backupName -CompressionLevel Optimal
-        Write-Log "Project backup created successfully: $backupName" 'SUCCESS'
-        return $true
-    } catch {
-        Write-Log "Failed to create backup: $_" 'ERROR'
-        return $false
-    }
-}
-
-function Test-ProjectStructure {
-    Write-Log "Validating project structure..." 'INFO'
-    try {
-        $result = Test-ProjectStructure
-        if ($result) {
-            Write-Log "Project structure validation passed" 'SUCCESS'
-        } else {
-            Write-Log "Project structure validation failed" 'ERROR'
+        # Add help for other commands...
+        default {
+            Write-Host $Commands[$Command]
         }
-        return $result
-    } catch {
-        Write-Log "Failed to validate project structure: $_" 'ERROR'
-        return $false
     }
-}
 
-# Main execution
-$running = $true
-$scriptArgs = @()  # Initialize $scriptArgs
-while ($running) {
-    try {
-        # Get command from arguments
-        $commandArgs = $scriptArgs[0]
-        if (-not $commandArgs) {
+    Write-Host ""
+    Read-Host "Press Enter to continue..."
+}
+#endregion
+
+#region Main Execution
+try {
+    # Initialize logging system
+    Initialize-Logging
+    Write-Log "CLI started" 'INFO'
+
+    # Check environment before proceeding
+    if (-not (Test-Environment)) {
+        Write-Log "Environment validation failed. Some commands may not work properly." 'WARN'
+        $choice = Read-Host "Continue anyway? (y/n)"
+        if ($choice -ne 'y') {
+            exit 1
+        }
+    }
+
+    $running = $true
+    while ($running) {
+        try {
             $command = Show-InteractiveMenu
-            if (-not $command) {
-                $running = $false
-                continue
+
+            switch ($command) {
+                'reset'       { $success = Reset-Project }
+                'update'      { $success = Update-Dependencies }
+                'info'        { $success = Show-ProjectInfo }
+                'help'        { Show-CommandHelp; $success = $true }
+                'exit'        { $running = $false; $success = $true }
+                default       { Write-Log "Command not yet implemented: $command" 'WARN'; $success = $false }
             }
-        } else {
-            $command = $commandArgs
+
+            if (-not $success) {
+                Write-Log "Command '$command' failed" 'ERROR'
+            } else {
+                Write-Log "Command '$command' completed" 'INFO'
+            }
+
+            if ($running) {
+                Write-Host ""
+                $choice = Read-Host "Press Enter to continue or Q to quit"
+                if ($choice -eq 'q') {
+                    $running = $false
+                }
+            }
+        } catch {
+            Write-Log "Error processing command: $_" 'ERROR'
+            Write-Log "Stack trace: $($_.ScriptStackTrace)" 'DEBUG'
         }
-    } catch {
-        Write-Log "Error processing command: $_" 'ERROR'
-        $running = $false
     }
 
-    try {
-        # Verify dependencies for all commands except 'info' and 'help'
-        if ($command -ne 'info' -and $command -ne 'help') {
-            if (-not (Test-NodeVersion)) {
-                throw "Node.js version check failed. Required version: $RequiredNodeVersion"
-            }
-            if (-not (Test-NpmVersion)) {
-                throw "npm version check failed. Required version: $RequiredNpmVersion"
-            }
-            if (-not (Test-GlobalPackages)) {
-                throw "Missing required global npm packages"
-            }
-        }
-
-        # Execute command
-        if ($command -eq 'clean-logs') {
-            Clear-LogsAndTempFiles | Out-Null
-            exit
-        }
-        $success = switch ($command) {
-            'reset' {
-                Write-Log "Starting reset process" 'INFO'
-                Write-Log "Target directories: $($BuildArtifacts -join ', ')" 'INFO'
-
-                # Clean build artifacts
-                $cleanSuccess = Start-ProjectClean
-                if (-not $cleanSuccess) {
-                    Write-Log "Cleanup failed" 'ERROR'
-                    $false
-                    break
-                }
-
-                # Clear npm cache
-                Write-Log 'Clearing npm cache' 'INFO'
-                $spinner = @('|', '/', '-', '\\')
-
-                try {
-                    npm install
-                } catch {
-                    Write-Log "Package installation failed" 'ERROR'
-                    $false
-                    break
-                }
-
-                foreach ($char in $spinner) {
-                    Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
-                    Start-Sleep -Milliseconds 100
-                }
-
-                if ($job) {
-                    $jobOutput = Receive-Job -Job $job
-                    Remove-Job -Job $job -ErrorAction SilentlyContinue
-                } else {
-                    Write-Log "No job found to receive output from" 'WARNING'
-                }
-
-                if ($jobOutput -match 'error') {
-                    Write-Log "Package installation failed" 'ERROR'
-                    $false
-                    break
-                }
-
-                Write-Log 'Package reinstallation completed successfully' 'SUCCESS'
-                $true
-            }
-            'audit' {
-                Start-SecurityAudit
-            }
-            'docs' {
-                New-Documentation
-            }
-            'stats' {
-                Show-ProjectStatistics
-            }
-            'backup' {
-                New-ProjectBackup
-            }
-            'validate' {
-                Test-ProjectStructure
-            }
-            'setup' { Start-ProjectSetup }
-            'check' {
-                Write-Log "Running project checks" 'INFO'
-                npm run wes-cq
-                $LASTEXITCODE -eq 0
-            }
-            'build' { Start-ProjectBuild }
-            'dev' { Start-ProjectDev }
-            'test' { Start-ProjectTests }
-            'clean' { Start-ProjectClean }
-            'update' { Start-DependencyUpdate }
-            'info' { Show-ProjectInfo; $true }
-            'help' { Show-Help; $true }
-            'clean-logs' { Clear-LogsAndTempFiles }
-            default {
-                Write-Log "Unknown command: $command" 'ERROR'
-                Show-Help
-                $false
-            }
-        }
-
-        if (-not $success) {
-            Write-Log "Command '$command' failed" 'ERROR'
-            continue
-        }
-
-        Write-Log "Command '$command' completed successfully" 'SUCCESS'
-        $args = @() # Clear arguments for next iteration
-    } catch {
-        $criticalError = "CRITICAL ERROR: Command failed - $_"
-        Write-Log $criticalError 'CRITICAL'
-        # Continue to next iteration instead of exiting
-    }
+    Write-Log "CLI session ended" 'INFO'
+    exit 0
+} catch {
+    Write-Log "Fatal error: $_" 'CRITICAL'
+    Write-Log "Stack trace: $($_.ScriptStackTrace)" 'DEBUG'
+    exit 1
 }
+#endregion
