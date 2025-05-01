@@ -259,9 +259,30 @@ function Start-ProjectClean {
 function Start-DependencyUpdate {
     Write-Log "Checking for dependency updates..." 'INFO'
     try {
-        npm update
-        Write-Log "Dependencies updated successfully" 'SUCCESS'
-        return $true
+        # Check for outdated packages first
+        $outdated = npm outdated --json
+        if ($outdated) {
+            Write-Log "Found outdated packages: $outdated" 'INFO'
+
+            # Update packages
+            npm update
+
+            # Check for deprecated packages
+            $deprecated = npm ls --json | ConvertFrom-Json |
+                Select-Object -ExpandProperty dependencies |
+                Where-Object { $_.deprecated } |
+                Select-Object -ExpandProperty name
+
+            if ($deprecated) {
+                Write-Log "Warning: Found deprecated packages: $($deprecated -join ', ')" 'WARNING'
+            }
+
+            Write-Log "Dependencies updated successfully" 'SUCCESS'
+            return $true
+        } else {
+            Write-Log "All dependencies are up to date" 'INFO'
+            return $true
+        }
     } catch {
         Write-Log "Failed to update dependencies: $_" 'ERROR'
         return $false
@@ -438,8 +459,12 @@ try {
                 Start-Sleep -Milliseconds 100
             }
 
-            $jobOutput = Receive-Job -Job $job
-            Remove-Job -Job $job
+            if ($job) {
+                $jobOutput = Receive-Job -Job $job
+                Remove-Job -Job $job -ErrorAction SilentlyContinue
+            } else {
+                Write-Log "No job found to receive output from" 'WARNING'
+            }
 
             if ($jobOutput -match 'error') {
                 Write-Log "Package installation failed" 'ERROR'
