@@ -3,6 +3,7 @@ import { get } from '@vercel/edge-config';
 import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 
 // Security headers configuration with nonce for enhanced security
 const generateSecurityHeaders = (nonce?: string) => ({
@@ -41,8 +42,7 @@ const publicPaths = [
 export async function middleware(request: NextRequest) {
   try {
     // Generate nonce for CSP
-    const { randomUUID } = await import('node:crypto');
-    const nonce = Buffer.from(randomUUID()).toString('base64');
+    const nonce = Buffer.from(uuidv4()).toString('base64');
 
     // Check maintenance mode first
     const maintenanceMode = await get('maintenance_mode');
@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
     response.headers.set('x-nonce', nonce);
 
     // Add request ID for tracking
-    const requestId = randomUUID();
+    const requestId = uuidv4();
     response.headers.set('X-Request-ID', requestId);
 
     return response;

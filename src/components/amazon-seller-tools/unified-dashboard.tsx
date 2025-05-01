@@ -2,11 +2,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react';
-// ... other imports: Card, Tabs, Charts, Header, Tool Components ...
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Papa from 'papaparse';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -29,7 +28,6 @@ import AcosCalculator from './acos-calculator';
 import { CompetitorAnalyzer } from './competitor-analyzer';
 import DescriptionEditor from './description-editor';
 import FbaCalculator from './fba-calculator';
-import KeywordAnalyzer from './keyword-analyzer';
 import KeywordDeduplicator from './keyword-deduplicator';
 import KeywordTrendAnalyzer from './keyword-trend-analyzer';
 import ListingQualityChecker from './listing-quality-checker';
@@ -326,7 +324,7 @@ export default function UnifiedDashboard() {
     setSelectedFile(null);
     setMetrics([]); // Optionally clear metrics on refresh
     console.log('Refresh clicked - clearing status.');
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate action
+    await new Promise((resolve) => window.setTimeout(resolve, 500)); // Simulate action
     setIsLoading(false);
   }, []);
 
@@ -349,8 +347,8 @@ export default function UnifiedDashboard() {
       header: true,
       preview: 1, // Only parse the first row after the header
       skipEmptyLines: true,
-      complete: (results) => {
-        const headers = results.meta.fields;
+      complete: (results: Papa.ParseResult<Record<string, string>>) => {
+        const headers = results.meta.fields || [];
         if (!headers || headers.length === 0) {
           setError('Could not read headers from the CSV file. Is it valid?');
           setIsParsing(false);
@@ -394,13 +392,16 @@ export default function UnifiedDashboard() {
     Papa.parse<Record<string, string>>(selectedFile, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: (results: Papa.ParseResult<Record<string, string>>) => {
         console.log('Parsed Full CSV Data:', results.data);
         try {
           // Use the extracted helper function for transformation
           const transformedMetrics = results.data
-            .map((row) => transformCsvRow(row, mapping))
-            .filter((metric): metric is DashboardMetrics => metric !== null); // Filter out nulls (rows that couldn't be processed)
+            .map((row: Record<string, string>) => transformCsvRow(row, mapping))
+            .filter(
+              (metric: DashboardMetrics | null): metric is DashboardMetrics =>
+                metric !== null,
+            ); // Filter out nulls (rows that couldn't be processed)
 
           console.log('Transformed Metrics:', transformedMetrics);
 
@@ -415,7 +416,7 @@ export default function UnifiedDashboard() {
             );
             setMetrics([]);
           } else {
-            setMetrics(transformedMetrics);
+            setMetrics(transformedMetrics.map((metric) => ({ ...metric })));
             setError(null); // Clear error on success
           }
         } catch (transformError: unknown) {
@@ -479,12 +480,12 @@ export default function UnifiedDashboard() {
       const csv = Papa.unparse(metrics);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'dashboard_metrics.csv');
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       URL.revokeObjectURL(url);
       setError(null);
     } catch (err) {
@@ -677,6 +678,11 @@ export default function UnifiedDashboard() {
             Upload an Amazon Business Report CSV to visualize your key metrics.
             You&apos;ll be asked to map the columns after uploading.
           </p>
+          <label htmlFor="csvFileInput">
+            <Button onClick={handleUploadClick} disabled={isParsing}>
+              {isParsing ? 'Reading File...' : 'Upload CSV'}
+            </Button>
+          </label>
           <input
             type="file"
             ref={fileInputRef}
@@ -685,9 +691,6 @@ export default function UnifiedDashboard() {
             className="hidden"
             id="csvFileInput"
           />
-          <Button onClick={handleUploadClick} disabled={isParsing}>
-            {isParsing ? 'Reading File...' : 'Choose Report File (.csv)'}
-          </Button>
         </div>
 
         {/* Placeholder Cards & Charts */}
@@ -812,9 +815,6 @@ export default function UnifiedDashboard() {
                   <TabsTrigger value="deduplicator">Deduplicator</TabsTrigger>
                   <TabsTrigger value="trend">Trend Analyzer</TabsTrigger>
                 </TabsList>
-                <TabsContent value="analyzer">
-                  <KeywordAnalyzer />
-                </TabsContent>
                 <TabsContent value="deduplicator">
                   <KeywordDeduplicator />
                 </TabsContent>
@@ -918,5 +918,3 @@ export default function UnifiedDashboard() {
     </div>
   );
 }
-
-// Removed duplicated code blocks from line 921 onwards

@@ -9,6 +9,8 @@ type BlogImageProps = {
   width: number;
   height: number;
   className?: string;
+  priority?: boolean;
+  quality?: number;
 };
 
 export function BlogImage({
@@ -17,6 +19,8 @@ export function BlogImage({
   width,
   height,
   className,
+  priority,
+  quality,
 }: Readonly<BlogImageProps>) {
   const [error, setError] = useState(false);
 
@@ -52,8 +56,8 @@ export function BlogImage({
       height={height}
       className={className}
       onError={() => setError(true)}
-      placeholder="blur"
-      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmMWYxIi8+PC9zdmc+"
+      priority={priority}
+      quality={quality}
     />
   );
 }

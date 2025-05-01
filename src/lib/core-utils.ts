@@ -16,11 +16,13 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function generateId(): string {
-  return Math.random().toString(36).substring(2, 9);
+export function generateId(prefix = ''): string {
+  const randomPart = Math.random().toString(36).slice(2, 9);
+  return `${Date.now()}-${prefix}${randomPart}`;
 }
 
-export function truncateText(text: string, maxLength: number): string {
+export function truncateText(text: string, maxLength = 100): string {
+  if (!text) return '';
   if (text.length <= maxLength) return text;
-  return `${text.substring(0, maxLength)}...`;
+  return `${text.slice(0, maxLength).trimEnd()}...`;
 }

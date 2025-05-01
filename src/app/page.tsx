@@ -1,3 +1,5 @@
+import ClientChatWrapper from '@/components/client-chat-wrapper';
+import ClientDashboardWrapper from '@/components/ClientDashboardWrapper';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
@@ -5,7 +7,6 @@ import { ContentSkeleton } from '@/components/ui/loading-skeleton';
 import { QueryErrorBoundary } from '@/components/ui/query-error-boundary';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-import ClientChatWrapper from '@/components/client-chat-wrapper';
 
 // Prioritize above-the-fold content
 const HeroSection = dynamic(() => import('@/components/hero-section'), {
@@ -13,40 +14,28 @@ const HeroSection = dynamic(() => import('@/components/hero-section'), {
 });
 
 // Lazy load below-the-fold content
-const UnifiedDashboard = dynamic(
-  () => import('@/components/amazon-seller-tools/unified-dashboard'),
-  {
-    loading: () => <ContentSkeleton />,
-    ssr: true,
-  },
-);
 
 const ProjectsSection = dynamic(() => import('@/components/projects-section'), {
   loading: () => <ContentSkeleton />,
-  ssr: true,
 });
 
 const AboutSection = dynamic(() => import('@/components/about-section'), {
   loading: () => <ContentSkeleton />,
-  ssr: true,
 });
 
 const CertificationsSection = dynamic(
   () => import('@/components/certifications-section'),
   {
     loading: () => <ContentSkeleton />,
-    ssr: true,
   },
 );
 
 const BlogSection = dynamic(() => import('@/components/blog-section'), {
   loading: () => <ContentSkeleton />,
-  ssr: true,
 });
 
 const ContactSection = dynamic(() => import('@/components/contact-section'), {
   loading: () => <ContentSkeleton />,
-  ssr: true,
 });
 
 export default function Home() {
@@ -60,11 +49,7 @@ export default function Home() {
             <HeroSection />
           </Suspense>
 
-          <QueryErrorBoundary>
-            <Suspense fallback={<ContentSkeleton />}>
-              <UnifiedDashboard />
-            </Suspense>
-          </QueryErrorBoundary>
+          <ClientDashboardWrapper />
 
           <QueryErrorBoundary>
             <Suspense fallback={<ContentSkeleton />}>

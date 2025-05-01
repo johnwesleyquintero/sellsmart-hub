@@ -1,18 +1,17 @@
-jest.mock('@/lib/config', () => ({
-  validateEnv: () => ({
-    REDIS_URL: 'test',
-    REDIS_TOKEN: 'test',
-    GITHUB_TOKEN: 'test',
-    LINKEDIN_API_KEY: 'test',
-    NEXTAUTH_URL: 'test',
-    NEXTAUTH_SECRET: 'test',
-  }),
-}));
-import '@testing-library/jest-dom';
-if (typeof TextEncoder === 'undefined') {
-  // @ts-ignore
-  global.TextEncoder = require('util').TextEncoder;
+try {
+  require('msw/node');
+  console.log('msw/node is available');
+} catch (error) {
+  console.error('msw/node is not available', error);
 }
+// Mock ResizeObserver
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -26,3 +25,14 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+import '@testing-library/jest-dom';
+import { server } from './__mocks__/server';
+
+// Establish API mocking before all tests.
+beforeAll(() => server.listen());
+// Reset any request handlers that we may add during the tests,
+// so they don't affect other tests.
+afterEach(() => server.resetHandlers());
+// Clean up after the tests are finished.
+afterAll(() => server.close());

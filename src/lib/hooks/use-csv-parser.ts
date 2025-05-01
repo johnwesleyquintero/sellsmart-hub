@@ -129,7 +129,8 @@ export function useCsvParser<T>(
               setIsLoading(false);
               isLoadingSettled = true;
             }
-            return reject(new Error(errorMessage));
+            reject(new Error(errorMessage));
+            return;
           },
           complete: (result) => {
             console.log('parseFile: Papa.parse complete callback');
