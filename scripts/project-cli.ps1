@@ -21,7 +21,12 @@ $Commands = @{
     'clean' = 'Clean build artifacts'
     'update' = 'Update dependencies'
     'info' = 'Display project information'
-    'clean-logs' = 'Clean log and temporary files'
+    'clean-logs' = 'Clear log and temporary files'
+    'audit' = 'Run security audit for dependencies'
+    'docs' = 'New project documentation'
+    'stats' = 'Show project statistics'
+    'backup' = 'Create project backup'
+    'validate' = 'Test project structure'
 }
 
 # Project paths
@@ -278,7 +283,7 @@ function Show-ProjectInfo {
     Write-Host ""
 }
 
-function Clean-LogsAndTempFiles {
+function Clear-LogsAndTempFiles {
     try {
         Write-Host "Cleaning log and temporary files..." -ForegroundColor Yellow
 
@@ -294,6 +299,82 @@ function Clean-LogsAndTempFiles {
         return $true
     } catch {
         Write-Host "Failed to clean log files: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Start-SecurityAudit {
+    Write-Log "Running security audit for dependencies..." 'INFO'
+    try {
+        npm audit
+        Write-Log "Security audit completed successfully" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Failed to run security audit: $_" 'ERROR'
+        return $false
+    }
+}
+
+function New-Documentation {
+    Write-Log "Generating project documentation..." 'INFO'
+    try {
+        npm run docs
+        Write-Log "Documentation generated successfully" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Failed to generate documentation: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Show-ProjectStatistics {
+    Write-Log "Calculating project statistics..." 'INFO'
+    try {
+        $loc = (Get-ChildItem -Recurse -Include *.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.json |
+               Select-String -Pattern "." -AllMatches |
+               ForEach-Object { $_.Matches.Count } |
+               Measure-Object -Sum).Sum
+
+        $files = (Get-ChildItem -Recurse -Include *.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.json).Count
+
+        Write-Host "`nProject Statistics:`n" -ForegroundColor Cyan
+        Write-Host "Lines of Code: $loc"
+        Write-Host "Files Count: $files"
+        Write-Host ""
+
+        Write-Log "Project statistics displayed successfully" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Failed to calculate statistics: $_" 'ERROR'
+        return $false
+    }
+}
+
+function New-ProjectBackup {
+    Write-Log "Creating project backup..." 'INFO'
+    try {
+        $backupName = "backup-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
+        Compress-Archive -Path . -DestinationPath $backupName -CompressionLevel Optimal
+        Write-Log "Project backup created successfully: $backupName" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Failed to create backup: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Test-ProjectStructure {
+    Write-Log "Validating project structure..." 'INFO'
+    try {
+        $result = Test-ProjectStructure
+        if ($result) {
+            Write-Log "Project structure validation passed" 'SUCCESS'
+        } else {
+            Write-Log "Project structure validation failed" 'ERROR'
+        }
+        return $result
+    } catch {
+        Write-Log "Failed to validate project structure: $_" 'ERROR'
         return $false
     }
 }
@@ -324,7 +405,7 @@ try {
 
     # Execute command
     if ($command -eq 'clean-logs') {
-        Clean-LogsAndTempFiles | Out-Null
+        Clear-LogsAndTempFiles | Out-Null
         exit
     }
     $success = switch ($command) {
@@ -343,39 +424,18 @@ try {
             # Clear npm cache
             Write-Log 'Clearing npm cache' 'INFO'
             $spinner = @('|', '/', '-', '\\')
-            $cacheJob = Start-Job -ScriptBlock {
-                npm cache clean --force *>&1
-            }
 
-            while ($cacheJob.State -eq 'Running') {
-                foreach ($char in $spinner) {
-                    Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
-                    Start-Sleep -Milliseconds 100
-                }
-            }
-
-            $cacheOutput = Receive-Job -Job $cacheJob
-            Remove-Job -Job $cacheJob
-
-            if ($cacheOutput -match 'error') {
-                Write-Log "npm cache cleanup failed" 'ERROR'
+            try {
+                npm install
+            } catch {
+                Write-Log "Package installation failed" 'ERROR'
                 $false
                 break
             }
 
-            Write-Log 'npm cache cleared successfully' 'SUCCESS'
-
-            # Reinstall packages
-            Write-Log 'Reinstalling packages' 'INFO'
-            $job = Start-Job -ScriptBlock {
-                npm install *>&1
-            }
-
-            while ($job.State -eq 'Running') {
-                foreach ($char in $spinner) {
-                    Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
-                    Start-Sleep -Milliseconds 100
-                }
+            foreach ($char in $spinner) {
+                Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
+                Start-Sleep -Milliseconds 100
             }
 
             $jobOutput = Receive-Job -Job $job
@@ -390,6 +450,21 @@ try {
             Write-Log 'Package reinstallation completed successfully' 'SUCCESS'
             $true
         }
+        'audit' {
+            Start-SecurityAudit
+        }
+        'docs' {
+            Start-Generate-Documentation
+        }
+        'stats' {
+            Start-Show-ProjectStatistics
+        }
+        'backup' {
+            Start-Create-ProjectBackup
+        }
+        'validate' {
+            Start-Validate-ProjectStructure
+        }
         'setup' { Start-ProjectSetup }
         'check' {
             Write-Log "Running project checks" 'INFO'
@@ -403,7 +478,7 @@ try {
         'update' { Start-DependencyUpdate }
         'info' { Show-ProjectInfo; $true }
         'help' { Show-Help; $true }
-        'clean-logs' { Clean-LogFiles }
+        'clean-logs' { Start-Clear-LogsAndTempFiles }
         default {
             Write-Log "Unknown command: $command" 'ERROR'
             Show-Help
