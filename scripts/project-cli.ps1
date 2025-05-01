@@ -1,7 +1,7 @@
 $ErrorActionPreference='Stop'
 
 # Configuration
-$LogFile = "project-cli-log-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+$LogFile = "project-cli.log"
 
 
 # Read Node.js version from package.json
@@ -37,7 +37,7 @@ function Write-Log {
     )
     $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
     $LogMessage = "$Timestamp - [$Level] $Message"
-    Add-Content -Path $LogFile -Value $LogMessage
+    $LogMessage | Out-File -FilePath $LogFile -Append
 
     switch ($Level) {
         'ERROR' { Write-Host $Message -ForegroundColor Red }
