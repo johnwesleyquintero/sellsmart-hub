@@ -10,7 +10,27 @@ import {
 const resultsFilePath = path.join(process.cwd(), 'jest-results.json');
 const reportFilePath = path.join(process.cwd(), 'jest-failure-report.log');
 
+// Verify file paths are valid
+function validateFilePath(filePath) {
+  try {
+    return fs.existsSync(filePath);
+  } catch (err) {
+    return false;
+  }
+}
+
 console.log('Parsing Jest results...');
+
+// Validate JSON structure
+function validateJestResults(results) {
+  if (!results || typeof results !== 'object') {
+    throw new Error('Invalid Jest results: Not an object');
+  }
+  if (!Array.isArray(results.testResults)) {
+    throw new Error('Invalid Jest results: Missing testResults array');
+  }
+  return true;
+}
 
 // Helper function to format error messages
 function formatErrorMessage(message) {
@@ -28,15 +48,20 @@ function formatDuration(ms) {
   return `${(ms / 1000).toFixed(3)}s`;
 }
 
-if (!fs.existsSync(resultsFilePath)) {
-  const errorMsg = `Jest results file not found: ${resultsFilePath}`;
+if (!validateFilePath(resultsFilePath)) {
+  const errorMsg = `Jest results file not found at: ${resultsFilePath}\nExpected location: ${path.resolve(resultsFilePath)}`;
   issueLogger.logInternalError(new Error(errorMsg), {
     category: ISSUE_CATEGORIES.FILESYSTEM,
-    context: { action: 'parse-jest-results' },
+    context: {
+      action: 'parse-jest-results',
+      expectedPath: path.resolve(resultsFilePath),
+      currentDir: process.cwd(),
+    },
   });
+
   fs.writeFileSync(
     reportFilePath,
-    `${errorMsg}\nDid Jest run correctly and output the JSON file?`,
+    `${errorMsg}\n\nPossible solutions:\n1. Ensure Jest ran successfully with --json flag\n2. Check if file exists at expected location\n3. Verify working directory when running this script`,
   );
   process.exit(1);
 }
@@ -44,6 +69,7 @@ if (!fs.existsSync(resultsFilePath)) {
 try {
   const rawData = fs.readFileSync(resultsFilePath, 'utf8');
   const results = JSON.parse(rawData);
+  validateJestResults(results);
   const now = new Date();
 
   // Format date for report header
@@ -66,18 +92,15 @@ try {
     ? ((results.numPassedTests / results.numTotalTests) * 100).toFixed(2)
     : '0.00';
 
-  // Generate report header
+  // Generate report header for all cases
   let failureReport = [
     `JEST TEST REPORT - ${formattedDate}`,
     '='.repeat(50),
-    'TEST SUMMARY',
-    '='.repeat(50),
-    `Total Test Suites:  ${results.numTotalTestSuites}`,
-    `Total Tests:        ${results.numTotalTests}`,
-    `Passed:             ${results.numPassedTests} (${passRate}%)`,
-    `Failed:             ${results.numFailedTests}`,
-    `Skipped:            ${results.numPendingTests}`,
-    `Duration:           ${formatDuration(totalDuration)}`,
+    `Total Tests: ${results.numTotalTests}`,
+    `Passed Tests: ${results.numPassedTests}`,
+    `Failed Tests: ${results.numFailedTests}`,
+    `Pass Rate: ${passRate}%`,
+    `Total Duration: ${formatDuration(totalDuration)}`,
     '='.repeat(50),
     '',
   ].join('\n');
@@ -158,6 +181,32 @@ try {
     ].join('\n');
 
     failureReport += generalError;
+  } else if (failedCount === 0 && results.success) {
+    failureReport = [
+      `JEST TEST REPORT - ${formattedDate}`,
+      '='.repeat(50),
+      `All ${results.numTotalTests} tests passed successfully.`,
+      `Pass Rate: ${passRate}%`,
+      `Total Duration: ${formatDuration(totalDuration)}`,
+      '='.repeat(50),
+      '',
+    ].join('\n');
+
+    // Add detailed test suite errors if present
+    if (hasTestSuiteErrors) {
+      failureReport += '\nTest Suite Errors:\n';
+      results.testResults.forEach((suite) => {
+        if (suite.testExecError) {
+          failureReport += `\n${path.relative(process.cwd(), suite.name)}:\n`;
+          failureReport += formatErrorMessage(suite.testExecError.message)
+            .split('\n')
+            .map((line) => `  ${line}`)
+            .join('\n');
+          failureReport += '\n' + '-'.repeat(50) + '\n';
+        }
+      });
+    }
+
     issueLogger.logInternalError(
       new Error(results.failureMessage || 'Unknown test failure'),
       {
@@ -165,21 +214,6 @@ try {
         context: { type: 'test-run-failure' },
       },
     );
-  } else if (failedCount === 0 && results.success) {
-    failureReport += `✅ All tests passed!\n`;
-  }
-
-  // Add summary footer for failed tests
-  if (failedCount > 0 || hasTestSuiteErrors) {
-    failureReport += [
-      '='.repeat(50),
-      `FAILURE SUMMARY`,
-      `Total Failed Tests: ${failedCount}`,
-      `Suite-Level Errors: ${hasTestSuiteErrors ? 'Yes' : 'No'}`,
-      'Review the detailed error messages above for more information.',
-      '='.repeat(50),
-      '',
-    ].join('\n');
   }
 
   fs.writeFileSync(reportFilePath, failureReport);

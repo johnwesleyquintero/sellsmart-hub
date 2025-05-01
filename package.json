@@ -22,13 +22,14 @@
     "systeminfo": "powershell .\\scripts\\system-info.ps1",
     "start": "cross-env NODE_ENV=production next start",
     "storybook": "storybook dev -p 6006",
-    "test": "jest --config jest.config.js --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\" --passWithNoTests",
+    "test": "jest --config jest.config.js --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\" --passWithNoTests --json --outputFile=jest-results.json && npm run test:report",
+    "test:report": "node ./.wescore/scripts/parse-jest-results.mjs",
     "test:ci": "jest --ci --runInBand --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\"",
     "test:update": "jest -u",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
-    "test:json": "jest --json --outputFile=jest-results.json || true",
+    "test:json": "jest --json --outputFile=jest-results.json || true && npm run test:report",
     "wes-pc-ps": "powershell .\\scripts\\project-cli.ps1",
     "wes-pc-js": "node ./.wescore/scripts/project-cli.mjs",
     "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
@@ -36,11 +37,6 @@
     "wes-pm": "node .wescore/scripts/package-management.mjs",
     "wes-update-tracker": "node .wescore/scripts/update-timestamps.mjs",
     "wes-ut": "node ./.wescore/scripts/update-timestamps.cjs"
-  },
-  "jest": {
-    "moduleDirectories": [
-      "node_modules"
-    ]
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -252,11 +248,11 @@
     "chalk": "5.4.1",
     "cli-spinner": "0.2.10",
     "critters": "^0.0.23",
-    "eslint": "^9.25.1",
+    "eslint": "9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-sonarjs": "^3.0.2",
+    "eslint-plugin-sonarjs": "3.0.2",
     "eslint-plugin-storybook": "0.12.0",
     "eslint-plugin-unicorn": "^57.0.0",
     "execa": "^8.0.1",
@@ -275,7 +271,7 @@
     "path-browserify": "^1.0.1",
     "playwright": "1.52.0",
     "postcss": "^8.5.3",
-    "prettier": "^3.5.3",
+    "prettier": "3.5.3",
     "storybook": "^8.1.4",
     "string-replace-loader": "^3.1.0",
     "tailwindcss": "^3.4.17",

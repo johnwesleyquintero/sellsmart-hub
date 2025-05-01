@@ -1,8 +1,6 @@
 // src/components/amazon-seller-tools/keyword-analyzer.tsx
 'use client';
 
-import { fetchKeywordAnalysis } from '@/lib/api/keyword-analysis';
-import { logError } from '@/lib/error-handling';
 import { type KeywordAnalysis } from '@/lib/keyword-intelligence';
 import { AlertCircle } from 'lucide-react';
 import React from 'react';
@@ -37,42 +35,9 @@ type KeywordData = {
   averageConfidence: number;
 };
 
-interface CsvInputRow {
-  product?: string;
-  keywords: string;
-  searchVolume?: number | string; // Allow string for PapaParse flexibility
-  competition?: string;
-}
-
 // --- Helper Functions ---
 
 // Processes keywords in batches using KeywordIntelligence
-async function processKeywordBatch(
-  keywords: string[],
-): Promise<KeywordAnalysis[]> {
-  const results: KeywordAnalysis[] = [];
-  for (let i = 0; i < keywords.length; i += BATCH_SIZE) {
-    const batch = keywords.slice(i, i + BATCH_SIZE);
-    try {
-      // Use the analyze method from KeywordIntelligence
-      const batchResults = await fetchKeywordAnalysis(batch);
-      results.push(...batchResults);
-    } catch (error) {
-      logError({
-        message: 'Error analyzing keyword batch',
-        component: 'KeywordAnalyzer/processKeywordBatch',
-        severity: 'medium',
-        error: error as Error,
-        context: { batchSize: batch.length, startIndex: i },
-      });
-      // Propagate error to be handled by the caller
-      throw new Error(
-        `Failed to analyze batch starting at index ${i}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
-  }
-  return results;
-}
 
 // Gets badge variant based on competition level
 const getCompetitionVariant = (

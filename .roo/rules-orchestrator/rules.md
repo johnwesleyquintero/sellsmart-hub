@@ -5,7 +5,7 @@ TEST WORKFLOW
 Analyze the following Jest test report, identifying root causes for failures and suggesting specific code fixes. Focus on component rendering, data processing, and integration issues. Provide actionable insights for improving test coverage and stability.
 
 Test Report Input:
-@/jest-failure-report.log | @/quality-check-report.log | User Chat Input
+@/jest-results.json | User Chat Input
 
 Desired Output:
 
