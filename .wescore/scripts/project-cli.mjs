@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-import fs from 'fs/promises';
-import fse from 'fs-extra'; // Using fs-extra for easier recursive copy/remove if needed, though fs.rm works now
-import path from 'path';
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
-import chalk from 'chalk';
-import semver from 'semver';
-import inquirer from 'inquirer';
 import archiver from 'archiver';
+import chalk from 'chalk';
+import { exec, spawn } from 'child_process';
+import fse from 'fs-extra'; // Using fs-extra for easier recursive copy/remove if needed, though fs.rm works now
+import fs from 'fs/promises';
 import { glob } from 'glob';
+import inquirer from 'inquirer';
 import os from 'os';
+import path from 'path';
+import semver from 'semver';
+import { promisify } from 'util';
 
 const execPromise = promisify(exec);
 
