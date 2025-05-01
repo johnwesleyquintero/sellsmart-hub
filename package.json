@@ -29,7 +29,6 @@
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "test:json": "jest --json --outputFile=jest-results.json || true",
-    "test:report": "npm run test:json -- --clearCache && node ./.wescore/scripts/parse-jest-results.mjs",
     "wes-pc-ps": "powershell .\\scripts\\project-cli.ps1",
     "wes-pc-js": "node ./.wescore/scripts/project-cli.mjs",
     "wes-cq": "node ./.wescore/scripts/check-quality.mjs",

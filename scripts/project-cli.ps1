@@ -34,21 +34,65 @@ $Commands = @{
 $BuildArtifacts = @('.next', '.vercel', 'node_modules', 'package-lock.json', 'coverage', '.nyc_output', 'storybook-static')
 $LogFiles = @('*.log', '*.tmp', '*.temp', '*.bak', '*.cache')
 
+function Get-Log {
+    param(
+        [string]$LogPath = $LogFile,
+        [string]$Command = $null,
+        [string]$Level = $null,
+        [datetime]$StartDate = $null,
+        [datetime]$EndDate = $null
+    )
+
+    if (-not (Test-Path $LogPath)) {
+        Write-Host "Log file not found: $LogPath" -ForegroundColor Red
+        return
+    }
+
+    $logEntries = Get-Content $LogPath | Where-Object {
+        $entry = $_ -split '\s+'
+        $entryDate = [datetime]::ParseExact("$($entry[0]) $($entry[1])", "yyyy-MM-dd HH:mm:ss", $null)
+        $entryLevel = $entry[2].Trim('[]')
+        $entryCommand = $entry[3].Trim('[]')
+
+        ($null -eq $Command -or $entryCommand -eq $Command) -and
+        ($null -eq $Level -or $entryLevel -eq $Level) -and
+        ($null -eq $StartDate -or $entryDate -ge $StartDate) -and
+        ($null -eq $EndDate -or $entryDate -le $EndDate)
+    }
+
+    $logEntries | ForEach-Object {
+        $entry = $_ -split '\s+', 5
+        [PSCustomObject]@{
+            Timestamp = "$($entry[0]) $($entry[1])"
+            Level = $entry[2].Trim('[]')
+            Command = $entry[3].Trim('[]')
+            Message = $entry[4]
+        }
+    }
+}
+
 
 function Write-Log {
     param(
         [string]$Message,
-        [string]$Level = 'INFO'
+        [string]$Level = 'INFO',
+        [string]$Command = $null
     )
-    $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $LogMessage = "$Timestamp - [$Level] $Message"
-    $LogMessage | Out-File -FilePath $LogFile -Append
 
+    if (-not $Command -and $MyInvocation.Line -match '\$success = switch \$command') {
+        $Command = $command
+    }
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$Level] [$Command] $Message"
+    Add-Content -Path $LogFile -Value $logEntry
+
+    # Color output based on level
     switch ($Level) {
-        'ERROR' { Write-Host $Message -ForegroundColor Red }
-        'WARN'  { Write-Host $Message -ForegroundColor Yellow }
-        'SUCCESS' { Write-Host $Message -ForegroundColor Green }
-        default { Write-Host $Message }
+        'ERROR' { Write-Host $logEntry -ForegroundColor Red }
+        'WARN' { Write-Host $logEntry -ForegroundColor Yellow }
+        'SUCCESS' { Write-Host $logEntry -ForegroundColor Green }
+        default { Write-Host $logEntry }
     }
 }
 

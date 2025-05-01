@@ -29,6 +29,13 @@ Object.defineProperty(window, 'matchMedia', {
 import '@testing-library/jest-dom';
 import { server } from './__mocks__/server';
 
+try {
+  require('msw/node');
+  console.log('MSW/node module found');
+} catch (e) {
+  console.error('MSW/node module not found', e);
+}
+
 // Establish API mocking before all tests.
 beforeAll(() => server.listen());
 // Reset any request handlers that we may add during the tests,
