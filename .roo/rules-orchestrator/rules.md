@@ -89,7 +89,7 @@ A structured analysis of the test report, including:
 Analyze the following issues/error report, identifying root causes for failures and suggesting specific code fixes. Focus on component rendering, data processing, and integration issues. Provide actionable insights for improving test coverage and stability.
 
 Issue/Error Report Input:
-@/issues.txt | @/quality-check-report.log | User Chat Input
+@/quality-check-report.log | User Chat Input
 
 Desired Output:
 

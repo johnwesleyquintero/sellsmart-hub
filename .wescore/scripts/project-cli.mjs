@@ -2,6 +2,7 @@
 import archiver from 'archiver';
 import chalk from 'chalk';
 import { exec, spawn } from 'child_process';
+import { Spinner } from 'cli-spinner';
 import fse from 'fs-extra'; // Using fs-extra for easier recursive copy/remove if needed, though fs.rm works now
 import fs from 'fs/promises';
 import { glob } from 'glob';
@@ -10,6 +11,7 @@ import os from 'os';
 import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
+import winston from 'winston';
 
 const execPromise = promisify(exec);
 
@@ -683,3 +685,53 @@ async function projectValidate() {
     process.exit(1);
   }
 })();
+
+function executeCommand(command) {
+  const spinner = new Spinner('Processing.. %s');
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
+
+  execPromise(command)
+    .then(() => {
+      spinner.stop(true);
+      console.log('Command executed successfully.');
+    })
+    .catch((error) => {
+      spinner.stop(true);
+      console.error('Error executing command:', error);
+    });
+}
+
+// --- Command Functions ---
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+function logError(error) {
+  logger.error(error);
+}
+
+function logInfo(message) {
+  logger.info(message);
+}
+
+// Enhance error handling
+function handleError(error) {
+  logError(error);
+  // Additional error handling logic
+}
+
+// Example usage
+try {
+  // ... existing code ...
+} catch (error) {
+  handleError(error);
+}
+
+// ... existing code ...

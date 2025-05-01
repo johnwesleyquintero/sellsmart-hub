@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 // --- Constants ---
-const BATCH_SIZE = 50; // Process keywords in batches
+// const BATCH_SIZE = 50; // Process keywords in batches
 
 // --- Types ---
 type KeywordData = {

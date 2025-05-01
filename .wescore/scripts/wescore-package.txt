@@ -1,0 +1,1 @@
+npm install archiver chalk child_process cli-spinner fs-extra fs/promises glob inquirer os path semver util winston

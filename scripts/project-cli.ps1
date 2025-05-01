@@ -300,8 +300,24 @@ function Start-ProjectClean {
     return $success
 }
 
+function Show-Spinner {
+    param (
+        [string]$Message = "Processing..."
+    )
+
+    $spinnerChars = "|/-\\"
+    $spinnerIndex = 0
+
+    while ($true) {
+        Write-Host -NoNewline "`r$Message $($spinnerChars[$spinnerIndex])"
+        Start-Sleep -Milliseconds 100
+        $spinnerIndex = ($spinnerIndex + 1) % $spinnerChars.Length
+    }
+}
+
 function Start-DependencyUpdate {
     Write-Log "Checking for dependency updates..." 'INFO'
+    $spinnerJob = Start-Job -ScriptBlock { Show-Spinner }
     try {
         # Check for outdated packages first
         $outdated = npm outdated --json
@@ -330,6 +346,9 @@ function Start-DependencyUpdate {
     } catch {
         Write-Log "Failed to update dependencies: $_" 'ERROR'
         return $false
+    } finally {
+        Stop-Job $spinnerJob
+        Remove-Job $spinnerJob
     }
 }
 
@@ -370,6 +389,7 @@ function Clear-LogsAndTempFiles {
 
 function Start-SecurityAudit {
     Write-Log "Running security audit for dependencies..." 'INFO'
+    $spinnerJob = Start-Job -ScriptBlock { Show-Spinner }
     try {
         npm audit
         Write-Log "Security audit completed successfully" 'SUCCESS'
@@ -377,6 +397,9 @@ function Start-SecurityAudit {
     } catch {
         Write-Log "Failed to run security audit: $_" 'ERROR'
         return $false
+    } finally {
+        Stop-Job $spinnerJob
+        Remove-Job $spinnerJob
     }
 }
 
@@ -445,124 +468,137 @@ function Test-ProjectStructure {
 }
 
 # Main execution
-try {
-    # Get command from arguments
-    $command = $args[0]
-    if (-not $command) {
-        $command = Show-InteractiveMenu
-        if (-not $command) {
-            exit 0
+$running = $true
+$scriptArgs = @()  # Initialize $scriptArgs
+while ($running) {
+    try {
+        # Get command from arguments
+        $commandArgs = $scriptArgs[0]
+        if (-not $commandArgs) {
+            $command = Show-InteractiveMenu
+            if (-not $command) {
+                $running = $false
+                continue
+            }
+        } else {
+            $command = $commandArgs
         }
+    } catch {
+        Write-Log "Error processing command: $_" 'ERROR'
+        $running = $false
     }
 
-    # Verify dependencies for all commands except 'info' and 'help'
-    if ($command -ne 'info' -and $command -ne 'help') {
-        if (-not (Test-NodeVersion)) {
-            throw "Node.js version check failed. Required version: $RequiredNodeVersion"
+    try {
+        # Verify dependencies for all commands except 'info' and 'help'
+        if ($command -ne 'info' -and $command -ne 'help') {
+            if (-not (Test-NodeVersion)) {
+                throw "Node.js version check failed. Required version: $RequiredNodeVersion"
+            }
+            if (-not (Test-NpmVersion)) {
+                throw "npm version check failed. Required version: $RequiredNpmVersion"
+            }
+            if (-not (Test-GlobalPackages)) {
+                throw "Missing required global npm packages"
+            }
         }
-        if (-not (Test-NpmVersion)) {
-            throw "npm version check failed. Required version: $RequiredNpmVersion"
-        }
-        if (-not (Test-GlobalPackages)) {
-            throw "Missing required global npm packages"
-        }
-    }
 
-    # Execute command
-    if ($command -eq 'clean-logs') {
-        Clear-LogsAndTempFiles | Out-Null
-        exit
-    }
-    $success = switch ($command) {
-        'reset' {
-            Write-Log "Starting reset process" 'INFO'
-            Write-Log "Target directories: $($BuildArtifacts -join ', ')" 'INFO'
+        # Execute command
+        if ($command -eq 'clean-logs') {
+            Clear-LogsAndTempFiles | Out-Null
+            exit
+        }
+        $success = switch ($command) {
+            'reset' {
+                Write-Log "Starting reset process" 'INFO'
+                Write-Log "Target directories: $($BuildArtifacts -join ', ')" 'INFO'
 
-            # Clean build artifacts
-            $cleanSuccess = Start-ProjectClean
-            if (-not $cleanSuccess) {
-                Write-Log "Cleanup failed" 'ERROR'
+                # Clean build artifacts
+                $cleanSuccess = Start-ProjectClean
+                if (-not $cleanSuccess) {
+                    Write-Log "Cleanup failed" 'ERROR'
+                    $false
+                    break
+                }
+
+                # Clear npm cache
+                Write-Log 'Clearing npm cache' 'INFO'
+                $spinner = @('|', '/', '-', '\\')
+
+                try {
+                    npm install
+                } catch {
+                    Write-Log "Package installation failed" 'ERROR'
+                    $false
+                    break
+                }
+
+                foreach ($char in $spinner) {
+                    Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
+                    Start-Sleep -Milliseconds 100
+                }
+
+                if ($job) {
+                    $jobOutput = Receive-Job -Job $job
+                    Remove-Job -Job $job -ErrorAction SilentlyContinue
+                } else {
+                    Write-Log "No job found to receive output from" 'WARNING'
+                }
+
+                if ($jobOutput -match 'error') {
+                    Write-Log "Package installation failed" 'ERROR'
+                    $false
+                    break
+                }
+
+                Write-Log 'Package reinstallation completed successfully' 'SUCCESS'
+                $true
+            }
+            'audit' {
+                Start-SecurityAudit
+            }
+            'docs' {
+                New-Documentation
+            }
+            'stats' {
+                Show-ProjectStatistics
+            }
+            'backup' {
+                New-ProjectBackup
+            }
+            'validate' {
+                Test-ProjectStructure
+            }
+            'setup' { Start-ProjectSetup }
+            'check' {
+                Write-Log "Running project checks" 'INFO'
+                npm run wes-cq
+                $LASTEXITCODE -eq 0
+            }
+            'build' { Start-ProjectBuild }
+            'dev' { Start-ProjectDev }
+            'test' { Start-ProjectTests }
+            'clean' { Start-ProjectClean }
+            'update' { Start-DependencyUpdate }
+            'info' { Show-ProjectInfo; $true }
+            'help' { Show-Help; $true }
+            'clean-logs' { Clear-LogsAndTempFiles }
+            default {
+                Write-Log "Unknown command: $command" 'ERROR'
+                Show-Help
                 $false
-                break
             }
+        }
 
-            # Clear npm cache
-            Write-Log 'Clearing npm cache' 'INFO'
-            $spinner = @('|', '/', '-', '\\')
+        if (-not $success) {
+            Write-Log "Command '$command' failed" 'ERROR'
+            continue
+        }
 
-            try {
-                npm install
-            } catch {
-                Write-Log "Package installation failed" 'ERROR'
-                $false
-                break
-            }
-
-            foreach ($char in $spinner) {
-                Write-Host "`r$char" -NoNewline -ForegroundColor Cyan
-                Start-Sleep -Milliseconds 100
-            }
-
-            if ($job) {
-                $jobOutput = Receive-Job -Job $job
-                Remove-Job -Job $job -ErrorAction SilentlyContinue
-            } else {
-                Write-Log "No job found to receive output from" 'WARNING'
-            }
-
-            if ($jobOutput -match 'error') {
-                Write-Log "Package installation failed" 'ERROR'
-                $false
-                break
-            }
-
-            Write-Log 'Package reinstallation completed successfully' 'SUCCESS'
-            $true
-        }
-        'audit' {
-            Start-SecurityAudit
-        }
-        'docs' {
-            Start-Generate-Documentation
-        }
-        'stats' {
-            Start-Show-ProjectStatistics
-        }
-        'backup' {
-            Start-Create-ProjectBackup
-        }
-        'validate' {
-            Start-Validate-ProjectStructure
-        }
-        'setup' { Start-ProjectSetup }
-        'check' {
-            Write-Log "Running project checks" 'INFO'
-            npm run wes-cq
-            $LASTEXITCODE -eq 0
-        }
-        'build' { Start-ProjectBuild }
-        'dev' { Start-ProjectDev }
-        'test' { Start-ProjectTests }
-        'clean' { Start-ProjectClean }
-        'update' { Start-DependencyUpdate }
-        'info' { Show-ProjectInfo; $true }
-        'help' { Show-Help; $true }
-        'clean-logs' { Start-Clear-LogsAndTempFiles }
-        default {
-            Write-Log "Unknown command: $command" 'ERROR'
-            Show-Help
-            $false
-        }
+        Write-Log "Command '$command' completed successfully" 'SUCCESS'
+        $args = @() # Clear arguments for next iteration
+    } catch {
+        $criticalError = "CRITICAL ERROR: Command failed - $_"
+        Write-Log $criticalError 'CRITICAL'
+        # Continue to next iteration instead of exiting
     }
-
-    if (-not $success) {
-        Write-Log "Command '$command' failed" 'ERROR'
-        exit 1
-    }
-
-    Write-Log "Command '$command' completed successfully" 'SUCCESS'
-} catch {
-    $criticalError = "CRITICAL ERROR: Command failed - $_"
-    Write-Log $criticalError 'ERROR'
-    exit 1
 }
