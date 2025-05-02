@@ -42,6 +42,40 @@ const errorLog: ErrorLogEntry[] = [];
 
 import { logger } from './logger';
 
+interface LoggerStrategy {
+  log(entry: ErrorLogEntry): void;
+}
+
+class MemoryLogger implements LoggerStrategy {
+  private logEntries: ErrorLogEntry[] = [];
+
+  log(entry: ErrorLogEntry): void {
+    this.logEntries.push(entry);
+  }
+
+  getLogs(): ErrorLogEntry[] {
+    return [...this.logEntries];
+  }
+
+  clear(): void {
+    this.logEntries = [];
+  }
+}
+
+class FileLogger implements LoggerStrategy {
+  private logFilePath: string;
+
+  constructor(logFilePath: string) {
+    this.logFilePath = logFilePath;
+  }
+
+  log(entry: ErrorLogEntry): void {
+    const fs = require('fs');
+    const logString = JSON.stringify(entry) + '\n';
+    fs.appendFileSync(this.logFilePath, logString, { encoding: 'utf8' });
+  }
+}
+
 export const logError = ({
   message,
   component,
@@ -62,6 +96,7 @@ export const logError = ({
     error,
     context,
   });
+
   const entry: ErrorLogEntry = {
     message,
     component,
@@ -71,7 +106,13 @@ export const logError = ({
     context,
   };
 
-  errorLog.push(entry);
+  // Use configured logger strategy (default to memory)
+  const loggerStrategy =
+    process.env.LOGGER_STRATEGY === 'file'
+      ? new FileLogger(process.env.LOG_FILE_PATH || './error.log')
+      : new MemoryLogger();
+
+  loggerStrategy.log(entry);
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {

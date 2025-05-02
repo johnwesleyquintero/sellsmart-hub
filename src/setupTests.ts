@@ -5,6 +5,15 @@ global.TextDecoder = TextDecoder;
 // src/setupTests.ts
 import '@testing-library/jest-dom';
 
+// Mock window if it's not already defined
+if (typeof window === 'undefined') {
+  global.window = {
+    location: {
+      href: '',
+    },
+  } as any;
+}
+
 // Mock window.matchMedia for components that use it
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
