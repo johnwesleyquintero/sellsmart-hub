@@ -1,4 +1,5 @@
-'use client';
+import { z } from 'zod';
+('use client');
 
 import { useToast } from '@/hooks/use-toast';
 import { type TrendDataPoint } from '@/lib/amazon-tools/keyword-trend-service';
@@ -147,7 +148,7 @@ export default function KeywordTrendAnalyzer() {
               message = err.message;
             } else if (err.name === 'ZodError') {
               message = `Data validation failed: ${err.errors
-                .map((e: any) => e.message)
+                .map((e: z.ZodIssue) => e.message)
                 .join(', ')}`;
             }
             setError(message);

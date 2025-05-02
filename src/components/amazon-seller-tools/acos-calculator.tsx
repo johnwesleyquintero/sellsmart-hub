@@ -57,13 +57,6 @@ export interface CampaignData {
 
 // --- Constants ---
 
-const acosRatingGuide = [
-  { label: 'Excellent', range: '< 15%', color: 'text-green-500' },
-  { label: 'Good', range: '15-25%', color: 'text-blue-500' },
-  { label: 'Fair', range: '25-35%', color: 'text-yellow-500' },
-  { label: 'Poor', range: '> 35%', color: 'text-red-500' },
-];
-
 const chartConfig = {
   acos: { label: 'ACoS (%)', theme: { light: '#8884d8', dark: '#8884d8' } },
   roas: { label: 'ROAS (x)', theme: { light: '#82ca9d', dark: '#82ca9d' } },

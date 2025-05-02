@@ -204,7 +204,7 @@ export class KeywordTrendService {
         message: 'Error analyzing keyword trends',
         component: 'KeywordTrendService',
         severity: 'high',
-        error: error as Error,
+        error: error instanceof Error ? error : new Error(String(error)),
       });
       throw error;
     }

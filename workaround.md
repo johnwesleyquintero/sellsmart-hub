@@ -4,11 +4,11 @@
 
 ```bash
 npm run pc
-npm run pmcjs
 npm run cq
 npm run test
-npm install
 npm run build
+npm run start
+npm install
 npm run format
 npm run lint
 npm run typecheck

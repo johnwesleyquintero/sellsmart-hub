@@ -25,7 +25,11 @@ const SelectTrigger = React.forwardRef<
     aria-label={
       (
         React.Children.toArray(children).find(
-          (child: any) => child?.type?.displayName === 'SelectValue',
+          (child): child is React.ReactElement =>
+            React.isValidElement(child) &&
+            typeof child.type === 'function' &&
+            'displayName' in child.type &&
+            child.type.displayName === 'SelectValue',
         ) as { props: { placeholder: string } } | undefined
       )?.props?.placeholder
     }
