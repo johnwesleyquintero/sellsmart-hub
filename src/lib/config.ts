@@ -7,7 +7,6 @@ const envSchema = z.object({
 
   // API Tokens
   GITHUB_TOKEN: z.string().min(1),
-  LINKEDIN_API_KEY: z.string().min(1),
 
   // Auth configuration
   NEXTAUTH_URL: z.string().url(),
