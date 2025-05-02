@@ -151,34 +151,34 @@ Version: 0.1.0
 Node.js Version: 18.18.0
 NPM Version: 9.0.0
 
-**Available Scripts:**
+**Available Scripts Reference Latest:**
 
-- `build`: `cross-env NODE_ENV=production next build`
-- `build-storybook`: `storybook build`
-- `check`: `npm-run-all --parallel lint typecheck test`
-- `create-index`: `ts-node --esm src/lib/mongodb/create-unique-index.ts`
-- `dev`: `next dev`
-- `format`: `prettier --write . --log-level warn`
-- `generate`: `ts-node src/lib/generate-sample-csv.ts`
-- `lint`: `eslint --config eslint.config.mjs .`
-- `lint:fix`: `eslint --fix --config eslint.config.mjs .`
-- `prepare`: `husky`
-- `preview`: `next start`
-- `reinstall`: `npm install`
-- `systeminfo`: `powershell .\scripts\system-info.ps1`
-- `start`: `cross-env NODE_ENV=production next start`
-- `storybook`: `storybook dev -p 6006`
-- `test`: `jest --config jest.config.js --coverage --collectCoverageFrom="**/\*.{ts,tsx}" --passWithNoTests`
-- `test:ci`: `jest --ci --runInBand --coverage --collectCoverageFrom="**/\*.{ts,tsx}"`
-- `test:update`: `jest -u`
-- `test:coverage`: `jest --coverage`
-- `test:watch`: `jest --watch`
-- `typecheck`: `tsc --noEmit`
-- `test:json`: `jest --json --outputFile=jest-results.json || true`
-- `wes-pc-ps`: `powershell .\scripts\project-cli.ps1`
-- `wes-pc-js`: `node ./.wescore/scripts/project-cli.mjs`
-- `wes-cq`: `node ./.wescore/scripts/check-quality.mjs`
-- `wes-cp`: `node ./.wescore/scripts/wescore-cyberpunk.mjs`
-- `wes-pm`: `node .wescore/scripts/package-management.mjs`
-- `wes-update-tracker`: `node .wescore/scripts/update-timestamps.mjs`
-- `wes-ut`: `node ./.wescore/scripts/update-timestamps.cjs`
+```json
+"scripts": {
+    "build": "cross-env NODE_ENV=production next build",
+    "build-storybook": "storybook build",
+    "check": "npm-run-all --parallel lint typecheck test",
+    "create-index": "ts-node --esm src/lib/mongodb/create-unique-index.ts",
+    "dev": "next dev",
+    "format": "prettier --write . --log-level warn",
+    "generate": "ts-node src/lib/generate-sample-csv.ts",
+    "lint": "eslint --config eslint.config.mjs .",
+    "lint:fix": "eslint --fix --config eslint.config.mjs .",
+    "prepare": "husky",
+    "preview": "next start",
+    "reinstall": "npm install",
+    "systeminfo": "powershell .\\scripts\\system-info.ps1",
+    "start": "cross-env NODE_ENV=production next start",
+    "storybook": "storybook dev -p 6006",
+    "test": "npm run test:json",
+    "test:ci": "jest --ci --runInBand --coverage --collectCoverageFrom=\"**/*.{ts,tsx}\"",
+    "test:update": "jest -u",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc --noEmit",
+    "test:json": "jest --json --outputFile=jest-results.json || true",
+    "pmc": "powershell .\\scripts\\project-cli.ps1",
+    "pmcjs": "node ./.wescore/scripts/project-cli.mjs",
+    "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
+    "wes-cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs"
+```

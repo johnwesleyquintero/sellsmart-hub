@@ -36,8 +36,6 @@ $ProjectVersion = "N/A"
 # Get project root directory (one level up from scripts)
 $ProjectRoot = Split-Path $PSScriptRoot -Parent
 
-
-
 try {
     $packageJsonPath = Join-Path $ProjectRoot "package.json"
     if (-not (Test-Path $packageJsonPath)) {
@@ -58,24 +56,23 @@ try {
     exit 1
 }
 
-
 # Project paths and patterns
 $BuildArtifacts = @('.next', '.vercel', 'node_modules', 'package-lock.json', 'coverage', '.nyc_output', 'storybook-static', 'dist', 'build')
 $TempFilePatterns = @('*.log', '*.tmp', '*.temp', '*.bak', '*.cache') # Patterns for clean-logs
 
 # ANSI color codes
 $ANSI = @{
-    Reset   = "`e[0m"
-    Red     = "`e[31m"
-    Green   = "`e[32m"
-    Yellow  = "`e[33m"
-    Blue    = "`e[34m"
-    Magenta = "`e[35m"
-    Cyan    = "`e[36m"
-    White   = "`e[37m"
-    Gray    = "`e[90m"
-    BoldCyan = "`e[1;36m`""
-    BoldYellow = "`e[1;33m`""
+    Reset      = "`e[0m"
+    Red        = "`e[31m"
+    Green        = "`e[32m"
+    Yellow     = "`e[33m"
+    Blue         = "`e[34m"
+    Magenta    = "`e[35m"
+    Cyan       = "`e[36m"
+    White      = "`e[37m"
+    Gray       = "`e[90m"
+    BoldCyan   = "`e[1;36m"  # Removed extra quote
+    BoldYellow = "`e[1;33m"  # Removed extra quote
 }
 #endregion
 
@@ -139,11 +136,7 @@ function Write-Log {
     # Determine caller context if not provided
     if (-not $CommandContext) {
         $caller = Get-PSCallStack | Select-Object -Skip 1 -First 1
-        if ($caller) {
-            $CommandContext = $caller.FunctionName
-        } else {
-            $CommandContext = $ScriptName # Fallback to script name
-        }
+        $CommandContext = if ($caller) { $caller.FunctionName } else { $ScriptName }
     }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -155,23 +148,46 @@ function Write-Log {
             Initialize-Logging # Attempt re-initialization
         }
         Add-Content -Path $LogFile -Value $logEntry -ErrorAction Stop
+
+        if (-not $NoConsole) {
+            $color = switch ($Level) {
+                'ERROR'    { $ANSI.Red }
+                'WARN'     { $ANSI.Yellow }
+                'SUCCESS'  { $ANSI.Green }
+                'DEBUG'    { $ANSI.Gray }
+                'CRITICAL' { $ANSI.Magenta }
+                default    { $ANSI.White } # INFO and others
+            }
+            $levelIndicator = "[$Level]".PadRight(10) # Pad for alignment
+            Write-Host "$color$levelIndicator$($ANSI.Reset) $Message"
+        }
     } catch {
         Write-Error "Failed to write to log file '$LogFile': $_"
         # Avoid infinite loop if logging fails repeatedly
     }
+}
 
-    if (-not $NoConsole) {
-        $color = switch ($Level) {
-            'ERROR'    { $ANSI.Red }
-            'WARN'     { $ANSI.Yellow }
-            'SUCCESS'  { $ANSI.Green }
-            'DEBUG'    { $ANSI.Gray }
-            'CRITICAL' { $ANSI.Magenta }
-            default    { $ANSI.White } # INFO and others
-        }
-        $levelIndicator = "[$Level]".PadRight(10) # Pad for alignment
-        Write-Host "$color$levelIndicator$($ANSI.Reset) $Message"
-    }
+function Write-Error-WithTrace {
+    param(
+        [string]$Message,
+        [string]$ErrorTrace
+    )
+    Write-Error $Message
+    Write-Error "Stack trace: $ErrorTrace"
+}
+
+function Write-Log-WithContext {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Level,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Context
+    )
+    Write-Log -Message $Message -Level $Level -CommandContext $Context
 }
 
 function Show-ProgressBar {
@@ -270,129 +286,388 @@ function Show-Spinner {
         [Parameter(Mandatory=$true)]
         [scriptblock]$ScriptBlock,
         [string]$Message = "Processing...",
-        [int]$DelayMs = $SpinnerDelayMs # Now using the config variable
+        [int]$DelayMs = $SpinnerDelayMs
     )
 
-    # Implementation of spinner logic
+    $spinner = @('|', '/', '-', '\')
+    $spinnerIndex = 0
+    $job = Start-Job -ScriptBlock $ScriptBlock
+
+    while ($job.State -eq 'Running') {
+        Write-Host "`r$($spinner[$spinnerIndex]) $Message" -NoNewline
+        $spinnerIndex = ($spinnerIndex + 1) % $spinner.Length
+        Start-Sleep -Milliseconds $DelayMs
+    }
+
+    Write-Host "`r" -NoNewline
+    $result = Receive-Job -Job $job
+    Remove-Job -Job $job
+    return $result
 }
 
 function Show-InteractiveMenu {
-    do {
+    $menuItems = @(
+        @{ Command = 'info'; Description = 'Show Project Information' }
+        @{ Command = 'test-env'; Description = 'Test Development Environment' }
+        @{ Command = 'install'; Description = 'Install Dependencies' }
+        @{ Command = 'update'; Description = 'Update Dependencies' }
+        @{ Command = 'reset'; Description = 'Reset Project State' }
+        @{ Command = 'build'; Description = 'Build Project' }
+        @{ Command = 'dev'; Description = 'Start Development Server' }
+        @{ Command = 'invoke-test'; Description = 'Run Tests' }
+        @{ Command = 'invoke-check'; Description = 'Run Code Checks' }
+        @{ Command = 'invoke-audit'; Description = 'Run Security Audit' }
+        @{ Command = 'clear-build'; Description = 'Clear Build Artifacts' }
+        @{ Command = 'clear-logs'; Description = 'Clear Logs and Temp Files' }
+        @{ Command = 'new-docs'; Description = 'Generate Documentation' }
+        @{ Command = 'stats'; Description = 'Show Project Statistics' }
+        @{ Command = 'new-backup'; Description = 'Create Project Backup' }
+        @{ Command = 'help'; Description = 'Show Help' }
+        @{ Command = 'exit'; Description = 'Exit' }
+    )
+
+    $selectedIndex = 0
+    $maxItems = 10
+    $startIndex = 0
+    $continue = $true
+
+    while ($continue) {
         Clear-Host
-        # Status bar and header
         $nodeVersion = try { (node --version).TrimStart('v') } catch { "not found" }
         $npmVersion = try { npm --version } catch { "not found" }
         Write-Host "$($ANSI.Gray)Node: v$nodeVersion | npm: v$npmVersion | $(Get-Date -Format 'HH:mm:ss')$($ANSI.Reset)"
         Write-Host ($ANSI.Gray + "=" * ($Host.UI.RawUI.WindowSize.Width) + $ANSI.Reset)
+        Write-Host ""
+        Write-Host "$($ANSI.BoldCyan)Project Management CLI$($ANSI.Reset)"
+        Write-Host ""
 
-        # ...existing code...
+        $endIndex = [Math]::Min($startIndex + $maxItems, $menuItems.Count)
 
-        # Footer with help and navigation (using proper Unicode arrows)
+        for ($i = $startIndex; $i -lt $endIndex; $i++) {
+            $prefix = if ($i -eq $selectedIndex) { "$($ANSI.Green)> " } else { "  " }
+            $suffix = if ($i -eq $selectedIndex) { $ANSI.Reset } else { "" }
+            Write-Host "$prefix$($menuItems[$i].Description)$suffix"
+        }
+
+        if ($startIndex -gt 0) {
+            Write-Host "$($ANSI.Yellow)↑ More options above$($ANSI.Reset)"
+        }
+        if ($endIndex -lt $menuItems.Count) {
+            Write-Host "$($ANSI.Yellow)↓ More options below$($ANSI.Reset)"
+        }
+
+        Write-Host ""
         Write-Host ($ANSI.Gray + "-" * ($Host.UI.RawUI.WindowSize.Width) + $ANSI.Reset)
         Write-Host "Navigation: $($ANSI.Yellow)↑↓$($ANSI.Reset) Move  $($ANSI.Yellow)Enter$($ANSI.Reset) Select  $($ANSI.Yellow)H$($ANSI.Reset) Help  $($ANSI.Yellow)Q$($ANSI.Reset) Quit"
-        Write-Host ""
 
-        # ...existing code...
-    } while ($running)
-}
+        $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
-function Clear-LogsAndTemp {
-    Write-Log "Cleaning temporary files..." 'INFO'
-    $filesFound = Get-ChildItem -Path $ProjectRoot -Include $TempFilePatterns -Recurse -File
-    if ($filesFound) {
-        foreach ($file in $filesFound) {
-            try {
-                Remove-Item $file.FullName -Force
-                Write-Log "Removed: $($file.BaseName)" 'DEBUG'
-            } catch {
-                Write-Log "Failed to remove $($file.BaseName): $_" 'WARN'
+        switch ($key.VirtualKeyCode) {
+            38 { # Up arrow
+                $selectedIndex--
+                if ($selectedIndex -lt 0) { $selectedIndex = $menuItems.Count - 1 }
+                if ($selectedIndex -lt $startIndex) { $startIndex = $selectedIndex }
+                if ($selectedIndex -ge ($startIndex + $maxItems)) { $startIndex = $selectedIndex - $maxItems + 1 }
+            }
+            40 { # Down arrow
+                $selectedIndex++
+                if ($selectedIndex -ge $menuItems.Count) { $selectedIndex = 0 }
+                if ($selectedIndex -lt $startIndex) { $startIndex = $selectedIndex }
+                if ($selectedIndex -ge ($startIndex + $maxItems)) { $startIndex = $selectedIndex - $maxItems + 1 }
+            }
+            81 { # Q key
+                $continue = $false
+                return "exit"
+            }
+            72 { # H key
+                return "help"
+            }
+            13 { # Enter key
+                return $menuItems[$selectedIndex].Command
             }
         }
-        Write-Log "Cleaned $($filesFound.Count) temporary files" 'SUCCESS'
-        return $true
-    } else {
-        Write-Log "No temporary files found to clean" 'INFO'
-        return $true
     }
 }
-}
+    }
 
-function Show-Stats {
-    <#
-    .SYNOPSIS
-    Display comprehensive project statistics.
-    #>
-    Write-Log "Gathering project statistics..." 'INFO'
+function Show-ProjectInfo {
+    Write-Log "Displaying project information..." 'INFO'
     try {
         Write-Host ""
-        Write-Host "$($ANSI.BoldCyan)=== Project Statistics ===$($ANSI.Reset)"
+        Write-Host "$($ANSI.BoldCyan)=== Project Information ===$($ANSI.Reset)"
         Write-Host ""
+        Write-Host "Project Name    : $ProjectName"
+        Write-Host "Version         : $ProjectVersion"
+        Write-Host "Node Version    : $(node --version)"
+        Write-Host "NPM Version     : $(npm --version)"
 
-        # File counts and sizes
-        Write-Host "$($ANSI.Yellow)File Statistics:$($ANSI.Reset)"
-        $fileStats = @{
-            "TypeScript/JavaScript" = @("*.ts", "*.tsx", "*.js", "*.jsx")
-            "Styles"               = @("*.css", "*.scss", "*.sass")
-            "Configuration"        = @("*.json", "*.yaml", "*.yml")
-            "Documentation"        = @("*.md", "*.mdx")
-        }
-
-        foreach ($type in $fileStats.Keys) {
-            $files = foreach ($pattern in $fileStats[$type]) {
-                Get-ChildItem -Path $ProjectRoot -Include $pattern -Recurse -File |
-                    Where-Object { $_.DirectoryName -notlike '*node_modules*' -and
-                                 $_.DirectoryName -notlike '*build*' }
-            }
-
-            if ($files) {
-                $count = @($files).Count
-                $lines = 0
-                foreach ($file in $files) {
-                    $lines += @(Get-Content $file.FullName).Count
-                }
-                Write-Host "  $($type.PadRight(20)) : $($count.ToString().PadLeft(4)) files, $($lines.ToString().PadLeft(6)) lines"
-            }
-        }
-
-        # Git statistics if available
         $gitInfo = Get-GitInfo
         if ($gitInfo.IsGitRepo) {
-            Write-Host ""
-            Write-Host "$($ANSI.Yellow)Git Statistics:$($ANSI.Reset)"
-            $commitCount = git rev-list --count HEAD 2>$null
-            $contributorCount = git shortlog -s HEAD 2>$null | Measure-Object | Select-Object -ExpandProperty Count
-            Write-Host "  Total Commits        : $commitCount"
-            Write-Host "  Contributors         : $contributorCount"
-            Write-Host "  Current Branch       : $($gitInfo.Branch)"
-            Write-Host "  Uncommitted Changes  : $(if ($gitInfo.HasChanges) { 'Yes' } else { 'No' })"
+            Write-Host "Git Branch      : $($gitInfo.Branch)"
+            Write-Host "Has Changes     : $(if ($gitInfo.HasChanges) { 'Yes' } else { 'No' })"
         }
+        return $true
+    } catch {
+        Write-Log "Failed to display project information: $_" 'ERROR'
+        return $false
+    }
+}
 
-        # Dependencies overview
-        Write-Host ""
-        Write-Host "$($ANSI.Yellow)Dependencies:$($ANSI.Reset)"
-        $depCount = ($PackageJson.dependencies | Get-Member -MemberType NoteProperty).Count
-        $devDepCount = ($PackageJson.devDependencies | Get-Member -MemberType NoteProperty).Count
-        Write-Host "  Runtime Dependencies  : $depCount"
-        Write-Host "  Dev Dependencies     : $devDepCount"
-        Write-Host "  Total               : $($depCount + $devDepCount)"
+function Show-Help {
+    Write-Host ""
+    Write-Host "$($ANSI.BoldCyan)=== Project Management CLI Help ===$($ANSI.Reset)"
+    Write-Host ""
+    Write-Host "Available Commands:"
+    Write-Host "  info         - Show project information"
+    Write-Host "  test-env     - Test development environment"
+    Write-Host "  install      - Install project dependencies"
+    Write-Host "  update       - Update dependencies"
+    Write-Host "  reset        - Reset project state"
+    Write-Host "  build        - Build the project"
+    Write-Host "  dev          - Start development server"
+    Write-Host "  invoke-test  - Run tests"
+    Write-Host "  invoke-check - Run code checks"
+    Write-Host "  invoke-audit - Run security audit"
+    Write-Host "  clear-build  - Clear build artifacts"
+    Write-Host "  clear-logs   - Clear logs and temp files"
+    Write-Host "  new-docs     - Generate documentation"
+    Write-Host "  stats        - Show project statistics"
+    Write-Host "  new-backup   - Create project backup"
+    Write-Host "  help         - Show this help message"
+    Write-Host "  exit         - Exit the CLI"
+    Write-Host ""
+    Write-Host "Navigation:"
+    Write-Host "  ↑/↓          - Move selection"
+    Write-Host "  Enter        - Execute selected command"
+    Write-Host "  H            - Show help"
+    Write-Host "  Q            - Quit"
+    Write-Host ""
+    return $true
+}
 
-        # Build artifacts size
-        Write-Host ""
-        Write-Host "$($ANSI.Yellow)Build Artifacts:$($ANSI.Reset)"
+function Test-Project {
+    return Test-Environment
+}
+
+function Install-Project {
+    Write-Log "Installing project dependencies..." 'INFO'
+    try {
+        npm ci --prefer-offline
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Dependencies installed successfully" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Failed to install dependencies" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error installing dependencies: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Update-Dependencies {
+    Write-Log "Updating dependencies..." 'INFO'
+    try {
+        npm update
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Dependencies updated successfully" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Failed to update dependencies" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error updating dependencies: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Reset-Project {
+    Write-Log "Resetting project state..." 'INFO'
+    try {
         foreach ($artifact in $BuildArtifacts) {
             $path = Join-Path $ProjectRoot $artifact
             if (Test-Path $path) {
-                $size = Get-ChildItem $path -Recurse -File | Measure-Object -Property Length -Sum
-                $sizeInMB = [math]::Round($size.Sum / 1MB, 2)
-                Write-Host "  $($artifact.PadRight(20)) : $($sizeInMB) MB"
+                Remove-Item -Path $path -Recurse -Force
+                Write-Log "Removed: $artifact" 'DEBUG'
             }
         }
 
-        Write-Host ""
+        npm cache clean --force
+        npm ci --prefer-offline
+
+        Write-Log "Project reset completed successfully" 'SUCCESS'
         return $true
+    } catch {
+        Write-Log "Error resetting project: $_" 'ERROR'
+        return $false
     }
-    catch {
-        Write-Log "Failed to gather project statistics: $_" 'ERROR'
+}
+
+function Build-Project {
+    Write-Log "Building project..." 'INFO'
+    try {
+        npm run build
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Project built successfully" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Build failed" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error during build: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Start-DevServer {
+    Write-Log "Starting development server..." 'INFO'
+    try {
+        npm run dev
+        return $true
+    } catch {
+        Write-Log "Error starting development server: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Invoke-Tests {
+    Write-Log "Running tests..." 'INFO'
+    try {
+        npm test
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Tests completed successfully" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Tests failed" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error running tests: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Invoke-Checks {
+    Write-Log "Running ESLint..." 'DEBUG'
+        npm run lint
+
+        Write-Log "Running TypeScript checks..." 'DEBUG'
+        npx tsc --noEmit
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "All checks passed" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Checks failed" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error running checks: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Invoke-Audit {
+    Write-Log "Running security audit..." 'INFO'
+    try {
+        npm audit
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Security audit passed" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Security audit found issues" 'WARN'
+        return $false
+    } catch {
+        Write-Log "Error running security audit: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Clear-Artifacts {
+    Write-Log "Clearing build artifacts..." 'INFO'
+    try {
+        foreach ($artifact in $BuildArtifacts) {
+            $path = Join-Path $ProjectRoot $artifact
+            if (Test-Path $path) {
+                Remove-Item -Path $path -Recurse -Force
+                Write-Log "Removed: $($artifact)" 'DEBUG'
+            }
+        }
+        Write-Log "Build artifacts cleared successfully" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Error clearing build artifacts: $_" 'ERROR'
+        return $false
+    }
+}
+
+function Clear-LogsAndTemp {
+    Write-Log "Clearing logs and temporary files..." 'INFO'
+    try {
+        $filesFound = Get-ChildItem -Path $ProjectRoot -Include $TempFilePatterns -Recurse -File
+        if ($filesFound) {
+            foreach ($file in $filesFound) {
+                Remove-Item $file.FullName -Force
+                Write-Log "Removed: $($file.Name)" 'DEBUG'
+            }
+            Write-Log "Cleared $($filesFound.Count) temporary files" 'SUCCESS'
+            return $true
+        }
+        Write-Log "No temporary files found to clear" 'INFO'
+        return $true
+    } catch {
+        Write-Log "Error clearing temporary files: $_" 'ERROR'
+        return $false
+    }
+}
+
+function New-Docs {
+    Write-Log "Generating documentation..." 'INFO'
+    try {
+        if (Test-Path (Join-Path $ProjectRoot "typedoc.json")) {
+            npx typedoc
+        } else {
+            npm run docs
+        }
+        if ($LASTEXITCODE -eq 0) {
+            Write-Log "Documentation generated successfully" 'SUCCESS'
+            return $true
+        }
+        Write-Log "Documentation generation failed" 'ERROR'
+        return $false
+    } catch {
+        Write-Log "Error generating documentation: $_" 'ERROR'
+        return $false
+    }
+}
+
+function New-Backup {
+    Write-Log "Creating project backup..." 'INFO'
+    try {
+        $date = Get-Date -Format "yyyy-MM-dd_HH-mm"
+        $backupName = "${ProjectName}_backup_${date}.zip"
+        $backupDir = Join-Path $ProjectRoot "backups"
+
+        if (-not (Test-Path $backupDir)) {
+            New-Item -Path $backupDir -ItemType Directory | Out-Null
+        }
+
+        $tempDir = Join-Path $env:TEMP "project_backup_temp"
+        if (Test-Path $tempDir) {
+            Remove-Item -Path $tempDir -Recurse -Force
+        }
+
+        Copy-Item -Path $ProjectRoot -Destination $tempDir -Recurse
+        foreach ($pattern in ($BuildArtifacts + $TempFilePatterns)) {
+            Get-ChildItem -Path $tempDir -Include $pattern -Recurse | Remove-Item -Recurse -Force
+        }
+
+        $backupPath = Join-Path $backupDir $backupName
+        Compress-Archive -Path "$tempDir\*" -DestinationPath $backupPath -Force
+        Remove-Item -Path $tempDir -Recurse -Force
+
+        Write-Log "Backup created successfully at: $backupPath" 'SUCCESS'
+        return $true
+    } catch {
+        Write-Log "Error creating backup: $_" 'ERROR'
         return $false
     }
 }
@@ -400,95 +675,71 @@ function Show-Stats {
 
 #region Main Execution
 try {
-    # Initialize logging system first
     Initialize-Logging
-    Write-Log "--- CLI Session Started ($ScriptName) ---" 'INFO'
-    Write-Log "Project: $ProjectName v$ProjectVersion" 'INFO'
-    Write-Log "Script Path: $PSScriptRoot" 'DEBUG'
-    Write-Log "Log File: $LogFile" 'DEBUG'
+    Write-Log -Message "--- CLI Session Started ($ScriptName) ---" -Level 'INFO'
 
-    # Check environment before proceeding (optional, but recommended)
     if (-not (Test-Environment)) {
-        Write-Log "Environment validation failed. Some commands may not work as expected." 'WARN'
-    } else {
-        Write-Log "Environment validation passed." 'INFO'
+        Write-Log -Message "Environment validation failed" -Level 'WARN'
     }
 
-    # --- Main Command Loop ---
     $running = $true
     while ($running) {
-        $commandResult = $null
-        $selectedCommand = $null
         try {
             $selectedCommand = Show-InteractiveMenu
 
-            # Use a hashtable to map command strings to script blocks for cleaner execution
-            $commandActions = @{
-                'info'         = { $script:commandResult = Show-ProjectInfo }
-                'test-env'     = { $script:commandResult = Test-Project }
-                'install'      = { $script:commandResult = Install-Project }
-                'update'       = { $script:commandResult = Update-Dependencies }
-                'reset'        = { $script:commandResult = Reset-Project }
-                'build'        = { $script:commandResult = Build-Project }
-                'dev'          = { $script:commandResult = Start-DevServer }
-                'invoke-test'  = { $script:commandResult = Invoke-Tests }
-                'invoke-check' = { $script:commandResult = Invoke-Checks }
-                'invoke-audit' = { $script:commandResult = Invoke-Audit }
-                'clear-build'  = { $script:commandResult = Clear-Artifacts }
-                'clear-logs'   = { $script:commandResult = Clear-LogsAndTemp }
-                'new-docs'     = { $script:commandResult = New-Docs }
-                'stats'        = { $script:commandResult = Show-Stats }
-                'new-backup'   = { $script:commandResult = New-Backup }
-                'help'         = { $script:commandResult = $true }
-                'exit'         = { $script:running = $false; $script:commandResult = $true }
-            }
-
-            if ($commandActions.ContainsKey($selectedCommand)) {
-                Write-Log "Executing command: '$selectedCommand'" 'INFO'
-                Invoke-Command -ScriptBlock $commandActions[$selectedCommand]
-
-                if ($script:commandResult -is [bool] -and $script:commandResult) {
-                    Write-Log "Command '$selectedCommand' completed successfully." 'SUCCESS'
-                } elseif ($selectedCommand -ne 'exit' -and $selectedCommand -ne 'help') {
-                    if ($script:commandResult -is [bool] -and -not $script:commandResult) {
-                        Write-Log "Command '$selectedCommand' failed or was not fully successful." 'ERROR'
-                    } else {
-                        Write-Log "Command '$selectedCommand' finished execution." 'INFO'
-                    }
+            switch ($selectedCommand) {
+                'exit' {
+                    $running = $false
+                    continue
                 }
-            } else {
-                Write-Log "Unknown command selected: '$selectedCommand'" 'ERROR'
+                'info' { Show-ProjectInfo }
+                'test-env' { Test-Project }
+                'install' { Install-Project }
+                'update' { Update-Dependencies }
+                'reset' { Reset-Project }
+                'build' { Build-Project }
+                'dev' { Start-DevServer }
+                'invoke-test' { Invoke-Tests }
+                'invoke-check' { Invoke-Checks }
+                'invoke-audit' { Invoke-Audit }
+                'clear-build' { Clear-Artifacts }
+                'clear-logs' { Clear-LogsAndTemp }
+                'new-docs' { New-Docs }
+                'stats' { Show-Stats }
+                'new-backup' { New-Backup }
+                'help' { Show-Help }
+                default {
+                    Write-Log -Message "Unknown command: $selectedCommand" -Level 'ERROR'
+                }
             }
 
             if ($running -and $selectedCommand -ne 'dev') {
-                Write-Host ""
-                $choice = Read-Host "Press Enter to return to menu, or Q to quit"
-                if ($choice -match '^q') {
+                $choice = Read-Host "`nPress Enter to continue or Q to quit"
+                if ($choice -match '^[qQ]') {
                     $running = $false
                 }
-            } elseif ($selectedCommand -eq 'dev' -and -not $script:commandResult) {
-                Read-Host "Press Enter to return to menu..."
             }
-
         } catch {
-            Write-Log "An error occurred while processing command '$selectedCommand': $_" 'ERROR'
-            Write-Log "Stack trace: $($_.ScriptStackTrace)" 'DEBUG'
-            Read-Host "An error occurred. Press Enter to return to the menu..."
+            $errorMsg = $_.Exception.Message
+            $stackTrace = if ($_.ScriptStackTrace) { $_.ScriptStackTrace } else { "N/A" }
+            Write-Log -Message "Command error: $errorMsg" -Level 'ERROR'
+            Write-Log -Message "Stack trace: $stackTrace" -Level 'DEBUG'
+            Read-Host "Press Enter to continue..."
         }
     }
-  Write-Log "--- CLI Session Ended ---" 'INFO'
-  exit 0
+
+    Write-Log -Message "--- CLI Session Ended ---" -Level 'INFO'
+    exit 0
 } catch {
-    $errorMessage = "FATAL ERROR: $($_.Exception.Message)"
-    $errorStackTrace = if ($_.ScriptStackTrace) { $_.ScriptStackTrace } else { "N/A" }
+    $errorMsg = $_.Exception.Message
+    $stackTrace = if ($_.ScriptStackTrace) { $_.ScriptStackTrace } else { "N/A" }
 
     if ($LogFile -and (Test-Path (Split-Path $LogFile -Parent))) {
-        Write-Log $errorMessage 'CRITICAL' -CommandContext $ScriptName
-        Write-Log "Stack trace: $errorStackTrace" 'DEBUG' -CommandContext $ScriptName
+        Write-Log -Message "FATAL: $errorMsg" -Level 'CRITICAL'
+        Write-Log -Message "Stack trace: $stackTrace" -Level 'DEBUG'
     } else {
-        Write-Error $errorMessage
-        Write-Error "Stack trace: $($errorStackTrace)"  # Ensure proper concatenation
+        Write-Error-WithTrace -Message "FATAL: $errorMsg" -ErrorTrace $stackTrace
     }
-
     exit 1
 }
+#endregion
