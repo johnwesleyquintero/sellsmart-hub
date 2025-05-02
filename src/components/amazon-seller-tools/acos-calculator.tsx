@@ -38,7 +38,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import SampleCsvButton from './sample-csv-button';
 
 // --- Interfaces & Types ---
 
@@ -350,10 +349,14 @@ export default function AcosCalculator() {
         sales,
         ...metrics,
       };
+      console.log('New campaign:', newCampaign);
+-------
+-------
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
       console.log('ACoS calculated in handleManualCalculate:', metrics.acos);
       setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
-      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
+      console.log('Campaigns after manual calculation:', campaigns);
+      console.log('Metrics ACOS after manual calculation:', metrics.acos);
       return metrics.acos;
     } catch (error) {
       console.error('Error calculating ACOS:', error);
@@ -364,7 +367,7 @@ export default function AcosCalculator() {
     } finally {
       setIsLoading(false);
     }
-  }, [manualCampaign, isManualInputValid]);
+  }, [manualCampaign, isManualInputValid, campaigns]);
 
   const handleExport = useCallback(() => {
     if (campaigns.length === 0) {
@@ -474,7 +477,10 @@ export default function AcosCalculator() {
     );
   } else {
     chartContent = (
-      <div className="flex justify-center items-center h-80">
+      <div
+        className="flex justify-center items-center h-80"
+        data-testid="acos-value"
+      >
         <p className="text-muted-foreground">No data to display.</p>
       </div>
     );
@@ -490,8 +496,8 @@ export default function AcosCalculator() {
           <p className="font-medium">How it Works:</p>
           <ul className="list-disc list-inside ml-4">
             <li>
-              Upload a CSV with columns: <code>campaign</code>,{' '}
-              <code>adSpend</code>, <code>sales</code>. Optional:{' '}
+              Upload a CSV with columns: <code>campaign</code>,&nbsp;
+              <code>adSpend</code>, <code>sales</code>. Optional:&nbsp;
               <code>impressions</code>, <code>clicks</code>.
             </li>
             <li>Or, manually enter data for a single campaign.</li>
@@ -504,10 +510,9 @@ export default function AcosCalculator() {
           </ul>
         </div>
       </div>
-
-      {/* Upload & Manual Input Cards */}
+      {/* Input Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Upload CSV Card */}
+        {/* CSV Upload */}
         <Card>
           <CardHeader>
             <CardTitle>Upload Campaign Data</CardTitle>
@@ -516,27 +521,8 @@ export default function AcosCalculator() {
             <div
               {...getRootProps()}
               className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5 "
-              role="presentation"
-              tabIndex={0}
             >
-              <input
-                {...getInputProps()}
-                accept="text/csv,.csv"
-                style={{
-                  border: '0px',
-                  clip: 'rect(0px, 0px, 0px, 0px)',
-                  clipPath: 'inset(50%)',
-                  height: '1px',
-                  margin: '0px -1px -1px 0px',
-                  overflow: 'hidden',
-                  padding: '0px',
-                  position: 'absolute',
-                  width: '1px',
-                  whiteSpace: 'nowrap',
-                }}
-                tabIndex={-1}
-                type="file"
-              />
+              <input {...getInputProps()} data-testid="csv-upload-input" />
               <Upload className="mb-2 h-8 w-8 text-primary/60" />
               <span className="text-sm font-medium">
                 Click or drag CSV file here
@@ -545,14 +531,13 @@ export default function AcosCalculator() {
                 (Requires: campaign, adSpend, sales)
               </span>
             </div>
-            <SampleCsvButton dataType="campaign-performance" />
           </CardContent>
         </Card>
 
-        {/* Manual Input Card */}
+        {/* Manual Input */}
         <Card>
           <CardHeader>
-            <CardTitle>Enter Campaign Manually</CardTitle>
+            <CardTitle>Manually Enter Campaign Data</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -563,20 +548,23 @@ export default function AcosCalculator() {
                 name="campaign"
                 value={manualCampaign.campaign}
                 onChange={handleManualInputChange}
-                placeholder="Campaign Name"
-                maxLength={100}
+                placeholder="Enter campaign name"
               />
+              {validationErrors.campaign ? (
+                <p className="text-xs text-red-500">
+                  {validationErrors.campaign}
+                </p>
+              ) : null}
             </div>
             <div>
-              <Label htmlFor="adSpend">Ad Spend ($)*</Label>
+              <Label htmlFor="adSpend">Ad Spend ($)</Label>
               <Input
-                type="text"
+                type="number"
                 id="adSpend"
                 name="adSpend"
                 value={manualCampaign.adSpend}
                 onChange={handleManualInputChange}
-                placeholder="0.00"
-                required
+                placeholder="Enter ad spend"
               />
               {validationErrors.adSpend ? (
                 <p className="text-xs text-red-500">
@@ -587,12 +575,12 @@ export default function AcosCalculator() {
             <div>
               <Label htmlFor="sales">Sales Amount</Label>
               <Input
-                type="text"
+                type="number"
                 id="sales"
                 name="sales"
                 value={manualCampaign.sales}
                 onChange={handleManualInputChange}
-                placeholder="0.00"
+                placeholder="Enter sales amount"
               />
               {validationErrors.sales ? (
                 <p className="text-xs text-red-500">{validationErrors.sales}</p>
@@ -600,23 +588,15 @@ export default function AcosCalculator() {
             </div>
             <Button
               onClick={handleManualCalculate}
-              disabled={isLoading || !isManualInputValid}
-              className="w-full"
+              disabled={!isManualInputValid || isLoading}
             >
-              {isLoading ? (
-                <>
-                  Calculating...
-                  <Progress value={undefined} className="w-1/3 ml-2" />
-                </>
-              ) : (
-                'Calculate'
-              )}
+              Calculate
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Error & Data Controls */}
+      {/* Alert Section */}
       {error && (
         <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}>
           <AlertCircle className="h-4 w-4" />
@@ -624,70 +604,48 @@ export default function AcosCalculator() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <div className="flex justify-end gap-2">
-        {campaigns.length > 0 && (
-          <Button variant="outline" onClick={clearData} disabled={isLoading}>
-            Clear Data
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          disabled={isLoading || campaigns.length === 0}
-        >
-          Export CSV <Download className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
 
-      {/* Metric Selection & Chart */}
+      {/* Data Display and Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Campaign Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-6">
-            <CardHeader>
-              <CardTitle>Select Metric</CardTitle>
-            </CardHeader>
-            <div className="flex gap-2">
-              {Object.entries(chartConfig).map(([key, config]) => (
-                <Button
-                  key={key}
-                  variant={selectedMetric === key ? 'default' : 'outline'}
-                  onClick={() =>
-                    setSelectedMetric(key as keyof typeof chartConfig)
-                  }
-                  disabled={isLoading}
-                >
-                  {config.label}
-                </Button>
-              ))}
-            </div>
+          {/* Metric Selection */}
+          <div className="flex justify-end gap-2">
+            <p className="text-sm font-medium">Select Metric:</p>
+            {Object.entries(chartConfig).map(([key, config]) => (
+              <Button
+                key={key}
+                variant={selectedMetric === key ? 'default' : 'outline'}
+                size="sm"
+                onClick={() =>
+                  setSelectedMetric(key as keyof typeof chartConfig)
+                }
+              >
+                {config.label}
+              </Button>
+            ))}
           </div>
+          {/* Chart */}
+          {chartContent}
         </CardContent>
       </Card>
 
-      {/* Chart Display */}
+      {/* Actions */}
       <Card>
-        <CardContent>{chartContent}</CardContent>
-      </Card>
-
-      {/* ACoS Rating Guide */}
-      <Card>
-        <CardHeader>
-          <CardTitle>ACoS Rating Guide</CardTitle>
-        </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {acosRatingGuide.map((item) => (
-              <div
-                key={item.label}
-                className="flex items-center justify-between rounded-md border p-2"
-              >
-                <span>{item.label}</span>
-                <span className={item.color}>{item.range}</span>
-              </div>
-            ))}
+          <div className="flex justify-end gap-2">
+            <Button onClick={handleExport} disabled={campaigns.length === 0}>
+              Export Data <Download className="ml-2 h-4 w-4" />
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={clearData}
+              disabled={campaigns.length === 0}
+            >
+              Clear Data
+            </Button>
           </div>
         </CardContent>
       </Card>
