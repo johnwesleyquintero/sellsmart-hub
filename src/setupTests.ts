@@ -1,17 +1,10 @@
-try {
-  require('msw/node');
-  console.log('msw/node is available');
-} catch (error) {
-  console.error('msw/node is not available', error);
-}
-// Mock ResizeObserver
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
+import { TextDecoder, TextEncoder } from 'text-encoding';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+// src/setupTests.ts
+import '@testing-library/jest-dom';
 
-// Mock matchMedia
+// Mock window.matchMedia for components that use it
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -26,22 +19,17 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock TextEncoder
-global.TextEncoder = require('util').TextEncoder;
-import '@testing-library/jest-dom';
-// import { server } from './__mocks__/server';
-
-try {
-  require('msw/node');
-  console.log('MSW/node module found');
-} catch (e) {
-  console.error('MSW/node module not found', e);
+// Mock ResizeObserver for components that use it
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 }
 
-// Establish API mocking before all tests.
-// beforeAll(() => server.listen());
-// Reset any request handlers that we may add during the tests,
-// so they don't affect other tests.
-// afterEach(() => server.resetHandlers());
-// Clean up after the tests are finished.
-// afterAll(() => server.close());
+window.ResizeObserver = ResizeObserver;
+// Mock the useToast hook
+jest.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({
+    toast: jest.fn(),
+  }),
+}));
