@@ -2,11 +2,11 @@
 
 **Random Command Workarounds:**
 
+- `npm run pc`
 - `Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm cache clean --force; npm install`
 - `npm install dotenv archiver chalk inquirer semver glob`
 - `npm rebuild`
 - `npm ci --prefer-offline`
-- `npm run pmc`
 - `npm run pmcjs`
 - `npm run wes-cq`
 
