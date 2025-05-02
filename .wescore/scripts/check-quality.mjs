@@ -23,7 +23,7 @@ const CONFIG_FILENAME = '.wescore.json';
 const CONFIG_PATH = path.resolve(process.cwd(), CONFIG_FILENAME);
 const REPORT_FILENAME = 'quality-check-report.log';
 const REPORT_PATH = path.resolve(process.cwd(), REPORT_FILENAME);
-const FAILURE_REPORT_HEADER = `Quality Check Failure Report\n\nNext Steps:\n1. Review the Relevant Output above or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run wes-cq).\n5. Commit your fixes once all checks pass successfully.\n\nTimestamp: ${new Date().toISOString()}\n=================================\n`;
+const FAILURE_REPORT_HEADER = `Quality Check Failure Report\n\nNext Steps:\n1. Review the Relevant Output above or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run cq).\n5. Commit your fixes once all checks pass successfully.\n\nTimestamp: ${new Date().toISOString()}\n=================================\n`;
 const DEFAULT_LOG_LEVEL = 'INFO';
 const LOG_LEVELS = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, SILENT: 4 }; // Added SILENT
 
@@ -598,7 +598,7 @@ async function printFailureDetails(failedChecks) {
   printSeparator();
 
   const useBoxen = config.config.visuals.useBoxen && isTTY;
-  let reportContent = `Wescore Checks Failure Report\n\nNext Steps:\n1. Review the Relevant Output below or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run wes-cq).\n5. Commit your fixes once all checks pass successfully.\n\n`;
+  let reportContent = `Wescore Checks Failure Report\n\nNext Steps:\n1. Review the Relevant Output below or check the quality-check-report.log file.\n2. Identify the root cause (e.g., lint errors, test failures, command issues).\n3. Fix the underlying issues in your codebase or configuration.\n4. Re-run checks using your designated command (e.g., npm run cq).\n5. Commit your fixes once all checks pass successfully.\n\n`;
   reportContent += `===============================================================================\n`;
   reportContent += `Timestamp: ${new Date().toISOString()}\n`;
   reportContent += `===============================================================================\n\n`;
@@ -688,7 +688,7 @@ async function printFailureDetails(failedChecks) {
     `3. Fix the underlying issues in your codebase or configuration.`,
   );
   console.log(
-    `4. Re-run checks using your designated command (e.g., ${C.command('npm run wes-cq')}).`,
+    `4. Re-run checks using your designated command (e.g., ${C.command('npm run cq')}).`,
   );
   console.log(`5. Commit your fixes once all checks pass successfully.`);
   printSeparator();

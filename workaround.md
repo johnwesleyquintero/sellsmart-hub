@@ -5,7 +5,7 @@
 ```bash
 npm run pc
 npm run pmcjs
-npm run wes-cq
+npm run cq
 npm run test
 npm install
 npm run build
@@ -13,6 +13,9 @@ npm run format
 npm run lint
 npm run typecheck
 npm outdated
+npm audit fix --force
+npm run update
+npm run update:all
 
 ```
 

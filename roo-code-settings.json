@@ -108,7 +108,7 @@
       "npm run ls",
       "npm run storybook",
       "npm run build-storybook",
-      "npm run wes-cq",
+      "npm run cq",
       "npm run wes-cp",
       "npm run wes-epic",
       "npm run wes-pm",

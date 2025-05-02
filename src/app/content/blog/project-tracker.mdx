@@ -24,9 +24,9 @@ Here we share our progress, challenges, and insights as we build tools to help A
 
 We believe in open development and welcome your feedback!
 
-**Last Updated:** 2025-04-26 _(Sync complete. Actively debugging testing blockers (`wes-cq`).)_
+**Last Updated:** 2025-04-26 _(Sync complete. Actively debugging testing blockers (`cq`).)_
 **Last Code Review:** 2025-04-22
-**Code Quality Status:** Issues being addressed - **`npm run wes-cq` currently failing (TSC, Jest)**
+**Code Quality Status:** Issues being addressed - **`npm run cq` currently failing (TSC, Jest)**
 **Current Version:** Next.js 14.1.0, React 18.2.0, TypeScript 5.3.3
 
 **Note:** This document combines public-facing development updates with our internal task tracking. Completed tasks (`[x]`) are moved to the "COMPLETED TASKS" section at the bottom, while maintaining a chronological development log above.
@@ -39,7 +39,7 @@ _(Highest priority items requiring immediate action)_
 
 ### 1. Quality Issues & Critical Fixes
 
-- [ ] **Resolve persistent TSC/Jest failures reported by 'npm run wes-cq'** (Current focus: PPC Auditor tests and related type issues)
+- [ ] **Resolve persistent TSC/Jest failures reported by 'npm run cq'** (Current focus: PPC Auditor tests and related type issues)
 - [ ] Improve error handling patterns (General review and implementation across tools)
 
 ### 2. UI/UX Consistency Improvements (High Priority)
@@ -130,7 +130,7 @@ _(Important improvements, feature validation, and code health)_
   - [ ] Refine scoring algorithm
   - [ ] Improve data visualization
   - [ ] Document changes and new features
-- **[ ] Finalize PPC Campaign Auditor stabilization** (Address failing tests, performance bottlenecks, complete API integration before moving from Beta) _(Blocked by `wes-cq` fixes)_
+- **[ ] Finalize PPC Campaign Auditor stabilization** (Address failing tests, performance bottlenecks, complete API integration before moving from Beta) _(Blocked by `cq` fixes)_
 
 ### 2. Performance & Optimization
 
@@ -239,7 +239,7 @@ Last Updated: 2025-04-28
 
 ### Completed: IMMEDIATE ATTENTION / BLOCKERS
 
-- [x] **Fix TypeScript import error in `keyword-analyzer.test.tsx` (TS2614)** _(Blocking `npm run wes-cq`)_
+- [x] **Fix TypeScript import error in `keyword-analyzer.test.tsx` (TS2614)** _(Blocking `npm run cq`)_
 - [x] **Fix failing unit test `FbaCalculator › validates required fields` in `fba-calculator.test.tsx`** _(Completed 2025-04-27)_
 - [x] Add unique index to prohibited-keywords collection (Originally under High Priority 5)
   - [x] Manually verify that the unique index has been created on the `keyword` field in the `prohibited-keywords` collection. _(Completed 2025-04-28)_
@@ -263,7 +263,7 @@ Last Updated: 2025-04-28
 - [x] Resolve Redis type mismatch in rate-limiter.ts (Type Checking failure) - Fixed by updating type definitions
 - [x] Fix ESLint/SonarJS SyntaxError: Unexpected token 'with' (Code Smell Analysis failure) - Same root cause as linting issue
 - [x] Update @upstash/redis and @upstash/ratelimit dependencies - Version mismatch resolved
-- [x] Investigate remaining code quality issues from npm run wes-cq output - Fixed ESLint configuration issues related to 'defineConfig' function, Updated configuration to use synchronous require statement, Simplified module.exports pattern
+- [x] Investigate remaining code quality issues from npm run cq output - Fixed ESLint configuration issues related to 'defineConfig' function, Updated configuration to use synchronous require statement, Simplified module.exports pattern
 - **Root Cause Analysis Notes:**
   1. Redis type mismatch requires version alignment between @upstash packages (Resolved)
   2. 'with' statement errors appear to be false positives from ESLint config (Resolved)

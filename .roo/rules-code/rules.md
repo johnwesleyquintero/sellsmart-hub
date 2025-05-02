@@ -29,7 +29,7 @@ This document outlines the essential rules and guidelines for developing the Ama
   - Address all type errors reported by `npm run typecheck`.
   - Mark component props as `readonly` where applicable (see `project-tracker.mdx` for examples).
 - **Code Smells:** Regularly check for code smells using `npm run lint:smells` and address identified issues.
-- **Quality Checks:** Before creating a Pull Request, run the full quality suite: `npm run wes-cq`. Address all reported issues.
+- **Quality Checks:** Before creating a Pull Request, run the full quality suite: `npm run cq`. Address all reported issues.
 - **Naming Conventions:** Follow standard TypeScript/React naming conventions (e.g., `PascalCase` for components and types, `camelCase` for variables and functions).
 - **Simplicity & Readability:** Write clear, concise, and well-commented code, especially for complex logic.
 

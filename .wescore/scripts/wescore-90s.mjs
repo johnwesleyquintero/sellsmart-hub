@@ -488,7 +488,7 @@ ${THEME_COLORS.white}Instructions, Dude:${THEME_COLORS.reset}
 3. Fix the busted code! Make it righteous!
 
 ${THEME_COLORS.white}After Fixing:${THEME_COLORS.reset}
-1. Re-run the checks: ${THEME_COLORS.green}npm run wes-cq${THEME_COLORS.reset}
+1. Re-run the checks: ${THEME_COLORS.green}npm run cq${THEME_COLORS.reset}
 2. Make sure everything is ${THEME_COLORS.green}Totally Tubular${THEME_COLORS.reset} (all checks pass).
 3. If it's still messed up, repeat the process. Don't be a poser!
 

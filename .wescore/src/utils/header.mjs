@@ -6,7 +6,7 @@ import process from 'process';
  * @typedef {object} HeaderData
  * @property {Date} [startTime] - The time the process started. Defaults to new Date().
  * @property {string} [logfilePath] - Path to the log file being generated. Defaults to '.task_tracker.log'.
- * @property {string} [commandExecuted] - The command that initiated the script (e.g., 'npm run wes-cq'). Defaults to 'N/A'.
+ * @property {string} [commandExecuted] - The command that initiated the script (e.g., 'npm run cq'). Defaults to 'N/A'.
  * @property {number} [totalChecks] - Total number of checks planned or executed.
  * @property {number} [passedChecks] - Number of checks that passed.
  * @property {number} [failedChecks] - Number of checks that failed.

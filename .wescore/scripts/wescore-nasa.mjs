@@ -526,7 +526,7 @@ ${THEME_COLORS.white}Corrective Action Procedure:${THEME_COLORS.reset}
 3. Implement necessary code corrections to resolve the identified issues.
 
 ${THEME_COLORS.white}Post-Correction Verification:${THEME_COLORS.reset}
-1. Re-run the full diagnostic sequence: ${THEME_COLORS.green}npm run wes-cq${THEME_COLORS.reset}
+1. Re-run the full diagnostic sequence: ${THEME_COLORS.green}npm run cq${THEME_COLORS.reset}
 2. Confirm all checks report ${THEME_COLORS.green}Nominal${THEME_COLORS.reset} status.
 3. If anomalies persist, repeat the analysis and correction cycle. Ensure mission readiness.
 
