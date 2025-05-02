@@ -3,6 +3,12 @@
 **Random Command Workarounds:**
 
 - `npm run pc`
+- `npm run format`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run test:watch`
+- `npm run test:coverage`
 - `Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm cache clean --force; npm install`
 - `npm install dotenv archiver chalk inquirer semver glob`
 - `npm rebuild`
