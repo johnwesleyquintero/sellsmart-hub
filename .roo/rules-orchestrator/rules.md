@@ -63,8 +63,8 @@ Analyze test reports, error logs, or reported issues to identify root causes, su
 
 **Input:**
 
-- Jest Test Report (`@/jest-results.json`)
-- Quality Check Log (`@/quality-check-report.log`)
+- Jest Test and Quality Check Report (Main Error Log)(`@/project-cli.error.log`)
+- Quality Check Log (Optional) (`@/quality-check-report.log`)
 - User-reported issues or other error descriptions.
 
 **Desired Output:**
