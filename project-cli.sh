@@ -22,6 +22,108 @@ ANSI_Blue='\e[34m'
 ANSI_Magenta='\e[35m'
 ANSI_Cyan='\e[36m'
 
+# --- Spinner Utilities ---
+spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+spinner_pid=""
+
+start_spinner() {
+    local message="$1"
+    echo -ne "${ANSI_Cyan}${message}${ANSI_Reset} "
+
+    # Hide cursor
+    echo -ne "\e[?25l"
+
+    # Start spinner in background
+    while :; do
+        for char in "${spinner_chars[@]}"; do
+            echo -ne "\b${char}"
+            sleep 0.1
+        done
+    done &
+
+    spinner_pid=$!
+    disown
+}
+
+stop_spinner() {
+    if [ -n "$spinner_pid" ]; then
+        kill $spinner_pid >/dev/null 2>&1
+        wait $spinner_pid 2>/dev/null
+        spinner_pid=""
+    fi
+
+    # Clear spinner and show cursor
+    echo -ne "\b \b\e[?25h"
+}
+
+# --- Spinner Utilities ---
+spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+spinner_pid=""
+
+start_spinner() {
+    local message="$1"
+    echo -ne "${ANSI_Cyan}${message}${ANSI_Reset} "
+
+    # Hide cursor
+    echo -ne "\e[?25l"
+
+    # Start spinner in background
+    while :; do
+        for char in "${spinner_chars[@]}"; do
+            echo -ne "\b${char}"
+            sleep 0.1
+        done
+    done &
+
+    spinner_pid=$!
+    disown
+}
+
+stop_spinner() {
+    if [ -n "$spinner_pid" ]; then
+        kill $spinner_pid >/dev/null 2>&1
+        wait $spinner_pid 2>/dev/null
+        spinner_pid=""
+    fi
+
+    # Clear spinner and show cursor
+    echo -ne "\b \b\e[?25h"
+}
+
+# --- Spinner Utilities ---
+spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+spinner_pid=""
+
+start_spinner() {
+    local message="$1"
+    echo -ne "${ANSI_Cyan}${message}${ANSI_Reset} "
+
+    # Hide cursor
+    echo -ne "\e[?25l"
+
+    # Start spinner in background
+    while :; do
+        for char in "${spinner_chars[@]}"; do
+            echo -ne "\b${char}"
+            sleep 0.1
+        done
+    done &
+
+    spinner_pid=$!
+    disown
+}
+
+stop_spinner() {
+    if [ -n "$spinner_pid" ]; then
+        kill $spinner_pid >/dev/null 2>&1
+        wait $spinner_pid 2>/dev/null
+        spinner_pid=""
+    fi
+
+    # Clear spinner and show cursor
+    echo -ne "\b \b\e[?25h"
+}
+
 # --- Core Functions ---
 log() {
     local level=$1
