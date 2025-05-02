@@ -38,7 +38,11 @@ export default [
 
   // Source files config
   {
-    files: ['src/**/*.{js,jsx,ts,tsx,mjs}', '.wescore/scripts/**/*.mjs', 'jest.setup.js'],
+    files: [
+      'src/**/*.{js,jsx,ts,tsx,mjs}',
+      '.wescore/scripts/**/*.mjs',
+      'jest.setup.js',
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

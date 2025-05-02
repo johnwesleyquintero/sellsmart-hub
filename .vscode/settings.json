@@ -70,6 +70,9 @@
     "**/dist/**": true,
     "**/build/**": true,
     "**/.next/**": true // Important for Next.js
+  },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell"
   }
 
   // --- Optional: Tabnine Priority Frameworks (If different from global) ---

@@ -29,7 +29,7 @@
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "test:json": "jest --json --outputFile=jest-results.json || true",
-    "pmc": "powershell .\\scripts\\project-cli.ps1",
+    "pc": "bash project-cli.sh",
     "pmcjs": "node ./.wescore/scripts/project-cli.mjs",
     "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
     "wes-cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs"
@@ -277,6 +277,7 @@
     "playwright": "1.52.0",
     "postcss": "^8.5.3",
     "prettier": "3.5.3",
+    "rimraf": "6.0.1",
     "storybook": "^8.1.4",
     "string-replace-loader": "^3.1.0",
     "tailwindcss": "^3.4.17",

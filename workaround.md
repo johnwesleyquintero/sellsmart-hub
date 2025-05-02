@@ -10,6 +10,33 @@
 - `npm run pmcjs`
 - `npm run wes-cq`
 
+**Reset:**
+
+```powershell
+# Clean
+Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm cache clean --force
+# Reinstall
+npm install dotenv archiver chalk inquirer semver glob
+```
+
+**Project CLI:**
+
+```bash
+npm run pc
+```
+
+**or**
+
+```bash
+chmod +x project-cli.sh
+
+./project-cli.sh
+
+bash project-cli.sh
+
+sh project-cli.sh
+```
+
 ## Available Scripts Reference Latest
 
 **Package Scripts:**
