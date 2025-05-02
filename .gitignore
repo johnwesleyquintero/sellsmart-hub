@@ -32,6 +32,7 @@ src/components/amazon-seller-tools/**/*.map
 .env.development.local
 .env.test.local
 .env.production.local
+.env.txt
 
 # Security Files
 *.pem

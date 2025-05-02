@@ -350,12 +350,23 @@ export default function AcosCalculator() {
         ...metrics,
       };
       console.log('New campaign:', newCampaign);
--------
--------
+      console.log('Manual campaign:', manualCampaign);
+      console.log('Validation errors:', validationErrors);
+      console.log('Is manual input valid:', isManualInputValid);
+      console.log('Campaigns before manual calculation:', campaigns);
+      console.log('Metrics ACOS before manual calculation:', metrics.acos);
+      const prevCampaigns = [...campaigns];
+      prevCampaigns.push(newCampaign);
+      setCampaigns(prevCampaigns);
+      console.log('Campaigns after manual calculation:', campaigns);
+      console.log('Metrics ACOS after manual calculation:', metrics.acos);
+      // Reset manual input fields
+      setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+      setIsLoading(false);
       setManualCampaign({ campaign: '', adSpend: '', sales: '' });
       console.log('ACoS calculated in handleManualCalculate:', metrics.acos);
       setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
-      console.log('Campaigns after manual calculation:', campaigns);
+      console.log('Campaigns after manual calculation:', prevCampaigns);
       console.log('Metrics ACOS after manual calculation:', metrics.acos);
       return metrics.acos;
     } catch (error) {
