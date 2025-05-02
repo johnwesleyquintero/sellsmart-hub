@@ -12,6 +12,7 @@ npm run build
 npm run format
 npm run lint
 npm run typecheck
+npm outdated
 
 ```
 

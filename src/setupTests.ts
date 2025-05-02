@@ -1,4 +1,5 @@
 import { TextDecoder, TextEncoder } from 'text-encoding';
+import 'whatwg-fetch'; // Import fetch polyfill
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 // src/setupTests.ts

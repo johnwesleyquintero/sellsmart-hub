@@ -143,6 +143,70 @@ A structured analysis report including:
 
 ---
 
+## Workflow 3: Codebase Scan and Update Project Tracker and Amazon Seller Tools Doc Blogs
+
+**Objective:**
+Scan the codebase to identify issues, optimize performance, and update the `project-tracker.mdx` and `amazon-seller-tools.mdx` file with detailed findings and actionable recommendations. This workflow should be executed regularly to ensure the project remains up-to-date and optimized.
+
+Document Directory:
+File 1: `@/src/app/content/blog/project-tracker.mdx`
+File 2: `@/src/app/content/blog/amazon-seller-tools.mdx`
+
+**Instructions:**
+
+1. **Initial Scan:**
+
+   - Perform an initial scan of the entire codebase.
+   - Identify potential issues, outdated dependencies, and areas for optimization.
+   - Flag potential issues and suggest areas for further investigation.
+
+2. **Review and Analyze:**
+
+   - Review `project-tracker.mdx` and `amazon-seller-tools.mdx` for existing errors, warnings, and pending tasks.
+   - Identify root causes of issues and prioritize tasks based on severity and impact.
+   - Categorize and prioritize issues, providing insights and suggestions for resolution.
+
+3. **Dependency Check:**
+
+   - Review all dependencies, including version numbers, and evaluate their impact.
+   - Suggest updates and identify potential conflicts or vulnerabilities.
+
+4. **Security Audit:**
+
+   - Conduct a security audit to identify vulnerabilities.
+   - Highlight potential security risks and suggest mitigation strategies.
+
+5. **Performance Optimization:**
+
+   - Analyze the codebase for performance bottlenecks.
+   - Identify performance issues and suggest optimizations.
+
+6. **Documentation Update:**
+
+   - Update `project-tracker.mdx` and `amazon-seller-tools.mdx` to reflect the current state of the codebase.
+   - Ensure the documentation includes:
+     - New features with clear explanations.
+     - Resolved issues with summaries.
+     - Known bugs, including severity and workarounds.
+     - Updated usage instructions and configuration changes.
+     - Performance considerations and optimization suggestions.
+   - Automatically generate documentation drafts and suggest improvements.
+
+7. **Continuous Monitoring:**
+
+   - Set up automated scans and alerts for ongoing codebase monitoring.
+   - Provide regular updates and alerts on potential issues.
+
+8. **Review and Feedback:**
+   - Summarize feedback and suggest further improvements based on team reviews.
+
+**Output:**
+
+- A comprehensive update to `project-tracker.mdx` and `amazon-seller-tools.mdx` with detailed findings, actionable recommendations, and optimizations.
+- A final report summarizing the changes made and any remaining issues.
+
+---
+
 ## Project Context
 
 Name: portfolio
