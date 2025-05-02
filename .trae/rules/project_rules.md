@@ -1,6 +1,6 @@
 # Project Development Rules & Guidelines
 
-**Last Updated:** [Insert Date - e.g., 2025-04-25]
+**Last Updated:** 2024-07-26
 
 This document outlines the essential rules and guidelines for developing the Amazon Seller Tools project. Adhering to these rules ensures code quality, consistency, maintainability, and effective collaboration.
 
@@ -128,5 +128,7 @@ This document outlines the essential rules and guidelines for developing the Ama
 **Rule:** Implement robust error handling and leverage the configured error reporting service for effective debugging and monitoring.
 
 ---
+
+[//]: # (Documentation last updated: ${new Date().toISOString()})
 
 _These rules are living guidelines and may be updated as the project evolves. Please ensure you are familiar with the latest version._

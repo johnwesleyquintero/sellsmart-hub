@@ -116,6 +116,7 @@ export class KeywordTrendService {
 
   public static async analyzeTrends(
     rawData: unknown[],
+    expectedDateFormat?: string, // Add expected date format as argument
   ): Promise<TrendAnalysisResult> {
     // Validate input data exists
     if (!rawData || rawData.length === 0) {
@@ -137,17 +138,34 @@ export class KeywordTrendService {
         return cached.data;
       }
 
+      // Cache for fetchTrendData results
+      const fetchCache = new Map<string, number>();
+
       // Validate and process each row
       const validatedData = await Promise.all(
         rawData.map(async (row) => {
           const validated = trendDataSchema.parse(row);
+          const standardizedDate = expectedDateFormat
+            ? format(
+                parse(validated.date, expectedDateFormat, new Date()),
+                'yyyy-MM-dd',
+              ) // Use provided format directly
+            : this.standardizeDate(validated.date);
+
+          const fetchKey = `${validated.keyword}-${standardizedDate}`;
+          let search_volume = fetchCache.get(fetchKey);
+          if (!search_volume) {
+            search_volume = await this.fetchTrendData(
+              validated.keyword,
+              standardizedDate,
+            );
+            fetchCache.set(fetchKey, search_volume);
+          }
+
           return {
             ...validated,
-            date: this.standardizeDate(validated.date),
-            search_volume: await this.fetchTrendData(
-              validated.keyword,
-              validated.date,
-            ),
+            date: standardizedDate,
+            search_volume,
           };
         }),
       );

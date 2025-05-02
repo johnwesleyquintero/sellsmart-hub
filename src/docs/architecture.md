@@ -30,6 +30,15 @@ flowchart TD
   - Request validation
   - Security headers
 
+### Amazon Tools
+
+- A suite of tools for Amazon sellers, including:
+  - Keyword analysis
+  - Competitor analysis
+  - FBA fee calculation
+- Utilizes a dedicated API client for interacting with external APIs.
+- Implements data validation using Zod schemas.
+
 ### Data Layer
 
 - MongoDB: Primary data store

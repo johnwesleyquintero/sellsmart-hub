@@ -38,7 +38,9 @@ class ApiClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API Error: ${response.status} ${response.statusText} - ${endpoint}`,
+        );
       }
 
       return response.json();
@@ -118,7 +120,13 @@ class ApiClient {
 }
 
 // Create and export a singleton instance
+
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+if (!apiKey) {
+  console.warn('NEXT_PUBLIC_API_KEY is not set. API requests may fail.');
+}
+
 export const apiClient = new ApiClient({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.example.com',
-  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  apiKey: apiKey,
 });
