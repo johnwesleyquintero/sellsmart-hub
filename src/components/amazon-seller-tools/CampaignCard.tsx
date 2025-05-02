@@ -15,14 +15,21 @@ interface CampaignCardProps {
   readonly campaign: CampaignData;
 }
 
-export default function CampaignCard({ campaign }: CampaignCardProps) {
+import React from 'react';
+
+function CampaignCard({ campaign }: CampaignCardProps) {
   return (
     <Card>
       <CardContent className="p-4">
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium">{campaign.name}</h3>
-            <Badge variant="outline">{campaign.type}</Badge>
+            <Badge
+              variant="outline"
+              aria-label={`Campaign Type: ${campaign.type}`}
+            >
+              {campaign.type}
+            </Badge>
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
             ACoS: {campaign.acos?.toFixed(2)}% • CTR: {campaign.ctr?.toFixed(2)}
@@ -53,3 +60,5 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
     </Card>
   );
 }
+
+export default React.memo(CampaignCard);

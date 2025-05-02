@@ -30,7 +30,7 @@
     "typecheck": "tsc --noEmit",
     "test:json": "jest --json --outputFile=jest-results.json || true",
     "pmc": "powershell .\\scripts\\project-cli.ps1",
-    "wes-pc-js": "node ./.wescore/scripts/project-cli.mjs",
+    "pmcjs": "node ./.wescore/scripts/project-cli.mjs",
     "wes-cq": "node ./.wescore/scripts/check-quality.mjs",
     "wes-cp": "node ./.wescore/scripts/wescore-cyberpunk.mjs"
   },
@@ -131,6 +131,7 @@
     "recharts": "^2.15.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
+    "rxjs": "7.8.1",
     "semver": "7.7.1",
     "sonner": "^1.7.4",
     "sound-play": "^1.1.0",
@@ -140,6 +141,7 @@
     "vaul": "1.1.2",
     "web-vitals": "4.2.4",
     "whatwg-encoding": "3.1.1",
+    "winston": "3.17.0",
     "zod": "^3.24.3",
     "zustand": "5.0.3"
   },

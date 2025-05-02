@@ -3,15 +3,13 @@ import archiver from 'archiver';
 import chalk from 'chalk';
 import { exec, spawn } from 'child_process';
 import { Spinner } from 'cli-spinner';
-import fse from 'fs-extra'; // Using fs-extra for easier recursive copy/remove if needed, though fs.rm works now
+import dotenv from 'dotenv';
+import fse from 'fs-extra';
 import fs from 'fs/promises';
 import { glob } from 'glob';
 import inquirer from 'inquirer';
-import os from 'os';
-import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
-import winston from 'winston';
 
 const execPromise = promisify(exec);
 
@@ -54,6 +52,21 @@ const COMMANDS = {
   validate: 'Validate project structure (check for required files)',
 };
 
+// --- Enhanced Progress Indicator Configuration ---
+const SPINNER_STYLES = {
+  default: '|/-\\',
+  dots: '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏',
+  arrows: '←↖↑↗→↘↓↙',
+  progress: '⣾⣽⣻⢿⡿⣟⣯⣷',
+};
+
+const SPINNER_COLORS = {
+  info: chalk.blue,
+  success: chalk.green,
+  warning: chalk.yellow,
+  error: chalk.red,
+};
+
 // --- Helper Functions ---
 
 async function writeLog(message, level = 'INFO') {
@@ -66,31 +79,47 @@ async function writeLog(message, level = 'INFO') {
     console.error(
       chalk.red(`Failed to write to log file ${LOG_FILE}: ${err.message}`),
     );
-  }
-
-  switch (level) {
-    case 'ERROR':
-      console.error(chalk.red(message));
-      break;
-    case 'WARN':
-      console.warn(chalk.yellow(message));
-      break;
-    case 'SUCCESS':
-      console.log(chalk.green(message));
-      break;
-    default:
-      console.log(message);
+  } finally {
+    switch (level) {
+      case 'ERROR':
+        console.error(chalk.red(message));
+        break;
+      case 'WARN':
+        console.warn(chalk.yellow(message));
+        break;
+      case 'SUCCESS':
+        console.log(chalk.green(message));
+        break;
+      default:
+        console.log(message);
+    }
   }
 }
 
+// Update the runCommand function to use the enhanced progress indicator
 function runCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     writeLog(`Executing: ${command} ${args.join(' ')}`, 'INFO');
+
     const proc = spawn(command, args, {
-      stdio: 'inherit',
+      stdio: options.stdio || 'pipe', // Changed to pipe to capture output
       shell: true,
       ...options,
     });
+
+    let output = '';
+
+    if (proc.stdout) {
+      proc.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+    }
+
+    if (proc.stderr) {
+      proc.stderr.on('data', (data) => {
+        output += data.toString();
+      });
+    }
 
     proc.on('error', (err) => {
       writeLog(`Execution error for "${command}": ${err.message}`, 'ERROR');
@@ -100,14 +129,14 @@ function runCommand(command, args = [], options = {}) {
     proc.on('close', (code) => {
       if (code === 0) {
         writeLog(`Command "${command}" completed successfully`, 'SUCCESS');
-        resolve(code);
+        resolve({ code, output });
       } else {
-        writeLog(`Command "${command}" failed with exit code ${code}`, 'ERROR');
-        reject(
-          new Error(
-            `Command "${command} ${args.join(' ')}" failed with exit code ${code}`,
-          ),
+        const error = new Error(
+          `Command "${command} ${args.join(' ')}" failed with exit code ${code}\n${output}`,
         );
+        error.code = code;
+        error.output = output;
+        reject(error);
       }
     });
   });
@@ -118,11 +147,18 @@ async function getCommandVersion(command) {
     const { stdout } = await execPromise(`${command} --version`);
     return stdout.trim().replace(/^v/, '');
   } catch (error) {
-    writeLog(
-      `Could not get version for command: ${command}. Error: ${error.message}`,
-      'WARN',
-    );
-    return null; // Command likely not found or doesn't support --version
+    if (error.code === 'ENOENT') {
+      writeLog(
+        `Command not found: ${command}. Ensure it is installed and in your PATH.`,
+        'WARN',
+      );
+    } else {
+      writeLog(
+        `Could not get version for command: ${command}. Error: ${error.message}`,
+        'WARN',
+      );
+    }
+    return null;
   }
 }
 
@@ -215,6 +251,213 @@ async function checkGlobalPackages() {
   return true;
 }
 
+// --- Additional Helper Functions ---
+
+async function cleanDirectories(directories) {
+  writeLog('Cleaning directories...', 'INFO');
+  try {
+    for (const dir of directories) {
+      try {
+        await fse.remove(dir);
+        writeLog(`Successfully removed ${dir}`, 'SUCCESS');
+      } catch (error) {
+        writeLog(`Failed to remove ${dir}: ${error.message}`, 'WARN');
+      }
+    }
+    return true;
+  } catch (error) {
+    writeLog(`Directory cleanup failed: ${error.message}`, 'ERROR');
+    return false;
+  }
+}
+
+async function cleanLogsAndTemp() {
+  writeLog('Cleaning log and temporary files...', 'INFO');
+  try {
+    const files = await glob(LOG_PATTERNS, {
+      ignore: ['node_modules/**'],
+      dot: true,
+    });
+
+    for (const file of files) {
+      try {
+        await fs.unlink(file);
+        writeLog(`Removed: ${file}`, 'SUCCESS');
+      } catch (error) {
+        writeLog(`Failed to remove ${file}: ${error.message}`, 'WARN');
+      }
+    }
+    return true;
+  } catch (error) {
+    writeLog(`Log cleanup failed: ${error.message}`, 'ERROR');
+    return false;
+  }
+}
+
+async function projectInfo() {
+  writeLog('Gathering project information...', 'INFO');
+  try {
+    // Read package.json
+    const pkgContent = await fs.readFile('package.json', 'utf-8');
+    const pkg = JSON.parse(pkgContent);
+
+    // Git info
+    const gitBranch = await execPromise('git rev-parse --abbrev-ref HEAD').then(
+      ({ stdout }) => stdout.trim(),
+      () => 'Not a git repository',
+    );
+
+    const gitStatus = await execPromise('git status --porcelain').then(
+      ({ stdout }) => (stdout.trim() ? 'Has uncommitted changes' : 'Clean'),
+      () => 'Not a git repository',
+    );
+
+    // Environment check
+    const envFiles = ['.env', '.env.local', '.env.development'];
+    const envStatus = await Promise.all(
+      envFiles.map(async (file) => {
+        try {
+          await fs.access(file);
+          return file;
+        } catch {
+          return null;
+        }
+      }),
+    );
+    const presentEnvFiles = envStatus.filter(Boolean);
+
+    console.log(chalk.cyan('\nProject Information:\n'));
+    console.log(`Name: ${chalk.green(pkg.name)}`);
+    console.log(`Version: ${chalk.green(pkg.version)}`);
+    console.log(
+      `Node Version Required: ${chalk.green(pkg.engines?.node || 'Not specified')}`,
+    );
+    console.log(`Git Branch: ${chalk.green(gitBranch)}`);
+    console.log(`Git Status: ${chalk.green(gitStatus)}`);
+    console.log(
+      `Environment Files: ${chalk.green(presentEnvFiles.length ? presentEnvFiles.join(', ') : 'None found')}`,
+    );
+    console.log('\nDependencies:');
+    console.log(
+      chalk.yellow('  Production:'),
+      Object.keys(pkg.dependencies || {}).length,
+    );
+    console.log(
+      chalk.yellow('  Development:'),
+      Object.keys(pkg.devDependencies || {}).length,
+    );
+    console.log('');
+
+    writeLog('Project information displayed successfully.', 'SUCCESS');
+    return true;
+  } catch (error) {
+    writeLog(`Failed to gather project information: ${error.message}`, 'ERROR');
+    return false;
+  }
+}
+
+async function projectDev() {
+  writeLog('Starting development server...', 'INFO');
+  try {
+    // Check if the port is available
+    const isPortAvailable = await checkPort(3000);
+    if (!isPortAvailable) {
+      writeLog(
+        'Port 3000 is already in use. Please free up the port first.',
+        'ERROR',
+      );
+      return false;
+    }
+
+    // Validate environment
+    const hasEnvFile = await validateEnvironment();
+    if (!hasEnvFile) {
+      writeLog(
+        'Warning: No .env file found. Server might not work as expected.',
+        'WARN',
+      );
+    }
+
+    // Start the dev server with progress indicator
+    await showProgressIndicator(
+      () => runCommand('npm', ['run', 'dev'], { isBackground: true }),
+      'Starting development server',
+    );
+
+    writeLog('Development server started successfully.', 'SUCCESS');
+    return true;
+  } catch (error) {
+    writeLog(`Failed to start development server: ${error.message}`, 'ERROR');
+    return false;
+  }
+}
+
+async function checkPort(port) {
+  try {
+    const { stdout } = await execPromise(`netstat -ano | findstr :${port}`);
+    return !stdout.trim();
+  } catch {
+    return true; // If the command fails, assume port is available
+  }
+}
+
+async function validateEnvironment() {
+  try {
+    await fs.access('.env');
+    const envConfig = dotenv.parse(await fs.readFile('.env'));
+    const missingVars = Object.keys(envConfig).filter(
+      (key) => !process.env[key],
+    );
+
+    if (missingVars.length > 0) {
+      writeLog(
+        `Warning: Missing environment variables: ${missingVars.join(', ')}`,
+        'WARN',
+      );
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function showHelp() {
+  console.log(chalk.cyan('\nAvailable Commands:\n'));
+  Object.entries(COMMANDS).forEach(([key, description]) => {
+    console.log(`  ${chalk.yellow(key.padEnd(15))} ${description}`);
+  });
+  console.log('\n');
+}
+
+// --- Enhanced Error Handling ---
+process.on('unhandledRejection', (reason, promise) => {
+  writeLog(`Unhandled Rejection: ${reason}`, 'ERROR');
+  console.error(chalk.red(`Unhandled Rejection: ${reason}`));
+});
+
+process.on('uncaughtException', (error) => {
+  writeLog(`Uncaught Exception: ${error.message}\n${error.stack}`, 'ERROR');
+  console.error(chalk.red(`Uncaught Exception: ${error.message}`));
+  process.exit(1); // Exit to prevent undefined behavior
+});
+
+// --- Utility Function for Retry Logic ---
+async function retryOperation(operation, retries = 3, delayMs = 1000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      writeLog(`Attempt ${attempt} failed: ${error.message}`, 'WARN');
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      } else {
+        throw error; // Rethrow after exhausting retries
+      }
+    }
+  }
+}
+
+// --- Enhanced Interactive Menu ---
 async function showInteractiveMenu() {
   console.clear();
   console.log(chalk.cyan('\nPROJECT MANAGEMENT CLI\n'));
@@ -228,60 +471,55 @@ async function showInteractiveMenu() {
   choices.push(new inquirer.Separator());
   choices.push({ name: 'Quit', value: 'quit' });
 
-  const { selection } = await inquirer.prompt([
+  try {
+    const { selection } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'selection',
+        message: 'Choose a command:',
+        choices: choices,
+        pageSize: choices.length, // Show all options
+      },
+    ]);
+
+    return selection === 'quit' ? null : selection;
+  } catch (error) {
+    writeLog(`Interactive menu failed: ${error.message}`, 'ERROR');
+    console.error(chalk.red('Failed to display the interactive menu.'));
+    return null;
+  }
+}
+
+// --- Confirmation Prompt for Destructive Actions ---
+async function confirmAction(message) {
+  const { confirmed } = await inquirer.prompt([
     {
-      type: 'list',
-      name: 'selection',
-      message: 'Choose a command:',
-      choices: choices,
-      pageSize: choices.length, // Show all options
+      type: 'confirm',
+      name: 'confirmed',
+      message: message,
+      default: false,
     },
   ]);
-
-  return selection === 'quit' ? null : selection;
+  return confirmed;
 }
 
-function showHelp() {
-  console.log(chalk.cyan('\nProject Management CLI\n'));
-  console.log(chalk.yellow('Available Commands:'));
-  for (const [key, value] of Object.entries(COMMANDS)) {
-    console.log(`  ${chalk.green(key.padEnd(15))} ${value}`);
-  }
-  const scriptName = path.basename(process.argv[1]);
-  console.log(chalk.yellow(`\nUsage: node ${scriptName} [command]\n`));
-}
-
-async function cleanDirectories(dirs) {
-  writeLog(`Starting cleanup process for: ${dirs.join(', ')}`, 'INFO');
-  let success = true;
-  for (const dir of dirs) {
-    try {
-      if (await fse.pathExists(dir)) {
-        await fs.rm(dir, { recursive: true, force: true });
-        writeLog(`Removed ${dir}`, 'SUCCESS');
-      } else {
-        writeLog(`Directory/File not found, skipping: ${dir}`, 'INFO');
-      }
-    } catch (error) {
-      writeLog(`Failed to remove ${dir}: ${error.message}`, 'ERROR');
-      success = false; // Continue cleaning other dirs
-    }
-  }
-  return success;
-}
-
-// --- Command Functions ---
-
+// --- Enhanced Command Execution with Confirmation ---
 async function projectReset() {
+  if (!(await confirmAction('Are you sure you want to reset the project?'))) {
+    writeLog('Reset operation canceled by the user.', 'INFO');
+    return false;
+  }
+
   writeLog('Starting reset process', 'INFO');
   const cleanSuccess = await cleanDirectories(BUILD_ARTIFACTS);
   if (!cleanSuccess) {
     writeLog('Cleanup part of reset failed. Aborting install.', 'ERROR');
     return false;
   }
+
   writeLog('Cleanup complete. Reinstalling dependencies...', 'INFO');
   try {
-    await runCommand('npm', ['install']);
+    await retryOperation(() => runCommand('npm', ['install']), 3, 2000);
     writeLog('Dependencies reinstalled successfully.', 'SUCCESS');
     return true;
   } catch (error) {
@@ -290,37 +528,51 @@ async function projectReset() {
   }
 }
 
-async function projectSetup() {
-  writeLog('Starting project setup...', 'INFO');
-  if (!(await checkProjectStructure())) {
-    return false;
+// --- Progress Indicator for Long-Running Tasks ---
+async function showProgressIndicator(task, message, options = {}) {
+  const {
+    spinnerStyle = SPINNER_STYLES.dots,
+    color = SPINNER_COLORS.info,
+    showTiming = true,
+  } = options;
+
+  const spinner = new Spinner({
+    text: `${color(message)} %s${showTiming ? ' (0s)' : ''}`,
+    spinner: spinnerStyle,
+  });
+
+  const startTime = Date.now();
+  spinner.setSpinnerString(spinnerStyle);
+  spinner.start();
+
+  let updateInterval;
+  if (showTiming) {
+    updateInterval = setInterval(() => {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      spinner.text = `${color(message)} %s (${elapsed}s)`;
+    }, 100);
   }
+
   try {
-    writeLog('Installing project dependencies...', 'INFO');
-    await runCommand('npm', ['install']);
-    writeLog('Dependencies installed successfully', 'SUCCESS');
-    return true;
+    const result = await task();
+    if (updateInterval) clearInterval(updateInterval);
+    spinner.stop(true);
+    return result;
   } catch (error) {
-    writeLog(`Failed to install dependencies: ${error.message}`, 'ERROR');
-    return false;
+    if (updateInterval) clearInterval(updateInterval);
+    spinner.stop(true);
+    throw error;
   }
 }
 
-async function projectCheck() {
-  writeLog('Running project checks (npm run wes-cq)...', 'INFO');
-  try {
-    await runCommand('npm', ['run', 'wes-cq']); // Assuming 'wes-cq' is your check script
-    return true;
-  } catch (error) {
-    writeLog('Project checks failed.', 'ERROR');
-    return false;
-  }
-}
-
+// Example Usage of Progress Indicator in Commands
 async function projectBuild() {
   writeLog('Starting project build (npm run build)...', 'INFO');
   try {
-    await runCommand('npm', ['run', 'build']);
+    await showProgressIndicator(
+      () => runCommand('npm', ['run', 'build']),
+      'Building project',
+    );
     return true;
   } catch (error) {
     writeLog('Build failed.', 'ERROR');
@@ -328,24 +580,76 @@ async function projectBuild() {
   }
 }
 
-async function projectDev() {
-  writeLog('Starting development server (npm run dev)...', 'INFO');
+// --- Helper Function to Prompt for Main Menu or Exit ---
+async function promptMainMenuOrExit() {
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: 'What would you like to do next?',
+      choices: [
+        { name: 'Return to Main Menu', value: 'menu' },
+        { name: 'Exit', value: 'exit' },
+      ],
+    },
+  ]);
+  return action;
+}
+
+// --- Command Functions ---
+
+async function projectSetup() {
+  writeLog('Starting project setup...', 'INFO');
+  if (!(await checkProjectStructure())) {
+    writeLog('Project structure validation failed. Setup aborted.', 'ERROR');
+    return false;
+  }
+
   try {
-    // 'dev' usually runs indefinitely, so we just start it. Error handling is tricky here.
-    await runCommand('npm', ['run', 'dev']);
-    return true; // Technically, this line might not be reached if dev runs forever
+    return await showProgressIndicator(
+      () => runCommand('npm', ['install']),
+      'Installing project dependencies',
+      { spinnerStyle: SPINNER_STYLES.dots },
+    );
   } catch (error) {
-    // This catch might only trigger if the process fails to start
-    writeLog('Failed to start development server.', 'ERROR');
+    writeLog(`Failed to install dependencies: ${error.message}`, 'ERROR');
     return false;
   }
 }
 
-async function projectTest() {
-  writeLog('Running tests (npm run test)...', 'INFO');
+async function projectCheck() {
+  writeLog('Running project checks...', 'INFO');
   try {
-    await runCommand('npm', ['run', 'test']);
-    return true;
+    return await showProgressIndicator(
+      () => runCommand('npm', ['run', 'check']),
+      'Running project checks (lint, type check, tests)',
+      { spinnerStyle: SPINNER_STYLES.arrows },
+    );
+  } catch (error) {
+    writeLog('Project checks failed.', 'ERROR');
+    return false;
+  }
+}
+
+async function projectValidate() {
+  writeLog('Validating project structure...', 'INFO');
+  const isValid = await checkProjectStructure();
+  if (isValid) {
+    writeLog('Project structure is valid.', 'SUCCESS');
+  } else {
+    writeLog('Project structure validation failed.', 'ERROR');
+  }
+  return isValid;
+}
+
+async function projectTest() {
+  writeLog('Running tests...', 'INFO');
+  try {
+    return await showProgressIndicator(
+      () => runCommand('npm', ['run', 'test']),
+      'Running test suite',
+      { spinnerStyle: SPINNER_STYLES.dots },
+    );
   } catch (error) {
     writeLog('Tests failed.', 'ERROR');
     return false;
@@ -353,122 +657,50 @@ async function projectTest() {
 }
 
 async function projectClean() {
-  return cleanDirectories(BUILD_ARTIFACTS);
+  writeLog('Cleaning project...', 'INFO');
+  return await showProgressIndicator(
+    () => cleanDirectories(BUILD_ARTIFACTS),
+    'Cleaning build artifacts and dependencies',
+    { spinnerStyle: SPINNER_STYLES.default },
+  );
 }
 
 async function projectUpdate() {
-  writeLog('Checking for dependency updates...', 'INFO');
+  writeLog('Updating dependencies...', 'INFO');
   try {
-    // Consider using `npm outdated --json` for more detailed info if needed
-    await runCommand('npm', ['update']);
-    writeLog(
-      'Dependencies updated successfully (if any were outdated).',
-      'SUCCESS',
+    return await showProgressIndicator(
+      () => runCommand('npm', ['update']),
+      'Updating project dependencies',
+      { spinnerStyle: SPINNER_STYLES.dots },
     );
-    // Add deprecated check if desired (parsing `npm ls --json` can be complex)
-    return true;
   } catch (error) {
     writeLog('Failed to update dependencies.', 'ERROR');
     return false;
   }
 }
 
-async function projectInfo() {
-  try {
-    const pkgContent = await fs.readFile('package.json', 'utf-8');
-    const pkg = JSON.parse(pkgContent);
-    const requiredNodeVersion =
-      pkg.engines?.node?.replace(/\^|>=|~/, '').split(' ')[0] ||
-      'Not Specified';
-
-    console.log(chalk.cyan('\nProject Information:\n'));
-    console.log(`Name: ${chalk.green(pkg.name || 'N/A')}`);
-    console.log(`Version: ${chalk.green(pkg.version || 'N/A')}`);
-    console.log(
-      `Node.js Version Required: ${chalk.green(requiredNodeVersion)}`,
-    );
-    console.log(`NPM Version Required: ${chalk.green(REQUIRED_NPM_VERSION)}`);
-    console.log(chalk.yellow('\nAvailable Scripts (from package.json):'));
-    if (pkg.scripts) {
-      for (const [name, script] of Object.entries(pkg.scripts)) {
-        console.log(`  ${chalk.blue(name.padEnd(20))} ${script}`);
-      }
-    } else {
-      console.log('  No scripts found in package.json');
-    }
-    console.log('');
-    return true;
-  } catch (error) {
-    writeLog(`Failed to read or parse package.json: ${error.message}`, 'ERROR');
-    return false;
-  }
-}
-
-async function cleanLogsAndTemp() {
-  writeLog('Cleaning log and temporary files...', 'INFO');
-  let success = true;
-  const patterns = [...LOG_PATTERNS]; // Project-level patterns
-  const tempDir = os.tmpdir();
-  const tempPatterns = LOG_PATTERNS.map((p) => path.join(tempDir, p)); // System temp patterns
-
-  const projectFiles = await glob(patterns, {
-    cwd: '.',
-    absolute: true,
-    nodir: true,
-  });
-  const tempFiles = await glob(tempPatterns, { absolute: true, nodir: true });
-  const allFiles = [...projectFiles, ...tempFiles];
-
-  if (allFiles.length === 0) {
-    writeLog('No log or temporary files found matching patterns.', 'INFO');
-    return true;
-  }
-
-  writeLog(`Found files to clean: ${allFiles.join(', ')}`, 'INFO');
-
-  for (const file of allFiles) {
-    try {
-      await fs.rm(file, { force: true });
-      writeLog(`Removed ${file}`, 'SUCCESS');
-    } catch (error) {
-      writeLog(`Failed to remove ${file}: ${error.message}`, 'ERROR');
-      success = false;
-    }
-  }
-  return success;
-}
-
 async function projectAudit() {
-  writeLog('Running security audit (npm audit)...', 'INFO');
+  writeLog('Running security audit...', 'INFO');
   try {
-    // npm audit can exit non-zero for vulnerabilities, which runCommand treats as failure.
-    // We might want to capture the output or just let it print.
-    // For now, let's run it and report success regardless of vulnerabilities found.
-    await runCommand('npm', ['audit']);
-    writeLog(
-      'Security audit completed. Review output for vulnerabilities.',
-      'INFO',
-    ); // Changed level
-    return true; // Report success as the command ran
+    return await showProgressIndicator(
+      () => runCommand('npm', ['audit']),
+      'Running security audit',
+      { spinnerStyle: SPINNER_STYLES.progress },
+    );
   } catch (error) {
-    // Check if error is due to vulnerabilities found (exit code > 0)
-    if (error.message.includes('exit code')) {
-      writeLog(
-        'Security audit completed. Vulnerabilities found (review output).',
-        'WARN',
-      );
-      return true; // Still consider the command execution successful
-    }
-    writeLog('Failed to run security audit.', 'ERROR');
+    writeLog('Security audit failed.', 'ERROR');
     return false;
   }
 }
 
 async function projectDocs() {
-  writeLog('Generating project documentation (npm run docs)...', 'INFO');
+  writeLog('Generating documentation...', 'INFO');
   try {
-    await runCommand('npm', ['run', 'docs']);
-    return true;
+    return await showProgressIndicator(
+      () => runCommand('npm', ['run', 'docs']),
+      'Generating project documentation',
+      { spinnerStyle: SPINNER_STYLES.dots },
+    );
   } catch (error) {
     writeLog('Failed to generate documentation.', 'ERROR');
     return false;
@@ -478,42 +710,45 @@ async function projectDocs() {
 async function projectStats() {
   writeLog('Calculating project statistics...', 'INFO');
   try {
-    const files = await glob(
-      [
-        '**/*.js',
-        '**/*.ts',
-        '**/*.jsx',
-        '**/*.tsx',
-        '**/*.css',
-        '**/*.scss',
-        '**/*.json',
-      ],
-      {
-        ignore: ['node_modules/**', '**/.*/**', '**/dist/**', '**/build/**'], // Add other ignores as needed
-        nodir: true,
-        absolute: true,
-      },
-    );
-
-    let totalLines = 0;
-    for (const file of files) {
-      try {
-        const content = await fs.readFile(file, 'utf-8');
-        totalLines += content.split('\n').length;
-      } catch (readError) {
-        writeLog(
-          `Could not read file for stats: ${file} - ${readError.message}`,
-          'WARN',
+    return await showProgressIndicator(
+      async () => {
+        const files = await glob(
+          [
+            '**/*.js',
+            '**/*.ts',
+            '**/*.jsx',
+            '**/*.tsx',
+            '**/*.css',
+            '**/*.scss',
+            '**/*.json',
+          ],
+          {
+            ignore: [
+              'node_modules/**',
+              '**/.*/**',
+              '**/dist/**',
+              '**/build/**',
+            ],
+            nodir: true,
+            absolute: true,
+          },
         );
-      }
-    }
 
-    console.log(chalk.cyan('\nProject Statistics:\n'));
-    console.log(`Lines of Code (approx): ${chalk.green(totalLines)}`);
-    console.log(`Files Count: ${chalk.green(files.length)}`);
-    console.log('');
-    writeLog('Project statistics displayed successfully', 'SUCCESS');
-    return true;
+        let totalLines = 0;
+        for (const file of files) {
+          const content = await fs.readFile(file, 'utf-8');
+          totalLines += content.split('\n').length;
+        }
+
+        console.log(chalk.cyan('\nProject Statistics:\n'));
+        console.log(`Lines of Code (approx): ${chalk.green(totalLines)}`);
+        console.log(`Files Count: ${chalk.green(files.length)}`);
+        console.log('');
+        return true;
+      },
+      'Analyzing project statistics',
+      { spinnerStyle: SPINNER_STYLES.dots },
+    );
   } catch (error) {
     writeLog(`Failed to calculate statistics: ${error.message}`, 'ERROR');
     return false;
@@ -527,61 +762,60 @@ async function projectBackup() {
     .replace(/[:\-T]/g, '')
     .substring(0, 14);
   const backupFileName = `backup-${timestamp}.zip`;
-  const output = fse.createWriteStream(backupFileName);
-  const archive = archiver('zip', { zlib: { level: 9 } }); // Optimal compression
 
-  return new Promise((resolve, reject) => {
-    output.on('close', () => {
-      writeLog(
-        `Project backup created successfully: ${backupFileName} (${archive.pointer()} total bytes)`,
-        'SUCCESS',
-      );
-      resolve(true);
-    });
+  return await showProgressIndicator(
+    () =>
+      new Promise((resolve, reject) => {
+        const output = fse.createWriteStream(backupFileName);
+        const archive = archiver('zip', { zlib: { level: 9 } });
 
-    archive.on('warning', (err) => {
-      if (err.code === 'ENOENT') {
-        writeLog(`Backup warning: ${err.message}`, 'WARN');
-      } else {
-        writeLog(`Backup error: ${err.message}`, 'ERROR');
-        reject(false);
-      }
-    });
+        output.on('close', () => {
+          writeLog(
+            `Backup created: ${backupFileName} (${archive.pointer()} bytes)`,
+            'SUCCESS',
+          );
+          resolve(true);
+        });
 
-    archive.on('error', (err) => {
-      writeLog(`Failed to create backup archive: ${err.message}`, 'ERROR');
-      reject(false);
-    });
+        archive.on('warning', (err) => {
+          if (err.code === 'ENOENT') {
+            writeLog(`Backup warning: ${err.message}`, 'WARN');
+          } else {
+            reject(err);
+          }
+        });
 
-    archive.pipe(output);
-    // Add files/directories to archive. Globbing everything except node_modules and the backup itself.
-    archive.glob('**', {
-      cwd: '.',
-      ignore: ['node_modules/**', backupFileName, LOG_FILE, '.*/**'], // Adjust ignores
-      dot: true, // Include dotfiles (like .env, .gitignore) but ignore .git, .next etc via pattern
-    });
-    archive.finalize();
-  });
-}
+        archive.on('error', (err) => reject(err));
 
-async function projectValidate() {
-  return checkProjectStructure();
+        archive.pipe(output);
+        archive.glob('**', {
+          cwd: '.',
+          ignore: ['node_modules/**', backupFileName, LOG_FILE, '.*/**'],
+          dot: true,
+        });
+
+        archive.finalize();
+      }),
+    'Creating project backup archive',
+    { spinnerStyle: SPINNER_STYLES.dots },
+  );
 }
 
 // --- Main Execution ---
+const main = async () => {
+  let running = true;
 
-(async () => {
-  let command = process.argv[2];
-  let success = false;
+  while (running) {
+    let command = process.argv[2];
+    let success = false;
 
-  try {
     // Read required Node version from package.json
     let requiredNodeVersion = '>=0.0.0'; // Default fallback
     try {
       const pkgContent = await fs.readFile('package.json', 'utf-8');
       const pkg = JSON.parse(pkgContent);
       if (pkg.engines?.node) {
-        requiredNodeVersion = pkg.engines.node; // Use the full range specified
+        requiredNodeVersion = pkg.engines.node;
       }
     } catch (err) {
       writeLog(
@@ -605,6 +839,7 @@ async function projectValidate() {
 
     if (!COMMANDS[command]) {
       writeLog(`Unknown command: ${command}`, 'ERROR');
+      console.error(chalk.red(`Unknown command: ${command}`));
       showHelp();
       process.exit(1);
     }
@@ -616,122 +851,68 @@ async function projectValidate() {
       if (!(await checkGlobalPackages())) process.exit(1);
     }
 
-    // Execute command
+    // Execute command with enhanced error handling
     writeLog(`Executing command: ${command}`, 'INFO');
-    switch (command) {
-      case 'reset':
-        success = await projectReset();
-        break;
-      case 'setup':
-        success = await projectSetup();
-        break;
-      case 'check':
-        success = await projectCheck();
-        break;
-      case 'build':
-        success = await projectBuild();
-        break;
-      case 'dev':
-        success = await projectDev();
-        break; // May not return
-      case 'test':
-        success = await projectTest();
-        break;
-      case 'clean':
-        success = await projectClean();
-        break;
-      case 'update':
-        success = await projectUpdate();
-        break;
-      case 'info':
-        success = await projectInfo();
-        break;
-      case 'clean-logs':
-        success = await cleanLogsAndTemp();
-        break;
-      case 'audit':
-        success = await projectAudit();
-        break;
-      case 'docs':
-        success = await projectDocs();
-        break;
-      case 'stats':
-        success = await projectStats();
-        break;
-      case 'backup':
-        success = await projectBackup();
-        break;
-      case 'validate':
-        success = await projectValidate();
-        break;
-      default:
-        writeLog(`Command handler not implemented: ${command}`, 'ERROR');
-        success = false;
-    }
+    success = await retryOperation(async () => {
+      switch (command) {
+        case 'reset':
+          return await projectReset();
+        case 'setup':
+          return await projectSetup();
+        case 'check':
+          return await projectCheck();
+        case 'build':
+          return await projectBuild();
+        case 'dev':
+          return await projectDev();
+        case 'test':
+          return await projectTest();
+        case 'clean':
+          return await projectClean();
+        case 'update':
+          return await projectUpdate();
+        case 'info':
+          return await projectInfo();
+        case 'clean-logs':
+          return await cleanLogsAndTemp();
+        case 'audit':
+          return await projectAudit();
+        case 'docs':
+          return await projectDocs();
+        case 'stats':
+          return await projectStats();
+        case 'backup':
+          return await projectBackup();
+        case 'validate':
+          return await projectValidate();
+        default:
+          throw new Error(`Command handler not implemented: ${command}`);
+      }
+    });
 
     if (!success) {
       writeLog(`Command '${command}' failed`, 'ERROR');
-      process.exit(1);
     } else {
-      // Don't log success for 'dev' as it might still be running
-      if (command !== 'dev') {
-        writeLog(`Command '${command}' completed successfully`, 'SUCCESS');
-      }
+      writeLog(`Command '${command}' completed successfully`, 'SUCCESS');
     }
-    process.exit(0);
-  } catch (error) {
-    const criticalError = `CRITICAL ERROR: Command execution failed - ${error.message}\n${error.stack}`;
-    writeLog(criticalError, 'ERROR');
-    process.exit(1);
+
+    // Prompt user to return to main menu or exit
+    const nextAction = await promptMainMenuOrExit();
+    if (nextAction === 'exit') {
+      running = false;
+      console.log('Goodbye!');
+    } else {
+      command = null; // Reset command to show the main menu again
+    }
   }
-})();
+};
 
-function executeCommand(command) {
-  const spinner = new Spinner('Processing.. %s');
-  spinner.setSpinnerString('|/-\\');
-  spinner.start();
-
-  execPromise(command)
-    .then(() => {
-      spinner.stop(true);
-      console.log('Command executed successfully.');
-    })
-    .catch((error) => {
-      spinner.stop(true);
-      console.error('Error executing command:', error);
-    });
-}
-
-// --- Command Functions ---
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
+// Start the CLI with error handling
+main().catch((error) => {
+  writeLog(
+    `Critical error during command execution: ${error.message}`,
+    'ERROR',
+  );
+  console.error(chalk.red(`Critical error: ${error.message}`));
+  process.exit(1);
 });
-
-function logError(error) {
-  logger.error(error);
-}
-
-function logInfo(message) {
-  logger.info(message);
-}
-
-// Enhance error handling
-function handleError(error) {
-  logError(error);
-  // Additional error handling logic
-}
-
-// Example usage
-try {
-  // ... existing code ...
-} catch (error) {
-  handleError(error);
-}
-
-// ... existing code ...
