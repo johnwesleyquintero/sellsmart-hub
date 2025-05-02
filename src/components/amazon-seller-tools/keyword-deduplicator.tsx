@@ -552,6 +552,12 @@ export default function KeywordDeduplicator() {
                     disabled={isLoading}
                     aria-invalid={!!(error && !manualKeywords.trim())}
                   />
+                  {/* Add console logs for debugging */}
+                  {(() => {
+                    console.log('Error state:', error);
+                    console.log('manualKeywords state:', manualKeywords);
+                    return null; // Render nothing
+                  })()}
                   <p className="mt-1 text-xs text-muted-foreground">
                     Separate keywords with commas or new lines.
                   </p>

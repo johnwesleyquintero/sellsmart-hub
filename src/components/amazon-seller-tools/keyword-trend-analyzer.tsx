@@ -141,11 +141,15 @@ export default function KeywordTrendAnalyzer() {
               keywordCount: foundKeywords.length,
               datePoints: processedData.length,
             });
-          } catch (err) {
-            const message =
-              err instanceof Error
-                ? err.message
-                : 'An unknown error occurred during processing.';
+          } catch (err: any) {
+            let message = 'An unknown error occurred during processing.';
+            if (err instanceof Error) {
+              message = err.message;
+            } else if (err.name === 'ZodError') {
+              message = `Data validation failed: ${err.errors
+                .map((e: any) => e.message)
+                .join(', ')}`;
+            }
             setError(message);
             setChartData([]);
             setKeywords([]);

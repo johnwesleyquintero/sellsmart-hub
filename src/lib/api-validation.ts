@@ -10,12 +10,21 @@ export class ValidationError extends Error {
 }
 
 export function validateRequest<T>(schema: z.Schema<T>, data: unknown): T {
+  logger.debug('validateRequest: Input data:', { data });
   try {
-    return schema.parse(data);
+    const validatedData = schema.parse(data);
+    logger.debug('validateRequest: Data validated successfully:', {
+      validatedData,
+    });
+    return validatedData;
   } catch (error) {
     if (error instanceof z.ZodError) {
+      logger.error('validateRequest: Zod validation error:', {
+        error: error.flatten(),
+      });
       throw new ValidationError(error);
     }
+    logger.error('validateRequest: Unexpected error:', { error });
     throw error;
   }
 }

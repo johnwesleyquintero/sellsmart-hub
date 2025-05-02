@@ -18,9 +18,12 @@ export const positiveNumberSchema = z
 export const numberSchema = z.number();
 
 // CSV content validation
+import { logger } from './logger';
+
 export const validateCsvContent = (
   content: unknown[],
 ): { validRows: Record<string, unknown>[]; errors: string[] } => {
+  logger.debug('validateCsvContent: Input content:', { content });
   const errors: string[] = [];
   const validRows = content.filter((row, index) => {
     if (!row || typeof row !== 'object') {
@@ -29,6 +32,8 @@ export const validateCsvContent = (
     }
     return true;
   }) as Record<string, unknown>[];
+  logger.debug('validateCsvContent: Valid rows:', { validRows });
+  logger.debug('validateCsvContent: Errors:', { errors });
   return { validRows, errors };
 };
 

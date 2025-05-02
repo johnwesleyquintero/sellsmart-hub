@@ -40,6 +40,8 @@ interface ErrorLogEntry {
 
 const errorLog: ErrorLogEntry[] = [];
 
+import { logger } from './logger';
+
 export const logError = ({
   message,
   component,
@@ -53,6 +55,13 @@ export const logError = ({
   error?: Error;
   context?: Record<string, unknown>;
 }) => {
+  logger.debug('logError: Logging error', {
+    message,
+    component,
+    severity,
+    error,
+    context,
+  });
   const entry: ErrorLogEntry = {
     message,
     component,
@@ -70,11 +79,16 @@ export const logError = ({
   }
 
   // Show user-friendly toast notification
-  toast({
-    title: 'Error',
-    description: message,
-    variant: 'destructive',
-  });
+  console.log('toast function:', toast); // Add this line
+  try {
+    toast({
+      title: 'Error',
+      description: message,
+      variant: 'destructive',
+    });
+  } catch (e) {
+    console.error('Error calling toast:', e);
+  }
 
   // In production, could send to error tracking service
   if (process.env.NODE_ENV === 'production') {
@@ -88,6 +102,7 @@ export const logError = ({
     });
     // e.g., Sentry, LogRocket, etc.
   }
+  logger.debug('logError: Error logged successfully');
 };
 
 export const getErrorLog = () => errorLog;
