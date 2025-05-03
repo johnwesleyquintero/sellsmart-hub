@@ -14,6 +14,7 @@ import {
   Label,
   Progress,
 } from '@/components/ui'; // Corrected: Use import type for type-only imports
+import { useFormValidation } from '@/hooks/use-form-validation';
 import { type MetricKey } from '@/lib/amazon-tools/types';
 import { logError } from '@/lib/error-handling';
 import {
@@ -21,13 +22,27 @@ import {
   validateCampaignRow,
 } from '@/lib/hooks/use-campaign-validator';
 import { useCsvParser } from '@/lib/hooks/use-csv-parser';
-import { monetaryValueSchema, numberSchema } from '@/lib/input-validation';
-import { AlertCircle, Download, Info, Upload } from 'lucide-react';
+import {
+  AcosCalculatorInput,
+  acosCalculatorSchema,
+  monetaryValueSchema,
+  numberSchema,
+} from '@/lib/input-validation';
+import { AlertCircle, Download, Info } from 'lucide-react';
 import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { BarChart, Legend } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 // --- Interfaces & Types ---
 
@@ -156,20 +171,28 @@ export default function AcosCalculator() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [selectedMetric, setSelectedMetric] =
     useState<keyof typeof chartConfig>('acos');
-  const [manualCampaign, setManualCampaign] = useState({
+  const [manualCampaign, setManualCampaign] = useState<AcosCalculatorInput>({
     campaign: '',
-    adSpend: '',
-    sales: '',
+    adSpend: 0,
+    sales: 0,
   });
   const [validationErrors, setValidationErrors] = useState<{
     adSpend: string;
     sales: string;
     campaign: string;
   }>({
-    adSpend: 'Ad spend must be greater than 0',
-    sales: 'Sales amount must be greater than 0',
+    adSpend: '',
+    sales: '',
     campaign: '',
   });
+
+  const { validate, validateField, isValid, validatedData } =
+    useFormValidation<AcosCalculatorInput>({
+      schema: acosCalculatorSchema,
+      onError: (error: any) => {
+        setError(`Form validation error: ${error.message}`);
+      },
+    });
 
   // Cleanup effect for memory leak prevention
   useEffect(() => {
@@ -180,18 +203,6 @@ export default function AcosCalculator() {
       setIsLoading(false);
     };
   }, []);
-
-  const isManualInputValid = useMemo(() => {
-    const adSpendNum = Number.parseFloat(manualCampaign.adSpend);
-    const salesNum = Number.parseFloat(manualCampaign.sales);
-    return (
-      manualCampaign.campaign.trim() !== '' &&
-      !isNaN(adSpendNum) &&
-      adSpendNum > 0 &&
-      !isNaN(salesNum) &&
-      salesNum > 0
-    );
-  }, [manualCampaign]);
 
   const csvParser = useCsvParser<CampaignData>(
     {
@@ -281,76 +292,51 @@ export default function AcosCalculator() {
       }
       setManualCampaign((prev) => ({ ...prev, [name]: sanitizedValue }));
       setError(undefined);
+
+      // Validate the field
+      const fieldValidationResult = validateField(name, sanitizedValue);
+      if (!fieldValidationResult.isValid) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          [name]: fieldValidationResult.error || '',
+        }));
+      } else {
+        setValidationErrors((prev) => ({ ...prev, [name]: '' }));
+      }
     },
-    [],
+    [validateField],
   );
 
   const handleManualCalculate = useCallback(() => {
-    console.log('handleManualCalculate called');
     setError(undefined);
     setValidationErrors({ adSpend: '', sales: '', campaign: '' });
     setIsLoading(true);
     try {
-      // Validate all fields and collect errors
-      const newValidationErrors = {
-        campaign: '',
-        adSpend: '',
-        sales: '',
-      };
+      // Validate the form
+      validate(manualCampaign);
 
-      if (!manualCampaign.campaign.trim()) {
-        newValidationErrors.campaign = 'Please enter a campaign name.';
-      }
-
-      const adSpend = Number.parseFloat(manualCampaign.adSpend);
-      if (isNaN(adSpend) || adSpend <= 0) {
-        newValidationErrors.adSpend = 'Ad Spend must be greater than 0.';
-      }
-
-      const sales = Number.parseFloat(manualCampaign.sales);
-      if (isNaN(sales) || sales <= 0) {
-        newValidationErrors.sales = 'Sales amount must be greater than 0.';
-      }
-
-      // Check if there are any validation errors
-      const hasErrors = Object.values(newValidationErrors).some(
-        (error) => error !== '',
-      );
-      if (hasErrors) {
-        setValidationErrors(newValidationErrors);
+      if (!isValid || !validatedData) {
         throw new Error('Please fix the validation errors.');
       }
-      // const adSpend1 = Number.parseFloat(manualCampaign.adSpend);
-      // const sales1 = Number.parseFloat(manualCampaign.sales);
-      // console.log('Manual input: adSpend =', adSpend1, 'sales =', sales1);
+
+      const adSpend = validatedData.adSpend;
+      const sales = validatedData.sales;
+
       const metrics = calculateLocalMetrics(adSpend, sales);
 
-      console.log('Calculated metrics:', metrics);
       const newCampaign: CampaignData = {
-        campaign: manualCampaign.campaign.trim(),
+        campaign: validatedData.campaign.trim(),
         adSpend,
         sales,
         ...metrics,
       };
-      console.log('New campaign:', newCampaign);
-      console.log('Manual campaign:', manualCampaign);
-      console.log('Validation errors:', validationErrors);
-      console.log('Is manual input valid:', isManualInputValid);
-      console.log('Campaigns before manual calculation:', campaigns);
-      console.log('Metrics ACOS before manual calculation:', metrics.acos);
       const prevCampaigns = [...campaigns];
       prevCampaigns.push(newCampaign);
       setCampaigns(prevCampaigns);
-      console.log('Campaigns after manual calculation:', campaigns);
-      console.log('Metrics ACOS after manual calculation:', metrics.acos);
+
       // Reset manual input fields
-      setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+      setManualCampaign({ campaign: '', adSpend: 0, sales: 0 });
       setIsLoading(false);
-      setManualCampaign({ campaign: '', adSpend: '', sales: '' });
-      console.log('ACoS calculated in handleManualCalculate:', metrics.acos);
-      setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
-      console.log('Campaigns after manual calculation:', prevCampaigns);
-      console.log('Metrics ACOS after manual calculation:', metrics.acos);
       return metrics.acos;
     } catch (error) {
       console.error('Error calculating ACOS:', error);
@@ -361,7 +347,7 @@ export default function AcosCalculator() {
     } finally {
       setIsLoading(false);
     }
-  }, [manualCampaign, isManualInputValid, campaigns]);
+  }, [manualCampaign, validate, isValid, validatedData, campaigns]);
 
   const handleExport = useCallback(() => {
     if (campaigns.length === 0) {
@@ -410,7 +396,7 @@ export default function AcosCalculator() {
     setCampaigns([]);
     // Corrected: Use undefined instead of null
     setError(undefined);
-    setManualCampaign({ campaign: '', adSpend: '', sales: '' });
+    setManualCampaign({ campaign: '', adSpend: 0, sales: 0 });
   }, []);
 
   // --- Chart Content Logic (Fix for sonarjs/no-nested-conditional) ---
@@ -499,121 +485,114 @@ export default function AcosCalculator() {
               The tool calculates ACoS (Advertising Cost of Sales), ROAS (Return
               on Ad Spend), and other PPC metrics if data is available.
             </li>
-            <li>Visualize the distribution of a selected metric.</li>
-            <li>Export the results to a new CSV file.</li>
           </ul>
         </div>
       </div>
-      {/* Input Section */}
+
+      {/* Manual Input Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CSV Upload */}
         <Card>
           <CardHeader>
-            <CardTitle>Upload Campaign Data</CardTitle>
+            <CardTitle>Manual Input</CardTitle>
           </CardHeader>
           <CardContent>
-            <div
-              {...getRootProps()}
-              className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5 "
-            >
-              <input {...getInputProps()} data-testid="csv-upload-input" />
-              <Upload className="mb-2 h-8 w-8 text-primary/60" />
-              <span className="text-sm font-medium">
-                Click or drag CSV file here
-              </span>
-              <span className="text-xs text-muted-foreground mt-1">
-                (Requires: campaign, adSpend, sales)
-              </span>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="campaign">Campaign Name</Label>
+                <Input
+                  type="text"
+                  id="campaign"
+                  name="campaign"
+                  value={manualCampaign.campaign}
+                  onChange={handleManualInputChange}
+                  placeholder="Enter campaign name"
+                />
+                {validationErrors.campaign ? (
+                  <p className="text-red-500 text-sm mt-1">
+                    {validationErrors.campaign}
+                  </p>
+                ) : null}
+              </div>
+              <div>
+                <Label htmlFor="adSpend">Ad Spend</Label>
+                <Input
+                  type="number"
+                  id="adSpend"
+                  name="adSpend"
+                  value={manualCampaign.adSpend}
+                  onChange={handleManualInputChange}
+                  placeholder="Enter ad spend"
+                />
+                {validationErrors.adSpend ? (
+                  <p className="text-red-500 text-sm mt-1">
+                    {validationErrors.adSpend}
+                  </p>
+                ) : null}
+              </div>
+              <div>
+                <Label htmlFor="sales">Sales</Label>
+                <Input
+                  type="number"
+                  id="sales"
+                  name="sales"
+                  value={manualCampaign.sales}
+                  onChange={handleManualInputChange}
+                  placeholder="Enter sales amount"
+                />
+                {validationErrors.sales ? (
+                  <p className="text-red-500 text-sm mt-1">
+                    {validationErrors.sales}
+                  </p>
+                ) : null}
+              </div>
+              <Button onClick={handleManualCalculate} disabled={isLoading}>
+                Calculate
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Manual Input */}
+        {/* CSV Upload Form */}
         <Card>
           <CardHeader>
-            <CardTitle>Manually Enter Campaign Data</CardTitle>
+            <CardTitle>Upload CSV</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="campaign">Campaign Name</Label>
-              <Input
-                type="text"
-                id="campaign"
-                name="campaign"
-                value={manualCampaign.campaign}
-                onChange={handleManualInputChange}
-                placeholder="Enter campaign name"
-                aria-label="Campaign Name"
-              />
-              {validationErrors.campaign ? (
-                <p className="text-xs text-red-500">
-                  {validationErrors.campaign}
-                </p>
-              ) : null}
+          <CardContent>
+            <div className="space-y-4">
+              <div {...getRootProps()} className="dropzone">
+                <input {...getInputProps()} />
+                <p>Drag 'n' drop some files here, or click to select files</p>
+              </div>
+              {error && (
+                <Alert
+                  variant={
+                    error.includes('warnings') ? 'default' : 'destructive'
+                  }
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Heads up!</AlertTitle>
+                  <AlertDescription>
+                    {error || 'Upload a CSV file to calculate ACoS.'}
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
-            <div>
-              <Label htmlFor="adSpend">Ad Spend ($)</Label>
-              <Input
-                type="number"
-                id="adSpend"
-                name="adSpend"
-                value={manualCampaign.adSpend}
-                onChange={handleManualInputChange}
-                placeholder="Enter ad spend"
-                aria-label="Ad Spend ($)"
-                role="textbox"
-              />
-              {validationErrors.adSpend ? (
-                <p className="text-xs text-red-500">
-                  {validationErrors.adSpend}
-                </p>
-              ) : null}
-            </div>
-            <div>
-              <Label htmlFor="sales">Sales Amount</Label>
-              <Input
-                type="number"
-                id="sales"
-                name="sales"
-                value={manualCampaign.sales}
-                onChange={handleManualInputChange}
-                placeholder="Enter sales amount"
-                aria-label="Sales Amount ($)"
-              />
-            </div>
-            <Button
-              onClick={handleManualCalculate}
-              disabled={!isManualInputValid || isLoading}
-            >
-              Calculate
-            </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Alert Section */}
-      {error && (
-        <Alert variant={error.includes('warnings') ? 'default' : 'destructive'}>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Data Display and Chart */}
+      {/* Chart and Data Display */}
       <Card>
         <CardHeader>
-          <CardTitle>Campaign Performance</CardTitle>
+          <CardTitle>ACoS Chart</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Metric Selection */}
+          {chartContent}
           <div className="flex justify-end gap-2">
-            <p className="text-sm font-medium">Select Metric:</p>
             {Object.entries(chartConfig).map(([key, config]) => (
               <Button
                 key={key}
                 variant={selectedMetric === key ? 'default' : 'outline'}
-                size="sm"
                 onClick={() =>
                   setSelectedMetric(key as keyof typeof chartConfig)
                 }
@@ -622,24 +601,16 @@ export default function AcosCalculator() {
               </Button>
             ))}
           </div>
-          {/* Chart */}
-          {chartContent}
         </CardContent>
       </Card>
 
-      {/* Actions */}
+      {/* Export and Clear Data Buttons */}
       <Card>
         <CardContent>
           <div className="flex justify-end gap-2">
+            <Button onClick={clearData}>Clear Data</Button>
             <Button onClick={handleExport} disabled={campaigns.length === 0}>
-              Export Data <Download className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={clearData}
-              disabled={campaigns.length === 0}
-            >
-              Clear Data
+              Export CSV <Download className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </CardContent>

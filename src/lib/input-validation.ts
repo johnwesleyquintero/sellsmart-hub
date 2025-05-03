@@ -57,3 +57,21 @@ export const validateKeywords = (keywords: string[]): string[] => {
   }
   return errors;
 };
+
+// Schema for ACOS calculator manual input form
+export const acosCalculatorSchema = z.object({
+  campaign: z
+    .string()
+    .min(1, 'Campaign name is required')
+    .max(100, 'Campaign name must be less than 100 characters'),
+  adSpend: z
+    .number()
+    .min(0, 'Ad spend must be non-negative')
+    .max(1000000, 'Ad spend exceeds maximum limit'),
+  sales: z
+    .number()
+    .min(0, 'Sales must be non-negative')
+    .max(1000000, 'Sales exceeds maximum limit'),
+});
+
+export type AcosCalculatorInput = z.infer<typeof acosCalculatorSchema>;

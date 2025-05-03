@@ -6,6 +6,7 @@ interface PerformanceMetrics {
   fid: number; // First Input Delay
   cls: number; // Cumulative Layout Shift
   ttfb: number; // Time to First Byte
+  amazonApiRequestDuration: number; // Amazon API request duration
 }
 
 interface CacheMetrics {
@@ -88,7 +89,7 @@ class PerformanceMonitor {
     }
   }
 
-  private reportMetric(
+  public reportMetric(
     name: keyof PerformanceMetrics | keyof CacheMetrics,
     value: number,
   ): void {

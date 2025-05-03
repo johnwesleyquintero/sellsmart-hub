@@ -36,6 +36,7 @@ interface ErrorLogEntry {
   severity: ErrorSeverity;
   stack?: string;
   context?: Record<string, unknown>;
+  filename?: string;
 }
 
 const errorLog: ErrorLogEntry[] = [];
@@ -70,12 +71,14 @@ export const logError = ({
   severity = 'medium',
   error,
   context = {},
+  filename,
 }: {
   message: string;
   component: string;
   severity?: ErrorSeverity;
   error?: Error;
   context?: Record<string, unknown>;
+  filename?: string;
 }) => {
   logger.debug('logError: Logging error', {
     message,
@@ -92,6 +95,7 @@ export const logError = ({
     severity,
     stack: error?.stack,
     context,
+    filename,
   };
 
   // Use configured logger strategy (default to memory)

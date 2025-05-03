@@ -1,6 +1,6 @@
-import { handleApiError } from '../api/error-handler';
+import { useCacheStore } from '@/stores/cache-store';
+import { ApiError, handleApiError } from '../api/error-handler';
 import { logger } from '../api/logger';
-import { monitorApiResponseTime } from '../api/monitoring';
 import { retryRequest } from '../api/retry';
 
 interface ApiClientOptions {
@@ -72,8 +72,6 @@ class ApiClient {
         data: data,
       });
 
-      await monitorApiResponseTime(`${this.baseUrl}${endpoint}`, responseTime);
-
       return data;
     } catch (error: any) {
       handleApiError(error, { url: endpoint, method: options.method }, null);
@@ -138,10 +136,54 @@ class ApiClient {
     confidence: number;
     range: { min: number; max: number };
   }> {
-    return this.request('/sales/estimate', {
-      method: 'POST',
-      body: JSON.stringify(params),
-    });
+    const cacheKey = `sales-estimate:${JSON.stringify(params)}`;
+    const ttl = 3600; // 1 hour
+
+    const cachedData = await useCacheStore.getState().get<{
+      estimatedMonthlySales: number;
+      confidence: number;
+      range: { min: number; max: number };
+    }>(cacheKey);
+
+    if (cachedData) {
+      logger.info(`Sales estimate from cache - ${cacheKey}`);
+      return cachedData;
+    }
+
+    try {
+      const data = await this.request<{
+        estimatedMonthlySales: number;
+        confidence: number;
+        range: { min: number; max: number };
+      }>('/sales/estimate', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      });
+
+      await useCacheStore.getState().set(cacheKey, data, ttl, 'sales-estimate');
+      logger.info(`Sales estimate stored in cache - ${cacheKey} - ttl: ${ttl}`);
+      return data;
+    } catch (error: any) {
+      logger.error(`Sales estimate API error - ${error.message}`, {
+        url: '/sales/estimate',
+        method: 'POST',
+        params: params,
+      });
+
+      if (error instanceof ApiError) {
+        handleApiError(error, { url: '/sales/estimate', method: 'POST' }, null);
+        throw error;
+      } else {
+        // Wrap the error in an ApiError for consistent handling
+        const apiError = new ApiError(500, 'Failed to estimate sales', error);
+        handleApiError(
+          apiError,
+          { url: '/sales/estimate', method: 'POST' },
+          null,
+        );
+        throw apiError;
+      }
+    }
   }
 
   // Listing Data API

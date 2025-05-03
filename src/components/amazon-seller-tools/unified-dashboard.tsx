@@ -1,13 +1,17 @@
 // src/components/amazon-seller-tools/unified-dashboard.tsx
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,350 +21,61 @@ import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Tool Components
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFuzzyRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
-import { AlertCircle, Loader2, SlidersHorizontal, Table } from 'lucide-react';
+
+import { AlertCircle, Loader2 } from 'lucide-react';
 import CsvDataMapper from './CsvDataMapper';
-import { ManualFbaForm } from './ManualFbaForm';
-import { CompetitorAnalyzer } from './competitor-analyzer';
-import { DescriptionEditor } from './description-editor';
-import { InventoryManagement } from './inventory-management';
-import { KeywordDeduplicator } from './keyword-deduplicator';
-import { KeywordTrendAnalyzer } from './keyword-trend-analyzer';
-import { ListingQualityChecker } from './listing-quality-checker';
-import { OptimalPriceCalculator } from './optimal-price-calculator';
-import { PpcAnalyzer } from './ppc-analyzer';
-import { Checkbox } from '@/components/ui/checkbox';
 
-const columns: ColumnDef<any>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'id',
-    header: 'ID',
-  },
-  {
-    accessorKey: 'firstName',
-    header: 'First Name',
-  },
-  {
-    accessorKey: 'lastName',
-    header: 'Last Name',
-  },
-  {
-    accessorKey: 'age',
-    header: 'Age',
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-  },
-  {
-    accessorKey: 'city',
-    header: 'City',
-  },
-  {
-    accessorKey: 'country',
-    header: 'Country',
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-  },
-];
-
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DashboardMetrics {
+  date: string;
+  sales: number;
+  profit: number;
+  acos: number;
+  impressions: number;
+  clicks: number;
+  conversion_rate: number;
+  inventory_level: number;
+  review_rating: number;
+  orders: number;
+  sessions: number;
 }
 
-function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFuzzyRowModel: getFuzzyRowModel(),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-    debug: false,
-  });
-
-  return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn('email')?.getFilterValue() ?? '') as string}
-          onChange={(event) =>
-            table.getColumn('email')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm shrink"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <SlidersHorizontal className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[150px]">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <th key={header.id}>
-                      {header.isPlaceholder ? null : (
-                        <div
-                          {...{
-                            className: header.column.getCanSort()
-                              ? 'cursor-pointer select-none'
-                              : '',
-                            onClick: header.column.getCanSort()
-                              ? () => {
-                                  table.setSorting([
-                                    {
-                                      id: header.column.id,
-                                      desc:
-                                        header.column.getIsSorted() === 'asc',
-                                    },
-                                  ]);
-                                }
-                              : undefined,
-                          }}
-                        >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                          {{
-                            asc: <span className="ml-2">▲</span>,
-                            desc: <span className="ml-2">▼</span>,
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </div>
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-between space-x-2 py-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} of{' '}
-          {table.getCoreRowModel().rows.length} row(s)
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Helper Functions for Data Processing ---
-
-// Define getDateFromRow ONCE
-const getDateFromRow = (
-  row: Record<string, string>,
-  mappedHeader: string | null,
-): string => {
-  const potentialHeaders = [
-    mappedHeader,
-    'Date',
-    'Settlement end date',
-    'Day',
-    'Week',
-    'Month',
-  ].filter(Boolean) as string[];
-  for (const header of potentialHeaders) {
-    if (row[header]) return row[header];
-  }
-  return 'Unknown';
+const TARGET_METRICS_CONFIG = {
+  default: {
+    date: 'Date',
+    sales: 'Sales',
+    impressions: 'Impressions',
+    clicks: 'Clicks',
+    orders: 'Orders',
+    sessions: 'Sessions',
+  },
+  detailed: {
+    date: 'Date',
+    sales: 'Ordered product sales',
+    impressions: 'Impressions',
+    clicks: 'Clicks',
+    orders: 'Total order items',
+    sessions: 'Sessions',
+  },
+  alternative: {
+    date: 'Date',
+    sales: 'Gross Sales',
+    impressions: 'Impressions',
+    clicks: 'Clicks',
+    orders: 'Units Ordered',
+    sessions: 'Page Views',
+  },
 };
 
-// Define getNumericValueFromRow ONCE
-const getNumericValueFromRow = (
-  row: Record<string, string>,
-  mappedHeader: string | null,
-  fallbackHeaders: string[] = [],
-): number => {
-  const headersToCheck = [mappedHeader, ...fallbackHeaders].filter(
-    Boolean,
-  ) as string[];
-  for (const header of headersToCheck) {
-    const rawValue = row[header];
-    if (rawValue !== undefined && rawValue !== null) {
-      const cleanedValue = String(rawValue).replace(/[^0-9.-]+/g, '');
-      const num = parseFloat(cleanedValue);
-      if (!isNaN(num)) return num;
-    }
-  }
-  return 0; // Default to 0 if not found or invalid
-};
-
-// Define transformCsvRow ONCE
-const transformCsvRow = (
-  row: Record<string, string>,
-  mapping: Record<keyof DashboardMetrics, string | null>,
-): DashboardMetrics | null => {
-  const date = getDateFromRow(row, mapping.date);
-  if (date === 'Unknown') {
-    return null; // Skip rows where date cannot be determined
-  }
-
-  const sales = getNumericValueFromRow(row, mapping.sales, [
-    'Ordered product sales',
-    'Gross Sales',
-  ]);
-  const impressions = getNumericValueFromRow(row, mapping.impressions, [
-    'Impressions',
-  ]);
-  const clicks = getNumericValueFromRow(row, mapping.clicks, ['Clicks']);
-  const orders = getNumericValueFromRow(row, mapping.orders, [
-    'Total order items',
-    'Units Ordered',
-  ]);
-  const sessions = getNumericValueFromRow(row, mapping.sessions, [
-    'Sessions',
-    'Page Views',
-  ]);
-
-  const conversionRate = sessions > 0 ? (orders / sessions) * 100 : 0;
-  const conversion_rate = parseFloat(conversionRate.toFixed(2));
-
-  return {
-    date: date,
-    sales: sales,
-    profit: 0, // Placeholder
-    acos: 0, // Placeholder
-    impressions: impressions,
-    clicks: clicks,
-    conversion_rate: isNaN(conversion_rate) ? 0 : conversion_rate,
-    inventory_level: 0, // Placeholder
-    review_rating: 0, // Placeholder
-    orders: orders,
-    sessions: sessions,
-  };
-};
-
-// --- Component ---
-import { useCacheStore } from '@/stores/cache-store';
+const TARGET_METRICS = Object.keys(TARGET_METRICS_CONFIG.default).map(
+  (key) => ({
+    key: key as keyof DashboardMetrics,
+    label:
+      TARGET_METRICS_CONFIG.default[
+        key as keyof typeof TARGET_METRICS_CONFIG.default
+      ],
+    required: true,
+  }),
+);
 
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -369,9 +84,9 @@ export default function UnifiedDashboard() {
   const [isParsing, setIsParsing] = useState(false); // Specific state for file parsing/processing
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const invalidateCache = useCacheStore((state) => state.invalidateCache);
 
-  // --- NEW State for Mapping ---
+  const onInvalidateCache = () => {};
+
   const [showMapper, setShowMapper] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -389,51 +104,44 @@ export default function UnifiedDashboard() {
     setIsLoading(false);
   }, []);
 
-  // --- MODIFIED handleFileChange ---
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    setIsParsing(true);
-    setError(null);
+  const handleUploadClick = () => {
+    // Reset state before triggering upload to ensure clean slate
     setMetrics([]);
+    setError(null);
     setShowMapper(false);
     setCsvHeaders([]);
     setSelectedFile(null);
-
-    // Pre-parse to get headers
-    Papa.parse(file, {
-      header: true,
-      preview: 1, // Only parse the first row after the header
-      skipEmptyLines: true,
-      complete: (results: Papa.ParseResult<Record<string, string>>) => {
-        const headers = results.meta.fields || [];
-        if (!headers || headers.length === 0) {
-          setError('Could not read headers from the CSV file. Is it valid?');
-          setIsParsing(false);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          return;
-        }
-        console.log('Detected CSV Headers:', headers);
-        setCsvHeaders(headers);
-        setSelectedFile(file); // Store the file for later full parsing
-        setShowMapper(true); // Show the mapper UI
-        setIsParsing(false); // Stop parsing indicator for mapping phase
-      },
-      error: (error: Error) => {
-        console.error('Error pre-parsing CSV:', error);
-        setError(`Failed to read file headers: ${error.message}`);
-        setIsParsing(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      },
-    });
-
-    // Don't reset file input value here, reset after full processing or cancel
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Clear previous selection
+    }
+    fileInputRef.current?.click();
   };
 
-  // --- MODIFIED handleMappingComplete ---
+  const handleExport = useCallback(() => {
+    console.log('Exporting dashboard data...');
+    if (metrics.length === 0) {
+      setError('No data to export.');
+      return;
+    }
+    try {
+      const csv = Papa.unparse(metrics);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'dashboard_metrics.csv');
+      window.document.body.appendChild(link);
+      link.click();
+      window.document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setError(null);
+    } catch (err) {
+      setError(
+        `Failed to export data: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
+    }
+  }, [metrics]);
+
   const handleMappingComplete = (
     mapping: Record<keyof DashboardMetrics, string | null>,
   ) => {
@@ -504,7 +212,6 @@ export default function UnifiedDashboard() {
     });
   };
 
-  // --- NEW handleMappingCancel ---
   const handleMappingCancel = () => {
     setShowMapper(false);
     setCsvHeaders([]);
@@ -518,43 +225,83 @@ export default function UnifiedDashboard() {
     console.log('Mapping cancelled.');
   };
 
-  const handleUploadClick = () => {
-    // Reset state before triggering upload to ensure clean slate
-    setMetrics([]);
-    setError(null);
-    setShowMapper(false);
-    setCsvHeaders([]);
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Clear previous selection
-    }
-    fileInputRef.current?.click();
-  };
+  // Define transformCsvRow ONCE
+  const transformCsvRow = (
+    row: Record<string, string>,
+    mapping: Record<keyof DashboardMetrics, string | null>,
+  ): DashboardMetrics | null => {
+    const date = (
+      row: Record<string, string>,
+      mappedHeader: string | null,
+    ): string => {
+      const potentialHeaders = [
+        mappedHeader,
+        'Date',
+        'Settlement end date',
+        'Day',
+        'Week',
+        'Month',
+      ].filter(Boolean) as string[];
+      for (const header of potentialHeaders) {
+        if (row[header]) return row[header];
+      }
+      return 'Unknown';
+    };
 
-  const handleExport = useCallback(() => {
-    console.log('Exporting dashboard data...');
-    if (metrics.length === 0) {
-      setError('No data to export.');
-      return;
+    const sales = (
+      row: Record<string, string>,
+      mappedHeader: string | null,
+      fallbackHeaders: string[] = [],
+    ): number => {
+      const headersToCheck = [mappedHeader, ...fallbackHeaders].filter(
+        Boolean,
+      ) as string[];
+      for (const header of headersToCheck) {
+        const rawValue = row[header];
+        if (rawValue !== undefined && rawValue !== null) {
+          const cleanedValue = String(rawValue).replace(/[^0-9.-]+/g, '');
+          const num = parseFloat(cleanedValue);
+          if (!isNaN(num)) return num;
+        }
+        return 0; // Default to 0 if not found or invalid
+      }
+      return 0;
+    };
+
+    const dateValue = date(row, mapping.date);
+    if (dateValue === 'Unknown') {
+      return null; // Skip rows where date cannot be determined
     }
-    try {
-      const csv = Papa.unparse(metrics);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'dashboard_metrics.csv');
-      window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      setError(null);
-    } catch (err) {
-      setError(
-        `Failed to export data: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      );
-    }
-  }, [metrics]);
+
+    const salesValue = sales(row, mapping.sales, [
+      'Ordered product sales',
+      'Gross Sales',
+    ]);
+    const impressions = sales(row, mapping.impressions, ['Impressions']);
+    const clicks = sales(row, mapping.clicks, ['Clicks']);
+    const orders = sales(row, mapping.orders, [
+      'Total order items',
+      'Units Ordered',
+    ]);
+    const sessions = sales(row, mapping.sessions, ['Sessions', 'Page Views']);
+
+    const conversionRate = sessions > 0 ? (orders / sessions) * 100 : 0;
+    const conversion_rate = parseFloat(conversionRate.toFixed(2));
+
+    return {
+      date: dateValue,
+      sales: salesValue,
+      profit: 0, // Placeholder
+      acos: 0, // Placeholder
+      impressions: impressions,
+      clicks: clicks,
+      conversion_rate: isNaN(conversion_rate) ? 0 : conversion_rate,
+      inventory_level: 0, // Placeholder
+      review_rating: 0, // Placeholder
+      orders: orders,
+      sessions: sessions,
+    };
+  };
 
   // --- Refactored Rendering Logic for Overview Tab ---
   const renderOverviewContent = () => {
@@ -572,10 +319,10 @@ export default function UnifiedDashboard() {
     if (showMapper) {
       return (
         <CsvDataMapper
-          headers={csvHeaders}
-          targetMetrics={TARGET_METRICS_CONFIG}
+          csvHeaders={csvHeaders}
+          targetMetrics={TARGET_METRICS}
           onMappingComplete={handleMappingComplete}
-          onMappingCancel={handleMappingCancel}
+          onCancel={handleMappingCancel}
         />
       );
     }
@@ -598,16 +345,6 @@ export default function UnifiedDashboard() {
               <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
                 Conversion Rate
               </h3>
-              <div className={`text-3xl font-bold text-gray-600`}>
-                {typeof 5.21 === 'number'
-                  ? (5.21).toLocaleString(undefined, {
-                      minimumFractionDigits: 1,
-                      maximumFractionDigits: 1,
-                    })
-                  : 5.21}
-                %
-              </div>
-              <div className="text-sm text-gray-500 mt-1">Conversion rate</div>
             </CardContent>
           </Card>
           <Card className="opacity-75">
@@ -615,40 +352,20 @@ export default function UnifiedDashboard() {
               <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
                 Total Sales
               </h3>
-              <div className={`text-3xl font-bold text-gray-600`}>
-                {typeof 12345.67 === 'number'
-                  ? (12345.67).toLocaleString(undefined, {
-                      minimumFractionDigits: 1,
-                      maximumFractionDigits: 1,
-                    })
-                  : 12345.67}
-              </div>
-              <div className="text-sm text-gray-500 mt-1">Total sales</div>
             </CardContent>
           </Card>
           <Card className="opacity-75">
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-                Avg. Clicks
+                Sessions
               </h3>
-              <div className={`text-3xl font-bold text-gray-600`}>
-                {typeof 152.3 === 'number'
-                  ? (152.3).toLocaleString(undefined, {
-                      minimumFractionDigits: 1,
-                      maximumFractionDigits: 1,
-                    })
-                  : 152.3}
-              </div>
-              <div className="text-sm text-gray-500 mt-1">Average clicks</div>
             </CardContent>
           </Card>
         </div>
-
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
-              Sales Performance{' '}
-              <span className="text-sm font-normal">(Sample Data)</span>
+            <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+              Metrics Over Time
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={metrics}>
@@ -667,12 +384,10 @@ export default function UnifiedDashboard() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
-              Key Metrics{' '}
-              <span className="text-sm font-normal">(Sample Data)</span>
+            <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+              Sales by Date
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={metrics}>
@@ -697,6 +412,8 @@ export default function UnifiedDashboard() {
         onUploadClick={handleUploadClick}
         onExport={handleExport}
         isLoading={isLoading}
+        error={error}
+        onInvalidateCache={onInvalidateCache}
       />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4 flex flex-wrap h-auto justify-start">
@@ -720,12 +437,12 @@ export default function UnifiedDashboard() {
                   <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
                   <TabsTrigger value="deduplicator">Deduplicator</TabsTrigger>
                 </TabsList>
-                <TabsContent value="analyzer">
-                  <KeywordTrendAnalyzer />
+                {/* <TabsContent value="analyzer">
+                  <KeywordAnalyzer />
                 </TabsContent>
                 <TabsContent value="deduplicator">
                   <KeywordDeduplicator />
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
             </CardContent>
           </Card>
@@ -737,14 +454,14 @@ export default function UnifiedDashboard() {
               <Tabs defaultValue="editor" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="editor">Editor</TabsTrigger>
-                  <TabsTrigger value="quality">Quality Checker</TabsTrigger>
+                  <TabsTrigger value="lqc">LQC</TabsTrigger>
                 </TabsList>
-                <TabsContent value="editor">
+                {/* <TabsContent value="editor">
                   <DescriptionEditor />
                 </TabsContent>
-                <TabsContent value="quality">
+                <TabsContent value="lqc">
                   <ListingQualityChecker />
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
             </CardContent>
           </Card>
@@ -756,18 +473,18 @@ export default function UnifiedDashboard() {
               <Tabs defaultValue="fba" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="fba">FBA Calculator</TabsTrigger>
-                  <TabsTrigger value="optimal-price">Optimal Price</TabsTrigger>
                   <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                  <TabsTrigger value="optimal-price">Optimal Price</TabsTrigger>
                 </TabsList>
-                <TabsContent value="fba">
+                {/* <TabsContent value="fba">
                   <ManualFbaForm />
-                </TabsContent>
-                <TabsContent value="optimal-price">
-                  <OptimalPriceCalculator />
                 </TabsContent>
                 <TabsContent value="inventory">
                   <InventoryManagement />
                 </TabsContent>
+                <TabsContent value="optimal-price">
+                  <OptimalPriceCalculator />
+                </TabsContent> */}
               </Tabs>
             </CardContent>
           </Card>
@@ -778,11 +495,15 @@ export default function UnifiedDashboard() {
             <CardContent className="p-4">
               <Tabs defaultValue="auditor" className="w-full">
                 <TabsList className="mb-4">
-                  <TabsTrigger value="auditor">PPC Analyzer</TabsTrigger>
+                  <TabsTrigger value="auditor">Auditor</TabsTrigger>
+                  <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
                 </TabsList>
-                <TabsContent value="auditor">
-                  <PpcAnalyzer />
+                {/* <TabsContent value="auditor">
+                  <PpcAuditor />
                 </TabsContent>
+                <TabsContent value="analyzer">
+                  <PpcAnalyzer />
+                </TabsContent> */}
               </Tabs>
             </CardContent>
           </Card>
@@ -793,28 +514,23 @@ export default function UnifiedDashboard() {
             <CardContent className="p-4">
               <Tabs defaultValue="analyzer" className="w-full">
                 <TabsList className="mb-4">
-                  <TabsTrigger value="analyzer">
-                    Competitor Analyzer
-                  </TabsTrigger>
+                  <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
+                  <TabsTrigger value="competitor">Competitor</TabsTrigger>
                 </TabsList>
-                <TabsContent value="analyzer">
+                {/* <TabsContent value="analyzer">
                   <CompetitorAnalyzer />
                 </TabsContent>
+                <TabsContent value="competitor">
+                  <CompetitorAnalysis />
+                </TabsContent> */}
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
       <Card className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
         <CardContent className="p-6 text-center">
-          <h2 className="text-2xl font-semibold mb-4">
-            Ready to Supercharge Your Amazon Business?
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300">
-            Explore our suite of tools designed to optimize your listings,
-            analyze your competition, and maximize your profits.
-          </p>
+          {/* <Roadmap /> */}
         </CardContent>
       </Card>
     </div>

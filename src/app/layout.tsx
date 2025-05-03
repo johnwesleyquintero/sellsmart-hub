@@ -1,3 +1,8 @@
+if (typeof window !== 'undefined') {
+  const { worker } = require('./mocks/browser');
+  worker.start();
+}
+
 import ClientProviders from '@/components/client-providers';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ContentSkeleton } from '@/components/ui/loading-skeleton';

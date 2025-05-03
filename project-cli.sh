@@ -111,7 +111,32 @@ log_error() {
     rotate_log "$ERROR_LOG_FILE"
 
     local timestamp=$(date +'%Y-%m-%d %T')
-    echo -e "${timestamp} [ERROR] $1" >> "$ERROR_LOG_FILE"
+    local error_context="${1//\n/ }"
+    local caller_file="${BASH_SOURCE[1]##*/}"
+    local caller_line="${BASH_LINENO[0]}"
+
+    # Get full path of caller file if available
+    if [[ -n "${BASH_SOURCE[1]}" ]]; then
+        caller_file="$(realpath "${BASH_SOURCE[1]}" 2>/dev/null || echo "${BASH_SOURCE[1]}")"
+    fi
+
+    # Include code snippet and surrounding context if file exists and is readable
+    local code_snippet=""
+    local context_lines=3
+    if [[ -f "$caller_file" && -r "$caller_file" ]]; then
+        # Get line range (ensuring we don't go out of bounds)
+        local start_line=$((caller_line > context_lines ? caller_line - context_lines : 1))
+        local end_line=$((caller_line + context_lines))
+        local total_lines=$(wc -l < "$caller_file")
+        end_line=$((end_line > total_lines ? total_lines : end_line))
+
+        # Get code context with line numbers
+        code_snippet=$(sed -n "${start_line},${end_line}p" "$caller_file" 2>/dev/null | awk '{print "  " NR+start_line-1 ": " $0}')
+
+        echo -e "${timestamp} [ERROR] [File: ${caller_file}:${caller_line}] ${error_context}\n  Context:\n${code_snippet}" >> "$ERROR_LOG_FILE"
+    else
+        echo -e "${timestamp} [ERROR] [${caller_file}:${caller_line}] ${error_context}" >> "$ERROR_LOG_FILE"
+    fi
 
     # Don't exit by default, let the caller decide
     return 1
@@ -303,6 +328,7 @@ main() {
             2|"t") {
                 log_info "Running tests..."
                 > "$ERROR_LOG_FILE"  # Truncate file before writing
+                echo "[$(date +'%Y-%m-%d %T')] Starting new error log session" >> "$ERROR_LOG_FILE"
                 npm test 2>&1 | grep -i "error\|fail" > "$ERROR_LOG_FILE"
                 log_info "Tests completed. Errors logged to $ERROR_LOG_FILE"
             } ;;
@@ -313,7 +339,15 @@ main() {
             7|"c") {
                 log_info "Running code checks..."
                 > "$ERROR_LOG_FILE"  # Truncate file before writing
-                npm run check 2>&1 | grep -i "error" > "$ERROR_LOG_FILE"
+                echo "[$(date +'%Y-%m-%d %T')] Starting new error log session" >> "$ERROR_LOG_FILE"
+                # Enhanced error parsing with timestamps and command context
+                timestamp=$(date +'%Y-%m-%d %T')
+                echo "[${timestamp}] Running: npm run check" >> "$ERROR_LOG_FILE"
+                npm run check 2>&1 | while IFS= read -r line; do
+                    if [[ "$line" =~ [Ee]rror|[Ww]arning ]]; then
+                        echo "[${timestamp}] $line" >> "$ERROR_LOG_FILE"
+                    fi
+done
                 log_info "Code checks completed. Errors logged to $ERROR_LOG_FILE"
             } ;;
             8|"a") npm audit fix;;

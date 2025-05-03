@@ -1,11 +1,18 @@
-import { logger } from './logger';
-
-export const monitorApiResponseTime = async (
-  url: string,
-  responseTime: number,
-) => {
-  // TODO: Implement monitoring and alerting logic
-  // This could involve sending data to a monitoring service like Prometheus,
-  // or triggering alerts based on predefined thresholds.
-  logger.info(`API response time for ${url}: ${responseTime}ms`);
+export const monitoring = {
+  captureException: (error: any) => {
+    console.error('Monitoring - Exception:', error);
+    // Simulate Sentry integration
+    if (process.env.NODE_ENV === 'production') {
+      // Sentry.captureException(error);
+      console.log('Sentry.captureException(error)'); // Placeholder
+    }
+  },
+  logEvent: (event: string, data: any) => {
+    console.log('Monitoring - Event:', event, data);
+    // Simulate Sentry integration
+    if (process.env.NODE_ENV === 'production') {
+      // Sentry.captureEvent({ message: event, extra: data });
+      console.log('Sentry.captureEvent({ message: event, extra: data })'); // Placeholder
+    }
+  },
 };

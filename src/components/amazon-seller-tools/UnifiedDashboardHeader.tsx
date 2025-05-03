@@ -8,6 +8,7 @@ interface HeaderProps {
   onRefresh: () => void;
   onExport: () => void;
   onInvalidateCache: () => void;
+  onUploadClick: () => void;
 }
 
 export function UnifiedDashboardHeader({
@@ -16,6 +17,7 @@ export function UnifiedDashboardHeader({
   onRefresh,
   onExport,
   onInvalidateCache,
+  onUploadClick,
 }: Readonly<HeaderProps>) {
   return (
     <div className="flex justify-between items-center mb-6" aria-live="polite">
@@ -44,6 +46,13 @@ export function UnifiedDashboardHeader({
           <Button variant="outline" onClick={onExport} aria-label="Export Data">
             <Download className="w-4 h-4 mr-2" />
             Export
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onUploadClick}
+            aria-label="Upload CSV"
+          >
+            Upload CSV
           </Button>
           <Button variant="outline" asChild aria-label="View Documentation">
             <a
