@@ -1,4 +1,4 @@
-## General Workaround Library
+## General Workaround & Quick Notes Library
 
 **Most Used Commands:**
 
@@ -26,6 +26,45 @@ npm test 2>&1 | grep -i "error\|fail" > project-cli.error.log
 npm run build > build-output.log 2>&1
 ```
 
+```bash
+rmdir /s /q node_modules && del package-lock.json && npm install
+```
+
+`````bash
+npm run format
+```
+````bash
+npm run lint
+`````
+
+```bash
+npm run typecheck
+```
+
+```bash
+npm outdated
+```
+
+```bash
+npm audit fix --force
+```
+
+```bash
+npm audit fix --force --audit-level=critical
+```
+
+```bash
+npm run update
+```
+
+```bash
+npm run update:all
+```
+
+```bash
+npm run build --clear-cache
+```
+
 **Most Used Workflow:**
 
 ```txt
@@ -50,7 +89,8 @@ npm audit fix --force
 npm run update
 npm run update:all
 npm run build --clear-cache
-
+npm audit --json --force > npm-audit-report.json
+npm audit fix
 ```
 
 **Random Command Workarounds:**

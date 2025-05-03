@@ -268,7 +268,7 @@ main() {
 
                 # Show progress spinner during installation
                 start_spinner "Installing dependencies..."
-                if npm install --progress=true > .npm-install.log 2>&1; then
+                if npm install --legacy-peer-deps --progress=true > .npm-install.log 2>&1; then
                     stop_spinner
                     log_info "Dependencies installed successfully"
                     echo -e "${ANSI_Green}[SUCCESS]${ANSI_Reset} Dependencies installed successfully"
