@@ -46,6 +46,17 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 - Lucide React icons
 - Vercel hosting
 
+## Core Dependencies
+
+- Next.js: The core framework for building the portfolio website.
+- React: The underlying UI library for building the components.
+- TypeScript: Used for type safety and improved code quality.
+- Tailwind CSS: Used for styling the website with a utility-first approach.
+- shadcn/ui: A collection of accessible and reusable UI components.
+- MDX: Used for writing blog content with React component support.
+- Lucide React: Used for providing icons in the website.
+- Vercel: Used for hosting and deploying the website.
+
 ## Projects
 
 - [SellSmart Hub](https://sellsmart-hub.vercel.app/) - AI-powered analytics and automation tools for Amazon sellers

@@ -26,73 +26,14 @@ ANSI_Cyan='\e[36m'
 spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
 spinner_pid=""
 
-start_spinner() {
-    local message="$1"
-    echo -ne "${ANSI_Cyan}${message}${ANSI_Reset} "
-
-    # Hide cursor
-    echo -ne "\e[?25l"
-
-    # Start spinner in background
-    while :; do
-        for char in "${spinner_chars[@]}"; do
-            echo -ne "\b${char}"
-            sleep 0.1
-        done
-    done &
-
-    spinner_pid=$!
-    disown
+cleanup() {
+    stop_spinner
+    echo -e "\n${ANSI_Yellow}[INFO]${ANSI_Reset} Cleaning up and exiting..."
+    exit 0
 }
 
-stop_spinner() {
-    if [ -n "$spinner_pid" ]; then
-        kill $spinner_pid >/dev/null 2>&1
-        wait $spinner_pid 2>/dev/null
-        spinner_pid=""
-    fi
-
-    # Clear spinner and show cursor
-    echo -ne "\b \b\e[?25h"
-}
-
-# --- Spinner Utilities ---
-spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
-spinner_pid=""
-
-start_spinner() {
-    local message="$1"
-    echo -ne "${ANSI_Cyan}${message}${ANSI_Reset} "
-
-    # Hide cursor
-    echo -ne "\e[?25l"
-
-    # Start spinner in background
-    while :; do
-        for char in "${spinner_chars[@]}"; do
-            echo -ne "\b${char}"
-            sleep 0.1
-        done
-    done &
-
-    spinner_pid=$!
-    disown
-}
-
-stop_spinner() {
-    if [ -n "$spinner_pid" ]; then
-        kill $spinner_pid >/dev/null 2>&1
-        wait $spinner_pid 2>/dev/null
-        spinner_pid=""
-    fi
-
-    # Clear spinner and show cursor
-    echo -ne "\b \b\e[?25h"
-}
-
-# --- Spinner Utilities ---
-spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
-spinner_pid=""
+# Set up trap for cleanup
+trap cleanup SIGINT SIGTERM
 
 start_spinner() {
     local message="$1"
@@ -125,10 +66,30 @@ stop_spinner() {
 }
 
 # --- Core Functions ---
+# Maximum log file size in bytes (5MB)
+MAX_LOG_SIZE=5242880
+
+rotate_log() {
+    local log_file=$1
+    if [[ -f "$log_file" ]] && [[ $(stat -f%z "$log_file" 2>/dev/null || stat -c%s "$log_file" 2>/dev/null) -gt $MAX_LOG_SIZE ]]; then
+        local timestamp=$(date +"%Y%m%d_%H%M%S")
+        mv "$log_file" "${log_file}.${timestamp}.bak"
+        log_info "Rotated log file: ${log_file} -> ${log_file}.${timestamp}.bak"
+    fi
+}
+
 log() {
     local level=$1
     local message=$2
     local timestamp=$(date +'%Y-%m-%d %T')
+
+    # Rotate logs if needed
+    rotate_log "$LOG_FILE"
+
+    # Ensure log directory exists
+    local log_dir=$(dirname "$LOG_FILE")
+    [[ ! -d "$log_dir" ]] && mkdir -p "$log_dir"
+
     echo -e "${timestamp} [${level}] ${message}" >> "$LOG_FILE"
 }
 
@@ -137,21 +98,81 @@ log_info() {
     log "INFO" "$1"
 }
 
+log_warn() {
+    echo -e "${ANSI_Yellow}[WARN]${ANSI_Reset} $1"
+    log "WARN" "$1"
+}
+
 log_error() {
     echo -e "${ANSI_Red}[ERROR]${ANSI_Reset} $1"
     log "ERROR" "$1"
+
+    # Rotate error log if needed
+    rotate_log "$ERROR_LOG_FILE"
+
     local timestamp=$(date +'%Y-%m-%d %T')
-    > "$ERROR_LOG_FILE"  # Truncate file before writing
-    echo -e "${timestamp} [ERROR] $1" > "$ERROR_LOG_FILE"
-    exit 1
+    echo -e "${timestamp} [ERROR] $1" >> "$ERROR_LOG_FILE"
+
+    # Don't exit by default, let the caller decide
+    return 1
+}
+
+# Default command timeout in seconds
+COMMAND_TIMEOUT=300
+
+run_with_timeout() {
+    local cmd="$1"
+    local timeout=${2:-$COMMAND_TIMEOUT}
+    local description="$3"
+
+    # Start the command in background
+    eval "$cmd" & local cmd_pid=$!
+
+    # Wait for command to finish or timeout
+    local count=0
+    while kill -0 $cmd_pid 2>/dev/null; do
+        if [ $count -ge $timeout ]; then
+            kill -9 $cmd_pid 2>/dev/null
+            log_error "${description:-Command} timed out after ${timeout} seconds"
+            return 1
+        fi
+        sleep 1
+        ((count++))
+    done
+
+    wait $cmd_pid
+    return $?
 }
 
 validate_environment() {
-    command -v node >/dev/null 2>&1 || log_error "Node.js not installed"
-    command -v npm >/dev/null 2>&1 || log_error "npm not installed"
+    local check_cmd
 
-    local node_version=$(node -v | cut -d'v' -f2)
-    local npm_version=$(npm -v)
+    # Check Node.js installation
+    if [[ "$OS" == "MINGW"* || "$OS" == "CYGWIN"* || "$OS" == "MSYS"* ]]; then
+        check_cmd="where node 2>/dev/null"
+    else
+        check_cmd="command -v node 2>/dev/null"
+    fi
+    eval $check_cmd || log_error "Node.js not installed"
+
+    # Check npm installation
+    if [[ "$OS" == "MINGW"* || "$OS" == "CYGWIN"* || "$OS" == "MSYS"* ]]; then
+        check_cmd="where npm 2>/dev/null"
+    else
+        check_cmd="command -v npm 2>/dev/null"
+    fi
+    eval $check_cmd || log_error "npm not installed"
+
+    # Get versions with timeout protection
+    local node_version
+    if ! node_version=$(run_with_timeout "node -v | cut -d'v' -f2" 10 "Node.js version check"); then
+        log_error "Failed to get Node.js version"
+    fi
+
+    local npm_version
+    if ! npm_version=$(run_with_timeout "npm -v" 10 "npm version check"); then
+        log_error "Failed to get npm version"
+    fi
 
     # Compare versions using semver rules
     if ! printf '%s\n%s' "$REQUIRED_NODE_VERSION" "$node_version" | sort -V -C; then
@@ -161,6 +182,8 @@ validate_environment() {
     if ! printf '%s\n%s' "$REQUIRED_NPM_VERSION" "$npm_version" | sort -V -C; then
         log_error "npm version $npm_version < required $REQUIRED_NPM_VERSION"
     fi
+
+    log_info "Environment validation passed"
 }
 
 clean_artifacts() {
@@ -175,20 +198,37 @@ clean_artifacts() {
 # --- Interactive Menu ---
 show_menu() {
     clear
+    # Header
     echo -e "${ANSI_Bold}${ANSI_Cyan}╔════════════════════════════════════════════╗${ANSI_Reset}"
     echo -e "${ANSI_Bold}${ANSI_Cyan}║          ${ANSI_Yellow}Project CLI ${VERSION}${ANSI_Cyan}          ║${ANSI_Reset}"
     echo -e "${ANSI_Bold}${ANSI_Cyan}╠════════════════════════════════════════════╣${ANSI_Reset}"
-    echo -e "${ANSI_Bold}${ANSI_Green} 1) ${ANSI_Reset}Install Dependencies"
-    echo -e "${ANSI_Bold}${ANSI_Green} 2) ${ANSI_Reset}Run Tests"
-    echo -e "${ANSI_Bold}${ANSI_Green} 3) ${ANSI_Reset}Build Project"
-    echo -e "${ANSI_Bold}${ANSI_Green} 4) ${ANSI_Reset}Clean Artifacts"
-    echo -e "${ANSI_Bold}${ANSI_Green} 5) ${ANSI_Reset}Project Status"
-    echo -e "${ANSI_Bold}${ANSI_Green} 6) ${ANSI_Reset}Start Dev Server"
-    echo -e "${ANSI_Bold}${ANSI_Green} 7) ${ANSI_Reset}Run Code Checks"
-    echo -e "${ANSI_Bold}${ANSI_Green} 8) ${ANSI_Reset}Security Audit"
-    echo -e "${ANSI_Bold}${ANSI_Green} 9) ${ANSI_Reset}View Logs"
-    echo -e "${ANSI_Bold}${ANSI_Red}10) ${ANSI_Reset}Exit"
-    echo -e "${ANSI_Bold}${ANSI_Cyan}╚════════════════════════════════════════════╝${ANSI_Reset}"
+
+    # Development Section
+    echo -e "\n${ANSI_Bold}${ANSI_Blue}Development${ANSI_Reset}"
+    echo -e "${ANSI_Bold}${ANSI_Green} 1) ${ANSI_Reset}Install Dependencies     ${ANSI_Yellow}[i]${ANSI_Reset} - Setup project packages"
+    echo -e "${ANSI_Bold}${ANSI_Green} 6) ${ANSI_Reset}Start Dev Server        ${ANSI_Yellow}[d]${ANSI_Reset} - Run development environment"
+
+    # Testing & Quality Section
+    echo -e "\n${ANSI_Bold}${ANSI_Blue}Testing & Quality${ANSI_Reset}"
+    echo -e "${ANSI_Bold}${ANSI_Green} 2) ${ANSI_Reset}Run Tests              ${ANSI_Yellow}[t]${ANSI_Reset} - Execute test suite"
+    echo -e "${ANSI_Bold}${ANSI_Green} 7) ${ANSI_Reset}Run Code Checks        ${ANSI_Yellow}[c]${ANSI_Reset} - Lint and analyze code"
+    echo -e "${ANSI_Bold}${ANSI_Green} 8) ${ANSI_Reset}Security Audit         ${ANSI_Yellow}[a]${ANSI_Reset} - Check dependencies"
+
+    # Build & Maintenance Section
+    echo -e "\n${ANSI_Bold}${ANSI_Blue}Build & Maintenance${ANSI_Reset}"
+    echo -e "${ANSI_Bold}${ANSI_Green} 3) ${ANSI_Reset}Build Project          ${ANSI_Yellow}[b]${ANSI_Reset} - Create production build"
+    echo -e "${ANSI_Bold}${ANSI_Green} 4) ${ANSI_Reset}Clean Artifacts        ${ANSI_Yellow}[x]${ANSI_Reset} - Remove build files"
+
+    # Monitoring Section
+    echo -e "\n${ANSI_Bold}${ANSI_Blue}Monitoring${ANSI_Reset}"
+    echo -e "${ANSI_Bold}${ANSI_Green} 5) ${ANSI_Reset}Project Status         ${ANSI_Yellow}[s]${ANSI_Reset} - View dependencies"
+    echo -e "${ANSI_Bold}${ANSI_Green} 9) ${ANSI_Reset}View Logs              ${ANSI_Yellow}[l]${ANSI_Reset} - Check system logs"
+
+    # Exit Option
+    echo -e "\n${ANSI_Bold}${ANSI_Red}10) ${ANSI_Reset}Exit                   ${ANSI_Yellow}[q]${ANSI_Reset} - Quit application"
+
+    echo -e "\n${ANSI_Bold}${ANSI_Cyan}╚════════════════════════════════════════════╝${ANSI_Reset}"
+    echo -e "${ANSI_Yellow}Use number or shortcut key in [brackets]${ANSI_Reset}"
 }
 
 # --- Main Execution ---
@@ -217,51 +257,67 @@ main() {
     while true; do
         show_menu
         echo -e "${ANSI_Bold}${ANSI_Yellow}› ${ANSI_Reset}\c"
-read choice
+        read -r choice
+        choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]')
 
         case $choice in
-            1) {
+            1|"i") {
                 log_info "Starting dependency installation..."
                 echo -e "${ANSI_Yellow}[STATUS]${ANSI_Reset} Installing dependencies (this may take a while)..."
 
-                # Try npm install with progress indication
-                if npm install --progress=true; then
+                # Show progress spinner during installation
+                start_spinner "Installing dependencies..."
+                if npm install --progress=true > .npm-install.log 2>&1; then
+                    stop_spinner
                     log_info "Dependencies installed successfully"
                     echo -e "${ANSI_Green}[SUCCESS]${ANSI_Reset} Dependencies installed successfully"
 
-                    # Verify installation
+                    # Verify installation with progress
                     if [ -d "node_modules" ]; then
-                        log_info "Verifying installed packages..."
-                        echo -e "${ANSI_Cyan}[INFO]${ANSI_Reset} Verifying installed packages..."
-                        npm ls --depth=0 || log_error "Dependency verification failed"
+                        start_spinner "Verifying packages..."
+                        if npm ls --depth=0 > .npm-verify.log 2>&1; then
+                            stop_spinner
+                            echo -e "${ANSI_Green}[SUCCESS]${ANSI_Reset} Package verification completed"
+                            log_info "Package verification successful"
+                        else
+                            stop_spinner
+                            log_error "Dependency verification failed"
+                            echo -e "${ANSI_Red}[ERROR]${ANSI_Reset} Package verification failed - check .npm-verify.log for details"
+                        fi
                     else
+                        stop_spinner
                         log_error "node_modules directory not found after installation"
+                        echo -e "${ANSI_Red}[ERROR]${ANSI_Reset} Installation failed - node_modules not found"
+                        exit 1
                     fi
                 else
+                    stop_spinner
                     log_error "Dependency installation failed"
-                    echo -e "${ANSI_Red}[ERROR]${ANSI_Reset} Dependency installation failed - check network connection and try again"
+                    echo -e "${ANSI_Red}[ERROR]${ANSI_Reset} Installation failed - check .npm-install.log for details"
                     exit 1
                 fi
+                # Cleanup temporary logs
+                rm -f .npm-install.log .npm-verify.log
             } ;;
-            2) {
+            2|"t") {
                 log_info "Running tests..."
                 > "$ERROR_LOG_FILE"  # Truncate file before writing
                 npm test 2>&1 | grep -i "error\|fail" > "$ERROR_LOG_FILE"
                 log_info "Tests completed. Errors logged to $ERROR_LOG_FILE"
             } ;;
-            3) npm run build ;;
-            4) clean_artifacts ;;
-            5) npm list ;;
-            6) npm run dev ;;
-            7) {
+            3|"b") npm run build ;;
+            4|"x") clean_artifacts ;;
+            5|"s") npm list ;;
+            6|"d") npm run dev ;;
+            7|"c") {
                 log_info "Running code checks..."
                 > "$ERROR_LOG_FILE"  # Truncate file before writing
                 npm run check 2>&1 | grep -i "error" > "$ERROR_LOG_FILE"
                 log_info "Code checks completed. Errors logged to $ERROR_LOG_FILE"
             } ;;
-            8) npm audit ;;
-            9) cat "$LOG_FILE" ;;
-            10) exit 0 ;;
+            8|"a") npm audit ;;
+            9|"l") cat "$LOG_FILE" ;;
+            10|"q") exit 0 ;;
             *) log_error "Invalid selection" ;;
         esac
 

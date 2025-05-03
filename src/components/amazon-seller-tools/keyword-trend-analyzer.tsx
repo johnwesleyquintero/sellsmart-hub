@@ -142,11 +142,11 @@ export default function KeywordTrendAnalyzer() {
               keywordCount: foundKeywords.length,
               datePoints: processedData.length,
             });
-          } catch (err: any) {
+          } catch (err: unknown) {
             let message = 'An unknown error occurred during processing.';
             if (err instanceof Error) {
               message = err.message;
-            } else if (err.name === 'ZodError') {
+            } else if (err instanceof z.ZodError) {
               message = `Data validation failed: ${err.errors
                 .map((e: z.ZodIssue) => e.message)
                 .join(', ')}`;
