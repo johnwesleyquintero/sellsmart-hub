@@ -73,6 +73,9 @@
   },
   "[powershell]": {
     "editor.defaultFormatter": "ms-vscode.powershell"
+  },
+  "[mdx]": {
+    "editor.defaultFormatter": "unifiedjs.vscode-mdx"
   }
 
   // --- Optional: Tabnine Priority Frameworks (If different from global) ---

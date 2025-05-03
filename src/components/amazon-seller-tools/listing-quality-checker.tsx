@@ -28,7 +28,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useAmazonData } from '@/lib/hooks/use-amazon-data';
 
 // Lib/Logic Imports (Assuming KeywordIntelligence exists and works as expected)
 // NOTE: KeywordIntelligence logic is simplified/mocked in processCSVRow
@@ -384,7 +383,6 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
       .filter(Boolean) || [];
 
   // Set the keywords state
-  setKeywords(keywords);
 
   const images = Number(row.images);
   const bulletPoints =
@@ -493,10 +491,6 @@ export default function ListingQualityChecker() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [asin, setAsin] = useState('');
 
-  const [keywords, setKeywords] = useState<string[]>([]); // Add keywords state
-
-  const { keywordData } = useAmazonData(keywords); // Use the useAmazonData hook
-
   // Enhance scoring with weighted criteria
   // const calculateScore = (listing: ListingData) => { // Removed duplicate function
   //   // Add weights from real-world performance data
@@ -599,7 +593,7 @@ export default function ListingQualityChecker() {
         suggestions: [],
       };
       setListings([listingData]);
-    } catch (e) {
+    } catch {
       setError('Failed to fetch ASIN data.');
       toast({
         variant: 'destructive',

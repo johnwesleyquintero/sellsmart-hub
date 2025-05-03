@@ -1,9 +1,27 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { Redis } from 'ioredis';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-const redis = new Redis(process.env.UPSTASH_REDIS_REST_URL || '');
+let redis: Redis;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+try {
+  redis = new Redis(process.env.UPSTASH_REDIS_REST_URL || '');
+  redis.on('error', (err) => {
+    console.error('Redis connection error:', err);
+  });
+} catch (err) {
+  console.error('Failed to initialize Redis client:', err);
+  redis = new Proxy({} as Redis, {
+    get: () => () => {
+      console.warn('Redis method called but Redis is not available');
+      return null;
+    },
+  }) as Redis;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method === 'GET') {
     const { key } = req.query;
 

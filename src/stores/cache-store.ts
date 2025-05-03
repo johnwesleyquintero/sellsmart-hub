@@ -1,34 +1,46 @@
-import { getRedisValue, setRedisValue } from '@/lib/redis';
+import {
+  getRedisValue,
+  invalidateCacheByTag,
+  setRedisValue,
+} from '@/lib/redis';
 import { create } from 'zustand';
 
 interface CacheState {
-  cache: Record<string, any>;
   getItem: (key: string) => Promise<any>;
-  setItem: (key: string, value: any) => Promise<void>;
+  setItem: (key: string, value: any, tags?: string[]) => Promise<void>;
+  invalidateByTag: (tag: string) => Promise<void>;
 }
 
-export const useCacheStore = create<CacheState>((set, get) => ({
-  cache: {},
-  getItem: async (key: string) => {
-    const cachedValue = get().cache[key];
-    if (cachedValue) {
-      return cachedValue;
-    }
+// Function to get the cache prune interval from the environment variable
+function getCachePruneInterval(): number {
+  const interval = process.env.CACHE_PRUNE_INTERVAL;
+  if (interval && !isNaN(Number(interval))) {
+    return parseInt(interval, 10);
+  }
+  return 3600; // Default to 1 hour (3600 seconds)
+}
 
+export const useCacheStore = create<CacheState>(() => ({
+  getItem: async (key: string) => {
     const redisValue = await getRedisValue(key);
     if (redisValue) {
-      set((state) => ({
-        cache: { ...state.cache, [key]: redisValue },
-      }));
       return redisValue;
     }
 
     return null;
   },
-  setItem: async (key: string, value: any) => {
-    set((state) => ({
-      cache: { ...state.cache, [key]: value },
-    }));
-    await setRedisValue(key, value);
+  setItem: async (key: string, value: any, tags: string[] = []) => {
+    await setRedisValue(key, value, tags);
+  },
+  invalidateByTag: async (tag: string) => {
+    await invalidateCacheByTag(tag);
   },
 }));
+
+// Implement cache pruning (example - adjust as needed)
+const pruneInterval = getCachePruneInterval();
+setInterval(() => {
+  // Add logic here to prune the Redis cache based on your requirements
+  // For example, you might remove entries that haven't been accessed in a while
+  console.log('Cache pruning triggered');
+}, pruneInterval * 1000);

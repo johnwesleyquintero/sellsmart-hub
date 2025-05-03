@@ -148,12 +148,38 @@ export default function AboutSection() {
   useEffect(() => {
     async function fetchContent() {
       try {
-        console.log('Fetching /api/content with GET method');
-        const res = await fetch('/api/content', { method: 'GET' });
-        console.log('Response status:', res.status);
+        const res = await fetch('/api/content', {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Cache-Control': 'no-cache',
+          },
+        });
+
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          // Enhanced error logging with response details
+          const errorText = await res.text();
+          console.error('API Error Response:', {
+            status: res.status,
+            statusText: res.statusText,
+            url: res.url,
+            headers: Object.fromEntries(res.headers.entries()),
+            error: errorText,
+          });
+
+          // More descriptive error message
+          let errorMessage = `API request failed with status ${res.status}`;
+          try {
+            const errorData = JSON.parse(errorText);
+            if (errorData.message) errorMessage += `: ${errorData.message}`;
+          } catch (e) {
+            // Log JSON parsing errors
+            console.error('Failed to parse error response:', e);
+          }
+
+          throw new Error(errorMessage);
         }
+
         const data = await res.json();
 
         // Only update state if we got valid data
@@ -165,8 +191,17 @@ export default function AboutSection() {
           setExperience(data.experience);
         }
       } catch (error) {
-        console.error('Error fetching content:', error);
-        setError('Failed to load content. Using fallback data.');
+        console.error('Error fetching content:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+        });
+
+        // More informative error message for users
+        setError(
+          error instanceof Error
+            ? `Failed to load content: ${error.message}. Using fallback data.`
+            : 'Failed to load content. Using fallback data.',
+        );
         // Fallback data is already set in state
       } finally {
         setIsLoading(false);
