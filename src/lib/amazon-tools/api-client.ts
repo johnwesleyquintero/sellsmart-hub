@@ -73,7 +73,7 @@ class ApiClient {
       });
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleApiError(error, { url: endpoint, method: options.method }, null);
       throw error;
     }
@@ -163,8 +163,8 @@ class ApiClient {
       await useCacheStore.getState().set(cacheKey, data, ttl, 'sales-estimate');
       logger.info(`Sales estimate stored in cache - ${cacheKey} - ttl: ${ttl}`);
       return data;
-    } catch (error: any) {
-      logger.error(`Sales estimate API error - ${error.message}`, {
+    } catch (error: unknown) {
+      logger.error(`Sales estimate API error - ${(error as Error).message}`, {
         url: '/sales/estimate',
         method: 'POST',
         params: params,
@@ -187,7 +187,7 @@ class ApiClient {
   }
 
   // Listing Data API
-  async getListingData(asin: string): Promise<any> {
+  async getListingData(asin: string): Promise<unknown> {
     if (!this.listingDataEndpoint) {
       throw new Error('Listing data endpoint is not configured.');
     }

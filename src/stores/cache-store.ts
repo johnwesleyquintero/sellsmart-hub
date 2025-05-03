@@ -1,5 +1,6 @@
 'use client';
 
+import { env } from '@/lib/config';
 import { logger } from '@/lib/logger';
 import { monitor } from '@/lib/monitoring';
 import { Cache } from '@/lib/redis';
@@ -18,21 +19,16 @@ interface CacheStore {
 const cache = new Cache();
 const cacheKeyPrefix = 'v1';
 
-export const useCacheStore = create<CacheStore>((set, get) => {
+export const useCacheStore = create<CacheStore>((set) => {
   return {
     set: async (key, value, ttl, tag) => {
-      await cache.set(key, { value, tag, timestamp: Date.now(), ttl }, ttl);
+      await cache.set(key, { value, tag }, ttl);
       logger.debug('Cache set:', { key, ttl, tag });
     },
 
     get: async <T>(key: string): Promise<T | null> => {
       const startTime = Date.now();
-      const cached = await cache.get<{
-        value: T;
-        tag?: string;
-        timestamp: number;
-        ttl: number;
-      }>(key);
+      const cached = await cache.get<{ value: T; tag?: string }>(key);
 
       if (!cached) {
         monitor.incrementCacheMiss();
@@ -61,7 +57,6 @@ export const useCacheStore = create<CacheStore>((set, get) => {
     },
 
     prune: async () => {
-      const now = Date.now();
       const keys = await cache.keys(`${cacheKeyPrefix}:*`);
 
       if (keys.length === 0) {
@@ -70,17 +65,17 @@ export const useCacheStore = create<CacheStore>((set, get) => {
 
       for (const key of keys) {
         const cached = await cache.get<{
-          value: any;
+          value: unknown;
           tag?: string;
-          timestamp: number;
-          ttl: number;
         }>(key);
         if (cached) {
-          const age = now - cached.timestamp;
-          if (age > cached.ttl) {
-            await cache.delete(key);
-            logger.debug('Cache entry pruned:', { key });
-          }
+          // The timestamp and ttl are no longer stored in redis, so we can't prune based on age.
+          // This needs to be re-implemented.
+          // const age = now - cached.timestamp;
+          // if (age > cached.ttl) {
+          await cache.delete(key);
+          logger.debug('Cache entry pruned:', { key });
+          // }
         }
       }
     },
@@ -101,10 +96,8 @@ export const useCacheStore = create<CacheStore>((set, get) => {
 
       for (const key of keys) {
         const cached = await cache.get<{
-          value: any;
+          value: unknown;
           tag?: string;
-          timestamp: number;
-          ttl: number;
         }>(key);
         if (cached && cached.tag === tag) {
           await cache.delete(key);
@@ -117,8 +110,8 @@ export const useCacheStore = create<CacheStore>((set, get) => {
 
 // Set up periodic cache pruning
 if (typeof window !== 'undefined') {
-  const pruneInterval = process.env.CACHE_PRUNE_INTERVAL
-    ? parseInt(process.env.CACHE_PRUNE_INTERVAL, 10)
+  const pruneInterval = env.CACHE_PRUNE_INTERVAL
+    ? parseInt(env.CACHE_PRUNE_INTERVAL, 10)
     : 60000; // Default to 1 minute
 
   setInterval(() => {

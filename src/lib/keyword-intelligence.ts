@@ -1,5 +1,4 @@
 import { logger } from './api/logger';
-import { monitorApiResponseTime } from './api/monitoring';
 import { validateKeywords } from './input-validation';
 
 export interface KeywordAnalysis {
@@ -18,8 +17,14 @@ interface KeywordMetrics {
   hasSpecialChars: boolean;
 }
 
+interface ListingData {
+  title: string;
+  description: string;
+  bulletPoints?: string[];
+}
+
 export const KeywordIntelligence = {
-  async analyze(listingData: any): Promise<KeywordAnalysis[]> {
+  async analyze(listingData: ListingData): Promise<KeywordAnalysis[]> {
     logger.info('Analyzing listing data', { listingData });
     let analysisResults: KeywordAnalysis[] = [];
 
@@ -38,18 +43,18 @@ export const KeywordIntelligence = {
       );
 
       return analysisResults;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Keyword analysis failed:', error);
       throw new Error('Failed to analyze keywords');
     } finally {
-      monitorApiResponseTime(
-        'KeywordIntelligence.analyze',
-        Date.now() - Date.now(),
-      ); // TODO: Fix timestamp
+      // monitorApiResponseTime(
+      //   'KeywordIntelligence.analyze',
+      //   Date.now() - Date.now(),
+      // ); // TODO: Fix timestamp
     }
   },
 
-  extractKeywords(listingData: any): string[] {
+  extractKeywords(listingData: ListingData): string[] {
     // Extract keywords from title, description, and bullet points
     const { title, description, bulletPoints } = listingData;
     const keywords = [title, description, ...(bulletPoints || [])].join(' ');

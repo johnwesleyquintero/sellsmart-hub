@@ -15,6 +15,9 @@ const envSchema = z.object({
   // Analytics (optional)
   NEXT_PUBLIC_ANALYTICS_ENDPOINT: z.string().url().optional(),
 
+  // Cache Prune Interval (optional)
+  CACHE_PRUNE_INTERVAL: z.string().optional(),
+
   // Node environment
   NODE_ENV: z
     .enum(['development', 'production', 'test'])

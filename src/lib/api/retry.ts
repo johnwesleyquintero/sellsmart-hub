@@ -5,7 +5,7 @@ export const retryRequest = async <T>(
 ): Promise<T> => {
   try {
     return await fn();
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (retries > 0) {
       console.log(
         `Request failed, retrying in ${delay}ms. Retries left: ${retries}`,

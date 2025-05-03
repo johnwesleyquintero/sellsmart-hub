@@ -4,6 +4,7 @@ import {
   type KeywordTrendData,
 } from '@/lib/models/keyword-trends';
 import { connectToDatabase } from '@/lib/mongodb';
+import { rateLimiter } from '@/lib/rate-limiter';
 import { NextResponse } from 'next/server';
 
 function processCSVData(data: string[]): KeywordTrend[] {
@@ -29,6 +30,12 @@ function processCSVData(data: string[]): KeywordTrend[] {
 }
 
 export async function POST(request: Request) {
+  // Apply rate limiting
+  const rateLimitResult = await rateLimiter.limit();
+  if (!rateLimitResult.success) {
+    return new NextResponse('Rate limit exceeded', { status: 429 });
+  }
+
   try {
     const { csvData } = (await request.json()) as { csvData: string[] };
     let trendData: KeywordTrendData[] = [];

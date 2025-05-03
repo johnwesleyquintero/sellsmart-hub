@@ -3,6 +3,7 @@ import {
   MissingDataError,
 } from '@/lib/amazon-tools/errors/errors';
 import { loadStaticData } from '@/lib/load-static-data';
+import { rateLimiter } from '@/lib/rate-limiter';
 import { z } from 'zod';
 
 function createErrorResponse(
@@ -65,6 +66,12 @@ function processCSVData(data: string[]): CompetitorData[] {
 }
 
 export async function POST(request: Request) {
+  // Apply rate limiting
+  const rateLimitResult = await rateLimiter.limit();
+  if (!rateLimitResult.success) {
+    return new Response('Rate limit exceeded', { status: 429 });
+  }
+
   const schema = z.object({
     asin: z.string().optional(),
     metrics: z.array(z.string()).optional(),

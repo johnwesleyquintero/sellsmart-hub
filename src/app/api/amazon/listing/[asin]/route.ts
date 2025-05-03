@@ -1,6 +1,7 @@
 import { CampaignDataSchema } from '@/lib/amazon-campaign-schema';
 import { validateRequest } from '@/lib/api-validation';
 import { monitor } from '@/lib/monitoring';
+import { rateLimiter } from '@/lib/rate-limiter';
 import { NextResponse } from 'next/server';
 
 // Fetch listing data from Amazon Advertising API
@@ -11,6 +12,12 @@ export async function GET(
   const asin = params.asin;
 
   try {
+    // Apply rate limiting
+    const rateLimitResult = await rateLimiter.limit();
+    if (!rateLimitResult.success) {
+      return new NextResponse('Rate limit exceeded', { status: 429 });
+    }
+
     // Get the Amazon API key from environment variables
     const apiKey = process.env.AMAZON_API_KEY;
     if (!apiKey) {
@@ -54,8 +61,11 @@ export async function GET(
 
     // Return the validated data in a NextResponse
     return NextResponse.json(validatedData);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching Amazon data:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 500 },
+    );
   }
 }

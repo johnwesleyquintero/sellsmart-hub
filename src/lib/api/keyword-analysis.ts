@@ -23,7 +23,12 @@ const ratelimit = new Ratelimit({
   prefix: '@upstash/ratelimit',
 });
 
-function validateListingData(data: any): boolean {
+interface ListingData {
+  title: string;
+  [key: string]: any; // Allow other properties
+}
+
+function validateListingData(data: ListingData): boolean {
   if (typeof data !== 'object' || data === null) {
     return false;
   }
@@ -33,7 +38,7 @@ function validateListingData(data: any): boolean {
   return true;
 }
 
-export async function fetchKeywordAnalysis(listingData: any) {
+export async function fetchKeywordAnalysis(listingData: ListingData) {
   if (!API_ENDPOINT) {
     logger.error('KEYWORD_ANALYZER_API_ENDPOINT is not defined');
     monitoring.captureException(
@@ -84,7 +89,7 @@ export async function fetchKeywordAnalysis(listingData: any) {
     const data = await response.json();
     logger.info('Keyword analysis successful. Response data:', data);
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('API Route Error:', error);
     monitoring.captureException(error);
     throw new Error('Failed to analyze keywords');

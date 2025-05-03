@@ -1,4 +1,5 @@
 import { findCanonicalName } from '@/lib/config/headerMappings';
+import { rateLimiter } from '@/lib/rate-limiter';
 import ReportData from '@/types/amazon-report';
 import { parse as parseDate } from 'date-fns';
 import { NextRequest, NextResponse } from 'next/server';
@@ -160,6 +161,12 @@ function joinData(
 }
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResult = await rateLimiter.limit();
+  if (!rateLimitResult.success) {
+    return new NextResponse('Rate limit exceeded', { status: 429 });
+  }
+
   try {
     const formData = await request.formData();
     const sqpFile = formData.get('sqpReport') as File | null;

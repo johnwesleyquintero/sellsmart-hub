@@ -31,6 +31,7 @@ import {
 } from '@/lib/amazon-tools/scoring-utils';
 import { type ProductListingData } from '@/lib/amazon-types';
 // Import ChangeEvent for explicit typing
+import { sanitizeHtml } from '@/lib/sanitize'; // Import sanitizeHtml
 import { useState, type ChangeEvent } from 'react';
 
 const initialFormData: ProductListingData = {
@@ -144,7 +145,10 @@ export default function ProductScoreCalculator() {
               value={formData.description}
               // Use the specific handler or cast e.target
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({
+                  ...formData,
+                  description: sanitizeHtml(e.target.value), // Sanitize the input
+                })
               }
               placeholder="Enter your product description (HTML formatting allowed)"
             />

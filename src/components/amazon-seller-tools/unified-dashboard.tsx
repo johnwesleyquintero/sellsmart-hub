@@ -25,7 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import CsvDataMapper from './CsvDataMapper';
 
-interface DashboardMetrics {
+export interface DashboardMetrics {
   date: string;
   sales: number;
   profit: number;

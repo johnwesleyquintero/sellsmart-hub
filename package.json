@@ -124,6 +124,7 @@
     "path-to-regexp": "8.2.0",
     "pino": "9.6.0",
     "prismjs": "^1.30.0",
+    "querystring": "0.2.1",
     "react": "^18.2.0",
     "react-beautiful-dnd": "13.1.1",
     "react-day-picker": "^9.6.7",

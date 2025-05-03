@@ -9,6 +9,10 @@ const REDIS_CONFIG = {
   password: env.REDIS_TOKEN,
 };
 
+interface RetryError extends Error {
+  attemptNumber: number;
+}
+
 export class RedisClient extends IORedis {
   private circuitBreaker: Opossum;
   public isReady: boolean = false;
@@ -44,8 +48,10 @@ export class RedisClient extends IORedis {
         },
         {
           retries: 3,
-          onFailedAttempt: (error: any) => {
-            logger.warn(`Attempt ${error.attemptNumber} failed. Retrying...`);
+          onFailedAttempt: (error: unknown) => {
+            logger.warn(
+              `Attempt ${(error as RetryError).attemptNumber} failed. Retrying...`,
+            );
           },
         },
       );
@@ -117,9 +123,9 @@ export class RedisClient extends IORedis {
     try {
       return await pRetry(fn, {
         retries: 3,
-        onFailedAttempt: (error: any) => {
+        onFailedAttempt: (error: unknown) => {
           logger.warn(
-            `Redis operation failed for key ${key}, attempt ${error.attemptNumber}. Retrying...`,
+            `Redis operation failed for key ${key}, attempt ${(error as RetryError).attemptNumber}. Retrying...`,
           );
         },
       });
@@ -164,7 +170,11 @@ export class Cache {
     }
   }
 
-  async set(key: string, value: unknown, ttl?: number): Promise<void> {
+  async set(
+    key: string,
+    value: { value: any; tag?: string },
+    ttl?: number,
+  ): Promise<void> {
     if (env.NODE_ENV === 'test') {
       return; // Skip cache in test environment
     }
@@ -231,7 +241,7 @@ export class Cache {
 
       // If not in cache, execute function and cache result
       const result = await fn();
-      await this.set(key, result, ttl);
+      await this.set(key, { value: result }, ttl);
       return result;
     } catch (error) {
       logger.error('Redis wrap error:', { error, key });

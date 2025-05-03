@@ -18,13 +18,16 @@ export default async function handler(
           return res.status(400).json({ error: errors.join(', ') });
         }
 
-        const analysisResults = await fetchKeywordAnalysis(keywords);
+        const listingData = { title: keywords.join(', ') };
+        const analysisResults = await fetchKeywordAnalysis(listingData);
         res.status(200).json(analysisResults);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('API Route Error:', error);
         res
           .status(500)
-          .json({ error: error.message || 'Failed to analyze keywords' });
+          .json({
+            error: (error as Error).message || 'Failed to analyze keywords',
+          });
       }
     } else {
       res.status(405).json({ error: 'Method Not Allowed' });

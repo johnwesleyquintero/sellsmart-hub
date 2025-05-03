@@ -10,7 +10,8 @@ type SampleDataType =
   | 'ppc'
   | 'keyword-dedup'
   | 'acos'
-  | 'campaign-performance';
+  | 'campaign-performance'
+  | 'description';
 
 interface SampleCsvButtonProps {
   dataType: SampleDataType;

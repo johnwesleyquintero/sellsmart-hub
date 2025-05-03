@@ -1,5 +1,6 @@
+import { ZodError } from 'zod';
 // Move 'use client' directive to the top of the file if not already present
-'use client';
+('use client');
 
 import {
   Alert,
@@ -13,7 +14,7 @@ import {
   Input,
   Label,
   Progress,
-} from '@/components/ui'; // Corrected: Use import type for type-only imports
+} from '@/components/ui';
 import { useFormValidation } from '@/hooks/use-form-validation';
 import { type MetricKey } from '@/lib/amazon-tools/types';
 import { logError } from '@/lib/error-handling';
@@ -189,7 +190,7 @@ export default function AcosCalculator() {
   const { validate, validateField, isValid, validatedData } =
     useFormValidation<AcosCalculatorInput>({
       schema: acosCalculatorSchema,
-      onError: (error: any) => {
+      onError: (error: ZodError) => {
         setError(`Form validation error: ${error.message}`);
       },
     });
@@ -506,6 +507,7 @@ export default function AcosCalculator() {
                   value={manualCampaign.campaign}
                   onChange={handleManualInputChange}
                   placeholder="Enter campaign name"
+                  maxLength={100}
                 />
                 {validationErrors.campaign ? (
                   <p className="text-red-500 text-sm mt-1">
@@ -519,7 +521,9 @@ export default function AcosCalculator() {
                   type="number"
                   id="adSpend"
                   name="adSpend"
-                  value={manualCampaign.adSpend}
+                  value={
+                    manualCampaign.adSpend === 0 ? '' : manualCampaign.adSpend
+                  }
                   onChange={handleManualInputChange}
                   placeholder="Enter ad spend"
                 />
@@ -535,9 +539,9 @@ export default function AcosCalculator() {
                   type="number"
                   id="sales"
                   name="sales"
-                  value={manualCampaign.sales}
+                  value={manualCampaign.sales === 0 ? '' : manualCampaign.sales}
                   onChange={handleManualInputChange}
-                  placeholder="Enter sales amount"
+                  placeholder="Enter sales"
                 />
                 {validationErrors.sales ? (
                   <p className="text-red-500 text-sm mt-1">
@@ -545,50 +549,58 @@ export default function AcosCalculator() {
                   </p>
                 ) : null}
               </div>
-              <Button onClick={handleManualCalculate} disabled={isLoading}>
+              <Button
+                onClick={handleManualCalculate}
+                disabled={isLoading}
+                className="w-full"
+              >
                 Calculate
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* CSV Upload Form */}
+        {/* CSV Upload */}
         <Card>
           <CardHeader>
             <CardTitle>Upload CSV</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div {...getRootProps()} className="dropzone">
-                <input {...getInputProps()} />
-                <p>Drag 'n' drop some files here, or click to select files</p>
-              </div>
-              {error && (
-                <Alert
-                  variant={
-                    error.includes('warnings') ? 'default' : 'destructive'
-                  }
-                >
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Heads up!</AlertTitle>
-                  <AlertDescription>
-                    {error || 'Upload a CSV file to calculate ACoS.'}
-                  </AlertDescription>
-                </Alert>
+            <div
+              {...getRootProps()}
+              className="relative border-2 border-dashed rounded-md p-6 flex justify-center items-center bg-gray-50 dark:bg-gray-800 cursor-pointer"
+            >
+              <input {...getInputProps()} />
+              {isLoading ? (
+                <Progress
+                  value={undefined}
+                  className="w-1/2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                />
+              ) : (
+                <p className="text-muted-foreground">
+                  Drag 'n' drop some files here, or click to select files
+                </p>
               )}
             </div>
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Chart and Data Display */}
+      {/* Chart & Data Display */}
       <Card>
         <CardHeader>
-          <CardTitle>ACoS Chart</CardTitle>
+          <CardTitle>Campaign Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          {chartContent}
-          <div className="flex justify-end gap-2">
+          {/* Metric Selection */}
+          <div className="mb-4 flex justify-end gap-2">
             {Object.entries(chartConfig).map(([key, config]) => (
               <Button
                 key={key}
@@ -596,23 +608,26 @@ export default function AcosCalculator() {
                 onClick={() =>
                   setSelectedMetric(key as keyof typeof chartConfig)
                 }
+                size="sm"
               >
                 {config.label}
               </Button>
             ))}
           </div>
+          {/* Chart */}
+          {chartContent}
         </CardContent>
       </Card>
 
-      {/* Export and Clear Data Buttons */}
+      {/* Export & Clear Buttons */}
       <Card>
-        <CardContent>
-          <div className="flex justify-end gap-2">
-            <Button onClick={clearData}>Clear Data</Button>
-            <Button onClick={handleExport} disabled={campaigns.length === 0}>
-              Export CSV <Download className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+        <CardContent className="flex justify-between items-center">
+          <Button variant="outline" onClick={clearData}>
+            Clear Data
+          </Button>
+          <Button onClick={handleExport} disabled={campaigns.length === 0}>
+            Export CSV <Download className="ml-2 h-4 w-4" />
+          </Button>
         </CardContent>
       </Card>
     </div>

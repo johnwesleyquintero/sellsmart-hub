@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -23,6 +24,17 @@ import { DashboardMetrics } from './unified-dashboard';
 // Use a generic type T for the metrics object structure.
 // This makes the component reusable if you need to map to different structures later.
 // The constraint `Record<string, any>` ensures T is an object-like type.
+/**
+ * @interface CsvDataMapperProps
+ * @description Interface for the CsvDataMapper component props.
+ * @param {string[]} csvHeaders - The headers from the CSV file.
+ * @param {object[]} targetMetrics - The metrics to map to the CSV headers.
+ * @param {function} onMappingComplete - Callback function when the mapping is complete.
+ * @param {function} onCancel - Callback function when the mapping is cancelled.
+ * @param {string} title - The title of the component.
+ * @param {string} description - The description of the component.
+ * @param {function} onError - Callback function when an error occurs.
+ */
 interface CsvDataMapperProps {
   csvHeaders: string[];
   targetMetrics: {
@@ -157,6 +169,10 @@ const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
     }
   };
 
+  const handleReset = () => {
+    setMapping(initialMapping);
+  };
+
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-md">
       <CardHeader>
@@ -218,6 +234,9 @@ const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
+        <Button variant="outline" onClick={handleReset}>
+          Reset Mappings
+        </Button>
         {/* Button is enabled as long as all REQUIRED fields are mapped */}
         <Button onClick={handleSubmit} disabled={!isMappingComplete}>
           Confirm Mapping
@@ -227,4 +246,10 @@ const CsvDataMapper: React.FC<CsvDataMapperProps> = ({
   );
 };
 
-export default CsvDataMapper;
+const CsvDataMapperWithErrorBoundary = (props: CsvDataMapperProps) => (
+  <ErrorBoundary>
+    <CsvDataMapper {...props} />
+  </ErrorBoundary>
+);
+
+export default CsvDataMapperWithErrorBoundary;
