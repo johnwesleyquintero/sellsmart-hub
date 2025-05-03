@@ -33,7 +33,8 @@
     "typecheck": "tsc --noEmit",
     "pc": "bash project-cli.sh",
     "cq": "node ./.wescore/scripts/check-quality.mjs",
-    "ut": "node ./.wescore/scripts/update-tracker.mjs"
+    "ut": "node ./.wescore/scripts/update-tracker.mjs",
+    "check": "npm run lint && npm run typecheck"
   },
   "dependencies": {
     "@google/generative-ai": "0.24.0",

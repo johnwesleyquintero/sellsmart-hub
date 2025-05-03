@@ -58,7 +58,7 @@
   "exclude": [
     ".next",
     ".wescore",
-    "jest.config.ts",
+    "jest.config.js, jest.config.ts",
     "__mocks__/svg.js",
     "coverage/lcov-report/*",
     "dist/lib/models.js",

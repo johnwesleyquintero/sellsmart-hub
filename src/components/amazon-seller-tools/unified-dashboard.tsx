@@ -48,6 +48,7 @@ import { KeywordTrendAnalyzer } from './keyword-trend-analyzer';
 import { ListingQualityChecker } from './listing-quality-checker';
 import { OptimalPriceCalculator } from './optimal-price-calculator';
 import { PpcAnalyzer } from './ppc-analyzer';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const columns: ColumnDef<any>[] = [
   {

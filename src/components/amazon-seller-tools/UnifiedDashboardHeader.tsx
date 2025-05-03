@@ -55,7 +55,11 @@ export function UnifiedDashboardHeader({
               Docs
             </a>
           </Button>
-          <Button variant="destructive" onClick={onInvalidateCache} aria-label="Invalidate Cache">
+          <Button
+            variant="destructive"
+            onClick={onInvalidateCache}
+            aria-label="Invalidate Cache"
+          >
             Invalidate Cache
           </Button>
         </div>

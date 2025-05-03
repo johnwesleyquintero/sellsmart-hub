@@ -316,7 +316,7 @@ main() {
                 npm run check 2>&1 | grep -i "error" > "$ERROR_LOG_FILE"
                 log_info "Code checks completed. Errors logged to $ERROR_LOG_FILE"
             } ;;
-            8|"a") npm audit ;;
+            8|"a") npm audit fix;;
             9|"l") cat "$LOG_FILE" ;;
             10|"q") exit 0 ;;
             11|"u") {

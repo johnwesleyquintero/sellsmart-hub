@@ -27,17 +27,7 @@ import Papa from 'papaparse';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-// Import Recharts components
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { BarChart, Legend } from 'recharts';
 
 // --- Interfaces & Types ---
 
