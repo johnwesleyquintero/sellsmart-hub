@@ -2,7 +2,7 @@
 
 This document outlines standardized workflows for common development tasks (like analysis and enhancement) and provides relevant project context.
 
-**Update the `src\app\content\blog\project-tracker.mdx` for every latest changes you have completed.**
+- **Update the `src\app\content\blog\project-tracker.mdx` for every latest changes you have completed.**
 
 ## Workflow 1: Enhance Application Without Introducing New Errors
 
@@ -64,6 +64,7 @@ Analyze the application to identify areas for improvement that enhance functiona
 Analyze test reports, error logs, or reported issues to identify root causes, suggest fixes, and improve overall stability and test coverage. Focus on component rendering, data processing, and integration problems.
 
 **Test Directory:**
+
 - `@/src/__tests__`
 - `@/src/__mocks__`
 
@@ -154,9 +155,10 @@ A structured analysis report including:
 **Objective:**
 Scan the codebase to identify issues, optimize performance, and update the `project-tracker.mdx` and `amazon-seller-tools.mdx` file with detailed findings and actionable recommendations. This workflow should be executed regularly to ensure the project remains up-to-date and optimized.
 
-Document Directory:
-File 1: `@/src/app/content/blog/project-tracker.mdx`
-File 2: `@/src/app/content/blog/amazon-seller-tools.mdx`
+**Document Directory:**
+
+- `@/src/app/content/blog/project-tracker.mdx`
+- `@/src/app/content/blog/amazon-seller-tools.mdx`
 
 **Instructions:**
 
