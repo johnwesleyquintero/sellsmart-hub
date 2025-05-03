@@ -4,7 +4,7 @@ import { analytics } from '@/lib/analytics';
 import { logger } from '@/lib/logger';
 import { useCacheStore } from '@/stores/cache-store';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 interface UseCachedDataOptions<T> {
   key: string;
@@ -21,15 +21,14 @@ export function useCachedData<T>({
   staleTime = 300000, // 5 minutes default
   onError,
 }: UseCachedDataOptions<T>) {
-  const [isStale, setIsStale] = useState(false);
   const { get: getFromCache, set: setInCache } = useCacheStore();
 
   // Wrap fetchAction with cache logic
-  const fetchWithCache = async () => {
+  const fetchWithCache = async (): Promise<T> => {
     const startTime = performance.now();
     try {
       // Check cache first
-      const cached = getFromCache<T>(key);
+      const cached = await getFromCache<T>(key);
       if (cached) {
         analytics.trackPerformance(
           `cache_hit_${key}`,
@@ -76,46 +75,10 @@ export function useCachedData<T>({
     }
   }, [query.error, onError]);
 
-  // Add error handling with onError callback
-  useEffect(() => {
-    if (query.error) {
-      logger.error('Cache query error:', query.error);
-      if (onError && query.error instanceof Error) {
-        onError(query.error);
-      }
-    }
-  }, [query.error, onError]);
-
-  // Check for stale data
-  useEffect(() => {
-    const checkStale = () => {
-      const cached = getFromCache<T>(key);
-      if (cached) {
-        const cacheState = useCacheStore.getState();
-        const cacheEntry = cacheState.cache.get(key); // Using Map's get() method
-        if (cacheEntry) {
-          const isDataStale = Date.now() - cacheEntry.timestamp > staleTime;
-          setIsStale(isDataStale);
-
-          if (isDataStale) {
-            logger.debug('Data is stale, triggering refresh:', { key });
-            void query.refetch();
-          }
-        }
-      }
-    };
-
-    checkStale();
-    const interval = setInterval(checkStale, staleTime);
-
-    return () => clearInterval(interval);
-  }, [key, staleTime, query]);
-
   return {
     data: query.data,
     error: query.error,
     isLoading: query.isLoading,
-    isStale,
     refetch: query.refetch,
   };
 }

@@ -89,6 +89,8 @@ const nextConfig = {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       path: false,
+      dns: false,
+      net: false,
     };
 
     // Rule for handling SVGs as React components using @svgr/webpack
@@ -124,9 +126,7 @@ const nextConfig = {
           /^mongodb/,
           {
             '@next-auth/mongodb-adapter': 'commonjs @next-auth/mongodb-adapter',
-            dns: 'commonjs dns',
             fs: 'commonjs fs',
-            net: 'commonjs net',
             tls: 'commonjs tls',
             child_process: 'commonjs child_process',
             path: 'commonjs path',

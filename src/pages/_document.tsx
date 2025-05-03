@@ -1,3 +1,4 @@
+import CacheProvider from '@/components/cache-provider';
 import { Head, Html, Main, NextScript } from 'next/document';
 
 export default function Document() {
@@ -5,7 +6,9 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <body>
-        <Main />
+        <CacheProvider>
+          <Main />
+        </CacheProvider>
         <NextScript />
       </body>
     </Html>

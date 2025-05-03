@@ -1,3 +1,4 @@
+import { fetchKeywordAnalysis } from '@/lib/api/keyword-analysis';
 import { useCacheStore } from '@/stores/cache-store';
 import { ApiError, handleApiError } from '../api/error-handler';
 import { logger } from '../api/logger';
@@ -74,7 +75,7 @@ class ApiClient {
 
       return data;
     } catch (error: unknown) {
-      handleApiError(error, { url: endpoint, method: options.method }, null);
+      handleApiError(error, { url: endpoint, method: options.method });
       throw error;
     }
   }
@@ -88,10 +89,10 @@ class ApiClient {
       trend: number[];
     }[]
   > {
-    return this.request('/keywords/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ keywords }),
-    });
+    // Use fetchKeywordAnalysis to get the keyword analysis data
+    const listingData = { title: keywords.join(', ') };
+    const analysisResults = await fetchKeywordAnalysis(listingData);
+    return analysisResults;
   }
 
   // ASIN Data API
@@ -139,11 +140,7 @@ class ApiClient {
     const cacheKey = `sales-estimate:${JSON.stringify(params)}`;
     const ttl = 3600; // 1 hour
 
-    const cachedData = await useCacheStore.getState().get<{
-      estimatedMonthlySales: number;
-      confidence: number;
-      range: { min: number; max: number };
-    }>(cacheKey);
+    const cachedData = await useCacheStore.getState().getItem(cacheKey);
 
     if (cachedData) {
       logger.info(`Sales estimate from cache - ${cacheKey}`);
@@ -160,7 +157,7 @@ class ApiClient {
         body: JSON.stringify(params),
       });
 
-      await useCacheStore.getState().set(cacheKey, data, ttl, 'sales-estimate');
+      await useCacheStore.getState().setItem(cacheKey, data);
       logger.info(`Sales estimate stored in cache - ${cacheKey} - ttl: ${ttl}`);
       return data;
     } catch (error: unknown) {
@@ -171,16 +168,12 @@ class ApiClient {
       });
 
       if (error instanceof ApiError) {
-        handleApiError(error, { url: '/sales/estimate', method: 'POST' }, null);
+        handleApiError(error, { url: '/sales/estimate', method: 'POST' });
         throw error;
       } else {
         // Wrap the error in an ApiError for consistent handling
         const apiError = new ApiError(500, 'Failed to estimate sales', error);
-        handleApiError(
-          apiError,
-          { url: '/sales/estimate', method: 'POST' },
-          null,
-        );
+        handleApiError(apiError, { url: '/sales/estimate', method: 'POST' });
         throw apiError;
       }
     }

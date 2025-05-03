@@ -12,22 +12,24 @@ export class ApiError extends Error {
   }
 }
 
-export const handleApiError = (error: unknown, req: unknown, res: unknown) => {
+export const handleApiError = (
+  error: unknown,
+  req: { url?: string; method?: string },
+) => {
   logger.error(`API Error: ${(error as Error).message}`, {
-    url: (req as any)?.url,
-    method: (req as any)?.method,
+    url: req?.url,
+    method: req?.method,
     error: error,
   });
 
   if (error instanceof ApiError) {
-    return (res as any).status(error.statusCode).json({
-      message: error.message,
-      details: error.details,
-    });
+    // Since we don't have access to the response object here, we can't send a JSON response.
+    // We'll just re-throw the error.
+    throw error;
   }
 
   // Generic error
-  return (res as any)
-    .status(500)
-    .json({ status: 500, message: 'Internal Server Error', details: null });
+  // Since we don't have access to the response object here, we can't send a JSON response.
+  // We'll just re-throw the error.
+  throw new ApiError(500, 'Internal Server Error', null);
 };

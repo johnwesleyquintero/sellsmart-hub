@@ -2,8 +2,9 @@
 
 This document outlines standardized workflows for common development tasks (like analysis and enhancement) and provides relevant project context.
 
-- **Update** the `@/src/app/content/blog/project-tracker.mdx` for every latest changes you have completed.
-- **Implement** all pending tasks and recommendations detailed in `@/src/app/content/blog/project-tracker.mdx`, prioritizing tasks based on impact and urgency as determined by the document's prioritization scheme. Ensure thorough testing and validation after each implementation to confirm functionality and prevent regressions.
+- **Update** the `@/src/app/content/blog/project-tracker.mdx` for every latest changes you have completed. **DO NOT REMOVE ANYTHING FROM THIS FILE.**
+
+- **Implement** all pending tasks and recommendations detailed in `@/src/app/content/blog/project-tracker.mdx`, prioritizing tasks based on impact and urgency as determined by the document's prioritization scheme. Ensure thorough testing and validation after each implementation to confirm functionality and prevent regressions. **DO NOT REMOVE ANYTHING FROM THIS FILE.**
 
 ## Workflow 1: Enhance Application Without Introducing New Errors
 

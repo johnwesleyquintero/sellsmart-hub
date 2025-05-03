@@ -7,7 +7,6 @@ import ClientProviders from '@/components/client-providers';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ContentSkeleton } from '@/components/ui/loading-skeleton';
 import { cn } from '@/lib/utils';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
@@ -27,24 +26,11 @@ export const metadata: Metadata = {
   icons: {
     apple: [
       {
-        url: '/images/icons/icon-180x180.png',
-        sizes: '180x180',
-        type: 'image/png',
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
       },
     ],
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      {
-        url: '/images/icons/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        url: '/images/icons/icon-512x512.png',
-        sizes: '512x512',
-        type: 'image/png',
-      },
-    ],
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
   },
   appleWebApp: {
     capable: true,
@@ -68,8 +54,6 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
 };
 
-const queryClient = new QueryClient();
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -79,7 +63,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
-        <link rel="apple-touch-icon" href="/images/icons/icon-180x180.png" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -88,11 +72,9 @@ export default function RootLayout({
         className={cn('min-h-screen font-sans antialiased', inter.variable)}
       >
         <ErrorBoundary>
-          <QueryClientProvider client={queryClient}>
-            <ClientProviders>
-              <Suspense fallback={<ContentSkeleton />}>{children}</Suspense>
-            </ClientProviders>
-          </QueryClientProvider>
+          <ClientProviders>
+            <Suspense fallback={<ContentSkeleton />}>{children}</Suspense>
+          </ClientProviders>
         </ErrorBoundary>
       </body>
     </html>

@@ -1,4 +1,6 @@
-'use client';
+// use client
+console.log('use-form-validation.ts loaded');
+('use client');
 
 import { analytics } from '@/lib/analytics';
 import { logger } from '@/lib/logger';

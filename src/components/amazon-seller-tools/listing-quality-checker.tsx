@@ -11,7 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAmazonData } from '@/lib/hooks/use-amazon-data';
 
 // Lib/Logic Imports (Assuming KeywordIntelligence exists and works as expected)
 // NOTE: KeywordIntelligence logic is simplified/mocked in processCSVRow
@@ -381,6 +382,10 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
       ?.split(',')
       .map((k) => k.trim())
       .filter(Boolean) || [];
+
+  // Set the keywords state
+  setKeywords(keywords);
+
   const images = Number(row.images);
   const bulletPoints =
     row.bullet_points
@@ -393,27 +398,28 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
     console.warn(`Invalid image count for product "${row.product}"`);
   }
 
-  let keywordAnalysis: KeywordAnalysisResult[] = [];
+  // Remove mock keyword analysis data
+  // let keywordAnalysis: KeywordAnalysisResult[] = [];
   // --- MOCK KEYWORD ANALYSIS ---
   // Replace with actual KeywordIntelligence call if available and configured
-  try {
-    // keywordAnalysis = await KeywordIntelligence.analyze(keywords);
-    // Mock response for demonstration:
-    await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate async call
-    keywordAnalysis = keywords.map((kw) => ({
-      keyword: kw,
-      isProhibited: Math.random() > 0.9, // Mock 10% chance of being prohibited
-      score: Math.floor(Math.random() * 100),
-      confidence: Math.random(),
-      matchType: 'exact',
-    }));
-  } catch (analysisError) {
-    console.error(
-      `Keyword analysis failed for product "${row.product}":`,
-      analysisError,
-    );
-    // Handle analysis failure, e.g., add an issue/suggestion
-  }
+  // try {
+  //   // keywordAnalysis = await KeywordIntelligence.analyze(keywords);
+  //   // Mock response for demonstration:
+  //   await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate async call
+  //   keywordAnalysis = keywords.map((kw) => ({
+  //     keyword: kw,
+  //     isProhibited: Math.random() > 0.9, // Mock 10% chance of being prohibited
+  //     score: Math.floor(Math.random() * 100),
+  //     confidence: Math.random(),
+  //     matchType: 'exact',
+  //   }));
+  // } catch (analysisError) {
+  //   console.error(
+  //     `Keyword analysis failed for product "${row.product}":`,
+  //     analysisError,
+  //   );
+  //   // Handle analysis failure, e.g., add an issue/suggestion
+  // }
   // --- END MOCK ---
 
   const baseData: Omit<ListingData, 'score' | 'issues' | 'suggestions'> = {
@@ -423,7 +429,7 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
     bulletPoints,
     images: isNaN(images) ? 0 : images,
     keywords,
-    keywordAnalysis,
+    keywordAnalysis: [], // keywordData, // Use the fetched keyword data
   };
 
   const analysis = calculateScoreAndIssues(baseData);
@@ -487,6 +493,10 @@ export default function ListingQualityChecker() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [asin, setAsin] = useState('');
 
+  const [keywords, setKeywords] = useState<string[]>([]); // Add keywords state
+
+  const { keywordData } = useAmazonData(keywords); // Use the useAmazonData hook
+
   // Enhance scoring with weighted criteria
   // const calculateScore = (listing: ListingData) => { // Removed duplicate function
   //   // Add weights from real-world performance data
@@ -499,504 +509,298 @@ export default function ListingQualityChecker() {
   //   // Placeholder: Integrate the scoring logic here
   // };
 
-  // Add AI validation metrics tracking
-  // const [metrics, setMetrics] = useState({ // Removed unused state
-  //   suggestionAccuracy: 0,
-  //   acceptanceRate: 0,
-  //   effectivenessScore: 0
-  // });
-  const fileInputRef = useRef<HTMLInputElement>(null); // Corrected ref type
-
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
       setIsLoading(true);
       setError(undefined);
       setListings([]);
 
+      const file = event.target.files?.[0];
+      if (!file) {
+        setIsLoading(false);
+        return;
+      }
+
       const reader = new FileReader();
+
       reader.onload = async (e) => {
         try {
-          const target = e.target as FileReader;
-          const content = target.result;
-          if (typeof content !== 'string') {
-            throw new Error('Invalid file content');
-          }
-          const processedData = await parseAndProcessCsv(content);
-          setListings(processedData);
-          setError(undefined);
-          toast({
-            title: 'Success',
-            description: `${file.name} processed successfully with ${processedData.length} listings.`,
-            variant: 'default',
-          });
-        } catch (uploadError) {
+          const content = e.target?.result as string;
+          const processedListings = await parseAndProcessCsv(content);
+          setListings(processedListings);
+        } catch (processError) {
           const errorMessage =
-            uploadError instanceof Error
-              ? uploadError.message
-              : 'An unknown error occurred during file processing';
-          setError(`An error occurred: ${errorMessage}`);
-          setListings([]);
+            processError instanceof Error
+              ? processError.message
+              : 'Failed to process CSV data.';
+          setError(errorMessage);
           toast({
+            variant: 'destructive',
             title: 'Error Processing CSV',
             description: errorMessage,
-            variant: 'destructive',
           });
         } finally {
           setIsLoading(false);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
         }
       };
+
       reader.onerror = () => {
-        setError('Failed to read the file.');
+        setError('Failed to read the CSV file.');
         toast({
-          title: 'Error Reading File',
-          description: 'Could not read the selected file.',
           variant: 'destructive',
+          title: 'Error Reading File',
+          description: 'Failed to read the CSV file.',
         });
         setIsLoading(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
       };
+
       reader.readAsText(file);
     },
     [toast],
   );
 
-  const fetchAsinDataMock = async (
-    asinToCheck: string,
-  ): Promise<ListingData> => {
-    try {
-      const response = await fetch(`/api/amazon/listing/${asinToCheck}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ASIN data: ${response.statusText}`);
-      }
-
-      const data: AsinData = await response.json();
-
-      // FIX: Join description array into a string
-      const descriptionString = Array.isArray(data.description)
-        ? data.description.join('\n') // Join with newlines or spaces as appropriate
-        : data.description || ''; // Handle case where it might already be a string or null/undefined
-
-      const row: CSVRow = {
-        product: `Product (ASIN: ${asinToCheck})`,
-        title: data.title || '',
-        description: descriptionString, // Use the joined string
-        bullet_points: data.bulletPoints?.join(';') || '',
-        images: String(data.imageCount || 0),
-        keywords: data.keywords?.join(',') || '',
-        asin: asinToCheck,
-      };
-
-      const processedListing = await processCSVRow(row);
-
-      return {
-        ...processedListing,
-        brand: data.brand,
-        category: data.category,
-        rating: data.rating,
-        reviewCount: data.reviewCount,
-      };
-    } catch (error) {
-      console.error('Error fetching ASIN data:', error);
-      throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch ASIN data',
-      );
-    }
+  const fetchAsinDataMock = async (asin: string): Promise<AsinData> => {
+    // Mock API call
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      title: `Mock Title for ASIN ${asin}`,
+      description: [
+        'Mock description line 1',
+        'Mock description line 2',
+        'Mock description line 3',
+      ],
+      bulletPoints: [
+        'Mock bullet point 1',
+        'Mock bullet point 2',
+        'Mock bullet point 3',
+      ],
+      imageCount: 5,
+      keywords: ['mock keyword 1', 'mock keyword 2', 'mock keyword 3'],
+    };
   };
 
   const handleAsinCheck = useCallback(async () => {
-    const trimmedAsin = asin.trim();
-    if (!trimmedAsin) {
-      setError('Please enter an ASIN');
-      toast({
-        title: 'Input Required',
-        description: 'Please enter an ASIN to check.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!/^[A-Z0-9]{10}$/i.test(trimmedAsin)) {
-      setError('Invalid ASIN format. Should be 10 alphanumeric characters.');
-      toast({
-        title: 'Invalid Format',
-        description: 'ASIN should be 10 letters/numbers.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsLoading(true);
     setError(undefined);
+    setListings([]);
 
     try {
-      const newListing = await fetchAsinDataMock(trimmedAsin);
-
-      if (listings.some((l) => l.product.includes(`(ASIN: ${trimmedAsin})`))) {
-        toast({
-          title: 'ASIN Already Added',
-          description: `Analysis for ASIN ${trimmedAsin} is already displayed.`,
-          variant: 'default',
-        });
-      } else {
-        setListings((prevListings) => [...prevListings, newListing]);
-        toast({
-          title: 'ASIN Check Complete',
-          description: `Analysis for ${trimmedAsin} added.`,
-          variant: 'default',
-        });
-      }
-      setAsin('');
-      setError(undefined);
-    } catch (apiError) {
-      const errorMessage =
-        apiError instanceof Error
-          ? apiError.message
-          : 'Failed to fetch or analyze ASIN data.';
-      setError(`An error occurred: ${errorMessage}`);
+      const asinData = await fetchAsinDataMock(asin);
+      // Transform AsinData to ListingData
+      const listingData: ListingData = {
+        product: asinData.title,
+        title: asinData.title,
+        description: asinData.description.join('\n'),
+        bulletPoints: asinData.bulletPoints,
+        images: asinData.imageCount,
+        keywords: asinData.keywords,
+        score: 75, // Mock score
+        issues: [],
+        suggestions: [],
+      };
+      setListings([listingData]);
+    } catch (e) {
+      setError('Failed to fetch ASIN data.');
       toast({
-        title: 'ASIN Check Failed',
-        description: errorMessage,
         variant: 'destructive',
+        title: 'Error Fetching ASIN Data',
+        description: 'Failed to fetch ASIN data.',
       });
     } finally {
       setIsLoading(false);
     }
-  }, [asin, toast, listings]);
+  }, [asin, toast]);
 
   const clearData = useCallback(() => {
     setListings([]);
     setError(undefined);
-    setAsin('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    toast({
-      title: 'Data Cleared',
-      description: 'All listing analysis results have been removed.',
-      variant: 'default',
-    });
-  }, [toast]);
+  }, []);
 
   const handleExport = useCallback(() => {
     if (listings.length === 0) {
-      setError('No data to export.');
       toast({
-        title: 'Export Error',
-        description: 'No analysis results to export.',
-        variant: 'destructive',
+        description: 'No data to export.',
       });
       return;
     }
-    setError(undefined);
 
     const exportData = listings.map((l) => ({
       Product: l.product,
+      Title: l.title,
+      Description: l.description,
+      'Bullet Points': l.bulletPoints?.join('; '),
+      Images: l.images,
+      Keywords: l.keywords?.join(', '),
       Score: l.score,
-      Title_Present: l.title ? 'Yes' : 'No',
-      Description_Present: l.description ? 'Yes' : 'No',
-      Bullet_Points_Count: l.bulletPoints?.length ?? 0,
-      Image_Count: l.images ?? 0,
-      Keywords_Count: l.keywords?.length ?? 0,
       Issues: l.issues.join('; '),
       Suggestions: l.suggestions.join('; '),
     }));
 
-    try {
-      const csv = Papa.unparse(exportData);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'listing_quality_analysis.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      toast({
-        title: 'Export Successful',
-        description: 'Analysis results exported to CSV.',
-        variant: 'default',
-      });
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'An unknown error occurred during export.';
-      setError(`Failed to export data: ${message}`);
-      toast({
-        title: 'Export Failed',
-        description: message,
-        variant: 'destructive',
-      });
-    }
+    const csv = Papa.unparse(exportData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'listing_analysis.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ description: 'CSV file downloaded.' });
   }, [listings, toast]);
 
   return (
-    <div className="space-y-6">
-      {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
-        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-        <div className="text-sm text-blue-700 dark:text-blue-300">
-          <p className="font-medium">How it Works:</p>
-          <ul className="list-disc list-inside ml-4">
-            <li>
-              Upload a CSV with listing details (product, title, description,
-              bullet_points, images, keywords).
-            </li>
-            {/* FIX: Moved list items inside the ul */}
-            <li>
-              Alternatively, enter an ASIN to fetch and analyze (mock data used
-              for demo).
-            </li>
-            <li>
-              The tool checks for completeness, length requirements, and keyword
-              presence.
-            </li>
-            <li>
-              A quality score (0-100) is calculated based on detected issues.
-            </li>
-            <li>View issues and suggestions for each listing.</li>
-          </ul>
-        </div>
-        {/* FIX: Added missing closing div tag */}
-      </div>
-
-      {/* Input Section */}
+    <DataCard>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CSV Upload Card */}
         <DataCard>
-          {/* Using CardContent directly for padding control */}
           <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center gap-4 text-center">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Upload className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Upload Listings CSV</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Bulk analyze listings from a CSV file
-                </p>
-              </div>
-              <div className="w-full">
-                <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
-                  <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                  <span className="text-sm font-medium">
-                    Click or drag CSV file here
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    (Requires: {REQUIRED_COLUMNS.join(', ')})
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv, text/csv"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={isLoading}
-                    ref={fileInputRef} // Corrected ref assignment
-                  />
-                </label>
-                <SampleCsvButton
-                  dataType="keyword" // Assuming 'keyword' type provides the correct sample format
-                  fileName="sample-listing-quality.csv"
-                  className="mt-4"
+            <div className="w-full">
+              <Label
+                htmlFor="file-upload"
+                className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5"
+              >
+                <Upload className="h-8 w-8 text-primary" />
+                <span className="mt-2 text-sm font-semibold text-muted-foreground">
+                  Upload a CSV File
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Drag 'n' drop your CSV file here, or click to select files
+                </span>
+                <Input
+                  id="file-upload"
+                  type="file"
+                  className="sr-only"
+                  accept=".csv"
+                  onChange={handleFileUpload}
                 />
-              </div>
+              </Label>
+              <SampleCsvButton dataType="keyword" />
             </div>
           </CardContent>
         </DataCard>
-
-        {/* ASIN Check Card */}
         <DataCard>
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
-              Check Single Listing by ASIN
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="asin-input" className="text-sm font-medium">
-                  Amazon ASIN
-                </Label>
-                <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                  <Input
-                    id="asin-input"
-                    value={asin}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setAsin(e.target.value)
-                    }
-                    placeholder="Enter ASIN (e.g., B08N5KWB9H)"
-                    className="flex-grow"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    onClick={handleAsinCheck}
-                    disabled={isLoading || !asin.trim()}
-                    className="w-full sm:w-auto"
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    {isLoading ? 'Checking...' : 'Check ASIN'}
-                  </Button>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Uses mock data for demonstration. Replace with actual API
-                  call.
-                </p>
+            <div className="space-y-2">
+              <Label htmlFor="asin">Check by ASIN</Label>
+              <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                <Input
+                  type="text"
+                  id="asin"
+                  placeholder="Enter ASIN"
+                  value={asin}
+                  onChange={(e) => setAsin(e.target.value)}
+                />
+                <Button type="submit" onClick={handleAsinCheck}>
+                  <Search className="w-4 h-4 mr-2" />
+                  Check
+                </Button>
               </div>
-            </div>
-            {/* Display error specific to ASIN check if needed */}
-            {error && asin && (
               <Card className="mt-4 bg-destructive/10 text-destructive">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5" />
-                    <h3 className="font-semibold">ASIN Check Error</h3>
-                  </div>
-                  <div className="mt-3 text-sm">{error}</div>
-                </CardContent>
+                {error && asin && (
+                  <CardContent className="p-4">
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    {error}
+                  </CardContent>
+                )}
               </Card>
-            )}
+            </div>
           </CardContent>
         </DataCard>
-        {/* FIX: Added missing closing div tag for the grid */}
       </div>
-
-      {/* Action Buttons */}
-      {listings.length > 0 && !isLoading && (
-        <div className="flex justify-end gap-2 mb-6">
-          <Button variant="outline" onClick={handleExport} disabled={isLoading}>
-            <Download className="mr-2 h-4 w-4" />
-            Export Results
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={clearData}
-            disabled={isLoading}
-          >
-            <X className="mr-2 h-4 w-4" />
-            Clear Results
-          </Button>
-        </div>
-      )}
-
-      {/* General Error Display (for CSV upload/processing) */}
-      {error &&
-        !asin && ( // Only show general error if not related to ASIN check
-          <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-      {/* Results Section */}
+      <div className="flex justify-end gap-2 mb-6">
+        <Button variant="outline" onClick={handleExport} disabled={isLoading}>
+          <Download className="w-4 h-4 mr-2" />
+          Export CSV
+        </Button>
+        <Button variant="destructive" onClick={clearData}>
+          <X className="w-4 h-4 mr-2" />
+          Clear Data
+        </Button>
+      </div>
       {listings.length > 0 && !isLoading && (
         <DataCard>
           <CardContent className="p-4 space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-3">
-              Analysis Results ({listings.length} Listings)
-            </h2>
-            <div className="space-y-4">
-              {listings.map((listing, index) => (
-                <Card key={`${listing.product}-${index}`}>
-                  <CardHeader>
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{listing.product}</span>
-                      <Badge variant={getBadgeVariant(listing.score)}>
-                        Score: {listing.score}/100
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="details">
-                        <AccordionTrigger>Details</AccordionTrigger>
-                        <AccordionContent className="text-sm space-y-1">
-                          <p>
-                            <strong>Title:</strong> {listing.title || 'N/A'}
-                          </p>
-                          <p>
-                            <strong>Bullet Points:</strong>{' '}
-                            {listing.bulletPoints?.length ?? 0}
-                          </p>
-                          <p>
-                            <strong>Images:</strong> {listing.images ?? 0}
-                          </p>
-                          <p>
-                            <strong>Keywords:</strong>{' '}
-                            {listing.keywords?.length ?? 0}
-                          </p>
-                          {listing.rating !== undefined && (
-                            <p>
-                              <strong>Rating:</strong>{' '}
-                              {listing.rating.toFixed(1)}/5.0
-                            </p>
-                          )}
-                          {listing.reviewCount !== undefined && (
-                            <p>
-                              <strong>Reviews:</strong> {listing.reviewCount}
-                            </p>
-                          )}
-                        </AccordionContent>
-                      </AccordionItem>
-                      <AccordionItem value="issues">
-                        <AccordionTrigger>
-                          Issues ({listing.issues.length})
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          {listing.issues.length > 0 ? (
-                            <ul className="list-disc pl-4 space-y-1 text-sm text-red-700 dark:text-red-300">
-                              {listing.issues.map((issue, i) => (
-                                <li key={`issue-${index}-${i}`}>{issue}</li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground italic">
-                              No major issues detected.
-                            </p>
-                          )}
-                        </AccordionContent>
-                      </AccordionItem>
-                      <AccordionItem value="suggestions">
-                        <AccordionTrigger>
-                          Suggestions ({listing.suggestions.length})
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          {listing.suggestions.length > 0 ? (
-                            <ul className="list-disc pl-4 space-y-1 text-sm text-blue-700 dark:text-blue-300">
-                              {listing.suggestions.map((suggestion, i) => (
-                                <li key={`suggestion-${index}-${i}`}>
-                                  {suggestion}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground italic">
-                              No specific suggestions.
-                            </p>
-                          )}
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {listings.map((listing, index) => (
+              <Card key={`${listing.product}-${index}`}>
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-center">
+                    {listing.product}
+                    <Badge variant={getBadgeVariant(listing.score)}>
+                      {listing.score} / 100
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="details">
+                      <AccordionTrigger>
+                        <Info className="w-4 h-4 mr-2" />
+                        Details
+                      </AccordionTrigger>
+                      <AccordionContent className="text-sm space-y-1">
+                        <div>
+                          <strong>Title:</strong> {listing.title}
+                        </div>
+                        <div>
+                          <strong>Description:</strong> {listing.description}
+                        </div>
+                        <div>
+                          <strong>Bullet Points:</strong>
+                          <ul>
+                            {listing.bulletPoints?.map((bp, i) => (
+                              <li key={i}>{bp}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <strong>Images:</strong> {listing.images}
+                        </div>
+                        <div>
+                          <strong>Keywords:</strong>{' '}
+                          {listing.keywords?.join(', ')}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="issues">
+                      <AccordionTrigger>
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Issues
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {listing.issues.length > 0 ? (
+                          <ul>
+                            {listing.issues.map((issue, i) => (
+                              <li key={i}>{issue}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          'No issues found.'
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="suggestions">
+                      <AccordionTrigger>
+                        <FileText className="w-4 h-4 mr-2" />
+                        Suggestions
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {listing.suggestions.length > 0 ? (
+                          <ul>
+                            {listing.suggestions.map((suggestion, i) => (
+                              <li key={i}>{suggestion}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          'No suggestions available.'
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </CardContent>
+              </Card>
+            ))}
           </CardContent>
         </DataCard>
       )}
-      {/* FIX: Added missing closing div tag for the main component div */}
-    </div>
+    </DataCard>
   );
 }
