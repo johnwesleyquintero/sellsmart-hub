@@ -10,12 +10,12 @@ A modern, responsive portfolio website showcasing my skills, projects, and profe
 
 - Modern, responsive UI with dark/light mode support.
 - Advanced Amazon Seller Tools suite including:
-  - ACoS Calculator with historical trend analysis and predictive modeling
-  - Competitor Analyzer with real-time pricing intelligence
-  - FBA Calculator with advanced CSV processing
-  - Keyword Deduplicator with AI-powered suggestions
-  - Product Score Calculation tool
-  - Optimal Price Calculator
+  - ACoS Calculator with historical trend analysis and predictive modeling. **Example:** Use this tool to analyze your Amazon advertising campaign performance and predict future profitability based on historical data.
+- Competitor Analyzer with real-time pricing intelligence. **Example:** Use this tool to monitor your competitors' pricing strategies and adjust your own prices accordingly to maximize sales.
+- FBA Calculator with advanced CSV processing. **Example:** Use this tool to calculate your FBA fees and profitability for different products and scenarios by uploading a CSV file containing product data.
+- Keyword Deduplicator with AI-powered suggestions. **Example:** Use this tool to identify and remove duplicate keywords from your Amazon advertising campaigns, improving campaign efficiency and reducing wasted ad spend.
+- Product Score Calculation tool. **Example:** Use this tool to evaluate the overall quality and potential of your product listings based on various factors such as reviews, ratings, and sales data.
+- Optimal Price Calculator. **Example:** Use this tool to determine the optimal price for your products based on factors such as cost, demand, and competitor pricing.
 - Integrated blog with MDX support, rich typography, and related posts suggestions.
 
 ### Enhanced Resume Download
@@ -160,13 +160,13 @@ cp .env.example .env
 
 ## Tools Documentation
 
-| Tool Name            | Status  | Version | Core Features                         | Implementation Status                   | Planned Enhancements                    |
-| -------------------- | ------- | ------- | ------------------------------------- | --------------------------------------- | --------------------------------------- |
-| ACoS Calculator      | Active  | 1.5.0   | Campaign tracking, Revenue analysis   | Core functionality complete             | Advanced visualization, Export options  |
-| PPC Campaign Auditor | Beta    | 0.9.0   | Performance metrics, Bid optimization | Basic metrics implemented               | AI-powered suggestions, Trend analysis  |
-| Description Editor   | Active  | 1.5.0   | HTML formatting, Keyword integration  | Core functionality complete             | Enhanced SEO tools, Mobile optimization |
-| Keyword Deduplicator | Active  | 1.5.0   | Bulk processing, Duplicate detection  | Core functionality with pending updates | AI suggestions, Performance tracking    |
-| Competitor Analyzer  | Planned | -       | Market research, Pricing analysis     | In development                          | Data enrichment, Automated monitoring   |
+| Tool Name            | Status | Version | Core Features                         | Implementation Status                   | Planned Enhancements                    |
+| -------------------- | ------ | ------- | ------------------------------------- | --------------------------------------- | --------------------------------------- |
+| ACoS Calculator      | Active | 1.5.0   | Campaign tracking, Revenue analysis   | Core functionality complete             | Advanced visualization, Export options  |
+| PPC Campaign Auditor | Beta   | 0.9.0   | Performance metrics, Bid optimization | Basic metrics implemented               | AI-powered suggestions, Trend analysis  |
+| Description Editor   | Active | 1.5.0   | HTML formatting, Keyword integration  | Core functionality complete             | Enhanced SEO tools, Mobile optimization |
+| Keyword Deduplicator | Active | 1.5.0   | Bulk processing, Duplicate detection  | Core functionality with pending updates | AI suggestions, Performance tracking    |
+| Competitor Analyzer  | Active | 1.0.0   | Market research, Pricing analysis     | Core functionality complete             | Data enrichment, Automated monitoring   |
 
 ---
 
