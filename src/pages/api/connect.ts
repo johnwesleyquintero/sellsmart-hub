@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { validateKeywords } from '@/lib/input-validation';
 import { fetchKeywordAnalysis } from '../../lib/api/keyword-analysis';
 import { rateLimitRequest } from '../../lib/api/rate-limiter';
 
@@ -11,6 +12,12 @@ export default async function handler(
     if (req.method === 'POST') {
       try {
         const keywords = req.body.keywords as string[];
+        const errors = validateKeywords(keywords);
+
+        if (errors.length > 0) {
+          return res.status(400).json({ error: errors.join(', ') });
+        }
+
         const analysisResults = await fetchKeywordAnalysis(keywords);
         res.status(200).json(analysisResults);
       } catch (error: any) {

@@ -7,6 +7,7 @@ interface HeaderProps {
   error: string | null;
   onRefresh: () => void;
   onExport: () => void;
+  onInvalidateCache: () => void;
 }
 
 export function UnifiedDashboardHeader({
@@ -14,6 +15,7 @@ export function UnifiedDashboardHeader({
   error,
   onRefresh,
   onExport,
+  onInvalidateCache,
 }: Readonly<HeaderProps>) {
   return (
     <div className="flex justify-between items-center mb-6" aria-live="polite">
@@ -52,6 +54,9 @@ export function UnifiedDashboardHeader({
               <BookOpen className="w-4 h-4 mr-2" />
               Docs
             </a>
+          </Button>
+          <Button variant="destructive" onClick={onInvalidateCache} aria-label="Invalidate Cache">
+            Invalidate Cache
           </Button>
         </div>
       </div>

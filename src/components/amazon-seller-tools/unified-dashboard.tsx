@@ -7,12 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
 import React, { useCallback, useRef, useState } from 'react';
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -22,197 +17,260 @@ import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Tool Components
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import CsvDataMapper from './CsvDataMapper'; // <--- IMPORT CsvDataMapper
-import AcosCalculator from './acos-calculator';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFuzzyRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { AlertCircle, Loader2, SlidersHorizontal, Table } from 'lucide-react';
+import CsvDataMapper from './CsvDataMapper';
+import { ManualFbaForm } from './ManualFbaForm';
 import { CompetitorAnalyzer } from './competitor-analyzer';
-import DescriptionEditor from './description-editor';
-import FbaCalculator from './fba-calculator';
-import KeywordDeduplicator from './keyword-deduplicator';
-import KeywordTrendAnalyzer from './keyword-trend-analyzer';
-import ListingQualityChecker from './listing-quality-checker';
-import OptimalPriceCalculator from './optimal-price-calculator';
-import PpcCampaignAuditor from './ppc-campaign-auditor';
-import ProductScoreCalculator from './product-score-calculator';
-import ProfitMarginCalculator from './profit-margin-calculator';
-import SalesEstimator from './sales-estimator';
+import { DescriptionEditor } from './description-editor';
+import { InventoryManagement } from './inventory-management';
+import { KeywordDeduplicator } from './keyword-deduplicator';
+import { KeywordTrendAnalyzer } from './keyword-trend-analyzer';
+import { ListingQualityChecker } from './listing-quality-checker';
+import { OptimalPriceCalculator } from './optimal-price-calculator';
+import { PpcAnalyzer } from './ppc-analyzer';
 
-// --- Interface ---
-// Define DashboardMetrics interface ONCE
-export interface DashboardMetrics {
-  date: string;
-  sales: number;
-  profit: number;
-  acos: number;
-  impressions: number;
-  clicks: number;
-  conversion_rate: number;
-  inventory_level: number;
-  review_rating: number;
-  orders?: number;
-  sessions?: number;
-  // Add index signature to satisfy Record<string, unknown> constraint
-  [key: string]: unknown;
+const columns: ColumnDef<any>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+        className="translate-y-[2px]"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px]"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'id',
+    header: 'ID',
+  },
+  {
+    accessorKey: 'firstName',
+    header: 'First Name',
+  },
+  {
+    accessorKey: 'lastName',
+    header: 'Last Name',
+  },
+  {
+    accessorKey: 'age',
+    header: 'Age',
+  },
+  {
+    accessorKey: 'email',
+    header: 'Email',
+  },
+  {
+    accessorKey: 'city',
+    header: 'City',
+  },
+  {
+    accessorKey: 'country',
+    header: 'Country',
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+  },
+];
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
-// --- Target Metrics for Mapper ---
-// Define the structure and requirements for mapping
-const TARGET_METRICS_CONFIG: {
-  key: keyof DashboardMetrics;
-  label: string;
-  required: boolean;
-}[] = [
-  { key: 'date', label: 'Date/Period', required: true },
-  { key: 'sales', label: 'Sales ($)', required: true },
-  { key: 'impressions', label: 'Impressions', required: false }, // Make optional if not always needed for initial view
-  { key: 'clicks', label: 'Clicks', required: false }, // Make optional
-  { key: 'orders', label: 'Orders/Units', required: true }, // Required for Conversion Rate
-  { key: 'sessions', label: 'Sessions/Views', required: true }, // Required for Conversion Rate
-  // Add other optional metrics if needed for direct mapping
-  // { key: 'profit', label: 'Profit ($)', required: false },
-  // { key: 'acos', label: 'ACoS (%)', required: false },
-  // { key: 'inventory_level', label: 'Inventory Level', required: false },
-  // { key: 'review_rating', label: 'Review Rating', required: false },
-];
+function DataTable<TData, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
-// --- Sample Data ---
-const SAMPLE_CARD_DATA = {
-  conversion_rate: 5.21,
-  total_sales: 12345.67,
-  avg_clicks: 152.3,
-};
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFuzzyRowModel: getFuzzyRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    debug: false,
+  });
 
-const SAMPLE_CHART_DATA: DashboardMetrics[] = [
-  {
-    date: 'Jan',
-    sales: 8500,
-    clicks: 120,
-    impressions: 15000,
-    conversion_rate: 4.5,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 5,
-    sessions: 111,
-  },
-  {
-    date: 'Feb',
-    sales: 9200,
-    clicks: 135,
-    impressions: 16500,
-    conversion_rate: 5.0,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 7,
-    sessions: 140,
-  },
-  {
-    date: 'Mar',
-    sales: 11500,
-    clicks: 160,
-    impressions: 18000,
-    conversion_rate: 5.5,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 9,
-    sessions: 164,
-  },
-  {
-    date: 'Apr',
-    sales: 10800,
-    clicks: 150,
-    impressions: 17500,
-    conversion_rate: 5.3,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 8,
-    sessions: 151,
-  },
-  {
-    date: 'May',
-    sales: 12500,
-    clicks: 175,
-    impressions: 19000,
-    conversion_rate: 5.8,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 10,
-    sessions: 172,
-  },
-  {
-    date: 'Jun',
-    sales: 13100,
-    clicks: 180,
-    impressions: 20000,
-    conversion_rate: 6.0,
-    profit: 0,
-    acos: 0,
-    inventory_level: 0,
-    review_rating: 0,
-    orders: 11,
-    sessions: 183,
-  },
-];
-
-// --- Placeholder Components ---
-const PlaceholderCard = ({
-  title,
-  value,
-  unit,
-  description,
-  colorClass = 'text-gray-600',
-}: {
-  title: string;
-  value: string | number;
-  unit?: string;
-  description: string;
-  colorClass?: string;
-}) => (
-  <Card className="opacity-75">
-    <CardContent className="p-4">
-      <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-        {title}
-      </h3>
-      <div className={`text-3xl font-bold ${colorClass}`}>
-        {typeof value === 'number'
-          ? value.toLocaleString(undefined, {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            })
-          : value}
-        {unit}
+  return (
+    <div className="w-full">
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter emails..."
+          value={(table.getColumn('email')?.getFilterValue() ?? '') as string}
+          onChange={(event) =>
+            table.getColumn('email')?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm shrink"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columns <SlidersHorizontal className="h-4 w-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[150px]">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="text-sm text-gray-500 mt-1">{description}</div>
-    </CardContent>
-  </Card>
-);
-
-// Define PlaceholderChartContainer ONCE
-const PlaceholderChartContainer = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <Card className="opacity-75">
-    <CardContent className="p-4">
-      <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
-        {title} <span className="text-sm font-normal">(Sample Data)</span>
-      </h3>
-      {children}
-    </CardContent>
-  </Card>
-);
+      <div className="rounded-md border">
+        <Table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <th key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <div
+                          {...{
+                            className: header.column.getCanSort()
+                              ? 'cursor-pointer select-none'
+                              : '',
+                            onClick: header.column.getCanSort()
+                              ? () => {
+                                  table.setSorting([
+                                    {
+                                      id: header.column.id,
+                                      desc:
+                                        header.column.getIsSorted() === 'asc',
+                                    },
+                                  ]);
+                                }
+                              : undefined,
+                          }}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                          {{
+                            asc: <span className="ml-2">▲</span>,
+                            desc: <span className="ml-2">▼</span>,
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-between space-x-2 py-2">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredRowModel().rows.length} of{' '}
+          {table.getCoreRowModel().rows.length} row(s)
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // --- Helper Functions for Data Processing ---
 
@@ -301,7 +359,8 @@ const transformCsvRow = (
 };
 
 // --- Component ---
-// Define UnifiedDashboard component ONCE
+import { useCacheStore } from '@/stores/cache-store';
+
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [metrics, setMetrics] = useState<DashboardMetrics[]>([]);
@@ -309,6 +368,7 @@ export default function UnifiedDashboard() {
   const [isParsing, setIsParsing] = useState(false); // Specific state for file parsing/processing
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const invalidateCache = useCacheStore((state) => state.invalidateCache);
 
   // --- NEW State for Mapping ---
   const [showMapper, setShowMapper] = useState(false);
@@ -498,344 +558,185 @@ export default function UnifiedDashboard() {
   // --- Refactored Rendering Logic for Overview Tab ---
   const renderOverviewContent = () => {
     if (isParsing) {
-      // --- Processing State ---
       return (
         <Card>
           <CardContent className="p-6 flex flex-col items-center justify-center min-h-[300px]">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-lg text-muted-foreground">
-              {showMapper ? 'Loading Mapper...' : 'Processing data...'}
-            </p>
+            <Loader2 className="h-10 w-10 animate-spin" />
+            <p className="mt-4 text-gray-500">Processing report data...</p>
           </CardContent>
         </Card>
       );
     }
 
-    if (showMapper && csvHeaders.length > 0) {
-      // --- Show Mapper ---
+    if (showMapper) {
       return (
         <CsvDataMapper
-          csvHeaders={csvHeaders}
+          headers={csvHeaders}
           targetMetrics={TARGET_METRICS_CONFIG}
           onMappingComplete={handleMappingComplete}
-          onCancel={handleMappingCancel}
-          title="Map Business Report Columns"
-          key={csvHeaders.join('-')}
-          description="Match the columns from your uploaded Business Report CSV to the required dashboard fields. Required fields are needed for calculations."
+          onMappingCancel={handleMappingCancel}
         />
       );
     }
 
-    if (error && !isLoading) {
-      // --- Error State ---
+    if (error) {
       return (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {error}
-            <Button
-              variant="link"
-              className="p-0 h-auto ml-2 text-destructive"
-              onClick={handleUploadClick} // Use the modified upload click handler
-            >
-              Try uploading again?
-            </Button>
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       );
     }
 
-    if (metrics.length > 0) {
-      // --- Real Data Display ---
-      return (
-        <>
-          {/* Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2">
-                  Avg. Conversion Rate
-                </h3>
-                <div className="text-3xl font-bold text-blue-600">
-                  {(metrics.length > 0
-                    ? metrics.reduce((sum, m) => sum + m.conversion_rate, 0) /
-                      metrics.length
-                    : 0
-                  ).toFixed(2) ?? 'N/A'}
-                  %
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Avg. (Orders/Sessions) from Report
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2">Total Sales</h3>
-                <div className="text-3xl font-bold text-green-600">
-                  $
-                  {metrics
-                    .reduce((sum, m) => sum + m.sales, 0)
-                    .toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }) ?? 'N/A'}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Sum from Report Period
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2">Avg. Clicks</h3>
-                <div className="text-3xl font-bold text-yellow-600">
-                  {(metrics.length > 0
-                    ? metrics.reduce((sum, m) => sum + m.clicks, 0) /
-                      metrics.length
-                    : 0
-                  ).toFixed(1) ?? 'N/A'}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Average from Report
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Sales Trends</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={metrics}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value: number) =>
-                        `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      }
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#8884d8"
-                      name="Sales"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  Clicks & Impressions
-                </h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metrics}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                    <YAxis
-                      yAxisId="right"
-                      orientation="right"
-                      stroke="#82ca9d"
-                    />
-                    <Tooltip />
-                    <Legend />
-                    <Bar
-                      yAxisId="left"
-                      dataKey="impressions"
-                      fill="#8884d8"
-                      name="Impressions"
-                    />
-                    <Bar
-                      yAxisId="right"
-                      dataKey="clicks"
-                      fill="#82ca9d"
-                      name="Clicks"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      );
-    }
-
-    // --- Placeholder Content (Default) ---
     return (
-      <div className="space-y-4">
-        {/* Upload Area */}
-        <div className="mb-4 p-4 border rounded-md bg-muted/40">
-          <h4 className="text-lg font-medium mb-2">Load Overview Data</h4>
-          <p className="text-sm text-muted-foreground mb-3">
-            Upload an Amazon Business Report CSV to visualize your key metrics.
-            You&apos;ll be asked to map the columns after uploading.
-          </p>
-          <label htmlFor="csvFileInput">
-            <Button onClick={handleUploadClick} disabled={isParsing}>
-              {isParsing ? 'Reading File...' : 'Upload CSV'}
-            </Button>
-          </label>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".csv"
-            className="hidden"
-            id="csvFileInput"
-          />
+      <>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <Card className="opacity-75">
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+                Conversion Rate
+              </h3>
+              <div className={`text-3xl font-bold text-gray-600`}>
+                {typeof 5.21 === 'number'
+                  ? (5.21).toLocaleString(undefined, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  : 5.21}
+                %
+              </div>
+              <div className="text-sm text-gray-500 mt-1">Conversion rate</div>
+            </CardContent>
+          </Card>
+          <Card className="opacity-75">
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+                Total Sales
+              </h3>
+              <div className={`text-3xl font-bold text-gray-600`}>
+                {typeof 12345.67 === 'number'
+                  ? (12345.67).toLocaleString(undefined, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  : 12345.67}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">Total sales</div>
+            </CardContent>
+          </Card>
+          <Card className="opacity-75">
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
+                Avg. Clicks
+              </h3>
+              <div className={`text-3xl font-bold text-gray-600`}>
+                {typeof 152.3 === 'number'
+                  ? (152.3).toLocaleString(undefined, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  : 152.3}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">Average clicks</div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Placeholder Cards & Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <PlaceholderCard
-            title="Avg. Conversion Rate"
-            value={SAMPLE_CARD_DATA.conversion_rate}
-            unit="%"
-            description="Sample Data"
-            colorClass="text-blue-400"
-          />
-          <PlaceholderCard
-            title="Total Sales"
-            value={SAMPLE_CARD_DATA.total_sales.toLocaleString(undefined, {
-              style: 'currency',
-              currency: 'USD',
-            })}
-            description="Sample Data"
-            colorClass="text-green-400"
-          />
-          <PlaceholderCard
-            title="Avg. Clicks"
-            value={SAMPLE_CARD_DATA.avg_clicks}
-            description="Sample Data"
-            colorClass="text-yellow-400"
-          />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PlaceholderChartContainer title="Sales Trends">
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+              Sales Performance{' '}
+              <span className="text-sm font-normal">(Sample Data)</span>
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={SAMPLE_CHART_DATA}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                <XAxis dataKey="date" stroke="#a0a0a0" />
-                <YAxis stroke="#a0a0a0" />
-                <Tooltip
-                  formatter={(value: number) => `$${value.toLocaleString()}`}
-                />
+              <LineChart data={metrics}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="sales"
-                  stroke="#a3a0d8" // Muted color
-                  name="Sales"
-                  dot={false}
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
                 />
               </LineChart>
             </ResponsiveContainer>
-          </PlaceholderChartContainer>
-          <PlaceholderChartContainer title="Clicks & Impressions">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={SAMPLE_CHART_DATA}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                <XAxis dataKey="date" stroke="#a0a0a0" />
-                <YAxis yAxisId="left" orientation="left" stroke="#a0a0a0" />
-                <YAxis yAxisId="right" orientation="right" stroke="#a0a0a0" />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  yAxisId="left"
-                  dataKey="impressions"
-                  fill="#a3a0d8" // Muted color
-                  name="Impressions"
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="clicks"
-                  fill="#a2cabd" // Muted color
-                  name="Clicks"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </PlaceholderChartContainer>
-        </div>
-        <Card className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
-          <CardContent className="p-6 text-center">
-            <p className="text-lg font-medium text-primary dark:text-blue-300">
-              While you&apos;re here, feel free to explore the other specialized
-              tools available in the tabs above!
-            </p>
           </CardContent>
         </Card>
-      </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+              Key Metrics{' '}
+              <span className="text-sm font-normal">(Sample Data)</span>
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={metrics}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="sales" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </>
     );
   };
 
-  // --- Main Render ---
   return (
     <div className="container mx-auto p-4 space-y-4">
       <UnifiedDashboardHeader
-        isLoading={isLoading || isParsing} // Show loading for general refresh or parsing/processing
-        error={error && !showMapper ? error : null} // Don't show processing errors while mapping
         onRefresh={handleRefresh}
+        onUploadClick={handleUploadClick}
         onExport={handleExport}
+        isLoading={isLoading}
       />
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4 flex flex-wrap h-auto justify-start">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="keywords">Keywords</TabsTrigger>
+          <TabsTrigger value="keywords">Keyword Analysis</TabsTrigger>
           <TabsTrigger value="listing-optimization">
             Listing Optimization
           </TabsTrigger>
-          <TabsTrigger value="financials">Financials</TabsTrigger>
-          <TabsTrigger value="ppc-ads">PPC & Ads</TabsTrigger>
-          <TabsTrigger value="competition">Competition</TabsTrigger>
+          <TabsTrigger value="financials">Financial Analysis</TabsTrigger>
+          <TabsTrigger value="ppc-ads">PPC Ads Analysis</TabsTrigger>
+          <TabsTrigger value="competition">Competitor Analysis</TabsTrigger>
         </TabsList>
 
-        {/* --- Overview Tab --- */}
-        <TabsContent value="overview" className="space-y-4 mt-4">
-          {/* Use the refactored rendering function */}
-          {renderOverviewContent()}
-        </TabsContent>
+        <TabsContent value="overview">{renderOverviewContent()}</TabsContent>
 
-        {/* --- Other Tabs --- */}
         <TabsContent value="keywords">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Keyword Tools</h3>
               <Tabs defaultValue="analyzer" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
                   <TabsTrigger value="deduplicator">Deduplicator</TabsTrigger>
-                  <TabsTrigger value="trend">Trend Analyzer</TabsTrigger>
                 </TabsList>
+                <TabsContent value="analyzer">
+                  <KeywordTrendAnalyzer />
+                </TabsContent>
                 <TabsContent value="deduplicator">
                   <KeywordDeduplicator />
-                </TabsContent>
-                <TabsContent value="trend">
-                  <KeywordTrendAnalyzer />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="listing-optimization">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-xl font-semibold mb-4">
-                Listing Optimization Tools
-              </h3>
               <Tabs defaultValue="editor" className="w-full">
                 <TabsList className="mb-4">
-                  <TabsTrigger value="editor">Description Editor</TabsTrigger>
+                  <TabsTrigger value="editor">Editor</TabsTrigger>
                   <TabsTrigger value="quality">Quality Checker</TabsTrigger>
-                  <TabsTrigger value="score">Score Calculator</TabsTrigger>
                 </TabsList>
                 <TabsContent value="editor">
                   <DescriptionEditor />
@@ -843,78 +744,78 @@ export default function UnifiedDashboard() {
                 <TabsContent value="quality">
                   <ListingQualityChecker />
                 </TabsContent>
-                <TabsContent value="score">
-                  <ProductScoreCalculator />
-                </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="financials">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Financial Tools</h3>
               <Tabs defaultValue="fba" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="fba">FBA Calculator</TabsTrigger>
-                  <TabsTrigger value="acos">ACoS Calculator</TabsTrigger>
-                  <TabsTrigger value="profit">Profit Margin Calc</TabsTrigger>
-                  <TabsTrigger value="price">Optimal Price Calc</TabsTrigger>
+                  <TabsTrigger value="optimal-price">Optimal Price</TabsTrigger>
+                  <TabsTrigger value="inventory">Inventory</TabsTrigger>
                 </TabsList>
                 <TabsContent value="fba">
-                  <FbaCalculator onCalculateAction={() => {}} />
+                  <ManualFbaForm />
                 </TabsContent>
-                <TabsContent value="acos">
-                  <AcosCalculator />
-                </TabsContent>
-                <TabsContent value="profit">
-                  <ProfitMarginCalculator />
-                </TabsContent>
-                <TabsContent value="price">
+                <TabsContent value="optimal-price">
                   <OptimalPriceCalculator />
+                </TabsContent>
+                <TabsContent value="inventory">
+                  <InventoryManagement />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="ppc-ads">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-xl font-semibold mb-4">PPC & Ads Tools</h3>
               <Tabs defaultValue="auditor" className="w-full">
                 <TabsList className="mb-4">
-                  <TabsTrigger value="auditor">Campaign Auditor</TabsTrigger>
-                  {/* Add more PPC tabs if needed */}
+                  <TabsTrigger value="auditor">PPC Analyzer</TabsTrigger>
                 </TabsList>
                 <TabsContent value="auditor">
-                  <PpcCampaignAuditor />
+                  <PpcAnalyzer />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="competition">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Competition Tools</h3>
               <Tabs defaultValue="analyzer" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="analyzer">
                     Competitor Analyzer
                   </TabsTrigger>
-                  <TabsTrigger value="estimator">Sales Estimator</TabsTrigger>
                 </TabsList>
                 <TabsContent value="analyzer">
-                  <CompetitorAnalyzer onAnalyzeAction={() => {}} />
-                </TabsContent>
-                <TabsContent value="estimator">
-                  <SalesEstimator />
+                  <CompetitorAnalyzer />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Card className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
+        <CardContent className="p-6 text-center">
+          <h2 className="text-2xl font-semibold mb-4">
+            Ready to Supercharge Your Amazon Business?
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            Explore our suite of tools designed to optimize your listings,
+            analyze your competition, and maximize your profits.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -200,7 +200,7 @@ show_menu() {
     clear
     # Header
     echo -e "${ANSI_Bold}${ANSI_Cyan}╔════════════════════════════════════════════╗${ANSI_Reset}"
-    echo -e "${ANSI_Bold}${ANSI_Cyan}║          ${ANSI_Yellow}Project CLI ${VERSION}${ANSI_Cyan}          ║${ANSI_Reset}"
+    echo -e "${ANSI_Bold}${ANSI_Cyan}║         ${ANSI_Yellow}Wescore Project Cli ${VERSION}${ANSI_Cyan}          ║${ANSI_Reset}"
     echo -e "${ANSI_Bold}${ANSI_Cyan}╠════════════════════════════════════════════╣${ANSI_Reset}"
 
     # Development Section

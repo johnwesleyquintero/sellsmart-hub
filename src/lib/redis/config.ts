@@ -50,7 +50,11 @@ export const redis = new UpstashRedis(getRedisConfig());
 // Configure rate limiting
 export const rateLimiter = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, '60s'),
+  limiter: Ratelimit.slidingWindow({
+    allowedTokens: (identifier: string) =>
+      identifier === 'anonymous' ? 5 : 10,
+    window: '60 s',
+  }),
   analytics: true,
   prefix: '@upstash/ratelimit',
 });

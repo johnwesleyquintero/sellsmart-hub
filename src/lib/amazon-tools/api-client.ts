@@ -153,23 +153,6 @@ class ApiClient {
   }
 }
 
-// PPC Campaign Auditor API
-async getCampaignData(
-  params: {
-    portfolioId?: number;
-    campaignId?: number;
-    adGroupId?: number;
-    keywordId?: number;
-    startDate: string;
-    endDate: string;
-  }
-): Promise<any> {
-  return this.request('/ppc/campaign-data', {
-    method: 'POST',
-    body: JSON.stringify(params),
-  });
-}
-155 |
 // Create and export a singleton instance
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;

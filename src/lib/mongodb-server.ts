@@ -13,6 +13,7 @@ let cachedDb: Db | null = null;
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB;
+const apiKeyCollectionName = 'apiKeys';
 
 export async function connectToDatabase() {
   if (!MONGODB_URI || !MONGODB_DB) {
@@ -41,6 +42,14 @@ export async function connectToDatabase() {
 
     cachedClient = client;
     cachedDb = db;
+
+    // Create index for API keys
+    try {
+      await db.collection(apiKeyCollectionName).createIndex({ key: 1 });
+      console.log('API key index created successfully.');
+    } catch (error) {
+      console.error('Error creating API key index:', error);
+    }
 
     return { client, db };
   } catch (error: unknown) {

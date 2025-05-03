@@ -63,6 +63,10 @@ Analyze the application to identify areas for improvement that enhance functiona
 **Objective:**
 Analyze test reports, error logs, or reported issues to identify root causes, suggest fixes, and improve overall stability and test coverage. Focus on component rendering, data processing, and integration problems.
 
+**Test Directory:**
+- `@/src/__tests__`
+- `@/src/__mocks__`
+
 **Input:**
 
 - Jest Test and Quality Check Report (Main Error Log) (`@/project-cli.error.log`)

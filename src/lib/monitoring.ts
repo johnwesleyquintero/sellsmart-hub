@@ -8,6 +8,12 @@ interface PerformanceMetrics {
   ttfb: number; // Time to First Byte
 }
 
+interface CacheMetrics {
+  cacheHit: number;
+  cacheMiss: number;
+  cacheRetrievalTime: number;
+}
+
 interface LayoutShiftEntry extends PerformanceEntry {
   value: number;
   hadRecentInput: boolean;
@@ -15,6 +21,10 @@ interface LayoutShiftEntry extends PerformanceEntry {
 
 class PerformanceMonitor {
   private static instance: PerformanceMonitor;
+
+  private cacheHitCount: number = 0;
+  private cacheMissCount: number = 0;
+  private totalRetrievalTime: number = 0;
 
   private constructor() {
     if (typeof window !== 'undefined') {
@@ -78,7 +88,10 @@ class PerformanceMonitor {
     }
   }
 
-  private reportMetric(name: keyof PerformanceMetrics, value: number): void {
+  private reportMetric(
+    name: keyof PerformanceMetrics | keyof CacheMetrics,
+    value: number,
+  ): void {
     logger.info(`Performance metric: ${name}`, {
       metric: name,
       value,
@@ -116,6 +129,21 @@ class PerformanceMonitor {
       path,
       timestamp: navigationStart,
     });
+  }
+
+  public incrementCacheHit(): void {
+    this.cacheHitCount++;
+    this.reportMetric('cacheHit', this.cacheHitCount);
+  }
+
+  public incrementCacheMiss(): void {
+    this.cacheMissCount++;
+    this.reportMetric('cacheMiss', this.cacheMissCount);
+  }
+
+  public recordRetrievalTime(time: number): void {
+    this.totalRetrievalTime += time;
+    this.reportMetric('cacheRetrievalTime', time);
   }
 }
 

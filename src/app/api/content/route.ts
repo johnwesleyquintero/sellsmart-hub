@@ -5,8 +5,11 @@ import { getLinkedInExperience } from '@/lib/linkedin';
 import { logger } from '@/lib/logger';
 import { monitor } from '@/lib/monitoring';
 import { rateLimiter } from '@/lib/rate-limiter';
+import { apiKeyAuth } from '@/middleware/api-key-auth';
+import { getServerSession } from 'next-auth/next';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { authOptions } from '../auth/[...nextauth]/options';
 
 export const runtime = 'edge';
 
@@ -20,12 +23,17 @@ const contentQuerySchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const authResult = await apiKeyAuth(request);
+  if (authResult) {
+    return authResult;
+  }
   return validateApiRoute(
     request,
     contentQuerySchema,
     async (validatedData) => {
       try {
         // Apply rate limiting
+        await getServerSession(authOptions);
         const isAllowed = await rateLimiter.limit();
 
         if (!isAllowed) {
