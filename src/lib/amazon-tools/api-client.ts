@@ -1,56 +1,82 @@
-import { logError } from '../error-handling';
+import { handleApiError } from '../api/error-handler';
+import { logger } from '../api/logger';
+import { monitorApiResponseTime } from '../api/monitoring';
+import { retryRequest } from '../api/retry';
 
 interface ApiClientOptions {
   baseUrl: string;
   apiKey?: string;
   timeout?: number;
+  listingDataEndpoint?: string;
 }
 
 class ApiClient {
   private baseUrl: string;
   private apiKey?: string;
   private timeout: number;
+  private listingDataEndpoint?: string;
 
   constructor(options: ApiClientOptions) {
     this.baseUrl = options.baseUrl;
     this.apiKey = options.apiKey;
     this.timeout = options.timeout || 30000; // Default 30s timeout
+    this.listingDataEndpoint = options.listingDataEndpoint;
   }
 
-  private async request<T>(
+  public async request<T>(
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
+    const startTime = Date.now();
+    logger.info(`API Request: ${endpoint}`, {
+      url: `${this.baseUrl}${endpoint}`,
+      method: options.method || 'GET',
+      headers: options.headers,
+      body: options.body,
+    });
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+      const response = await retryRequest(async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.apiKey && { 'X-Api-Key': this.apiKey }),
-          ...options.headers,
-        },
-        signal: controller.signal,
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.apiKey && { 'X-Api-Key': this.apiKey }),
+            ...options.headers,
+          },
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(
+            `API Error: ${response.status} ${response.statusText} - ${endpoint}`,
+          );
+        }
+
+        return response;
       });
 
-      clearTimeout(timeoutId);
+      const data = await response.json();
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
 
-      if (!response.ok) {
-        throw new Error(
-          `API Error: ${response.status} ${response.statusText} - ${endpoint}`,
-        );
-      }
-
-      return response.json();
-    } catch (error) {
-      logError({
-        message: `API request failed: ${endpoint}`,
-        component: 'ApiClient',
-        severity: 'high',
-        error: error as Error,
+      logger.info(`API Response: ${endpoint}`, {
+        url: `${this.baseUrl}${endpoint}`,
+        status: response.status,
+        responseTime: responseTime,
+        data: data,
       });
+
+      await monitorApiResponseTime(`${this.baseUrl}${endpoint}`, responseTime);
+
+      return data;
+    } catch (error: any) {
+      handleApiError(error, { url: endpoint, method: options.method }, null);
       throw error;
     }
   }
@@ -117,6 +143,14 @@ class ApiClient {
       body: JSON.stringify(params),
     });
   }
+
+  // Listing Data API
+  async getListingData(asin: string): Promise<any> {
+    if (!this.listingDataEndpoint) {
+      throw new Error('Listing data endpoint is not configured.');
+    }
+    return this.request(`${this.listingDataEndpoint}/${asin}`);
+  }
 }
 
 // Create and export a singleton instance
@@ -129,4 +163,5 @@ if (!apiKey) {
 export const apiClient = new ApiClient({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.example.com',
   apiKey: apiKey,
+  listingDataEndpoint: process.env.NEXT_PUBLIC_LISTING_DATA_ENDPOINT,
 });

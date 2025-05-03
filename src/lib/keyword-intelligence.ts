@@ -1,4 +1,5 @@
-import { ProhibitedKeywords } from './prohibited-keywords';
+import { logger } from './api/logger';
+import { validateKeywords } from './input-validation';
 
 export interface KeywordAnalysis {
   keyword: string;
@@ -17,14 +18,35 @@ interface KeywordMetrics {
 }
 
 export const KeywordIntelligence = {
-  async analyze(keywords: string[]): Promise<KeywordAnalysis[]> {
-    console.log('analyze called');
-    const prohibitedKeywords = await ProhibitedKeywords.getAll();
-    return Promise.all(
-      keywords.map(async (keyword) =>
-        this.analyzeKeyword(keyword, prohibitedKeywords),
-      ),
-    );
+  async analyze(listingData: any): Promise<KeywordAnalysis[]> {
+    logger.info('Analyzing listing data', { listingData });
+
+    try {
+      // Extract keywords from listing data
+      const keywords = this.extractKeywords(listingData);
+
+      const errors = validateKeywords(keywords);
+      if (errors.length > 0) {
+        throw new Error(errors.join(', '));
+      }
+
+      // Analyze each keyword
+      const analysisResults = await Promise.all(
+        keywords.map((keyword) => this.analyzeKeyword(keyword, [])), // TODO: Fetch prohibited keywords
+      );
+
+      return analysisResults;
+    } catch (error: any) {
+      logger.error('Keyword analysis failed:', error);
+      throw new Error('Failed to analyze keywords');
+    }
+  },
+
+  extractKeywords(listingData: any): string[] {
+    // Extract keywords from title, description, and bullet points
+    const { title, description, bulletPoints } = listingData;
+    const keywords = [title, description, ...(bulletPoints || [])].join(' ');
+    return keywords.split(/\s+/);
   },
 
   async analyzeKeyword(

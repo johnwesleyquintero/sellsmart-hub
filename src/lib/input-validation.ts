@@ -44,3 +44,16 @@ export const asinSchema = z
 export const productNameSchema = z
   .string()
   .min(3, 'Product name must be at least 3 characters');
+
+// Keyword validation
+export const validateKeywords = (keywords: string[]): string[] => {
+  const errors: string[] = [];
+  if (!keywords || keywords.length === 0) {
+    errors.push('Keywords cannot be empty');
+  }
+
+  if (!keywords.every((keyword) => typeof keyword === 'string')) {
+    errors.push('Each keyword must be a string');
+  }
+  return errors;
+};
