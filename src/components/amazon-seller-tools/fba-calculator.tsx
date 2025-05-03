@@ -475,6 +475,7 @@ export default function FbaCalculator({
             <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
               Manual Calculation
             </h3>
+            :start_line:478 -------
             <ManualFbaForm
               initialValues={manualInput}
               onSubmit={async (values, errors) => {
@@ -506,160 +507,83 @@ export default function FbaCalculator({
               }}
             />
           </CardContent>
-          <div className="bg-muted/20 p-4 rounded-b-lg">
-            <h4 className="font-semibold mb-2 text-sm">
-              How to use this calculator:
-            </h4>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-              <li>Enter product details in the form</li>
-              <li>View calculated profit, ROI, and profit margin</li>
-            </ol>
-          </div>
         </DataCard>
       </div>
 
-      {/* Action Buttons (Export/Clear) */}
-      {results.length > 0 && !isLoading && (
-        <div className="flex justify-end gap-2 mb-6">
-          <Button variant="outline" onClick={handleExport} disabled={isLoading}>
-            <Download className="mr-2 h-4 w-4" />
-            Export Results
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={clearData}
-            disabled={isLoading}
-          >
-            <XCircle className="mr-2 h-4 w-4" />
-            Clear Results
-          </Button>
-        </div>
-      )}
-
-      {/* Error Display */}
+      {/* Results Display */}
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-grow break-words">{error}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setError(null)}
-            className="text-red-800 dark:text-red-400 h-6 w-6 flex-shrink-0"
-            aria-label="Dismiss error"
-          >
-            <XCircle className="h-4 w-4" />
-          </Button>
+          <AlertCircle className="h-4 w-4" />
+          <p className="text-sm">{error}</p>
         </div>
       )}
 
-      {/* Loading Indicator */}
       {isLoading && (
-        <div className="space-y-2 py-4 text-center">
-          <Progress value={undefined} className="h-2 w-1/2 mx-auto" />{' '}
-          {/* Indeterminate */}
-          <p className="text-sm text-muted-foreground">Processing data...</p>
-        </div>
+        <DataCard>
+          <CardContent className="p-0">
+            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+              <li className="p-4">Loading...</li>
+            </ol>
+          </CardContent>
+        </DataCard>
       )}
 
-      {/* Results Table */}
       {results.length > 0 && !isLoading && (
         <DataCard>
           <CardContent className="p-0">
-            {' '}
-            {/* Remove default padding for table */}
-            <h3 className="text-lg font-semibold p-4 border-b">
-              Calculation Results ({results.length} Products)
-            </h3>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="px-4 py-3 text-left font-medium whitespace-nowrap">
-                      Product
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      Cost ($)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      Price ($)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      Fees ($)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      Profit ($)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      ROI (%)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      Margin (%)
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-center font-medium whitespace-nowrap">
-                      Profitability (Margin)
-                    </TableHead>
+                    <TableHead className="px-4 py-3">Product</TableHead>
+                    <TableHead className="px-4 py-3">Cost ($)</TableHead>
+                    <TableHead className="px-4 py-3">Price ($)</TableHead>
+                    <TableHead className="px-4 py-3">Fees ($)</TableHead>
+                    <TableHead className="px-4 py-3">Profit ($)</TableHead>
+                    <TableHead className="px-4 py-3">ROI (%)</TableHead>
+                    <TableHead className="px-4 py-3">Margin (%)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {results.map((item, index) => {
-                    const profitColor =
-                      item.profit < 0 ? 'text-red-500' : 'text-green-500';
-                    const roiDisplay = isFinite(item.roi)
-                      ? `${item.roi.toFixed(2)}%`
-                      : '∞';
-                    const marginDisplay = isFinite(item.margin)
-                      ? `${item.margin.toFixed(2)}%`
-                      : '∞';
-
                     return (
                       <TableRow
                         key={`${item.product}-${index}`}
-                        className="border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+                        className="hover:bg-muted"
                       >
-                        <TableCell className="px-4 py-3 font-medium">
+                        <TableCell className="px-4 py-3">
                           {item.product}
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-right">
-                          {item.cost.toFixed(2)}
+                        <TableCell className="px-4 py-3">
+                          {formatNumber(item.cost)}
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-right">
-                          {item.price.toFixed(2)}
+                        <TableCell className="px-4 py-3">
+                          {formatNumber(item.price)}
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-right">
-                          {item.fees.toFixed(2)}
+                        <TableCell className="px-4 py-3">
+                          {formatNumber(item.fees)}
                         </TableCell>
-                        <TableCell
-                          className={`px-4 py-3 text-right font-semibold ${profitColor}`}
-                        >
-                          {item.profit.toFixed(2)}
-                        </TableCell>
-                        <TableCell
-                          className={`px-4 py-3 text-right ${item.roi < 0 ? 'text-red-500' : 'text-green-500'}`}
-                        >
-                          {roiDisplay}
-                        </TableCell>
-                        <TableCell
-                          className={`px-4 py-3 text-right ${item.margin < 0 ? 'text-red-500' : 'text-green-500'}`}
-                        >
-                          {marginDisplay}
+                        <TableCell className="px-4 py-3">
+                          {formatNumber(item.profit)}
                         </TableCell>
                         <TableCell className="px-4 py-3">
                           <div className="w-full min-w-[100px]">
-                            {' '}
-                            {/* Ensure progress bar has some width */}
                             <Progress
-                              value={Math.max(
-                                0,
-                                Math.min(
-                                  isFinite(item.margin) ? item.margin : 0,
-                                  100,
-                                ),
-                              )}
-                              className="h-2"
-                              // Optional: Add color based on value
-                              // indicatorClassName={progressValue < 10 ? 'bg-red-500' : progressValue < 25 ? 'bg-yellow-500' : 'bg-green-500'}
+                              value={item.roi}
+                              max={100}
+                              className="h-4"
                             />
+                            {formatNumber(item.roi)}%
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <div className="w-full min-w-[100px]">
+                            <Progress
+                              value={item.margin}
+                              max={100}
+                              className="h-4"
+                            />
+                            {formatNumber(item.margin)}%
                           </div>
                         </TableCell>
                       </TableRow>
@@ -671,6 +595,18 @@ export default function FbaCalculator({
           </CardContent>
         </DataCard>
       )}
+
+      {/* Export and Clear Buttons */}
+      <div className="flex justify-end gap-2 mb-6">
+        <Button variant="outline" onClick={handleExport} disabled={isLoading}>
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+        <Button variant="destructive" onClick={clearData} disabled={isLoading}>
+          <XCircle className="h-4 w-4 mr-2" />
+          Clear Data
+        </Button>
+      </div>
     </div>
   );
 }

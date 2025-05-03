@@ -1,4 +1,4 @@
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/react';
 
 type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
@@ -61,20 +61,8 @@ class MemoryLogger implements LoggerStrategy {
     this.logEntries = [];
   }
 }
-
-class FileLogger implements LoggerStrategy {
-  private logFilePath: string;
-
-  constructor(logFilePath: string) {
-    this.logFilePath = logFilePath;
-  }
-
-  log(entry: ErrorLogEntry): void {
-    const fs = require('fs');
-    const logString = JSON.stringify(entry) + '\n';
-    fs.appendFileSync(this.logFilePath, logString, { encoding: 'utf8' });
-  }
-}
+// Declare FileLogger as a class with the LoggerStrategy interface
+let FileLogger: unknown = null;
 
 export const logError = ({
   message,
@@ -107,10 +95,30 @@ export const logError = ({
   };
 
   // Use configured logger strategy (default to memory)
-  const loggerStrategy =
-    process.env.LOGGER_STRATEGY === 'file'
-      ? new FileLogger(process.env.LOG_FILE_PATH || './error.log')
-      : new MemoryLogger();
+  let loggerStrategy: LoggerStrategy;
+
+  if (process.env.LOGGER_STRATEGY === 'file' && typeof window === 'undefined') {
+    if (!FileLogger) {
+      FileLogger = class implements LoggerStrategy {
+        private logFilePath: string;
+
+        constructor(logFilePath: string) {
+          this.logFilePath = logFilePath;
+        }
+
+        log(entry: ErrorLogEntry): void {
+          const fs = require('fs');
+          const logString = JSON.stringify(entry) + '\n';
+          fs.appendFileSync(this.logFilePath, logString, { encoding: 'utf8' });
+        }
+      };
+    }
+    loggerStrategy = new (FileLogger as new (
+      logFilePath: string,
+    ) => LoggerStrategy)(process.env.LOG_FILE_PATH || './error.log');
+  } else {
+    loggerStrategy = new MemoryLogger();
+  }
 
   loggerStrategy.log(entry);
 
@@ -120,8 +128,8 @@ export const logError = ({
   }
 
   // Show user-friendly toast notification
-  console.log('toast function:', toast); // Add this line
   try {
+    const { toast } = useToast(); // Use the hook to get the toast function
     toast({
       title: 'Error',
       description: message,

@@ -553,6 +553,7 @@ export default function AcosCalculator() {
                 value={manualCampaign.campaign}
                 onChange={handleManualInputChange}
                 placeholder="Enter campaign name"
+                aria-label="Campaign Name"
               />
               {validationErrors.campaign ? (
                 <p className="text-xs text-red-500">
@@ -569,6 +570,8 @@ export default function AcosCalculator() {
                 value={manualCampaign.adSpend}
                 onChange={handleManualInputChange}
                 placeholder="Enter ad spend"
+                aria-label="Ad Spend ($)"
+                role="textbox"
               />
               {validationErrors.adSpend ? (
                 <p className="text-xs text-red-500">
@@ -585,10 +588,8 @@ export default function AcosCalculator() {
                 value={manualCampaign.sales}
                 onChange={handleManualInputChange}
                 placeholder="Enter sales amount"
+                aria-label="Sales Amount ($)"
               />
-              {validationErrors.sales ? (
-                <p className="text-xs text-red-500">{validationErrors.sales}</p>
-              ) : null}
             </div>
             <Button
               onClick={handleManualCalculate}

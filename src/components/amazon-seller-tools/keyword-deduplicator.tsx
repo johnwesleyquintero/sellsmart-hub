@@ -289,11 +289,6 @@ export default function KeywordDeduplicator() {
         return;
       }
 
-      // Early return if no keywords after validation
-      if (!keywordsInput) {
-        throw new Error('Keywords cannot be empty');
-      }
-
       // Check for duplicate product name in existing results
       if (
         products.some(
@@ -500,83 +495,70 @@ export default function KeywordDeduplicator() {
                     </span>
                     <input
                       type="file"
-                      accept=".csv, text/csv"
-                      className="hidden"
-                      // Wrap async function call
-                      onChange={(e) => {
-                        void handleFileUpload(e);
-                      }}
-                      disabled={isLoading}
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                      className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                      title=""
                       ref={fileInputRef}
-                      aria-label="Upload CSV file"
+                      data-testid="csv-upload-input"
                     />
                   </label>
-                  <div className="flex justify-center mt-4">
-                    <SampleCsvButton dataType="keyword-dedup" />
-                  </div>
+                  <SampleCsvButton dataType="keyword-dedup" />
                 </div>
               </div>
             </CardContent>
           </DataCard>
 
-          {/* Manual Entry Card */}
+          {/* Manual Input Card */}
           <DataCard>
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4 text-center sm:text-left">
-                Manual Entry
-              </h3>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="manual-product">
-                    Product Name (Optional)
-                  </Label>
+                  <Label htmlFor="product-name">Product Name (Optional)</Label>
                   <Input
-                    id="manual-product"
-                    placeholder="Defaults to 'Manual Entry'"
                     type="text"
+                    id="product-name"
+                    placeholder="Enter product name"
                     value={manualProduct}
                     onChange={(e) => setManualProduct(e.target.value)}
-                    disabled={isLoading}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="manual-keywords">Keywords*</Label>
+                  <Label htmlFor="keywords">Keywords</Label>
                   <Textarea
-                    id="manual-keywords"
-                    placeholder="Enter keywords separated by commas or new lines (e.g., red shirt, cotton shirt, red shirt)"
-                    required
-                    rows={5}
+                    id="keywords"
+                    placeholder="Enter keywords (comma or newline separated)"
                     value={manualKeywords}
                     onChange={(e) => setManualKeywords(e.target.value)}
-                    className={`mt-1 ${error && !manualKeywords.trim() ? 'border-destructive' : ''}`}
-                    disabled={isLoading}
-                    aria-invalid={!!(error && !manualKeywords.trim())}
                   />
-                  {/* Add console logs for debugging */}
-                  {(() => {
-                    console.log('Error state:', error);
-                    console.log('manualKeywords state:', manualKeywords);
-                    return null; // Render nothing
-                  })()}
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Separate keywords with commas or new lines.
-                  </p>
                 </div>
-                <Button
-                  onClick={handleManualProcess}
-                  disabled={isLoading || !manualKeywords.trim()}
-                >
-                  {isLoading ? 'Processing...' : 'Remove Duplicates'}
+                {(() => {
+                  if (error) {
+                    return (
+                      <div
+                        role="alert"
+                        className="text-red-500"
+                        data-testid="manual-error-message"
+                      >
+                        <AlertCircle className="inline-block h-4 w-4 mr-1 align-middle" />
+                        {error}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                <Button onClick={handleManualProcess} disabled={isLoading}>
+                  Process Keywords
                 </Button>
               </div>
             </CardContent>
           </DataCard>
         </div>
 
-        {/* Results Section */}
+        {/* Export and Clear Buttons */}
         <div className="flex justify-end gap-2 mb-6">
           <Button variant="outline" onClick={handleExport} disabled={isLoading}>
-            <Download className="mr-2 h-4 w-4" />
+            <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
           <Button
@@ -584,95 +566,76 @@ export default function KeywordDeduplicator() {
             onClick={clearData}
             disabled={isLoading}
           >
-            <XCircle className="mr-2 h-4 w-4" />
-            Clear Results
+            <XCircle className="h-4 w-4 mr-2" />
+            Clear Data
           </Button>
         </div>
 
-        {/* Error Message */}
+        {/* Results Display */}
         {error && (
           <DataCard>
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <AlertCircle className="text-destructive h-4 w-4" />
-                <span className="flex-grow break-words">{error}</span>
+                <AlertCircle className="h-4 w-4 text-red-500" />
+                <p className="text-sm font-medium">Error</p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setError(undefined)}
-              >
+              <Button variant="destructive" size="sm">
                 Dismiss
               </Button>
             </CardContent>
           </DataCard>
         )}
-
-        {/* Loading State */}
         {isLoading && (
           <DataCard>
-            <CardContent className="p-4 flex items-center justify-center">
-              <Progress value={undefined} className="max-w-md" />
+            <CardContent className="p-4">
+              <p className="text-sm font-medium">Loading...</p>
+              <Progress value={50} />
             </CardContent>
           </DataCard>
         )}
-
-        {/* Results Display */}
         {products.length > 0 && !isLoading && (
           <DataCard>
             <CardContent className="p-4 space-y-6">
-              <h2 className="text-lg font-semibold">
-                Deduplication Results ({products.length} Products)
-              </h2>
               {products.map((product, index) => (
                 <Card key={`${product.product}-${index}`}>
                   <CardContent className="p-4">
-                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
-                      <h3 className="text-md font-medium">{product.product}</h3>
-                      <Badge variant="secondary">
-                        {product.duplicatesRemoved} duplicates removed
-                      </Badge>
-                    </div>
-
-                    {/* Original Keywords */}
-                    <div>
-                      <h4 className="mb-2 text-sm font-semibold">
-                        Original Keywords:
-                      </h4>
+                    <h3 className="text-lg font-semibold">{product.product}</h3>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm font-medium">Original Keywords:</p>
                       {product.originalKeywords.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {product.originalKeywords.map((keyword, i) => (
-                            <Badge key={`${keyword}-${i}`} variant="outline">
+                            <Badge key={i} variant="secondary">
                               {keyword}
                             </Badge>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground italic">
-                          No original keywords found.
+                        <p className="text-sm text-muted-foreground">
+                          No original keywords.
                         </p>
                       )}
                     </div>
-
-                    {/* Cleaned Keywords */}
-                    <div>
-                      <h4 className="mb-2 text-sm font-semibold">
-                        Cleaned Keywords:
-                      </h4>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm font-medium">Cleaned Keywords:</p>
                       {product.cleanedKeywords.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {product.cleanedKeywords.map((keyword, i) => (
-                            <Badge key={`${keyword}-${i}`} variant="outline">
+                            <Badge key={i} variant="secondary">
                               {keyword}
                             </Badge>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground italic">
-                          No keywords remaining after deduplication.
+                        <p className="text-sm text-muted-foreground">
+                          No cleaned keywords.
                         </p>
                       )}
                     </div>
+                    <p className="text-sm mt-2">
+                      <span className="font-medium">Duplicates Removed:</span>
+                      {product.duplicatesRemoved}
+                    </p>
                   </CardContent>
                 </Card>
               ))}

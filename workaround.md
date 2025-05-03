@@ -49,6 +49,7 @@ npm outdated
 npm audit fix --force
 npm run update
 npm run update:all
+npm run build --clear-cache
 
 ```
 

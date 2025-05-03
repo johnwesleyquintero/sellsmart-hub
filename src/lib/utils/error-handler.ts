@@ -25,7 +25,7 @@ export const determineErrorType = (error: unknown): ErrorResponse => {
       return { statusCode: 503, message: 'Service configuration error' };
     }
 
-    if (error.message.toLowerCase().includes('rate limit')) {
+    if (error.message && error.message.toLowerCase().includes('rate limit')) {
       return { statusCode: 429, message: 'Too many requests' };
     }
   }

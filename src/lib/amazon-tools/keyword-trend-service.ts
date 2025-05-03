@@ -144,6 +144,7 @@ export class KeywordTrendService {
       // Validate and process each row
       const validatedData = await Promise.all(
         rawData.map(async (row) => {
+          console.log('Data being processed:', row);
           const validated = trendDataSchema.parse(row);
           const standardizedDate = expectedDateFormat
             ? format(
