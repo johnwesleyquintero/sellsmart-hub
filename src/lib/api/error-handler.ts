@@ -2,12 +2,12 @@ import { logger } from './logger';
 
 export class ApiError extends Error {
   statusCode: number;
-  data: any;
+  details: any;
 
-  constructor(statusCode: number, message: string, data?: any) {
+  constructor(statusCode: number, message: string, details?: any) {
     super(message);
     this.statusCode = statusCode;
-    this.data = data;
+    this.details = details;
     this.name = 'ApiError';
   }
 }
@@ -22,10 +22,12 @@ export const handleApiError = (error: any, req: any, res: any) => {
   if (error instanceof ApiError) {
     return res.status(error.statusCode).json({
       message: error.message,
-      data: error.data,
+      details: error.details,
     });
   }
 
   // Generic error
-  return res.status(500).json({ message: 'Internal Server Error' });
+  return res
+    .status(500)
+    .json({ status: 500, message: 'Internal Server Error', details: null });
 };

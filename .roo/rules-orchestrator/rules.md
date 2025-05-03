@@ -2,6 +2,8 @@
 
 This document outlines standardized workflows for common development tasks (like analysis and enhancement) and provides relevant project context.
 
+**Update the `src\app\content\blog\project-tracker.mdx` for every latest changes you have completed.**
+
 ## Workflow 1: Enhance Application Without Introducing New Errors
 
 **Objective:**

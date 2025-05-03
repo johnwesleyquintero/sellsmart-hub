@@ -222,6 +222,7 @@ show_menu() {
     # Monitoring Section
     echo -e "\n${ANSI_Bold}${ANSI_Blue}Monitoring${ANSI_Reset}"
     echo -e "${ANSI_Bold}${ANSI_Green} 5) ${ANSI_Reset}Project Status         ${ANSI_Yellow}[s]${ANSI_Reset} - View dependencies"
+    echo -e "${ANSI_Bold}${ANSI_Green}11) ${ANSI_Reset}Update Tracker         ${ANSI_Yellow}[u]${ANSI_Reset} - Update project tracker"
     echo -e "${ANSI_Bold}${ANSI_Green} 9) ${ANSI_Reset}View Logs              ${ANSI_Yellow}[l]${ANSI_Reset} - Check system logs"
 
     # Exit Option
@@ -318,6 +319,11 @@ main() {
             8|"a") npm audit ;;
             9|"l") cat "$LOG_FILE" ;;
             10|"q") exit 0 ;;
+            11|"u") {
+                log_info "Updating project tracker..."
+                node ./.wescore/scripts/update-tracker.mjs 2>&1 | tee -a "$LOG_FILE"
+                log_info "Project tracker update completed"
+            } ;;
             *) log_error "Invalid selection" ;;
         esac
 

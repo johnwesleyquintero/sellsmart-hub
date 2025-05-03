@@ -31,7 +31,8 @@
     "typecheck": "tsc --noEmit",
     "test:json": "jest --json --outputFile=jest-results.json",
     "pc": "bash project-cli.sh",
-    "cq": "node ./.wescore/scripts/check-quality.mjs"
+    "cq": "node ./.wescore/scripts/check-quality.mjs",
+    "ut": "node ./.wescore/scripts/update-tracker.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "0.24.0",
@@ -112,6 +113,8 @@
     "node-mocks-http": "1.17.2",
     "nodemailer": "^6.10.1",
     "npm-run-all": "^4.1.5",
+    "opossum": "8.4.0",
+    "p-retry": "6.2.1",
     "package-json": "^10.0.1",
     "pact": "4.3.2",
     "papaparse": "5.5.2",

@@ -1,4 +1,5 @@
 import { logger } from './api/logger';
+import { monitorApiResponseTime } from './api/monitoring';
 import { validateKeywords } from './input-validation';
 
 export interface KeywordAnalysis {
@@ -20,6 +21,7 @@ interface KeywordMetrics {
 export const KeywordIntelligence = {
   async analyze(listingData: any): Promise<KeywordAnalysis[]> {
     logger.info('Analyzing listing data', { listingData });
+    let analysisResults: KeywordAnalysis[] = [];
 
     try {
       // Extract keywords from listing data
@@ -31,7 +33,7 @@ export const KeywordIntelligence = {
       }
 
       // Analyze each keyword
-      const analysisResults = await Promise.all(
+      analysisResults = await Promise.all(
         keywords.map((keyword) => this.analyzeKeyword(keyword, [])), // TODO: Fetch prohibited keywords
       );
 
@@ -39,6 +41,11 @@ export const KeywordIntelligence = {
     } catch (error: any) {
       logger.error('Keyword analysis failed:', error);
       throw new Error('Failed to analyze keywords');
+    } finally {
+      monitorApiResponseTime(
+        'KeywordIntelligence.analyze',
+        Date.now() - Date.now(),
+      ); // TODO: Fix timestamp
     }
   },
 
