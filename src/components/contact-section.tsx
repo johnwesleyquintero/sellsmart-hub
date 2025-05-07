@@ -21,11 +21,12 @@ export default function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Handles the form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
+    // Simulate form submission for demonstration purposes
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     setIsSubmitting(false);

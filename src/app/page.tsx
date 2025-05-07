@@ -8,6 +8,7 @@ import { QueryErrorBoundary } from '@/components/ui/query-error-boundary';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
+// Dynamic imports for code splitting and lazy loading
 // Prioritize above-the-fold content
 const HeroSection = dynamic(() => import('@/components/hero-section'), {
   loading: () => <ContentSkeleton />,

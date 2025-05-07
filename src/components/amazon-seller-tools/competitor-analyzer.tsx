@@ -321,7 +321,7 @@ export function CompetitorAnalyzer({
 
       if (!file) {
         // Don't show error if user simply cancelled file selection
-        // toast({ title: "Error", description: "No file selected", variant: "destructive" });
+        // toast({ title: "Error", description: "No file selected" });
         return;
       }
 
@@ -883,7 +883,7 @@ export function CompetitorAnalyzer({
               if (competitorFileInputRef.current)
                 competitorFileInputRef.current.value = '';
               sessionStorage.removeItem('chartData');
-              toast({ title: 'Inputs Cleared', variant: 'default' });
+              toast({ title: 'Inputs Cleared' });
             }}
             disabled={isLoading}
           >

@@ -153,7 +153,8 @@
     //--------------------------------------------------------------------------
     "git.autofetch": true, // Automatically fetch from remotes periodically.
     "git.confirmSync": true, // Ask for confirmation before syncing (pushing/pulling). Set to false if you prefer faster sync without prompts.
-    "git.enableSmartCommit": true, // Stage changes automatically when committing from the source control view if there are no staged changes.
+    "git.enableSmartCommit": true,
+    "cline.enableCheckpoints": false, // Stage changes automatically when committing from the source control view if there are no staged changes.
 
     //--------------------------------------------------------------------------
     // Terminal Settings (Optional)

@@ -1,22 +1,12 @@
 // src/components/amazon-seller-tools/unified-dashboard.tsx
 'use client';
 
+import { MetricsChart } from '@/components/amazon-seller-tools/MetricsChart';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
 import { useCallback, useRef, useState } from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { DashboardMetricsDisplay } from './DashboardMetricsDisplay';
 import { UnifiedDashboardHeader } from './UnifiedDashboardHeader';
 
 // Tool Components
@@ -277,13 +267,13 @@ export default function UnifiedDashboard() {
       'Ordered product sales',
       'Gross Sales',
     ]);
-    const impressions = sales(row, mapping.impressions, ['Impressions']);
-    const clicks = sales(row, mapping.clicks, ['Clicks']);
-    const orders = sales(row, mapping.orders, [
+    const impressions = sales(row, mapping?.impressions, ['Impressions']);
+    const clicks = sales(row, mapping?.clicks, ['Clicks']);
+    const orders = sales(row, mapping?.orders, [
       'Total order items',
       'Units Ordered',
     ]);
-    const sessions = sales(row, mapping.sessions, ['Sessions', 'Page Views']);
+    const sessions = sales(row, mapping?.sessions, ['Sessions', 'Page Views']);
 
     const conversionRate = sessions > 0 ? (orders / sessions) * 100 : 0;
     const conversion_rate = parseFloat(conversionRate.toFixed(2));
@@ -339,68 +329,20 @@ export default function UnifiedDashboard() {
 
     return (
       <>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <Card className="opacity-75">
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-                Conversion Rate
-              </h3>
-            </CardContent>
-          </Card>
-          <Card className="opacity-75">
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-                Total Sales
-              </h3>
-            </CardContent>
-          </Card>
-          <Card className="opacity-75">
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-                Sessions
-              </h3>
-            </CardContent>
-          </Card>
-        </div>
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-              Metrics Over Time
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={metrics}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="sales"
-                  stroke="#8884d8"
-                  activeDot={{ r: 8 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
-              Sales by Date
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={metrics}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="sales" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <DashboardMetricsDisplay
+          conversionRate={
+            metrics.length > 0
+              ? metrics[metrics.length - 1]?.conversion_rate
+              : 0
+          }
+          totalSales={
+            metrics.length > 0 ? metrics[metrics.length - 1]?.sales : 0
+          }
+          sessions={
+            metrics.length > 0 ? metrics[metrics.length - 1]?.sessions : 0
+          }
+        />
+        <MetricsChart metrics={metrics} />
       </>
     );
   };

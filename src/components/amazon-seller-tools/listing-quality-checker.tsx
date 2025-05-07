@@ -1,21 +1,12 @@
 // src/components/amazon-seller-tools/listing-quality-checker.tsx
 'use client';
 
-import {
-  AlertCircle,
-  Download,
-  FileText,
-  Info,
-  Search,
-  Upload,
-  X,
-} from 'lucide-react';
+import { AlertCircle, Download, FileText, Info, X } from 'lucide-react';
 import Papa from 'papaparse';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 // Local/UI Imports
 import DataCard from '@/components/amazon-seller-tools/DataCard';
-import SampleCsvButton from '@/components/amazon-seller-tools/sample-csv-button';
 import {
   Accordion,
   AccordionContent,
@@ -35,8 +26,9 @@ import { useToast } from '@/hooks/use-toast';
 // --- Types ---
 
 export interface CSVRow {
-  product: string;
-  title: string;
+  // Defines the structure of a CSV row
+  product: string; // Product name
+  title: string; // Product title
   description: string;
   bullet_points: string; // Semicolon-separated
   images: string; // Should be a number string
@@ -45,7 +37,8 @@ export interface CSVRow {
 }
 
 export interface AsinData {
-  title: string;
+  // Defines the structure of ASIN data
+  title: string; // Product title
   description: string[]; // Description from API might be an array
   bulletPoints: string[];
   imageCount: number;
@@ -58,17 +51,19 @@ export interface AsinData {
 
 // NOTE: This depends on the actual KeywordIntelligence implementation
 export type KeywordAnalysisResult = {
-  keyword: string;
-  isProhibited: boolean;
+  // Defines the structure of a keyword analysis result
+  keyword: string; // The keyword
+  isProhibited: boolean; // Whether the keyword is prohibited
   score: number;
   confidence: number;
   matchType: 'exact' | 'fuzzy' | 'pattern';
   reason?: string;
 };
 
-export type ListingData = {
-  product: string;
-  title?: string;
+export interface ListingData {
+  // Defines the structure of listing data
+  product: string; // Product name
+  title?: string; // Product title
   description?: string;
   bulletPoints?: string[];
   images?: number;
@@ -81,13 +76,14 @@ export type ListingData = {
   category?: string;
   rating?: number;
   reviewCount?: number;
-};
+}
 
 // --- Constants ---
 
 const REQUIRED_COLUMNS = [
-  'product',
-  'title',
+  // Required columns in the CSV file
+  'product', // Product name
+  'title', // Product title
   'description',
   'bullet_points',
   'images',
@@ -96,8 +92,9 @@ const REQUIRED_COLUMNS = [
 
 // Scoring Weights
 const WEIGHTS = {
-  title: 20,
-  description: 20,
+  // Weights for each factor in the scoring calculation
+  title: 20, // Weight for title
+  description: 20, // Weight for description
   bulletPoints: 15,
   images: 15,
   keywords: 15,
@@ -107,9 +104,9 @@ const WEIGHTS = {
 } as const;
 
 // Thresholds for scoring
-const MIN_TITLE_LENGTH = 50;
-const MAX_TITLE_LENGTH = 200;
-const MIN_DESCRIPTION_LENGTH = 500;
+const MIN_TITLE_LENGTH = 50; // Minimum title length for scoring
+const MAX_TITLE_LENGTH = 200; // Maximum title length for scoring
+const MIN_DESCRIPTION_LENGTH = 500; // Minimum description length for scoring
 const MAX_DESCRIPTION_LENGTH = 2000;
 const MIN_BULLET_POINTS = 3;
 const RECOMMENDED_BULLET_POINTS = 5;
@@ -123,6 +120,7 @@ const MIN_RATING = 3.5;
 // --- Helper Functions ---
 
 const validateCSVData = (results: Papa.ParseResult<CSVRow>) => {
+  // Validates the CSV data
   if (results.errors.length > 0) {
     throw new Error(
       `CSV parsing errors: ${results.errors.map((e) => e.message).join(', ')}`,
@@ -141,6 +139,7 @@ type ListingScoreResult = Pick<ListingData, 'score' | 'issues' | 'suggestions'>;
 
 // Helper functions to calculate scores for different aspects
 const calculateTitleScore = (
+  // Calculates the score for the title
   title: string | undefined,
   issues: string[],
   suggestions: string[],
@@ -176,6 +175,7 @@ const calculateTitleScore = (
 };
 
 const calculateDescriptionScore = (
+  // Calculates the score for the description
   description: string | undefined,
   issues: string[],
   suggestions: string[],
@@ -212,6 +212,7 @@ const calculateDescriptionScore = (
 };
 
 const calculateBulletPointsScore = (
+  // Calculates the score for the bullet points
   bulletPoints: string[] | undefined,
   issues: string[],
   suggestions: string[],
@@ -243,6 +244,7 @@ const calculateBulletPointsScore = (
 };
 
 const calculateImagesScore = (
+  // Calculates the score for the images
   images: number | undefined,
   issues: string[],
   suggestions: string[],
@@ -270,6 +272,7 @@ const calculateImagesScore = (
 };
 
 const calculateKeywordsScore = (
+  // Calculates the score for the keywords
   keywords: string[] | undefined,
   keywordAnalysis: KeywordAnalysisResult[] | undefined,
   issues: string[],
@@ -316,6 +319,7 @@ const calculateKeywordsScore = (
 
 // Enhanced scoring logic with weighted factors and comprehensive checks
 const calculateScoreAndIssues = (
+  // Calculates the overall score and identifies issues
   data: Omit<ListingData, 'score' | 'issues' | 'suggestions'>,
 ): ListingScoreResult => {
   const issues: string[] = [];
@@ -376,11 +380,10 @@ const calculateScoreAndIssues = (
 };
 
 const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
-  const keywords =
-    row.keywords
-      ?.split(',')
-      .map((k) => k.trim())
-      .filter(Boolean) || [];
+  // Processes a single row of the CSV data
+  const keywordsString = row.keywords;
+
+  keywordsString?.split(',').filter(Boolean) || [];
 
   // Set the keywords state
 
@@ -396,38 +399,14 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
     console.warn(`Invalid image count for product "${row.product}"`);
   }
 
-  // Remove mock keyword analysis data
-  // let keywordAnalysis: KeywordAnalysisResult[] = [];
-  // --- MOCK KEYWORD ANALYSIS ---
-  // Replace with actual KeywordIntelligence call if available and configured
-  // try {
-  //   // keywordAnalysis = await KeywordIntelligence.analyze(keywords);
-  //   // Mock response for demonstration:
-  //   await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate async call
-  //   keywordAnalysis = keywords.map((kw) => ({
-  //     keyword: kw,
-  //     isProhibited: Math.random() > 0.9, // Mock 10% chance of being prohibited
-  //     score: Math.floor(Math.random() * 100),
-  //     confidence: Math.random(),
-  //     matchType: 'exact',
-  //   }));
-  // } catch (analysisError) {
-  //   console.error(
-  //     `Keyword analysis failed for product "${row.product}":`,
-  //     analysisError,
-  //   );
-  //   // Handle analysis failure, e.g., add an issue/suggestion
-  // }
-  // --- END MOCK ---
-
   const baseData: Omit<ListingData, 'score' | 'issues' | 'suggestions'> = {
     product: row.product,
     title: row.title,
     description: row.description,
     bulletPoints,
     images: isNaN(images) ? 0 : images,
-    keywords,
-    keywordAnalysis: [], // keywordData, // Use the fetched keyword data
+    keywords: [], // keywordData, // Use the fetched keyword data
+    keywordAnalysis: [],
   };
 
   const analysis = calculateScoreAndIssues(baseData);
@@ -440,6 +419,7 @@ const processCSVRow = async (row: CSVRow): Promise<ListingData> => {
 
 // Extracted CSV parsing logic
 const parseAndProcessCsv = (content: string): Promise<ListingData[]> => {
+  // Parses the CSV data and processes each row
   return new Promise((resolve, reject) => {
     Papa.parse<CSVRow>(content, {
       header: true,
@@ -471,6 +451,7 @@ const parseAndProcessCsv = (content: string): Promise<ListingData[]> => {
 };
 
 const getBadgeVariant = (
+  // Determines the badge variant based on the score
   score: number,
 ): 'default' | 'secondary' | 'destructive' => {
   if (score >= 80) {
@@ -485,6 +466,7 @@ const getBadgeVariant = (
 // --- Component ---
 
 export default function ListingQualityChecker() {
+  // Main component for listing quality checker
   const { toast } = useToast();
   const [listings, setListings] = useState<ListingData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -499,63 +481,66 @@ export default function ListingQualityChecker() {
   //     clickThroughRate: 0.3,
   //     searchRanking: 0.3
   //   };
-  //   // ... existing scoring logic
-  //   // Placeholder: Integrate the scoring logic here
+  //   return (
+  //     listing.conversionRate * performanceWeights.conversionRate +
+  //     listing.clickThroughRate * performanceWeights.clickThroughRate +
+  //     listing.searchRanking * performanceWeights.searchRanking
+  //   );
   // };
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setIsLoading(true);
-      setError(undefined);
-      setListings([]);
+      setError(undefined); // Clear previous errors
 
       const file = event.target.files?.[0];
       if (!file) {
+        setError('No file selected.');
         setIsLoading(false);
         return;
       }
 
       const reader = new FileReader();
-
       reader.onload = async (e) => {
         try {
           const content = e.target?.result as string;
-          const processedListings = await parseAndProcessCsv(content);
-          setListings(processedListings);
-        } catch (processError) {
-          const errorMessage =
-            processError instanceof Error
-              ? processError.message
-              : 'Failed to process CSV data.';
-          setError(errorMessage);
-          toast({
-            variant: 'destructive',
-            title: 'Error Processing CSV',
-            description: errorMessage,
-          });
+          const processedData = await parseAndProcessCsv(content);
+          setListings(processedData);
+          toast(
+            'CSV Processed Successfully',
+            `Analyzed ${processedData.length} listings.`,
+          );
+        } catch (parseError) {
+          setError(
+            parseError instanceof Error
+              ? parseError.message
+              : 'An error occurred during CSV processing',
+          );
+          toast(
+            'CSV Processing Failed',
+            parseError instanceof Error
+              ? parseError.message
+              : 'An unexpected error occurred.',
+          );
         } finally {
           setIsLoading(false);
         }
       };
-
       reader.onerror = () => {
-        setError('Failed to read the CSV file.');
-        toast({
-          variant: 'destructive',
-          title: 'Error Reading File',
-          description: 'Failed to read the CSV file.',
-        });
+        setError('Failed to read the file.');
         setIsLoading(false);
+        toast('File Reading Error', 'Could not read the selected file.');
       };
-
       reader.readAsText(file);
     },
-    [toast],
+    [toast, setError, setIsLoading, setListings],
   );
 
   const fetchAsinDataMock = async (asin: string): Promise<AsinData> => {
-    // Mock API call
+    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Mock data - replace with actual API call
     return {
       title: `Mock Title for ASIN ${asin}`,
       description: [
@@ -570,51 +555,53 @@ export default function ListingQualityChecker() {
       ],
       imageCount: 5,
       keywords: ['mock keyword 1', 'mock keyword 2', 'mock keyword 3'],
+      brand: 'Mock Brand',
+      category: 'Electronics',
+      rating: 4.5,
+      reviewCount: 150,
     };
   };
 
   const handleAsinCheck = useCallback(async () => {
     setIsLoading(true);
     setError(undefined);
-    setListings([]);
-
     try {
       const asinData = await fetchAsinDataMock(asin);
-      // Transform AsinData to ListingData
+      // Map ASIN data to ListingData format
       const listingData: ListingData = {
-        product: asinData.title,
+        product: asin,
         title: asinData.title,
         description: asinData.description.join('\n'),
         bulletPoints: asinData.bulletPoints,
         images: asinData.imageCount,
         keywords: asinData.keywords,
-        score: 75, // Mock score
+        brand: asinData.brand,
+        category: asinData.category,
+        rating: asinData.rating,
+        reviewCount: asinData.reviewCount,
+        score: 0,
         issues: [],
         suggestions: [],
       };
       setListings([listingData]);
+      toast('ASIN Data Fetched', `Successfully fetched data for ASIN ${asin}.`);
     } catch {
-      setError('Failed to fetch ASIN data.');
-      toast({
-        variant: 'destructive',
-        title: 'Error Fetching ASIN Data',
-        description: 'Failed to fetch ASIN data.',
-      });
+      setError(`Failed to fetch data for ASIN ${asin}.`);
+      toast('ASIN Fetch Failed', `Could not retrieve data for ASIN ${asin}.`);
     } finally {
       setIsLoading(false);
     }
-  }, [asin, toast]);
+  }, [asin, toast, setError, setIsLoading, setListings]);
 
   const clearData = useCallback(() => {
     setListings([]);
+    setAsin('');
     setError(undefined);
   }, []);
 
   const handleExport = useCallback(() => {
     if (listings.length === 0) {
-      toast({
-        description: 'No data to export.',
-      });
+      toast('No Data to Export', 'Please upload and process a CSV file first.');
       return;
     }
 
@@ -626,8 +613,8 @@ export default function ListingQualityChecker() {
       Images: l.images,
       Keywords: l.keywords?.join(', '),
       Score: l.score,
-      Issues: l.issues.join('; '),
-      Suggestions: l.suggestions.join('; '),
+      Issues: l.issues.join(', '),
+      Suggestions: l.suggestions.join(', '),
     }));
 
     const csv = Papa.unparse(exportData);
@@ -639,8 +626,19 @@ export default function ListingQualityChecker() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast({ description: 'CSV file downloaded.' });
+    toast(
+      'CSV Exported',
+      'The listing analysis has been exported to a CSV file.',
+    );
   }, [listings, toast]);
+
+  // Ensure all dependencies are properly declared for React hooks
+  useEffect(() => {
+    // Initial setup or cleanup if needed
+    return () => {
+      // Cleanup logic if needed
+    };
+  }, []);
 
   return (
     <DataCard>
@@ -648,53 +646,44 @@ export default function ListingQualityChecker() {
         <DataCard>
           <CardContent className="p-6">
             <div className="w-full">
-              <Label
-                htmlFor="file-upload"
-                className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5"
-              >
-                <Upload className="h-8 w-8 text-primary" />
-                <span className="mt-2 text-sm font-semibold text-muted-foreground">
-                  Upload a CSV File
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Drag 'n' drop your CSV file here, or click to select files
-                </span>
-                <Input
-                  id="file-upload"
-                  type="file"
-                  className="sr-only"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                />
-              </Label>
-              <SampleCsvButton dataType="keyword" />
+              <Label htmlFor="upload-csv">Upload CSV File</Label>
+              <Input
+                id="upload-csv"
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                disabled={isLoading}
+                className="mt-1"
+              />
             </div>
           </CardContent>
         </DataCard>
         <DataCard>
           <CardContent className="p-6">
-            <div className="space-y-2">
-              <Label htmlFor="asin">Check by ASIN</Label>
+            <div className="w-full">
+              <Label htmlFor="asin">Check ASIN</Label>
               <div className="flex flex-col sm:flex-row gap-2 mt-1">
                 <Input
-                  type="text"
                   id="asin"
+                  type="text"
                   placeholder="Enter ASIN"
                   value={asin}
                   onChange={(e) => setAsin(e.target.value)}
+                  disabled={isLoading}
                 />
                 <Button type="submit" onClick={handleAsinCheck}>
-                  <Search className="w-4 h-4 mr-2" />
                   Check
                 </Button>
               </div>
               <Card className="mt-4 bg-destructive/10 text-destructive">
-                {error && asin && (
-                  <CardContent className="p-4">
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    {error}
-                  </CardContent>
-                )}
+                <div className="space-y-2">
+                  {error && asin && (
+                    <CardContent className="p-4">
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      {error}
+                    </CardContent>
+                  )}
+                </div>
               </Card>
             </div>
           </CardContent>
@@ -702,11 +691,11 @@ export default function ListingQualityChecker() {
       </div>
       <div className="flex justify-end gap-2 mb-6">
         <Button variant="outline" onClick={handleExport} disabled={isLoading}>
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="mr-2 h-4 w-4" />
           Export CSV
         </Button>
         <Button variant="destructive" onClick={clearData}>
-          <X className="w-4 h-4 mr-2" />
+          <X className="mr-2 h-4 w-4" />
           Clear Data
         </Button>
       </div>
@@ -727,7 +716,7 @@ export default function ListingQualityChecker() {
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="details">
                       <AccordionTrigger>
-                        <Info className="w-4 h-4 mr-2" />
+                        <FileText className="mr-2 h-4 w-4" />
                         Details
                       </AccordionTrigger>
                       <AccordionContent className="text-sm space-y-1">
@@ -756,7 +745,7 @@ export default function ListingQualityChecker() {
                     </AccordionItem>
                     <AccordionItem value="issues">
                       <AccordionTrigger>
-                        <AlertCircle className="w-4 h-4 mr-2" />
+                        <AlertCircle className="mr-2 h-4 w-4" />
                         Issues
                       </AccordionTrigger>
                       <AccordionContent>
@@ -773,7 +762,7 @@ export default function ListingQualityChecker() {
                     </AccordionItem>
                     <AccordionItem value="suggestions">
                       <AccordionTrigger>
-                        <FileText className="w-4 h-4 mr-2" />
+                        <Info className="mr-2 h-4 w-4" />
                         Suggestions
                       </AccordionTrigger>
                       <AccordionContent>

@@ -10,16 +10,9 @@ import {
   FileText,
   PlusCircle,
   Save,
-  Upload,
 } from 'lucide-react';
 import Papa from 'papaparse';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
 // UI Imports
@@ -396,8 +389,6 @@ function ProductEditorArea({
               // Consider a sanitizer library (like DOMPurify) if descriptions can contain arbitrary HTML.
               // For simple cases where you control the input or only allow basic tags, this might be acceptable.
               // dangerouslySetInnerHTML={{ __html: product.description || '<span class="text-muted-foreground italic">No description provided.</span>' }}
-
-              // Safer alternative: Render as plain text preserving line breaks
             >
               {product.description || (
                 <span className="text-muted-foreground italic">
@@ -424,10 +415,22 @@ function ProductEditorArea({
             />
             <p className="mt-2 text-xs text-muted-foreground">
               Use line breaks for paragraphs. Basic HTML like{' '}
-              {/* FIX: Use HTML entities to display tags as text */}
-              <code>&lt;b&gt;</code>, <code>&lt;p&gt;</code>,{' '}
-              <code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code> may be supported
-              by Amazon. Aim for 1000-2000 characters.
+              <code>
+                <b></b>
+              </code>
+              ,{' '}
+              <code>
+                <p></p>
+              </code>
+              ,
+              <code>
+                <ul></ul>
+              </code>
+              ,{' '}
+              <code>
+                <li></li>
+              </code>{' '}
+              may be supported by Amazon. Aim for 1000-2000 characters.
             </p>
           </div>
         )}
@@ -442,9 +445,6 @@ export default function DescriptionEditor() {
   const [products, setProducts] = useState<ProductDescription[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Combined loading state
   const [error, setError] = useState<string | undefined>(undefined);
-  const [activeProductId, setActiveProductId] = useState<string | undefined>(
-    undefined,
-  ); // Store ID only
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [prohibitedKeywords, setProhibitedKeywords] = useState<string[]>([]);
 
@@ -459,29 +459,19 @@ export default function DescriptionEditor() {
           count: keywords.length,
           component: 'DescriptionEditor',
         });
-      } catch (err) {
-        logger.error('Failed to fetch prohibited keywords', {
+      } catch (err: unknown) {
+        logger.error(`Failed to fetch prohibited keywords`, {
           error: err,
           component: 'DescriptionEditor',
         });
         setError('Failed to load prohibited keywords list.');
-        toast({
-          title: 'Keyword Fetch Failed',
-          description: 'Could not load prohibited keywords.',
-          variant: 'destructive',
-        });
+        toast('Keyword Fetch Failed', 'Could not load prohibited keywords.');
       } finally {
         setIsLoading(false);
       }
     };
     fetchKeywords();
-  }, [toast]);
-
-  // Find the active product object based on the ID
-  const activeProduct = useMemo(
-    () => products.find((p) => p.product === activeProductId) || undefined,
-    [products, activeProductId],
-  );
+  }, [toast, getAllProhibitedKeywords]);
 
   // --- Event Handlers ---
 
@@ -494,7 +484,6 @@ export default function DescriptionEditor() {
       setIsLoading(true);
       setError(undefined);
       setProducts([]);
-      setActiveProductId(undefined); // Also reset active product
 
       console.log('Before Papa.parse');
       Papa.parse<CsvRowData>(file, {
@@ -502,81 +491,115 @@ export default function DescriptionEditor() {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          // More robust header validation
-          if (!results.meta || !results.meta.fields) {
-            setError('CSV file is empty or has no headers.');
-            setIsLoading(false);
-            return;
-          }
+          setIsLoading(false);
+          setError(undefined);
+          console.log('Parsed CSV data:', results.data);
 
-          const actualHeaders = results.meta.fields.map((h) => h.toLowerCase());
-          const requiredHeaders = ['product', 'description'];
-          const missingHeaders = requiredHeaders.filter(
-            (header) => !actualHeaders.includes(header),
-          );
-
-          if (missingHeaders.length > 0) {
-            setError(
-              `Missing required headers: ${missingHeaders.join(', ')}. Please check your CSV file.`,
+          if (results.errors.length > 0) {
+            logger.error(
+              `CSV Parsing errors: ${results.errors.length} errors found.`,
+              {
+                component: 'DescriptionEditor',
+                errors: results.errors,
+              },
             );
-            setIsLoading(false);
+            setError(`CSV Parsing failed: ${results.errors[0].message}`);
+            toast('CSV Parsing Error', results.errors[0].message);
             return;
           }
 
-          // Process each row
-          const processedProducts = results.data
-            .map((row, index) =>
+          if (!results.meta.fields || results.meta.fields.length === 0) {
+            setError('No headers found in CSV file.');
+            toast('No Headers Found', 'The CSV file must have headers.');
+            return;
+          }
+
+          const actualHeaders = results.meta.fields;
+
+          // Process each row and update the products state
+          const newProducts = results.data
+            .map((row: CsvRowData, index) =>
               processCsvRow(row, index, actualHeaders, prohibitedKeywords),
             )
             .filter(
               (product): product is ProductDescription => product !== null,
-            ); // Filter out nulls
+            );
 
-          setProducts(processedProducts);
-          setIsLoading(false);
-          toast({
-            title: 'CSV Uploaded',
-            description: `Successfully processed ${processedProducts.length} products.`,
-            variant: 'default',
-          });
+          if (newProducts.length === 0) {
+            setError('No valid product data found in CSV.');
+            toast(
+              'No Valid Data',
+              'Could not find any valid product data in the CSV file.',
+            );
+            return;
+          }
+
+          setProducts(newProducts);
+          toast(
+            'CSV Processed',
+            `Successfully processed ${newProducts.length} products.`,
+          );
         },
-        error: (err: Error) => {
-          setError(`CSV parsing error: ${err.message}`);
+        error: (err: unknown) => {
           setIsLoading(false);
-          setProducts([]);
-          setActiveProductId(undefined);
-          toast({
-            title: 'CSV Error',
-            description: `Error parsing CSV: ${err.message}`,
-            variant: 'destructive',
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          logger.error(`CSV Parsing failed: ${errorMessage}`, {
+            error: err,
+            component: 'DescriptionEditor',
           });
+          toast('CSV Parsing Error', errorMessage);
         },
       });
     },
-    [prohibitedKeywords, toast],
+    [prohibitedKeywords, toast, getAllProhibitedKeywords],
   );
 
   const handleManualSubmit = useCallback(
     (data: z.infer<typeof manualProductSchema>) => {
-      // Create a new product with initial values
-      const newProduct: ProductDescription = {
-        product: data.product,
-        asin: data.asin,
-        description: sanitizeHtml(data.description), // Sanitize the description
-        characterCount: data.description.length,
-        keywordCount: countKeywords(data.description, prohibitedKeywords),
-        score: calculateScore(data.description, prohibitedKeywords),
-      };
+      setIsLoading(true);
+      setError(undefined);
+      try {
+        // Validate the manual input using Zod schema
+        const validatedData = manualProductSchema.parse(data);
 
-      // Add the new product to the products state
-      setProducts((prevProducts) => [...prevProducts, newProduct]);
-      toast({
-        title: 'Product Added',
-        description: `Added product: ${data.product}`,
-        variant: 'default',
-      });
+        // Calculate metrics
+        const scoreValue = calculateScore(
+          validatedData.description,
+          prohibitedKeywords,
+        );
+        const keywordCountValue = countKeywords(
+          validatedData.description,
+          prohibitedKeywords,
+        );
+        const characterCountValue = validatedData.description.length;
+
+        const newProduct: ProductDescription = {
+          product: validatedData.product,
+          asin: validatedData.asin || '',
+          description: validatedData.description,
+          characterCount: characterCountValue,
+          keywordCount: keywordCountValue,
+          score: scoreValue,
+        };
+
+        setProducts((prevProducts) => [...prevProducts, newProduct]);
+        toast('Product Added', `Successfully added ${validatedData.product}`);
+        logger.info(`Added new product manually: ${validatedData.product}`, {
+          product: validatedData.product,
+          component: 'DescriptionEditor',
+        });
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logger.error(`Failed to add product manually: ${errorMessage}`, {
+          error: err,
+          component: 'DescriptionEditor',
+        });
+        toast('Product Add Failed', errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [prohibitedKeywords, toast],
+    [prohibitedKeywords, toast, calculateScore, countKeywords],
   );
 
   const handleDescriptionUpdate = useCallback(
@@ -596,18 +619,14 @@ export default function DescriptionEditor() {
         }),
       );
     },
-    [prohibitedKeywords],
+    [prohibitedKeywords, calculateScore, countKeywords],
   );
 
   const handleSave = useCallback(
     (productToSave: ProductDescription) => {
       // Basic validation - check for empty description
       if (!productToSave.description) {
-        toast({
-          title: 'Save Error',
-          description: 'Description cannot be empty.',
-          variant: 'destructive',
-        });
+        toast('Save Error', 'Description cannot be empty.');
         return;
       }
 
@@ -617,11 +636,7 @@ export default function DescriptionEditor() {
           p.product === productToSave.product ? productToSave : p,
         ),
       );
-      toast({
-        title: 'Product Saved',
-        description: `Saved changes to ${productToSave.product}`,
-        variant: 'default',
-      });
+      toast('Product Saved', `Saved changes to ${productToSave.product}`);
       logger.info(`Saved product description for ${productToSave.product}`, {
         product: productToSave.product,
         component: 'DescriptionEditor',
@@ -658,124 +673,103 @@ export default function DescriptionEditor() {
 
   const clearData = useCallback(() => {
     setProducts([]);
-    setActiveProductId(undefined);
     setError(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Clear the file input
     }
-    toast({
-      title: 'Data Cleared',
-      description: 'All product data has been cleared.',
-      variant: 'default',
-    });
+    toast('Data Cleared', 'All product data has been cleared.');
   }, [toast]);
 
   return (
     <div className="space-y-6">
-      {/* Data Input Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CSV Upload */}
-        <DataCard>
-          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-            <div className="rounded-full bg-primary/10 p-3">
-              <Upload className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-lg font-medium">Upload CSV</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Import product data from a CSV file
-              </p>
-            </div>
-            <div className="w-full">
+      <DataCard>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <DataCard>
+            <CardContent className="p-6">
               <label className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/40 bg-background p-6 text-center transition-colors hover:bg-primary/5">
-                <FileText className="mb-2 h-8 w-8 text-primary/60" />
-                <span className="text-sm font-medium">
-                  Click or drag CSV file here
-                </span>
-                <span className="text-xs text-muted-foreground mt-1">
-                  (Requires: product, description, asin)
-                </span>
-                <input
-                  type="file"
-                  accept=".csv, text/csv"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  disabled={isLoading}
-                  ref={fileInputRef}
-                />
+                <div className="w-full">
+                  <FileText className="mx-auto h-6 w-6 text-primary" />
+                  <span className="mt-2 text-sm font-semibold text-primary">
+                    Upload CSV File
+                  </span>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Upload a CSV file containing product descriptions.
+                  </p>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <div className="flex justify-center mt-4">
+                  <SampleCsvButton dataType="description" />
+                </div>
               </label>
-              <div className="flex justify-center mt-4">
-                <SampleCsvButton
-                  dataType="description"
-                  fileName="sample-product-descriptions.csv"
-                />
-              </div>
-            </div>
-          </div>
-        </DataCard>
-
-        {/* Manual Add */}
-        <DataCard>
-          <ManualAddProductForm
-            onSubmit={handleManualSubmit}
-            isLoading={isLoading}
-          />
-        </DataCard>
-      </div>
-
-      {/* Data Management Section */}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={handleExport} disabled={isLoading}>
-          <Download className="mr-2 h-4 w-4" />
-          Export All
-        </Button>
-        <Button variant="destructive" onClick={clearData} disabled={isLoading}>
-          Clear All
-        </Button>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-          <AlertCircle className="h-4 w-4" />
-          <p className="text-sm">{error}</p>
+            </CardContent>
+          </DataCard>
+          <DataCard>
+            <CardContent className="p-6">
+              <ManualAddProductForm
+                onSubmit={handleManualSubmit}
+                isLoading={isLoading}
+              />
+            </CardContent>
+          </DataCard>
         </div>
-      )}
-
-      {/* Product List and Editor */}
-      {products.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-medium mb-4">Product Descriptions</h2>
-            <div className="space-y-4">
-              {products.map((product) => (
-                <Badge
-                  key={product.product}
-                  variant={
-                    activeProductId === product.product
-                      ? 'secondary'
-                      : 'outline'
-                  }
-                  onClick={() => setActiveProductId(product.product)}
-                  className="cursor-pointer break-words"
-                >
-                  {product.product}
-                </Badge>
-              ))}
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={handleExport} disabled={isLoading}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={clearData}
+            disabled={isLoading}
+          >
+            Clear Data
+          </Button>
+        </div>
+      </DataCard>
+      {error && (
+        <DataCard>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-start">
+              <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           </CardContent>
-        </Card>
+        </DataCard>
       )}
-
-      {activeProduct && (
-        <Card>
-          <ProductEditorArea
-            product={activeProduct}
-            prohibitedKeywords={prohibitedKeywords}
-            onDescriptionChange={handleDescriptionUpdate}
-            onSave={handleSave}
-          />
-        </Card>
+      {isLoading && (
+        <DataCard>
+          <CardContent className="p-4">
+            <p>Loading...</p>
+          </CardContent>
+        </DataCard>
+      )}
+      {products.length > 0 && !isLoading && (
+        <DataCard>
+          <CardContent className="p-4 space-y-6">
+            {products.map((product, index) => (
+              <Card key={`${product.product}-${index}`}>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-semibold">{product.product}</h4>
+                    <Badge className="text-xs">Score: {product.score}</Badge>
+                  </div>
+                  <ProductEditorArea
+                    product={product}
+                    prohibitedKeywords={prohibitedKeywords}
+                    onDescriptionChange={handleDescriptionUpdate}
+                    onSave={handleSave}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </CardContent>
+        </DataCard>
       )}
     </div>
   );

@@ -1,5 +1,10 @@
 {
-  // --- Existing Settings (Keep if needed) ---
+  "$schema": "vscode://schemas/settings/user",
+  // Removed duplicate "editor.formatOnSave" as it's defined later in the file
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  // Removed duplicate "editor.defaultFormatter" as it's defined later in the file with Prettier
+  // Removed duplicate "editor.codeActionsOnSave" as it's defined later in the file
   "cline.modelSettings.o3Mini.reasoningEffort": "high", // Keep if you use 'cline'
   "liveServer.settings.port": 5501, // Keep for Live Server
 
@@ -10,8 +15,9 @@
   // --- Code Actions on Save (Crucial!) ---
   // Apply ESLint fixes automatically when saving files in this project
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit", // Enable ESLint auto-fix on save
-    "source.organizeImports": "explicit" // Optional: Enable import sorting on save (if configured)
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "never", // Enable ESLint auto-fix on save
+    "source.organizeImports": "never" // Optional: Enable import sorting on save (if configured)
     // Add "source.fixAll.stylelint": true if you use Stylelint
   },
 

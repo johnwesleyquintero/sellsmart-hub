@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis as UpstashRedis } from '@upstash/redis';
 
+// Configuration object for Redis connection
 export const redisConfig = {
   url: process.env.REDIS_URL || process.env.KV_URL,
   token: process.env.REDIS_TOKEN || process.env.KV_REST_API_TOKEN,
@@ -8,6 +9,7 @@ export const redisConfig = {
   apiUrl: process.env.KV_REST_API_URL,
 };
 
+// Retrieves the Redis URL from the configuration.
 export function getRedisUrl() {
   const url = redisConfig.url;
   if (!url) {
@@ -16,6 +18,7 @@ export function getRedisUrl() {
   return url;
 }
 
+// Retrieves the Redis token from the configuration.
 export function getRedisToken() {
   const token = redisConfig.token;
   if (!token) {
@@ -31,7 +34,7 @@ type RedisConfig = {
   retryStrategy?: (times: number) => number | null;
 };
 
-// Validate environment variables
+// Retrieves the Redis configuration, including URL, token, and retry settings.
 function getRedisConfig(): RedisConfig {
   const url = getRedisUrl();
   const token = getRedisToken();
@@ -45,45 +48,20 @@ function getRedisConfig(): RedisConfig {
 }
 
 // Initialize Redis client with connection pooling
-let redis: UpstashRedis;
+import type { Redis } from '@upstash/redis';
+export let redis: Redis;
 
 try {
   redis = new UpstashRedis(getRedisConfig());
 } catch (error) {
   console.error('Failed to initialize Redis client:', error);
-  redis = new Proxy({} as UpstashRedis, {
-    get: (target, prop) => {
-      if (prop === 'ping') {
-        return async () => {
-          console.warn('Redis ping failed - using fallback');
-          return 'PONG';
-        };
-      }
-      if (prop === 'hincrby') {
-        return async () => {
-          console.warn('Redis hincrby failed - using fallback');
-          return 0;
-        };
-      }
-      if (prop === 'eval') {
-        return async () => {
-          console.warn('Redis eval failed - using fallback');
-          return null;
-        };
-      }
-      console.warn(
-        `Redis method ${String(prop)} not available - using fallback`,
-      );
-      return () => undefined;
-    },
-  }) as any;
 }
 
-// Configure rate limiting
+// Configures rate limiting using Upstash Ratelimit.
 export const rateLimiter = new Ratelimit({
-  // @ts-expect-error
+  // @ts-expect-error - Ignoring type check for redis as it's initialized later.
   redis,
-  // @ts-expect-error
+  // @ts-expect-error - Ignoring type check for limiter.
   limiter: Ratelimit.slidingWindow({
     allowedTokens: (identifier: string) =>
       identifier === 'anonymous' ? 5 : 10,
@@ -93,7 +71,7 @@ export const rateLimiter = new Ratelimit({
   prefix: '@upstash/ratelimit',
 });
 
-// Helper function to check Redis connection
+// Checks the Redis connection by attempting to ping the server.
 export async function checkRedisConnection(): Promise<boolean> {
   if (!process.env.REDIS_URL && !process.env.KV_URL) {
     console.warn('Redis URL not configured - falling back to memory');

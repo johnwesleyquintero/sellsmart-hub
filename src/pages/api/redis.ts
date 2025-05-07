@@ -1,5 +1,5 @@
-import { Redis } from 'ioredis';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Redis } from 'ioredis';
 
 let redis: Redis;
 

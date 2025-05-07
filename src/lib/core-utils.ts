@@ -21,8 +21,8 @@ export function generateId(prefix = ''): string {
   return `${Date.now()}-${prefix}${randomPart}`;
 }
 
+import { truncate } from 'lodash-es';
+
 export function truncateText(text: string, maxLength = 100): string {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength).trimEnd()}...`;
+  return truncate(text, { length: maxLength, omission: '...' });
 }

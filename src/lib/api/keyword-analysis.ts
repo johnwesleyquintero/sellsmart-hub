@@ -7,7 +7,7 @@ const API_ENDPOINT = process.env.KEYWORD_ANALYZER_API_ENDPOINT;
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// Create a new ratelimiter, that allows 5 requests per minute
+// Create a new ratelimiter to prevent abuse of the API. Allows 5 requests per minute.
 const ratelimit = new Ratelimit({
   redis: new Redis({
     url: UPSTASH_REDIS_REST_URL || '',
@@ -23,12 +23,14 @@ const ratelimit = new Ratelimit({
   prefix: '@upstash/ratelimit',
 });
 
-interface ListingData {
+// Define the structure for listing data
+interface ListingDataType {
   title: string;
-  [key: string]: any; // Allow other properties
+  [key: string]: string | number | boolean | null | undefined; // Allow other properties
 }
 
-function validateListingData(data: ListingData): boolean {
+// Validates the listing data to ensure it has the required properties.
+function isValidListingData(data: ListingDataType): boolean {
   if (typeof data !== 'object' || data === null) {
     return false;
   }
@@ -38,7 +40,7 @@ function validateListingData(data: ListingData): boolean {
   return true;
 }
 
-export async function fetchKeywordAnalysis(listingData: ListingData) {
+export async function fetchKeywordAnalysis(listingData: ListingDataType) {
   if (!API_ENDPOINT) {
     logger.error('KEYWORD_ANALYZER_API_ENDPOINT is not defined');
     monitoring.captureException(
@@ -47,7 +49,7 @@ export async function fetchKeywordAnalysis(listingData: ListingData) {
     throw new Error('Keyword analysis service unavailable');
   }
 
-  if (!validateListingData(listingData)) {
+  if (!isValidListingData(listingData)) {
     logger.error('Invalid listing data');
     monitoring.captureException(new Error('Invalid listing data'));
     throw new Error('Invalid listing data');

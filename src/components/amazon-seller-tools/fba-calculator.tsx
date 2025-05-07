@@ -311,11 +311,7 @@ export default function FbaCalculator({
           setError(`Error reading CSV file: ${err.message}`);
           setIsLoading(false);
           setResults([]);
-          toast({
-            title: 'Upload Failed',
-            description: `Error reading CSV file: ${err.message}`,
-            variant: 'destructive',
-          });
+          toast('Upload Failed', `Error reading CSV file: ${err.message}`);
 
           if (event.target) {
             event.target.value = '';
@@ -330,11 +326,7 @@ export default function FbaCalculator({
     if (results.length === 0) {
       const msg = 'No data to export.';
       setError(msg);
-      toast({
-        title: 'Export Error',
-        description: msg,
-        variant: 'destructive',
-      });
+      toast('Export Error', msg);
       return;
     }
     setError(null);
@@ -363,24 +355,16 @@ export default function FbaCalculator({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // Clean up blob URL
-      toast({
-        title: 'Export Successful',
-        description: 'FBA calculation results exported to CSV.',
-        variant: 'default',
-      });
+      toast('Export Successful', 'FBA calculation results exported to CSV.');
     } catch (err) {
       const message =
         err instanceof Error
           ? err.message
           : 'An unknown error occurred during export.';
       setError(`Failed to export data: ${message}`);
-      toast({
-        title: 'Export Failed',
-        description: message,
-        variant: 'destructive',
-      });
+      toast('Export Failed', message);
     }
-  }, [results, toast]); // Added dependencies
+  }, [results, toast]);
 
   const clearData = useCallback(() => {
     setResults([]);
@@ -389,12 +373,8 @@ export default function FbaCalculator({
     if (fileInputRef.current) {
       fileInputRef.current.value = ''; // Reset file input
     }
-    toast({
-      title: 'Data Cleared',
-      description: 'All calculation results have been removed.',
-      variant: 'default',
-    });
-  }, [toast]); // Added dependency
+    toast('Data Cleared', 'All calculation results have been removed.');
+  }, [toast]);
 
   // --- Render ---
   return (
@@ -485,21 +465,18 @@ export default function FbaCalculator({
                 try {
                   const metrics = await calculateFbaMetrics(values);
                   setResults([{ ...values, ...metrics }]);
-                  toast({
-                    title: 'Calculation Complete',
-                    description: `Calculated metrics for ${values.product}`,
-                    variant: 'default',
-                  });
+                  toast(
+                    'Calculation Complete',
+                    `Calculated metrics for ${values.product}`,
+                  );
                   onCalculateAction([{ ...values, ...metrics }]);
                 } catch (error) {
-                  toast({
-                    title: 'Calculation Failed',
-                    description:
-                      error instanceof Error
-                        ? error.message
-                        : 'Failed to calculate metrics',
-                    variant: 'destructive',
-                  });
+                  toast(
+                    'Calculation Failed',
+                    error instanceof Error
+                      ? error.message
+                      : 'Failed to calculate metrics',
+                  );
                 }
               }}
               onReset={() => {

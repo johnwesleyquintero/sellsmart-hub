@@ -6,9 +6,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
 if (!accountSid || !authToken || !twilioPhoneNumber) {
-  console.warn(
-    'Twilio credentials are not configured. SMS 2FA will not work.'
-  );
+  console.warn('Twilio credentials are not configured. SMS 2FA will not work.');
 }
 
 const client = twilio(accountSid, authToken);
@@ -21,7 +19,10 @@ export function generateOTP(length = 6): string {
 }
 
 // Function to send SMS using Twilio
-export async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
+export async function sendSMS(
+  phoneNumber: string,
+  message: string,
+): Promise<boolean> {
   if (!accountSid || !authToken || !twilioPhoneNumber) {
     console.warn('Twilio credentials are not configured. SMS sending skipped.');
     return false;

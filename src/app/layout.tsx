@@ -1,3 +1,6 @@
+'use client';
+
+// Initialize mock service worker in the browser environment
 if (typeof window !== 'undefined') {
   const { worker } = require('./mocks/browser');
   worker.start();
@@ -7,11 +10,10 @@ import ClientProviders from '@/components/client-providers';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ContentSkeleton } from '@/components/ui/loading-skeleton';
 import { cn } from '@/lib/utils';
-import type { Metadata, Viewport } from 'next';
+import type { Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
-import { metadata as metadataConfig } from './metadata';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,28 +21,6 @@ const inter = Inter({
   variable: '--font-inter',
   preload: true,
 });
-
-export const metadata: Metadata = {
-  ...metadataConfig,
-  manifest: '/manifest.webmanifest',
-  icons: {
-    apple: [
-      {
-        url: '/favicon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: metadataConfig.title as string,
-  },
-  formatDetection: {
-    telephone: false,
-  },
-};
 
 export const viewport: Viewport = {
   themeColor: [
@@ -71,6 +51,7 @@ export default function RootLayout({
       <body
         className={cn('min-h-screen font-sans antialiased', inter.variable)}
       >
+        <script></script>
         <ErrorBoundary>
           <ClientProviders>
             <Suspense fallback={<ContentSkeleton />}>{children}</Suspense>

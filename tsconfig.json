@@ -15,6 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "jsxImportSource": "react",
     "incremental": true,
     "outDir": "dist",
     "plugins": [
@@ -27,7 +28,7 @@
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/app/components/*": ["./app/components/*"],
-      "@/hooks/*": ["./app/hooks/*"],
+      "@/hooks/*": ["./hooks/*"],
       "@/stores/*": ["./stores/*"],
       "@/__tests__/*": ["./__tests__/*"],
       "@/lib/dataProcessing": ["./lib/dataProcessing/index"],
@@ -52,7 +53,6 @@
     "src/**/*", // This also covers src/types, but the specific entry is clearer
     "src/__tests__/**/*"
   ],
-
   "typeRoots": ["./src/types", "./node_modules/@types"], // Comma needed as 'exclude' follows
   // Added comma on the line above
   "exclude": [

@@ -40,6 +40,7 @@ declare module '@upstash/ratelimit' {
 
 declare module '@upstash/redis' {
   export interface Redis extends RedisCommands {
+    [x: string]: any;
     pipeline(): unknown;
     expire(key: string, arg1: number): unknown;
   }

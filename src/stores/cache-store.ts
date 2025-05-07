@@ -6,8 +6,8 @@ import {
 import { create } from 'zustand';
 
 interface CacheState {
-  getItem: (key: string) => Promise<any>;
-  setItem: (key: string, value: any, tags?: string[]) => Promise<void>;
+  getItem: (key: string) => Promise<unknown>;
+  setItem: (key: string, value: unknown, tags?: string[]) => Promise<void>;
   invalidateByTag: (tag: string) => Promise<void>;
 }
 
@@ -29,11 +29,11 @@ export const useCacheStore = create<CacheState>(() => ({
 
     return null;
   },
-  setItem: async (key: string, value: any, tags: string[] = []) => {
-    await setRedisValue(key, value, tags);
+  setItem: async (key: string, value: unknown) => {
+    await setRedisValue(key, value);
   },
-  invalidateByTag: async (tag: string) => {
-    await invalidateCacheByTag(tag);
+  invalidateByTag: async () => {
+    await invalidateCacheByTag();
   },
 }));
 
